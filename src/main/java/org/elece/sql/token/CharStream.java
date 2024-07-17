@@ -1,6 +1,6 @@
 package org.elece.sql.token;
 
-import org.elece.sql.token.model.Whitespace;
+import org.elece.sql.token.model.type.Whitespace;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;
@@ -37,7 +37,7 @@ public class CharStream implements Iterator<Character> {
 
     public Character peek() {
         if (!hasNext()) {
-            throw new NoSuchElementException();
+            return null;
         }
         return input.charAt(location.getPointer());
     }
