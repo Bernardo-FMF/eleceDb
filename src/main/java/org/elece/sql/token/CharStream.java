@@ -25,7 +25,7 @@ public class CharStream implements Iterator<Character> {
     @Override
     public Character next() {
         Character next = chars.next();
-        if (next.equals(Whitespace.NewLine.getCharacter())) {
+        if (next.equals(Whitespace.NewLine.getWhitespaceValue()[0])) {
             location.incrementLine();
             location.resetColumn();
         } else {
