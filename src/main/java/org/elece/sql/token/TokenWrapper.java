@@ -56,4 +56,17 @@ public class TokenWrapper {
     public boolean hasError() {
         return !Objects.isNull(error);
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        TokenWrapper that = (TokenWrapper) o;
+        return Objects.equals(getToken(), that.getToken()) && Objects.equals(getError(), that.getError());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getToken(), getError());
+    }
 }

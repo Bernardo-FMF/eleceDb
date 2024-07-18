@@ -30,6 +30,7 @@ public class SymbolTokenProcessor implements ITokenProcessor<Character> {
         for (Symbol symbol : symbols) {
             if (symbol.getSymbolValue().length > 1) {
                 if (!Objects.isNull(nextSymbol) && symbol.getSymbolValue()[1] == nextSymbol) {
+                    stream.next();
                     tokenBuilder.token(new SymbolToken(symbol));
                     break;
                 }
