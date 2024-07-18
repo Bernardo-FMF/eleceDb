@@ -24,7 +24,7 @@ class WhitespaceTokenProcessorTest {
         WhitespaceTokenProcessor whitespaceTokenProcessor = new WhitespaceTokenProcessor();
         CHARACTERS.forEach(character -> {
             CharStream charStream = new CharStream(character);
-            Assertions.assertTrue(whitespaceTokenProcessor.matches(character.charAt(0)));
+            Assertions.assertTrue(whitespaceTokenProcessor.matches(charStream.peek()));
             WhitespaceToken token = whitespaceTokenProcessor.consume(charStream);
             Assertions.assertEquals(CHARACTER_MAP.get(character), token.getWhitespace());
         });

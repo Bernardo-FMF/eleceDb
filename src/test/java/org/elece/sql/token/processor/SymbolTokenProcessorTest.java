@@ -15,7 +15,7 @@ class SymbolTokenProcessorTest {
         SymbolTokenProcessor symbolTokenProcessor = new SymbolTokenProcessor();
         CHARACTERS.forEach(character -> {
             CharStream charStream = new CharStream(character);
-            Assertions.assertTrue(symbolTokenProcessor.matches(character.charAt(0)));
+            Assertions.assertTrue(symbolTokenProcessor.matches(charStream.peek()));
             SymbolToken token = symbolTokenProcessor.consume(charStream);
             Assertions.assertArrayEquals(character.toCharArray(), token.getSymbol().getSymbolValue());
         });

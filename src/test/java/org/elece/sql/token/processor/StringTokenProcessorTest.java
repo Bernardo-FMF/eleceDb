@@ -13,9 +13,9 @@ class StringTokenProcessorTest {
         String input = "'test'";
         CharStream charStream = new CharStream(input);
 
-            Assertions.assertTrue(stringTokenProcessor.matches(input.charAt(0)));
-            StringToken token = stringTokenProcessor.consume(charStream);
-            Assertions.assertEquals("test", token.getString());
+        Assertions.assertTrue(stringTokenProcessor.matches(charStream.peek()));
+        StringToken token = stringTokenProcessor.consume(charStream);
+        Assertions.assertEquals("test", token.getString());
     }
 
     @Test
