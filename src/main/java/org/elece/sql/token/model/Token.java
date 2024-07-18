@@ -7,7 +7,7 @@ public abstract class Token {
         this.tokenType = tokenType;
     }
 
-    TokenType getTokenType() {
+    public TokenType getTokenType() {
         return tokenType;
     }
 
