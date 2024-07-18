@@ -1,6 +1,8 @@
 package org.elece.sql.token.processor;
 
 import org.elece.sql.token.CharStream;
+import org.elece.sql.token.TokenWrapper;
+import org.elece.sql.token.model.SymbolToken;
 import org.elece.sql.token.model.WhitespaceToken;
 import org.elece.sql.token.model.type.Whitespace;
 import org.junit.jupiter.api.Assertions;
@@ -25,8 +27,10 @@ class WhitespaceTokenProcessorTest {
         CHARACTERS.forEach(character -> {
             CharStream charStream = new CharStream(character);
             Assertions.assertTrue(whitespaceTokenProcessor.matches(charStream.peek()));
-            WhitespaceToken token = whitespaceTokenProcessor.consume(charStream);
-            Assertions.assertEquals(CHARACTER_MAP.get(character), token.getWhitespace());
+            TokenWrapper wrapper = whitespaceTokenProcessor.consume(charStream);
+            Assertions.assertTrue(wrapper.getToken() instanceof WhitespaceToken);
+            WhitespaceToken whitespaceToken = (WhitespaceToken) wrapper.getToken();
+            Assertions.assertEquals(CHARACTER_MAP.get(character), whitespaceToken.getWhitespace());
         });
     }
 }

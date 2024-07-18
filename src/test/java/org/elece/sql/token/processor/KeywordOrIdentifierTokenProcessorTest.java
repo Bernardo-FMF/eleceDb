@@ -1,6 +1,7 @@
 package org.elece.sql.token.processor;
 
 import org.elece.sql.token.CharStream;
+import org.elece.sql.token.TokenWrapper;
 import org.elece.sql.token.model.IdentifierToken;
 import org.elece.sql.token.model.KeywordToken;
 import org.elece.sql.token.model.Token;
@@ -17,9 +18,9 @@ class KeywordOrIdentifierTokenProcessorTest {
         CharStream charStream = new CharStream(input);
 
         Assertions.assertTrue(keywordOrIdentifierTokenProcessor.matches(charStream.peek()));
-        Token token = keywordOrIdentifierTokenProcessor.consume(charStream);
-        Assertions.assertTrue(token instanceof KeywordToken);
-        KeywordToken keywordToken = (KeywordToken) token;
+        TokenWrapper wrapper = keywordOrIdentifierTokenProcessor.consume(charStream);
+        Assertions.assertTrue(wrapper.getToken() instanceof KeywordToken);
+        KeywordToken keywordToken = (KeywordToken) wrapper.getToken();
         Assertions.assertEquals(Keyword.Select, keywordToken.getKeyword());
     }
 
@@ -31,9 +32,9 @@ class KeywordOrIdentifierTokenProcessorTest {
         CharStream charStream = new CharStream(input);
 
         Assertions.assertTrue(keywordOrIdentifierTokenProcessor.matches(charStream.peek()));
-        Token token = keywordOrIdentifierTokenProcessor.consume(charStream);
-        Assertions.assertTrue(token instanceof IdentifierToken);
-        IdentifierToken identifierToken = (IdentifierToken) token;
+        TokenWrapper wrapper = keywordOrIdentifierTokenProcessor.consume(charStream);
+        Assertions.assertTrue(wrapper.getToken() instanceof IdentifierToken);
+        IdentifierToken identifierToken = (IdentifierToken) wrapper.getToken();
         Assertions.assertEquals("name", identifierToken.getIdentifier());
     }
 
@@ -45,17 +46,17 @@ class KeywordOrIdentifierTokenProcessorTest {
         CharStream charStream = new CharStream(input);
 
         Assertions.assertTrue(keywordOrIdentifierTokenProcessor.matches(charStream.peek()));
-        Token token = keywordOrIdentifierTokenProcessor.consume(charStream);
-        Assertions.assertTrue(token instanceof KeywordToken);
-        KeywordToken keywordToken = (KeywordToken) token;
+        TokenWrapper tokenWrapper = keywordOrIdentifierTokenProcessor.consume(charStream);
+        Assertions.assertTrue(tokenWrapper.getToken() instanceof KeywordToken);
+        KeywordToken keywordToken = (KeywordToken) tokenWrapper.getToken();
         Assertions.assertEquals(Keyword.Select, keywordToken.getKeyword());
 
         charStream.next();
 
         Assertions.assertTrue(keywordOrIdentifierTokenProcessor.matches(charStream.peek()));
-        token = keywordOrIdentifierTokenProcessor.consume(charStream);
-        Assertions.assertTrue(token instanceof IdentifierToken);
-        IdentifierToken identifierToken = (IdentifierToken) token;
+        tokenWrapper = keywordOrIdentifierTokenProcessor.consume(charStream);
+        Assertions.assertTrue(tokenWrapper.getToken() instanceof IdentifierToken);
+        IdentifierToken identifierToken = (IdentifierToken) tokenWrapper.getToken();
         Assertions.assertEquals("name", identifierToken.getIdentifier());
     }
 }

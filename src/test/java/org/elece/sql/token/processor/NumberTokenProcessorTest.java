@@ -1,6 +1,8 @@
 package org.elece.sql.token.processor;
 
 import org.elece.sql.token.CharStream;
+import org.elece.sql.token.TokenWrapper;
+import org.elece.sql.token.model.IdentifierToken;
 import org.elece.sql.token.model.NumberToken;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -14,7 +16,9 @@ class NumberTokenProcessorTest {
         CharStream charStream = new CharStream(input);
 
         Assertions.assertTrue(numberTokenProcessor.matches(charStream.peek()));
-        NumberToken token = numberTokenProcessor.consume(charStream);
-        Assertions.assertEquals("1234", token.getNumber());
+        TokenWrapper wrapper = numberTokenProcessor.consume(charStream);
+        Assertions.assertTrue(wrapper.getToken() instanceof NumberToken);
+        NumberToken numberToken = (NumberToken) wrapper.getToken();
+        Assertions.assertEquals("1234", numberToken.getNumber());
     }
 }
