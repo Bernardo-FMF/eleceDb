@@ -1,6 +1,9 @@
 package org.elece.sql.token.processor;
 
 import org.elece.sql.token.CharStream;
+import org.elece.sql.token.Location;
+import org.elece.sql.token.TokenWrapper;
+import org.elece.sql.token.error.StringNotClosed;
 import org.elece.sql.token.model.StringToken;
 
 import java.util.Set;
@@ -16,17 +19,25 @@ public class StringTokenProcessor implements ITokenProcessor<Character> {
     }
 
     @Override
-    public StringToken consume(CharStream stream) {
+    public TokenWrapper consume(CharStream stream) {
+        TokenWrapper.Builder tokenBuilder = TokenWrapper.builder();
+
         Character quotationMark = stream.next();
+        Location initialLocation = stream.getLocation();
 
         Iterable<Character> stringValue = stream.takeWhile(character -> character != quotationMark);
 
-        //TODO validate that the quotation mark is the same
         StringToken stringToken = new StringToken(StreamSupport.stream(stringValue.spliterator(), true)
                 .map(Object::toString)
                 .collect(Collectors.joining("")));
 
         Character closingQuotationMark = stream.next();
-        return stringToken;
+        if (quotationMark == closingQuotationMark) {
+            tokenBuilder.token(stringToken);
+        } else {
+            tokenBuilder.error(new StringNotClosed(initialLocation));
+        }
+
+        return tokenBuilder.build();
     }
 }

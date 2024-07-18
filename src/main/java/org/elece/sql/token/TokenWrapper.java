@@ -1,36 +1,59 @@
 package org.elece.sql.token;
 
-import jakarta.annotation.Nonnull;
-import jakarta.annotation.Nullable;
 import org.elece.sql.token.error.TokenError;
 import org.elece.sql.token.model.Token;
 
 import java.util.Objects;
-import java.util.Optional;
 
 public class TokenWrapper {
-    @Nullable
     private final Token token;
-    @Nonnull
-    private final Location location;
-    @Nullable
     private final TokenError error;
 
-    public TokenWrapper(@Nullable Token token, @Nullable TokenError error, @Nonnull Location location) {
-        this.token = token;
-        this.error = error;
-        this.location = location;
+    private TokenWrapper(Builder builder) {
+        this.token = builder.token;
+        this.error = builder.error;
     }
 
-    public Optional<Token> getToken() {
-        return Optional.ofNullable(token);
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    public static class Builder {
+        private Token token;
+        private TokenError error;
+
+        public Builder token(Token token) {
+            this.token = token;
+            return this;
+        }
+
+        public Builder error(TokenError error) {
+            this.error = error;
+            return this;
+        }
+
+        public boolean hasToken() {
+            return !Objects.isNull(token);
+        }
+
+        public TokenWrapper build() {
+            return new TokenWrapper(this);
+        }
+    }
+
+    public Token getToken() {
+        return token;
+    }
+
+    public TokenError getError() {
+        return error;
     }
 
     public boolean hasToken() {
         return !Objects.isNull(token) && Objects.isNull(error);
     }
 
-    public Location getLocation() {
-        return location;
+    public boolean hasError() {
+        return !Objects.isNull(error);
     }
 }

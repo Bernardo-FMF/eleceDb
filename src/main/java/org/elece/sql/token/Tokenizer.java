@@ -1,5 +1,7 @@
 package org.elece.sql.token;
 
+import org.elece.sql.token.error.TokenizerException;
+
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -15,10 +17,16 @@ public class Tokenizer implements ITokenizer {
     }
 
     @Override
-    public List<TokenWrapper> tokenize() {
+    public List<TokenWrapper> tokenize() throws TokenizerException {
         List<TokenWrapper> tokens = new LinkedList<>();
         for (TokenWrapper token : this.iterable()) {
-            tokens.add(token);
+            if (token.hasError()) {
+                throw new TokenizerException(token.getError());
+            }
+
+            if (token.hasToken()) {
+                tokens.add(token);
+            }
         }
 
         return tokens;

@@ -1,6 +1,7 @@
 package org.elece.sql.token.processor;
 
 import org.elece.sql.token.CharStream;
+import org.elece.sql.token.TokenWrapper;
 import org.elece.sql.token.model.NumberToken;
 
 import java.util.stream.Collectors;
@@ -16,11 +17,15 @@ public class NumberTokenProcessor implements ITokenProcessor<Character> {
     }
 
     @Override
-    public NumberToken consume(CharStream stream) {
+    public TokenWrapper consume(CharStream stream) {
+        TokenWrapper.Builder tokenBuilder = TokenWrapper.builder();
+
         Iterable<Character> numberValue = stream.takeWhile(Character::isDigit);
 
-        return new NumberToken(StreamSupport.stream(numberValue.spliterator(), true)
+        tokenBuilder.token(new NumberToken(StreamSupport.stream(numberValue.spliterator(), true)
                 .map(Object::toString)
-                .collect(Collectors.joining("")));
+                .collect(Collectors.joining(""))));
+
+        return tokenBuilder.build();
     }
 }

@@ -41,4 +41,24 @@ public class Location {
     public int getPointer() {
         return pointer;
     }
+
+    public void setLine(int line) {
+        this.line = line;
+    }
+
+    public void setColumn(int column) {
+        this.column = column;
+    }
+
+    public void setPointer(int pointer) {
+        this.pointer = pointer;
+    }
+
+    protected Location copy() {
+        Location copy = new Location();
+        copy.setLine(line);
+        copy.setColumn(column);
+        copy.setPointer(pointer);
+        return copy;
+    }
 }

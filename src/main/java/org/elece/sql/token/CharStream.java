@@ -55,4 +55,8 @@ public class CharStream implements Iterator<Character> {
             }
         };
     }
+
+    public Location getLocation() {
+        return location.copy();
+    }
 }

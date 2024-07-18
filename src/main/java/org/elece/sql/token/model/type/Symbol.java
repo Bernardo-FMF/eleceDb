@@ -19,7 +19,6 @@ public enum Symbol {
     RightParenthesis(')'),
     Comma(','),
     SemiColon(';'),
-    None(),
     Eof();
 
     public static final Symbol[] VALUES = values();
