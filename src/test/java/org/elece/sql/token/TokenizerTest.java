@@ -8,13 +8,13 @@ import org.elece.sql.token.model.type.Whitespace;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import java.util.List;
+import java.util.Iterator;
 
 class TokenizerTest {
     @Test
     public void test_select() throws TokenizerException {
         Tokenizer tokenizer = new Tokenizer("SELECT id, name FROM users;");
-        List<TokenWrapper> actualTokens = tokenizer.tokenize();
+        Iterator<TokenWrapper> actualTokens = tokenizer.tokenize();
         TokenWrapper[] expectedTokens = new TokenWrapper[]{
                 TokenWrapper.builder().token(new KeywordToken(Keyword.Select)).build(),
                 TokenWrapper.builder().token(new WhitespaceToken(Whitespace.Space)).build(),
@@ -29,13 +29,19 @@ class TokenizerTest {
                 TokenWrapper.builder().token(new SymbolToken(Symbol.SemiColon)).build(),
                 TokenWrapper.builder().token(new SymbolToken(Symbol.Eof)).build()
         };
-        Assertions.assertArrayEquals(expectedTokens, actualTokens.toArray(TokenWrapper[]::new));
+
+        int idx = 0;
+        do {
+            TokenWrapper current = actualTokens.next();
+            Assertions.assertEquals(expectedTokens[idx], current);
+            idx++;
+        } while (actualTokens.hasNext());
     }
 
     @Test
     public void test_selectWhere() throws TokenizerException {
         Tokenizer tokenizer = new Tokenizer("SELECT id, name FROM users where id > 10;");
-        List<TokenWrapper> actualTokens = tokenizer.tokenize();
+        Iterator<TokenWrapper> actualTokens = tokenizer.tokenize();
         TokenWrapper[] expectedTokens = new TokenWrapper[]{
                 TokenWrapper.builder().token(new KeywordToken(Keyword.Select)).build(),
                 TokenWrapper.builder().token(new WhitespaceToken(Whitespace.Space)).build(),
@@ -58,13 +64,19 @@ class TokenizerTest {
                 TokenWrapper.builder().token(new SymbolToken(Symbol.SemiColon)).build(),
                 TokenWrapper.builder().token(new SymbolToken(Symbol.Eof)).build()
         };
-        Assertions.assertArrayEquals(expectedTokens, actualTokens.toArray(TokenWrapper[]::new));
+
+        int idx = 0;
+        do {
+            TokenWrapper current = actualTokens.next();
+            Assertions.assertEquals(expectedTokens[idx], current);
+            idx++;
+        } while (actualTokens.hasNext());
     }
 
     @Test
     public void test_selectOrderBy() throws TokenizerException {
         Tokenizer tokenizer = new Tokenizer("SELECT id, name FROM users ORDER BY name;");
-        List<TokenWrapper> actualTokens = tokenizer.tokenize();
+        Iterator<TokenWrapper> actualTokens = tokenizer.tokenize();
         TokenWrapper[] expectedTokens = new TokenWrapper[]{
                 TokenWrapper.builder().token(new KeywordToken(Keyword.Select)).build(),
                 TokenWrapper.builder().token(new WhitespaceToken(Whitespace.Space)).build(),
@@ -85,13 +97,19 @@ class TokenizerTest {
                 TokenWrapper.builder().token(new SymbolToken(Symbol.SemiColon)).build(),
                 TokenWrapper.builder().token(new SymbolToken(Symbol.Eof)).build()
         };
-        Assertions.assertArrayEquals(expectedTokens, actualTokens.toArray(TokenWrapper[]::new));
+
+        int idx = 0;
+        do {
+            TokenWrapper current = actualTokens.next();
+            Assertions.assertEquals(expectedTokens[idx], current);
+            idx++;
+        } while (actualTokens.hasNext());
     }
 
     @Test
     public void test_selectWhereWithAndOr() throws TokenizerException {
         Tokenizer tokenizer = new Tokenizer("SELECT id, name FROM users WHERE id > 5 AND id < 10 OR name = 'name';");
-        List<TokenWrapper> actualTokens = tokenizer.tokenize();
+        Iterator<TokenWrapper> actualTokens = tokenizer.tokenize();
         TokenWrapper[] expectedTokens = new TokenWrapper[]{
                 TokenWrapper.builder().token(new KeywordToken(Keyword.Select)).build(),
                 TokenWrapper.builder().token(new WhitespaceToken(Whitespace.Space)).build(),
@@ -130,13 +148,19 @@ class TokenizerTest {
                 TokenWrapper.builder().token(new SymbolToken(Symbol.SemiColon)).build(),
                 TokenWrapper.builder().token(new SymbolToken(Symbol.Eof)).build()
         };
-        Assertions.assertArrayEquals(expectedTokens, actualTokens.toArray(TokenWrapper[]::new));
+
+        int idx = 0;
+        do {
+            TokenWrapper current = actualTokens.next();
+            Assertions.assertEquals(expectedTokens[idx], current);
+            idx++;
+        } while (actualTokens.hasNext());
     }
 
     @Test
     public void test_createTable() throws TokenizerException {
         Tokenizer tokenizer = new Tokenizer("CREATE TABLE users (id INT PRIMARY KEY, name VARCHAR(255));");
-        List<TokenWrapper> actualTokens = tokenizer.tokenize();
+        Iterator<TokenWrapper> actualTokens = tokenizer.tokenize();
         TokenWrapper[] expectedTokens = new TokenWrapper[]{
                 TokenWrapper.builder().token(new KeywordToken(Keyword.Create)).build(),
                 TokenWrapper.builder().token(new WhitespaceToken(Whitespace.Space)).build(),
@@ -164,13 +188,19 @@ class TokenizerTest {
                 TokenWrapper.builder().token(new SymbolToken(Symbol.SemiColon)).build(),
                 TokenWrapper.builder().token(new SymbolToken(Symbol.Eof)).build()
         };
-        Assertions.assertArrayEquals(expectedTokens, actualTokens.toArray(TokenWrapper[]::new));
+
+        int idx = 0;
+        do {
+            TokenWrapper current = actualTokens.next();
+            Assertions.assertEquals(expectedTokens[idx], current);
+            idx++;
+        } while (actualTokens.hasNext());
     }
 
     @Test
     public void test_updateTable() throws TokenizerException {
         Tokenizer tokenizer = new Tokenizer("UPDATE users SET name = 'updatedName' WHERE id = 1;");
-        List<TokenWrapper> actualTokens = tokenizer.tokenize();
+        Iterator<TokenWrapper> actualTokens = tokenizer.tokenize();
         TokenWrapper[] expectedTokens = new TokenWrapper[]{
                 TokenWrapper.builder().token(new KeywordToken(Keyword.Update)).build(),
                 TokenWrapper.builder().token(new WhitespaceToken(Whitespace.Space)).build(),
@@ -194,13 +224,19 @@ class TokenizerTest {
                 TokenWrapper.builder().token(new SymbolToken(Symbol.SemiColon)).build(),
                 TokenWrapper.builder().token(new SymbolToken(Symbol.Eof)).build()
         };
-        Assertions.assertArrayEquals(expectedTokens, actualTokens.toArray(TokenWrapper[]::new));
+
+        int idx = 0;
+        do {
+            TokenWrapper current = actualTokens.next();
+            Assertions.assertEquals(expectedTokens[idx], current);
+            idx++;
+        } while (actualTokens.hasNext());
     }
 
     @Test
     public void test_deleteFrom() throws TokenizerException {
         Tokenizer tokenizer = new Tokenizer("DELETE FROM users WHERE id = 1;");
-        List<TokenWrapper> actualTokens = tokenizer.tokenize();
+        Iterator<TokenWrapper> actualTokens = tokenizer.tokenize();
         TokenWrapper[] expectedTokens = new TokenWrapper[]{
                 TokenWrapper.builder().token(new KeywordToken(Keyword.Delete)).build(),
                 TokenWrapper.builder().token(new WhitespaceToken(Whitespace.Space)).build(),
@@ -218,13 +254,19 @@ class TokenizerTest {
                 TokenWrapper.builder().token(new SymbolToken(Symbol.SemiColon)).build(),
                 TokenWrapper.builder().token(new SymbolToken(Symbol.Eof)).build()
         };
-        Assertions.assertArrayEquals(expectedTokens, actualTokens.toArray(TokenWrapper[]::new));
+
+        int idx = 0;
+        do {
+            TokenWrapper current = actualTokens.next();
+            Assertions.assertEquals(expectedTokens[idx], current);
+            idx++;
+        } while (actualTokens.hasNext());
     }
 
     @Test
     public void test_insertInto() throws TokenizerException {
         Tokenizer tokenizer = new Tokenizer("INSERT INTO users (id, name) VALUES (1, 'name');");
-        List<TokenWrapper> actualTokens = tokenizer.tokenize();
+        Iterator<TokenWrapper> actualTokens = tokenizer.tokenize();
         TokenWrapper[] expectedTokens = new TokenWrapper[]{
                 TokenWrapper.builder().token(new KeywordToken(Keyword.Insert)).build(),
                 TokenWrapper.builder().token(new WhitespaceToken(Whitespace.Space)).build(),
@@ -250,6 +292,27 @@ class TokenizerTest {
                 TokenWrapper.builder().token(new SymbolToken(Symbol.SemiColon)).build(),
                 TokenWrapper.builder().token(new SymbolToken(Symbol.Eof)).build()
         };
-        Assertions.assertArrayEquals(expectedTokens, actualTokens.toArray(TokenWrapper[]::new));
+
+        int idx = 0;
+        do {
+            TokenWrapper current = actualTokens.next();
+            Assertions.assertEquals(expectedTokens[idx], current);
+            idx++;
+        } while (actualTokens.hasNext());
+    }
+
+    @Test
+    public void test_unsupportedChar() throws TokenizerException {
+        Tokenizer tokenizer = new Tokenizer("SELECT ^ FROM users ORDER BY name;");
+        Iterator<TokenWrapper> actualTokens = tokenizer.tokenize();
+
+        int idx = 0;
+        do {
+            TokenWrapper current = actualTokens.next();
+            if (idx == 2) {
+                Assertions.assertTrue(current.hasError());
+            }
+            idx++;
+        } while (actualTokens.hasNext());
     }
 }

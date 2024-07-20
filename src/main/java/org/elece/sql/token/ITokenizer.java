@@ -2,8 +2,8 @@ package org.elece.sql.token;
 
 import org.elece.sql.token.error.TokenizerException;
 
-import java.util.List;
+import java.util.Iterator;
 
 public interface ITokenizer {
-    List<TokenWrapper> tokenize() throws TokenizerException;
+    Iterator<TokenWrapper> tokenize() throws TokenizerException;
 }

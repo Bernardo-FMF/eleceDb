@@ -31,7 +31,7 @@ public enum Symbol implements IOperator {
     }
 
     Symbol() {
-        this(false, false);
+        this(false, false, null);
     }
 
     Symbol(Boolean isBinaryOperator, Boolean isUnaryOperator, char... symbolValue) {

@@ -13,7 +13,6 @@ public class WildcardProcessor implements ITokenProcessor<Character> {
     @Override
     public TokenWrapper consume(CharStream stream) {
         Character unexpectedChar = stream.next();
-        TokenWrapper.builder().error(new UnexpectedOrUnsupportedChar(stream.getLocation(), unexpectedChar)).build();
-        return null;
+        return TokenWrapper.builder().error(new UnexpectedOrUnsupportedChar(stream.getLocation(), unexpectedChar)).build();
     }
 }

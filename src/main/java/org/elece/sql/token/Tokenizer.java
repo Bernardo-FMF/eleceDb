@@ -44,23 +44,8 @@ public class Tokenizer implements ITokenizer {
     }
 
     @Override
-    public List<TokenWrapper> tokenize() throws TokenizerException {
-        List<TokenWrapper> tokens = new LinkedList<>();
-        for (TokenWrapper token : this.iterable()) {
-            if (token.hasError()) {
-                throw new TokenizerException(token.getError());
-            }
-
-            if (token.hasToken()) {
-                tokens.add(token);
-
-                if (token.getToken().getTokenType() == Token.TokenType.SymbolToken && ((SymbolToken)token.getToken()).getSymbol() == Symbol.Eof) {
-                    reachedEof.set(true);
-                }
-            }
-        }
-
-        return tokens;
+    public Iterator<TokenWrapper> tokenize() throws TokenizerException {
+        return iterable().iterator();
     }
 
     private TokenWrapper nextToken() {
@@ -79,7 +64,13 @@ public class Tokenizer implements ITokenizer {
 
         @Override
         public TokenWrapper next() {
-            return this.tokenizer.nextToken();
+            TokenWrapper tokenWrapper = this.tokenizer.nextToken();
+            if (tokenWrapper.hasToken()) {
+                if (tokenWrapper.getToken().getTokenType() == Token.TokenType.SymbolToken && ((SymbolToken)tokenWrapper.getToken()).getSymbol() == Symbol.Eof) {
+                    this.tokenizer.reachedEof.set(true);
+                }
+            }
+            return tokenWrapper;
         }
     }
 }
