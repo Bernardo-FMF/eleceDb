@@ -1,6 +1,6 @@
 package org.elece.sql.token.model.type;
 
-public enum Keyword {
+public enum Keyword implements IOperator {
     Select,
     Create,
     Update,
@@ -46,5 +46,15 @@ public enum Keyword {
             }
         }
         return Keyword.None;
+    }
+
+    @Override
+    public boolean isBinaryOperator() {
+        return this == Keyword.And || this == Keyword.Or;
+    }
+
+    @Override
+    public boolean isUnaryOperator() {
+        return false;
     }
 }

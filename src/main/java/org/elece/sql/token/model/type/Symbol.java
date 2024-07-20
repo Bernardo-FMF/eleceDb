@@ -4,17 +4,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public enum Symbol {
-    LtEq('<', '='),
-    GtEq('>', '='),
-    Neq('!', '='),
-    Eq('='),
-    Lt('<'),
-    Gt('>'),
-    Mul('*'),
-    Div('/'),
-    Plus('+'),
-    Minus('-'),
+public enum Symbol implements IOperator {
+    LtEq(true, false,'<', '='),
+    GtEq(true, false,'>', '='),
+    Neq(true, false,'!', '='),
+    Eq(true, false,'='),
+    Lt(true, false,'<'),
+    Gt(true, false,'>'),
+    Mul(true, false,'*'),
+    Div(true, false,'/'),
+    Plus(true, true, '+'),
+    Minus(true, true, '-'),
     LeftParenthesis('('),
     RightParenthesis(')'),
     Comma(','),
@@ -23,13 +23,21 @@ public enum Symbol {
 
     public static final Symbol[] VALUES = values();
     private final char[] symbolValue;
+    private final Boolean isUnaryOperator;
+    private final Boolean isBinaryOperator;
 
     Symbol(char... symbolValue) {
-        this.symbolValue = symbolValue;
+        this(false, false, symbolValue);
     }
 
     Symbol() {
-        this.symbolValue = null;
+        this(false, false);
+    }
+
+    Symbol(Boolean isBinaryOperator, Boolean isUnaryOperator, char... symbolValue) {
+        this.symbolValue = symbolValue;
+        this.isBinaryOperator = isBinaryOperator;
+        this.isUnaryOperator = isUnaryOperator;
     }
 
     public static boolean canMatch(Character character) {
@@ -53,5 +61,15 @@ public enum Symbol {
 
     public char[] getSymbolValue() {
         return symbolValue;
+    }
+
+    @Override
+    public boolean isBinaryOperator() {
+        return isBinaryOperator;
+    }
+
+    @Override
+    public boolean isUnaryOperator() {
+        return isUnaryOperator;
     }
 }
