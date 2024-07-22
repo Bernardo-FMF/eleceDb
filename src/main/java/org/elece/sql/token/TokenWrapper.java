@@ -1,6 +1,7 @@
 package org.elece.sql.token;
 
 import org.elece.sql.token.error.TokenError;
+import org.elece.sql.token.error.TokenizerException;
 import org.elece.sql.token.model.Token;
 
 import java.util.Objects;
@@ -55,6 +56,13 @@ public class TokenWrapper {
 
     public boolean hasError() {
         return !Objects.isNull(error);
+    }
+
+    public Token unwrap() throws TokenizerException {
+        if (hasError()) {
+            throw new TokenizerException(getError());
+        }
+        return token;
     }
 
     @Override

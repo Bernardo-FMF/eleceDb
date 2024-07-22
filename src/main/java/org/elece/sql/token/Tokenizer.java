@@ -2,15 +2,12 @@ package org.elece.sql.token;
 
 import org.elece.sql.token.chain.IProcessorChain;
 import org.elece.sql.token.chain.ProcessorChain;
-import org.elece.sql.token.error.TokenizerException;
 import org.elece.sql.token.model.SymbolToken;
 import org.elece.sql.token.model.Token;
 import org.elece.sql.token.model.type.Symbol;
 import org.elece.sql.token.processor.*;
 
 import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class Tokenizer implements ITokenizer {
@@ -43,17 +40,14 @@ public class Tokenizer implements ITokenizer {
         this.reachedEof = new AtomicBoolean(false);
     }
 
+
     @Override
-    public Iterator<TokenWrapper> tokenize() throws TokenizerException {
-        return iterable().iterator();
+    public IPeekableIterator<TokenWrapper> tokenize() {
+        return new TokenIterator<>(new TokenIterable(this));
     }
 
     private TokenWrapper nextToken() {
         return tokenProcessors.process(stream);
-    }
-
-    private Iterable<TokenWrapper> iterable() {
-        return () -> new TokenIterable(this);
     }
 
     private record TokenIterable(Tokenizer tokenizer) implements Iterator<TokenWrapper> {
@@ -66,7 +60,7 @@ public class Tokenizer implements ITokenizer {
         public TokenWrapper next() {
             TokenWrapper tokenWrapper = this.tokenizer.nextToken();
             if (tokenWrapper.hasToken()) {
-                if (tokenWrapper.getToken().getTokenType() == Token.TokenType.SymbolToken && ((SymbolToken)tokenWrapper.getToken()).getSymbol() == Symbol.Eof) {
+                if (tokenWrapper.getToken().getTokenType() == Token.TokenType.SymbolToken && ((SymbolToken) tokenWrapper.getToken()).getSymbol() == Symbol.Eof) {
                     this.tokenizer.reachedEof.set(true);
                 }
             }
