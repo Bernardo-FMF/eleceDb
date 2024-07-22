@@ -12,4 +12,16 @@ public class BinaryExpression extends Expression {
         this.operator = operator;
         this.right = right;
     }
+
+    public Expression getLeft() {
+        return left;
+    }
+
+    public IOperator getOperator() {
+        return operator;
+    }
+
+    public Expression getRight() {
+        return right;
+    }
 }

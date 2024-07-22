@@ -16,4 +16,20 @@ public class SelectStatement extends Statement {
         this.where = where;
         this.orderBy = orderBy;
     }
+
+    public List<Expression> getColumns() {
+        return columns;
+    }
+
+    public String getFrom() {
+        return from;
+    }
+
+    public Expression getWhere() {
+        return where;
+    }
+
+    public List<Expression> getOrderBy() {
+        return orderBy;
+    }
 }

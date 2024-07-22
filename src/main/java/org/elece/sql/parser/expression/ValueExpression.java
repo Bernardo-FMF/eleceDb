@@ -8,4 +8,8 @@ public class ValueExpression<T extends SqlValue<?>> extends Expression {
     public ValueExpression(T value) {
         this.value = value;
     }
+
+    public T getValue() {
+        return value;
+    }
 }

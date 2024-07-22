@@ -6,4 +6,8 @@ public class ExplainStatement extends Statement {
     public ExplainStatement(Statement statement) {
         this.statement = statement;
     }
+
+    public Statement getStatement() {
+        return statement;
+    }
 }
