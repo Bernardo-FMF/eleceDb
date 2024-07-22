@@ -2,13 +2,15 @@ package org.elece.sql.parser.statement;
 
 import org.elece.sql.parser.expression.Expression;
 
+import java.util.List;
+
 public class SelectStatement extends Statement {
-    private final Expression[] columns;
+    private final List<Expression> columns;
     private final String from;
     private final Expression where;
-    private final Expression[] orderBy;
+    private final List<Expression> orderBy;
 
-    public SelectStatement(Expression[] columns, String from, Expression where, Expression[] orderBy) {
+    public SelectStatement(List<Expression> columns, String from, Expression where, List<Expression> orderBy) {
         this.columns = columns;
         this.from = from;
         this.where = where;
