@@ -23,8 +23,8 @@ public enum Symbol implements IOperator {
 
     public static final Symbol[] VALUES = values();
     private final char[] symbolValue;
-    private final Boolean isUnaryOperator;
-    private final Boolean isBinaryOperator;
+    private final boolean isUnaryOperator;
+    private final boolean isBinaryOperator;
 
     Symbol(char... symbolValue) {
         this(false, false, symbolValue);
