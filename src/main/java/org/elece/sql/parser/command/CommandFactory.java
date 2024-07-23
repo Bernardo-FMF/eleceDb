@@ -9,6 +9,7 @@ public class CommandFactory {
         return switch (keyword) {
             case Select -> new SelectKeywordCommand(tokenizer);
             case Create -> new CreateKeywordCommand(tokenizer);
+            case Update -> new UpdateKeywordCommand(tokenizer);
             default -> null;
         };
     }

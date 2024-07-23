@@ -6,6 +6,7 @@ import org.elece.sql.parser.expression.IdentifierExpression;
 import org.elece.sql.parser.expression.ValueExpression;
 import org.elece.sql.parser.expression.internal.SqlConstraint;
 import org.elece.sql.parser.expression.internal.SqlNumberValue;
+import org.elece.sql.parser.expression.internal.SqlStringValue;
 import org.elece.sql.parser.expression.internal.SqlType;
 import org.elece.sql.parser.statement.*;
 import org.elece.sql.token.error.TokenizerException;
@@ -14,6 +15,41 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 class SqlParserTest {
+    @Test
+    public void test_update() throws SqlException, TokenizerException {
+        ISqlParser sqlParser = new SqlParser("UPDATE users SET attr = \"newAttr\";");
+        Statement statement = sqlParser.parseToken().getStatement();
+        Assertions.assertTrue(statement instanceof UpdateStatement);
+
+        UpdateStatement updateStatement = (UpdateStatement) statement;
+        Assertions.assertEquals("users", updateStatement.getTable());
+        Assertions.assertEquals(1, updateStatement.getColumns().size());
+        Assertions.assertNull(updateStatement.getWhere());
+
+        Assertions.assertEquals("attr", updateStatement.getColumns().get(0).getId());
+        Assertions.assertEquals(new SqlStringValue("newAttr"), ((ValueExpression<SqlStringValue>) updateStatement.getColumns().get(0).getValue()).getValue());
+    }
+
+    @Test
+    public void test_updateWhere() throws SqlException, TokenizerException {
+        ISqlParser sqlParser = new SqlParser("UPDATE users SET attr = \"newAttr\" WHERE id = 1;");
+        Statement statement = sqlParser.parseToken().getStatement();
+        Assertions.assertTrue(statement instanceof UpdateStatement);
+
+        UpdateStatement updateStatement = (UpdateStatement) statement;
+        Assertions.assertEquals("users", updateStatement.getTable());
+        Assertions.assertEquals(1, updateStatement.getColumns().size());
+        Assertions.assertNotNull(updateStatement.getWhere());
+
+        Assertions.assertEquals("attr", updateStatement.getColumns().get(0).getId());
+        Assertions.assertEquals(new SqlStringValue("newAttr"), ((ValueExpression<SqlStringValue>) updateStatement.getColumns().get(0).getValue()).getValue());
+
+        BinaryExpression where = (BinaryExpression) updateStatement.getWhere();
+        Assertions.assertEquals("id", ((IdentifierExpression) where.getLeft()).getName());
+        Assertions.assertEquals(Symbol.Eq, where.getOperator());
+        Assertions.assertEquals(1L, ((ValueExpression<SqlNumberValue>) where.getRight()).getValue().getValue());
+    }
+
     @Test
     public void test_createTable() throws SqlException, TokenizerException {
         ISqlParser sqlParser = new SqlParser("CREATE TABLE users (id INT PRIMARY KEY, name VARCHAR(255) UNIQUE);");

@@ -34,6 +34,14 @@ public abstract class AbstractIKeywordCommand implements IKeywordCommand {
         return parseCommaSeparated(this::parseIdentifier, true);
     }
 
+    protected Assignment parseAssignment() throws SqlException, TokenizerException {
+        String identifier = parseIdentifier();
+        expectToken(token -> token.getTokenType() == Token.TokenType.SymbolToken && ((SymbolToken) token).getSymbol() == Symbol.Eq);
+        Expression expression = parseExpression();
+
+        return new Assignment(identifier, expression);
+    }
+
 
     protected <T> List<T> parseCommaSeparated(IParserFunction<T> parserFunction, Boolean requiresParenthesis) throws SqlException, TokenizerException {
         if (requiresParenthesis) {
