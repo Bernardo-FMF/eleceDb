@@ -6,4 +6,8 @@ public class CreateDbStatement extends CreateStatement {
     public CreateDbStatement(String db) {
         this.db = db;
     }
+
+    public String getDb() {
+        return db;
+    }
 }

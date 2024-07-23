@@ -2,9 +2,7 @@ package org.elece.sql.parser.command;
 
 import org.elece.sql.parser.error.SqlException;
 import org.elece.sql.parser.expression.*;
-import org.elece.sql.parser.expression.internal.SqlBoolValue;
-import org.elece.sql.parser.expression.internal.SqlNumberValue;
-import org.elece.sql.parser.expression.internal.SqlStringValue;
+import org.elece.sql.parser.expression.internal.*;
 import org.elece.sql.token.IPeekableIterator;
 import org.elece.sql.token.TokenWrapper;
 import org.elece.sql.token.error.TokenizerException;
@@ -28,9 +26,9 @@ public abstract class AbstractIKeywordCommand implements IKeywordCommand {
     }
 
 
-    /*protected List<Column> parseColumnDefinitions() {
+    protected List<Column> parseColumnDefinitions() throws SqlException, TokenizerException {
         return parseCommaSeparated(this::parseColumn, true);
-    }*/
+    }
 
     protected List<String> parseIdentifierList() throws SqlException, TokenizerException {
         return parseCommaSeparated(this::parseIdentifier, true);
@@ -46,18 +44,19 @@ public abstract class AbstractIKeywordCommand implements IKeywordCommand {
         T parsedExpression = parserFunction.parse();
         results.add(parsedExpression);
 
-        while (expectOptionalToken(new SymbolToken(Symbol.Comma))) {
+        while (expectOptionalToken(token -> token.getTokenType() == Token.TokenType.SymbolToken && ((SymbolToken) token).getSymbol() == Symbol.Comma)) {
             results.add(parserFunction.parse());
         }
 
         if (requiresParenthesis) {
             expectToken(token -> token.getTokenType() == Token.TokenType.SymbolToken && ((SymbolToken) token).getSymbol() == Symbol.RightParenthesis);
         }
+
         return results;
     }
 
     protected List<Expression> parseOrderBy() throws TokenizerException, SqlException {
-        if (expectOptionalToken(new KeywordToken(Keyword.Order))) {
+        if (expectOptionalToken(token -> token.getTokenType() == Token.TokenType.KeywordToken && ((KeywordToken) token).getKeyword() == Keyword.Order)) {
             expectToken(token -> token.getTokenType() == Token.TokenType.KeywordToken && ((KeywordToken) token).getKeyword() == Keyword.By);
             return parseExpressionDefinitions();
         }
@@ -65,7 +64,7 @@ public abstract class AbstractIKeywordCommand implements IKeywordCommand {
     }
 
     protected Expression parseWhere() throws TokenizerException, SqlException {
-        if (expectOptionalToken(new KeywordToken(Keyword.Where))) {
+        if (expectOptionalToken(token -> token.getTokenType() == Token.TokenType.KeywordToken && ((KeywordToken) token).getKeyword() == Keyword.Where)) {
             return parseExpression();
         }
         return null;
@@ -77,6 +76,60 @@ public abstract class AbstractIKeywordCommand implements IKeywordCommand {
             return ((IdentifierToken) nextToken).getIdentifier();
         }
         throw new SqlException("");
+    }
+
+    protected Column parseColumn() throws TokenizerException, SqlException {
+        String name = parseIdentifier();
+        SqlType sqlType = switch (((KeywordToken) expectToken(token -> token.getTokenType() == Token.TokenType.KeywordToken && ((KeywordToken) token).getKeyword().isDataType())).getKeyword()) {
+            case Int -> {
+                boolean unsigned = expectOptionalToken(token -> token.getTokenType() == Token.TokenType.KeywordToken && ((KeywordToken) token).getKeyword() == Keyword.Unsigned);
+                if (unsigned) {
+                    yield SqlType.unsignedIntType;
+                }
+                yield SqlType.intType;
+            }
+            case BigInt -> {
+                boolean unsigned = expectOptionalToken(token -> token.getTokenType() == Token.TokenType.KeywordToken && ((KeywordToken) token).getKeyword() == Keyword.Unsigned);
+                if (unsigned) {
+                    yield SqlType.unsignedBigIntType;
+                }
+                yield SqlType.bigIntType;
+            }
+            case Bool -> SqlType.boolType;
+            case Varchar -> {
+                expectToken(token -> token.getTokenType() == Token.TokenType.SymbolToken && ((SymbolToken) token).getSymbol() == Symbol.LeftParenthesis);
+
+                Token nextToken = nextToken();
+                if (nextToken.getTokenType() != Token.TokenType.NumberToken) {
+                    throw new SqlException("");
+                }
+                int size = Integer.parseInt(((NumberToken) nextToken).getNumber());
+
+                expectToken(token -> token.getTokenType() == Token.TokenType.SymbolToken && ((SymbolToken) token).getSymbol() == Symbol.RightParenthesis);
+                yield SqlType.varchar(size);
+            }
+            default -> throw new SqlException("");
+        };
+
+        List<SqlConstraint> columnCapabilities = new ArrayList<>();
+
+        Token nextToken;
+        while ((nextToken = peekToken()).getTokenType() == Token.TokenType.KeywordToken &&
+                (((KeywordToken) nextToken).getKeyword() == Keyword.Primary ||
+                        ((KeywordToken) nextToken).getKeyword() == Keyword.Unique)) {
+            KeywordToken keywordToken = (KeywordToken) nextToken();
+            if (keywordToken.getKeyword() == Keyword.Primary) {
+                expectToken(token -> token.getTokenType() == Token.TokenType.KeywordToken && ((KeywordToken) token).getKeyword() == Keyword.Key);
+
+                columnCapabilities.add(SqlConstraint.PrimaryKey);
+            } else if (keywordToken.getKeyword() == Keyword.Unique) {
+                columnCapabilities.add(SqlConstraint.Unique);
+            } else {
+                throw new SqlException("");
+            }
+        }
+
+        return new Column(name, sqlType, columnCapabilities);
     }
 
     @Override
@@ -101,7 +154,7 @@ public abstract class AbstractIKeywordCommand implements IKeywordCommand {
         if (nextToken.getTokenType() == Token.TokenType.KeywordToken && ((KeywordToken) nextToken).getKeyword().isBinaryOperator()) {
             return new BinaryExpression(expression, ((KeywordToken) nextToken).getKeyword(), parseExpression(nextPrecedence));
         }
-
+        //TODO Fix error handling
         throw new SqlException("");
     }
 
@@ -160,16 +213,18 @@ public abstract class AbstractIKeywordCommand implements IKeywordCommand {
         return 0;
     }
 
-    protected void expectToken(Predicate<Token> predicate) throws TokenizerException, SqlException {
+    protected Token expectToken(Predicate<Token> predicate) throws TokenizerException, SqlException {
         Token target = nextToken();
         if (!predicate.test(target)) {
+            //TODO Fix error handling
             throw new SqlException("");
         }
+        return target;
     }
 
-    protected Boolean expectOptionalToken(Token expectedToken) throws TokenizerException {
-        Token nextToken = peekToken();
-        if (nextToken.equals(expectedToken)) {
+    protected Boolean expectOptionalToken(Predicate<Token> predicate) throws TokenizerException {
+        Token target = peekToken();
+        if (predicate.test(target)) {
             nextToken();
             return true;
         }

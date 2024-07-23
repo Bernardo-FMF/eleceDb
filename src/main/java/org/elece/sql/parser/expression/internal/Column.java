@@ -5,23 +5,23 @@ import java.util.List;
 public class Column {
     private final String name;
     private final SqlType sqlType;
-    private final List<SqlTypeCapability> constraints;
+    private final List<SqlConstraint> constraints;
 
-    private Column(String name, SqlType sqlType, List<SqlTypeCapability> constraints) {
+    public Column(String name, SqlType sqlType, List<SqlConstraint> constraints) {
         this.name = name;
         this.sqlType = sqlType;
         this.constraints = constraints;
     }
 
-    public static Column column(String name, SqlType sqlType) {
-        return new Column(name, sqlType, List.of());
+    public String getName() {
+        return name;
     }
 
-    public static Column primaryKey(String name, SqlType sqlType) {
-        return new Column(name, sqlType, List.of(SqlTypeCapability.PrimaryKey));
+    public SqlType getSqlType() {
+        return sqlType;
     }
 
-    public static Column unique(String name, SqlType sqlType) {
-        return new Column(name, sqlType, List.of(SqlTypeCapability.Unique));
+    public List<SqlConstraint> getConstraints() {
+        return constraints;
     }
 }

@@ -1,48 +1,50 @@
 package org.elece.sql.token.model.type;
 
 public enum Keyword implements IOperator {
-    Select(true),
-    Create(true),
-    Update(true),
-    Delete(true),
-    Insert(true),
-    Into(false),
-    Values(false),
-    Set(false),
-    Drop(true),
-    From(false),
-    Where(false),
-    And(false),
-    Or(false),
-    Primary(false),
-    Key(false),
-    Unique(false),
-    Table(false),
-    Database(false),
-    Int(false),
-    BigInt(false),
-    Unsigned(false),
-    Varchar(false),
-    Bool(false),
-    True(false),
-    False(false),
-    Order(false),
-    By(false),
-    Index(false),
-    On(false),
-    Start(true),
-    Transaction(false),
-    Rollback(true),
-    Commit(true),
-    Explain(true),
-    None(false);
+    Select(true, false),
+    Create(true, false),
+    Update(true, false),
+    Delete(true, false),
+    Insert(true, false),
+    Into(false, false),
+    Values(false, false),
+    Set(false, false),
+    Drop(true, false),
+    From(false, false),
+    Where(false, false),
+    And(false, false),
+    Or(false, false),
+    Primary(false, false),
+    Key(false, false),
+    Unique(false, false),
+    Table(false, false),
+    Database(false, false),
+    Int(false, true),
+    BigInt(false, true),
+    Unsigned(false, false),
+    Varchar(false, true),
+    Bool(false, true),
+    True(false, false),
+    False(false, false),
+    Order(false, false),
+    By(false, false),
+    Index(false, false),
+    On(false, false),
+    Start(true, false),
+    Transaction(false, false),
+    Rollback(true, false),
+    Commit(true, false),
+    Explain(true, false),
+    None(false, false);
 
     public static final Keyword[] VALUES = values();
 
     private final boolean isSupportedStatement;
+    private final boolean isDataType;
 
-    Keyword(boolean isSupportedStatement) {
+    Keyword(boolean isSupportedStatement, boolean isDataType) {
         this.isSupportedStatement = isSupportedStatement;
+        this.isDataType = isDataType;
     }
 
     public static Keyword getKeyword(String possibleKeyword) {
@@ -66,5 +68,9 @@ public enum Keyword implements IOperator {
 
     public boolean isSupportedStatement() {
         return isSupportedStatement;
+    }
+
+    public boolean isDataType() {
+        return isDataType;
     }
 }

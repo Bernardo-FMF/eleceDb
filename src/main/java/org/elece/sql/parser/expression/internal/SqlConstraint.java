@@ -1,6 +1,6 @@
 package org.elece.sql.parser.expression.internal;
 
-public enum SqlTypeCapability {
+public enum SqlConstraint {
     PrimaryKey,
     Unique
 }

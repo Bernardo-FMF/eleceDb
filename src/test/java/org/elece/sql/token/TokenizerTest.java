@@ -1,6 +1,5 @@
 package org.elece.sql.token;
 
-import org.elece.sql.token.error.TokenizerException;
 import org.elece.sql.token.model.*;
 import org.elece.sql.token.model.type.Keyword;
 import org.elece.sql.token.model.type.Symbol;

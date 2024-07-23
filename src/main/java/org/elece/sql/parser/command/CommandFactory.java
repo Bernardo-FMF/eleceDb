@@ -8,6 +8,7 @@ public class CommandFactory {
     public IKeywordCommand buildCommand(Keyword keyword, IPeekableIterator<TokenWrapper> tokenizer) {
         return switch (keyword) {
             case Select -> new SelectKeywordCommand(tokenizer);
+            case Create -> new CreateKeywordCommand(tokenizer);
             default -> null;
         };
     }

@@ -3,7 +3,6 @@ package org.elece.sql.parser.command;
 import org.elece.sql.parser.error.SqlException;
 import org.elece.sql.parser.expression.Expression;
 import org.elece.sql.token.error.TokenizerException;
-import org.elece.sql.token.model.Token;
 
 public interface ITdopAlgorithm {
     Expression parseExpression(Integer precedence) throws SqlException, TokenizerException;

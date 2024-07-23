@@ -12,4 +12,20 @@ public class CreateIndexStatement extends CreateStatement {
         this.column = column;
         this.unique = unique;
     }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getTable() {
+        return table;
+    }
+
+    public String getColumn() {
+        return column;
+    }
+
+    public Boolean getUnique() {
+        return unique;
+    }
 }
