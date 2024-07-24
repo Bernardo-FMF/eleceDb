@@ -16,6 +16,27 @@ import org.junit.jupiter.api.Test;
 
 class SqlParserTest {
     @Test
+    public void test_startTransaction() throws SqlException, TokenizerException {
+        ISqlParser sqlParser = new SqlParser("START TRANSACTION;");
+        Statement statement = sqlParser.parseToken().getStatement();
+        Assertions.assertTrue(statement instanceof TransactionStatement);
+    }
+
+    @Test
+    public void test_rollback() throws SqlException, TokenizerException {
+        ISqlParser sqlParser = new SqlParser("ROLLBACK;");
+        Statement statement = sqlParser.parseToken().getStatement();
+        Assertions.assertTrue(statement instanceof RollbackStatement);
+    }
+
+    @Test
+    public void test_commit() throws SqlException, TokenizerException {
+        ISqlParser sqlParser = new SqlParser("COMMIT;");
+        Statement statement = sqlParser.parseToken().getStatement();
+        Assertions.assertTrue(statement instanceof CommitStatement);
+    }
+
+    @Test
     public void test_insertWithColumns() throws SqlException, TokenizerException {
         ISqlParser sqlParser = new SqlParser("INSERT INTO users (id, name) VALUES (1, \"user1\");");
         Statement statement = sqlParser.parseToken().getStatement();
