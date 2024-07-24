@@ -14,10 +14,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
 
-public abstract class AbstractIKeywordCommand implements IKeywordCommand {
+public abstract class AbstractKeywordCommand implements IKeywordCommand {
     private final IPeekableIterator<TokenWrapper> tokenizer;
 
-    public AbstractIKeywordCommand(IPeekableIterator<TokenWrapper> tokenizer) {
+    public AbstractKeywordCommand(IPeekableIterator<TokenWrapper> tokenizer) {
         this.tokenizer = tokenizer;
     }
 

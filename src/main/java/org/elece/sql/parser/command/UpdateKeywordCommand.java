@@ -14,7 +14,7 @@ import org.elece.sql.token.model.type.Keyword;
 
 import java.util.List;
 
-public class UpdateKeywordCommand extends AbstractIKeywordCommand {
+public class UpdateKeywordCommand extends AbstractKeywordCommand {
     public UpdateKeywordCommand(IPeekableIterator<TokenWrapper> tokenizer) {
         super(tokenizer);
     }

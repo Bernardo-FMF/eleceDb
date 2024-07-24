@@ -16,7 +16,7 @@ import org.elece.sql.token.model.type.Symbol;
 import java.util.ArrayList;
 import java.util.List;
 
-public class InsertKeywordCommand extends AbstractIKeywordCommand {
+public class InsertKeywordCommand extends AbstractKeywordCommand {
     public InsertKeywordCommand(IPeekableIterator<TokenWrapper> tokenizer) {
         super(tokenizer);
     }

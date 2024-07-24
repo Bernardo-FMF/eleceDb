@@ -10,7 +10,7 @@ import org.elece.sql.token.model.KeywordToken;
 import org.elece.sql.token.model.Token;
 import org.elece.sql.token.model.type.Keyword;
 
-public class StartKeywordCommand extends AbstractIKeywordCommand {
+public class StartKeywordCommand extends AbstractKeywordCommand {
     public StartKeywordCommand(IPeekableIterator<TokenWrapper> tokenizer) {
         super(tokenizer);
     }

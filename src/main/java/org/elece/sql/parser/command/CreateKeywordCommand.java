@@ -17,7 +17,7 @@ import org.elece.sql.token.model.type.Symbol;
 
 import java.util.Set;
 
-public class CreateKeywordCommand extends AbstractIKeywordCommand {
+public class CreateKeywordCommand extends AbstractKeywordCommand {
     private static final Set<Keyword> supportedCreateKeywords = Set.of(Keyword.Database, Keyword.Table, Keyword.Index, Keyword.Unique);
 
     public CreateKeywordCommand(IPeekableIterator<TokenWrapper> tokenizer) {

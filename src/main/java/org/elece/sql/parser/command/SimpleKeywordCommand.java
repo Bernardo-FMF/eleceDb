@@ -7,10 +7,9 @@ import org.elece.sql.parser.statement.RollbackStatement;
 import org.elece.sql.parser.statement.Statement;
 import org.elece.sql.token.IPeekableIterator;
 import org.elece.sql.token.TokenWrapper;
-import org.elece.sql.token.error.TokenizerException;
 import org.elece.sql.token.model.type.Keyword;
 
-public class SimpleKeywordCommand extends AbstractIKeywordCommand {
+public class SimpleKeywordCommand extends AbstractKeywordCommand {
     private Keyword keyword;
 
     public SimpleKeywordCommand(IPeekableIterator<TokenWrapper> tokenizer, Keyword keyword) {
