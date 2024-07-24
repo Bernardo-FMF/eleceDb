@@ -11,6 +11,7 @@ public class CommandFactory {
             case Create -> new CreateKeywordCommand(tokenizer);
             case Update -> new UpdateKeywordCommand(tokenizer);
             case Insert -> new InsertKeywordCommand(tokenizer);
+            case Start -> new StartKeywordCommand(tokenizer);
             case Commit, Rollback -> new SimpleKeywordCommand(tokenizer, keyword);
             default -> null;
         };
