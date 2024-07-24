@@ -16,6 +16,38 @@ import org.junit.jupiter.api.Test;
 
 class SqlParserTest {
     @Test
+    public void test_insertWithColumns() throws SqlException, TokenizerException {
+        ISqlParser sqlParser = new SqlParser("INSERT INTO users (id, name) VALUES (1, \"user1\");");
+        Statement statement = sqlParser.parseToken().getStatement();
+        Assertions.assertTrue(statement instanceof InsertStatement);
+
+        InsertStatement insertStatement = (InsertStatement) statement;
+        Assertions.assertEquals("users", insertStatement.getTable());
+
+        Assertions.assertEquals(2, insertStatement.getColumns().size());
+        Assertions.assertEquals("id", insertStatement.getColumns().get(0));
+        Assertions.assertEquals("name", insertStatement.getColumns().get(1));
+
+        Assertions.assertEquals(new SqlNumberValue(1L), ((ValueExpression<SqlNumberValue>) insertStatement.getValues().get(0)).getValue());
+        Assertions.assertEquals(new SqlStringValue("user1"), ((ValueExpression<SqlStringValue>) insertStatement.getValues().get(1)).getValue());
+    }
+
+    @Test
+    public void test_insertWithoutColumns() throws SqlException, TokenizerException {
+        ISqlParser sqlParser = new SqlParser("INSERT INTO users VALUES (1, \"user1\");");
+        Statement statement = sqlParser.parseToken().getStatement();
+        Assertions.assertTrue(statement instanceof InsertStatement);
+
+        InsertStatement insertStatement = (InsertStatement) statement;
+        Assertions.assertEquals("users", insertStatement.getTable());
+
+        Assertions.assertEquals(0, insertStatement.getColumns().size());
+
+        Assertions.assertEquals(new SqlNumberValue(1L), ((ValueExpression<SqlNumberValue>) insertStatement.getValues().get(0)).getValue());
+        Assertions.assertEquals(new SqlStringValue("user1"), ((ValueExpression<SqlStringValue>) insertStatement.getValues().get(1)).getValue());
+    }
+
+    @Test
     public void test_update() throws SqlException, TokenizerException {
         ISqlParser sqlParser = new SqlParser("UPDATE users SET attr = \"newAttr\";");
         Statement statement = sqlParser.parseToken().getStatement();

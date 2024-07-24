@@ -10,6 +10,7 @@ public class CommandFactory {
             case Select -> new SelectKeywordCommand(tokenizer);
             case Create -> new CreateKeywordCommand(tokenizer);
             case Update -> new UpdateKeywordCommand(tokenizer);
+            case Insert -> new InsertKeywordCommand(tokenizer);
             default -> null;
         };
     }

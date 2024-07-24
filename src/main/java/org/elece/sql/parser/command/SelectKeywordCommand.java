@@ -22,7 +22,7 @@ public class SelectKeywordCommand extends AbstractIKeywordCommand {
 
     @Override
     public StatementWrapper parse() throws SqlException, TokenizerException {
-        List<Expression> selectedColumns = parseExpressionDefinitions();
+        List<Expression> selectedColumns = parseExpressionDefinitions(false);
 
         expectToken(token -> token.getTokenType() == Token.TokenType.KeywordToken && ((KeywordToken) token).getKeyword() == Keyword.From);
 

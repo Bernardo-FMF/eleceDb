@@ -21,8 +21,8 @@ public abstract class AbstractIKeywordCommand implements IKeywordCommand {
         this.tokenizer = tokenizer;
     }
 
-    protected List<Expression> parseExpressionDefinitions() throws SqlException, TokenizerException {
-        return parseCommaSeparated(this::parseExpression, false);
+    protected List<Expression> parseExpressionDefinitions(Boolean requiresParenthesis) throws SqlException, TokenizerException {
+        return parseCommaSeparated(this::parseExpression, requiresParenthesis);
     }
 
 
@@ -66,7 +66,7 @@ public abstract class AbstractIKeywordCommand implements IKeywordCommand {
     protected List<Expression> parseOrderBy() throws TokenizerException, SqlException {
         if (expectOptionalToken(token -> token.getTokenType() == Token.TokenType.KeywordToken && ((KeywordToken) token).getKeyword() == Keyword.Order)) {
             expectToken(token -> token.getTokenType() == Token.TokenType.KeywordToken && ((KeywordToken) token).getKeyword() == Keyword.By);
-            return parseExpressionDefinitions();
+            return parseExpressionDefinitions(false);
         }
         return null;
     }
