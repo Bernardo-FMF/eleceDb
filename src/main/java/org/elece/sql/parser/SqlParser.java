@@ -3,6 +3,8 @@ package org.elece.sql.parser;
 import org.elece.sql.parser.command.CommandFactory;
 import org.elece.sql.parser.command.IKeywordCommand;
 import org.elece.sql.parser.error.SqlException;
+import org.elece.sql.parser.error.UnexpectedToken;
+import org.elece.sql.parser.error.UnspecifiedError;
 import org.elece.sql.parser.statement.ExplainStatement;
 import org.elece.sql.parser.statement.Statement;
 import org.elece.sql.token.IPeekableIterator;
@@ -36,12 +38,12 @@ public class SqlParser implements ISqlParser {
             } else {
                 IKeywordCommand IKeywordCommand = commandFactory.buildCommand(keywordToken.getKeyword(), tokenizerStream);
                 if (Objects.isNull(IKeywordCommand)) {
-                    throw new SqlException("");
+                    throw new SqlException(new UnspecifiedError("Unresolved keyword command"));
                 } else {
                     return IKeywordCommand.parse();
                 }
             }
         }
-        throw new SqlException("");
+        throw new SqlException(new UnexpectedToken(nextToken, "Keyword is not a supported statement"));
     }
 }

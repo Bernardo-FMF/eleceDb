@@ -1,6 +1,7 @@
 package org.elece.sql.parser.expression.internal;
 
 import org.elece.sql.parser.error.SqlException;
+import org.elece.sql.parser.error.UnspecifiedError;
 
 import java.util.Objects;
 
@@ -19,7 +20,7 @@ public abstract class SqlValue<T> {
 
     public Integer partialComparison(SqlValue<?> obj) throws SqlException {
         if (this.getClass() != obj.getClass()) {
-            throw new SqlException("Comparison between incompatible sql types");
+            throw new SqlException(new UnspecifiedError("Comparison between incompatible sql types"));
         }
 
         return this.compare((SqlValue<T>) obj);

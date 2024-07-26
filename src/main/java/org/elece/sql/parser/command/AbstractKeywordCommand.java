@@ -1,6 +1,6 @@
 package org.elece.sql.parser.command;
 
-import org.elece.sql.parser.error.SqlException;
+import org.elece.sql.parser.error.*;
 import org.elece.sql.parser.expression.*;
 import org.elece.sql.parser.expression.internal.*;
 import org.elece.sql.token.IPeekableIterator;
@@ -83,12 +83,13 @@ public abstract class AbstractKeywordCommand implements IKeywordCommand {
         if (nextToken.getTokenType() == Token.TokenType.IdentifierToken) {
             return ((IdentifierToken) nextToken).getIdentifier();
         }
-        throw new SqlException("");
+        throw new SqlException(new UnexpectedToken(nextToken, "Expected an identifier"));
     }
 
     protected Column parseColumn() throws TokenizerException, SqlException {
         String name = parseIdentifier();
-        SqlType sqlType = switch (((KeywordToken) expectToken(token -> token.getTokenType() == Token.TokenType.KeywordToken && ((KeywordToken) token).getKeyword().isDataType())).getKeyword()) {
+        Token nextToken = expectToken(token -> token.getTokenType() == Token.TokenType.KeywordToken && ((KeywordToken) token).getKeyword().isDataType());
+        SqlType sqlType = switch (((KeywordToken) nextToken).getKeyword()) {
             case Int -> {
                 boolean unsigned = expectOptionalToken(token -> token.getTokenType() == Token.TokenType.KeywordToken && ((KeywordToken) token).getKeyword() == Keyword.Unsigned);
                 if (unsigned) {
@@ -107,24 +108,24 @@ public abstract class AbstractKeywordCommand implements IKeywordCommand {
             case Varchar -> {
                 expectToken(token -> token.getTokenType() == Token.TokenType.SymbolToken && ((SymbolToken) token).getSymbol() == Symbol.LeftParenthesis);
 
-                Token nextToken = nextToken();
-                if (nextToken.getTokenType() != Token.TokenType.NumberToken) {
-                    throw new SqlException("");
+                Token varcharToken = nextToken();
+                if (varcharToken.getTokenType() != Token.TokenType.NumberToken) {
+                    throw new SqlException(new UnexpectedToken(varcharToken, "Expected a number corresponding to the varchar size"));
                 }
-                int size = Integer.parseInt(((NumberToken) nextToken).getNumber());
+                int size = Integer.parseInt(((NumberToken) varcharToken).getNumber());
 
                 expectToken(token -> token.getTokenType() == Token.TokenType.SymbolToken && ((SymbolToken) token).getSymbol() == Symbol.RightParenthesis);
                 yield SqlType.varchar(size);
             }
-            default -> throw new SqlException("");
+            default -> throw new SqlException(new UnexpectedToken(nextToken, "Token is invalid in the query context"));
         };
 
         List<SqlConstraint> columnCapabilities = new ArrayList<>();
 
-        Token nextToken;
-        while ((nextToken = peekToken()).getTokenType() == Token.TokenType.KeywordToken &&
-                (((KeywordToken) nextToken).getKeyword() == Keyword.Primary ||
-                        ((KeywordToken) nextToken).getKeyword() == Keyword.Unique)) {
+        Token capabilityToken;
+        while ((capabilityToken = peekToken()).getTokenType() == Token.TokenType.KeywordToken &&
+                (((KeywordToken) capabilityToken).getKeyword() == Keyword.Primary ||
+                        ((KeywordToken) capabilityToken).getKeyword() == Keyword.Unique)) {
             KeywordToken keywordToken = (KeywordToken) nextToken();
             if (keywordToken.getKeyword() == Keyword.Primary) {
                 expectToken(token -> token.getTokenType() == Token.TokenType.KeywordToken && ((KeywordToken) token).getKeyword() == Keyword.Key);
@@ -133,7 +134,7 @@ public abstract class AbstractKeywordCommand implements IKeywordCommand {
             } else if (keywordToken.getKeyword() == Keyword.Unique) {
                 columnCapabilities.add(SqlConstraint.Unique);
             } else {
-                throw new SqlException("");
+                throw new SqlException(new UnexpectedToken(capabilityToken, "Token is invalid in the query context"));
             }
         }
 
@@ -162,8 +163,7 @@ public abstract class AbstractKeywordCommand implements IKeywordCommand {
         if (nextToken.getTokenType() == Token.TokenType.KeywordToken && ((KeywordToken) nextToken).getKeyword().isBinaryOperator()) {
             return new BinaryExpression(expression, ((KeywordToken) nextToken).getKeyword(), parseExpression(nextPrecedence));
         }
-        //TODO Fix error handling
-        throw new SqlException("");
+        throw new SqlException(new UnexpectedToken(nextToken, "Token is invalid in the query context"));
     }
 
     @Override
@@ -172,13 +172,20 @@ public abstract class AbstractKeywordCommand implements IKeywordCommand {
         return switch (nextToken.getTokenType()) {
             case IdentifierToken -> new IdentifierExpression(((IdentifierToken) nextToken).getIdentifier());
             case StringToken -> new ValueExpression<>(new SqlStringValue(((StringToken) nextToken).getString()));
-            case NumberToken ->
-                    new ValueExpression<>(new SqlNumberValue(Long.parseLong(((NumberToken) nextToken).getNumber())));
+            case NumberToken -> {
+                long value;
+                try {
+                    value = Long.parseLong(((NumberToken) nextToken).getNumber());
+                } catch (NumberFormatException exception) {
+                    throw new SqlException(new IntegerOutOfRange(((NumberToken) nextToken).getNumber()));
+                }
+                yield new ValueExpression<>(new SqlNumberValue(value));
+            }
             case KeywordToken -> switch (((KeywordToken) nextToken).getKeyword()) {
                 case True -> new ValueExpression<>(new SqlBoolValue(true));
                 case False -> new ValueExpression<>(new SqlBoolValue(false));
-                //TODO Fix error handling
-                default -> throw new SqlException("");
+                default ->
+                        throw new SqlException(new UnexpectedToken(nextToken, "Token is invalid in the query context"));
             };
             case SymbolToken -> switch (((SymbolToken) nextToken).getSymbol()) {
                 case Mul -> new WildcardExpression();
@@ -189,11 +196,10 @@ public abstract class AbstractKeywordCommand implements IKeywordCommand {
 
                     yield new NestedExpression(expression);
                 }
-                //TODO Fix error handling
-                default -> throw new SqlException("");
+                default ->
+                        throw new SqlException(new UnexpectedToken(nextToken, "Token is invalid in the query context"));
             };
-            //TODO Fix error handling
-            default -> throw new SqlException("");
+            default -> throw new SqlException(new UnexpectedToken(nextToken, "Token is invalid in the query context"));
         };
     }
 
@@ -224,8 +230,7 @@ public abstract class AbstractKeywordCommand implements IKeywordCommand {
     protected Token expectToken(Predicate<Token> predicate) throws TokenizerException, SqlException {
         Token target = nextToken();
         if (!predicate.test(target)) {
-            //TODO Fix error handling
-            throw new SqlException("");
+            throw new SqlException(new UnexpectedToken(target, "Expected token not found"));
         }
         return target;
     }

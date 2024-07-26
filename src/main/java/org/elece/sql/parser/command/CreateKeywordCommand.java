@@ -1,6 +1,7 @@
 package org.elece.sql.parser.command;
 
 import org.elece.sql.parser.error.SqlException;
+import org.elece.sql.parser.error.UnspecifiedError;
 import org.elece.sql.parser.statement.CreateDbStatement;
 import org.elece.sql.parser.statement.CreateIndexStatement;
 import org.elece.sql.parser.statement.CreateTableStatement;
@@ -47,8 +48,7 @@ public class CreateKeywordCommand extends AbstractKeywordCommand {
 
                 yield new CreateIndexStatement(name, table, column, isUnique);
             }
-            //TODO Fix error handling
-            default -> throw new SqlException("");
+            default -> throw new SqlException(new UnspecifiedError("Unknown create query"));
         };
     }
 }
