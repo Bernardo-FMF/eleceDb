@@ -1,6 +1,5 @@
 package org.elece.sql.parser.command;
 
-import org.elece.sql.parser.StatementWrapper;
 import org.elece.sql.parser.error.SqlException;
 import org.elece.sql.parser.statement.CreateDbStatement;
 import org.elece.sql.parser.statement.CreateIndexStatement;
@@ -25,11 +24,11 @@ public class CreateKeywordCommand extends AbstractKeywordCommand {
     }
 
     @Override
-    public StatementWrapper parse() throws SqlException, TokenizerException {
+    public Statement parse() throws SqlException, TokenizerException {
         KeywordToken nextToken = (KeywordToken) expectToken(token -> token.getTokenType() == Token.TokenType.KeywordToken &&
                 supportedCreateKeywords.contains(((KeywordToken) token).getKeyword()));
 
-        Statement statement = switch (nextToken.getKeyword()) {
+        return switch (nextToken.getKeyword()) {
             case Database -> new CreateDbStatement(parseIdentifier());
             case Table -> new CreateTableStatement(parseIdentifier(), parseColumnDefinitions());
             case Unique, Index -> {
@@ -51,7 +50,5 @@ public class CreateKeywordCommand extends AbstractKeywordCommand {
             //TODO Fix error handling
             default -> throw new SqlException("");
         };
-
-        return StatementWrapper.builder().statement(statement).build();
     }
 }

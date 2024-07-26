@@ -1,9 +1,9 @@
 package org.elece.sql.parser.command;
 
-import org.elece.sql.parser.StatementWrapper;
 import org.elece.sql.parser.error.SqlException;
 import org.elece.sql.parser.expression.Expression;
 import org.elece.sql.parser.statement.DeleteStatement;
+import org.elece.sql.parser.statement.Statement;
 import org.elece.sql.token.IPeekableIterator;
 import org.elece.sql.token.TokenWrapper;
 import org.elece.sql.token.error.TokenizerException;
@@ -17,12 +17,12 @@ public class DeleteKeywordCommand extends AbstractKeywordCommand {
     }
 
     @Override
-    public StatementWrapper parse() throws SqlException, TokenizerException {
+    public Statement parse() throws SqlException, TokenizerException {
         expectToken(token -> token.getTokenType() == Token.TokenType.KeywordToken && ((KeywordToken) token).getKeyword() == Keyword.From);
 
         String identifier = parseIdentifier();
         Expression where = parseWhere();
 
-        return StatementWrapper.builder().statement(new DeleteStatement(identifier, where)).build();
+        return new DeleteStatement(identifier, where);
     }
 }

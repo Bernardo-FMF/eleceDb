@@ -4,6 +4,7 @@ import org.elece.sql.parser.command.CommandFactory;
 import org.elece.sql.parser.command.IKeywordCommand;
 import org.elece.sql.parser.error.SqlException;
 import org.elece.sql.parser.statement.ExplainStatement;
+import org.elece.sql.parser.statement.Statement;
 import org.elece.sql.token.IPeekableIterator;
 import org.elece.sql.token.TokenWrapper;
 import org.elece.sql.token.Tokenizer;
@@ -24,28 +25,23 @@ public class SqlParser implements ISqlParser {
 
     private static final CommandFactory commandFactory = new CommandFactory();
 
-    public StatementWrapper parseToken() throws SqlException, TokenizerException {
+    public Statement parse() throws SqlException, TokenizerException {
         Iterator<TokenWrapper> whitespaceSkipper = tokenizerStream.takeWhile(token1 -> token1.hasToken() && token1.getToken().getTokenType() == Token.TokenType.WhitespaceToken);
         Token nextToken = whitespaceSkipper.next().unwrap();
 
         if (nextToken.getTokenType() == Token.TokenType.KeywordToken && ((KeywordToken) nextToken).getKeyword().isSupportedStatement()) {
             KeywordToken keywordToken = (KeywordToken) nextToken;
             if (keywordToken.getKeyword() == Keyword.Explain) {
-                StatementWrapper statementWrapper = parseToken();
-                if (statementWrapper.hasError()) {
-                    return statementWrapper;
-                }
-                return StatementWrapper.builder().statement(new ExplainStatement(statementWrapper.getStatement())).build();
+                return new ExplainStatement(parse());
             } else {
                 IKeywordCommand IKeywordCommand = commandFactory.buildCommand(keywordToken.getKeyword(), tokenizerStream);
                 if (Objects.isNull(IKeywordCommand)) {
-                    return StatementWrapper.builder().error(null).build();
+                    throw new SqlException("");
                 } else {
                     return IKeywordCommand.parse();
                 }
             }
         }
-        //TODO build error
-        return StatementWrapper.builder().error(null).build();
+        throw new SqlException("");
     }
 }

@@ -18,7 +18,7 @@ class SqlParserTest {
     @Test
     public void test_dropDb() throws SqlException, TokenizerException {
         ISqlParser sqlParser = new SqlParser("DROP DATABASE userDb;");
-        Statement statement = sqlParser.parseToken().getStatement();
+        Statement statement = sqlParser.parse();
         Assertions.assertTrue(statement instanceof DropDbStatement);
 
         DropDbStatement dropDbStatement = (DropDbStatement) statement;
@@ -28,7 +28,7 @@ class SqlParserTest {
     @Test
     public void test_dropTable() throws SqlException, TokenizerException {
         ISqlParser sqlParser = new SqlParser("DROP TABLE users;");
-        Statement statement = sqlParser.parseToken().getStatement();
+        Statement statement = sqlParser.parse();
         Assertions.assertTrue(statement instanceof DropTableStatement);
 
         DropTableStatement dropTableStatement = (DropTableStatement) statement;
@@ -38,28 +38,28 @@ class SqlParserTest {
     @Test
     public void test_startTransaction() throws SqlException, TokenizerException {
         ISqlParser sqlParser = new SqlParser("START TRANSACTION;");
-        Statement statement = sqlParser.parseToken().getStatement();
+        Statement statement = sqlParser.parse();
         Assertions.assertTrue(statement instanceof TransactionStatement);
     }
 
     @Test
     public void test_rollback() throws SqlException, TokenizerException {
         ISqlParser sqlParser = new SqlParser("ROLLBACK;");
-        Statement statement = sqlParser.parseToken().getStatement();
+        Statement statement = sqlParser.parse();
         Assertions.assertTrue(statement instanceof RollbackStatement);
     }
 
     @Test
     public void test_commit() throws SqlException, TokenizerException {
         ISqlParser sqlParser = new SqlParser("COMMIT;");
-        Statement statement = sqlParser.parseToken().getStatement();
+        Statement statement = sqlParser.parse();
         Assertions.assertTrue(statement instanceof CommitStatement);
     }
 
     @Test
     public void test_insertWithColumns() throws SqlException, TokenizerException {
         ISqlParser sqlParser = new SqlParser("INSERT INTO users (id, name) VALUES (1, \"user1\");");
-        Statement statement = sqlParser.parseToken().getStatement();
+        Statement statement = sqlParser.parse();
         Assertions.assertTrue(statement instanceof InsertStatement);
 
         InsertStatement insertStatement = (InsertStatement) statement;
@@ -76,7 +76,7 @@ class SqlParserTest {
     @Test
     public void test_insertWithoutColumns() throws SqlException, TokenizerException {
         ISqlParser sqlParser = new SqlParser("INSERT INTO users VALUES (1, \"user1\");");
-        Statement statement = sqlParser.parseToken().getStatement();
+        Statement statement = sqlParser.parse();
         Assertions.assertTrue(statement instanceof InsertStatement);
 
         InsertStatement insertStatement = (InsertStatement) statement;
@@ -91,7 +91,7 @@ class SqlParserTest {
     @Test
     public void test_update() throws SqlException, TokenizerException {
         ISqlParser sqlParser = new SqlParser("UPDATE users SET attr = \"newAttr\";");
-        Statement statement = sqlParser.parseToken().getStatement();
+        Statement statement = sqlParser.parse();
         Assertions.assertTrue(statement instanceof UpdateStatement);
 
         UpdateStatement updateStatement = (UpdateStatement) statement;
@@ -106,7 +106,7 @@ class SqlParserTest {
     @Test
     public void test_updateWhere() throws SqlException, TokenizerException {
         ISqlParser sqlParser = new SqlParser("UPDATE users SET attr = \"newAttr\" WHERE id = 1;");
-        Statement statement = sqlParser.parseToken().getStatement();
+        Statement statement = sqlParser.parse();
         Assertions.assertTrue(statement instanceof UpdateStatement);
 
         UpdateStatement updateStatement = (UpdateStatement) statement;
@@ -126,7 +126,7 @@ class SqlParserTest {
     @Test
     public void test_createTable() throws SqlException, TokenizerException {
         ISqlParser sqlParser = new SqlParser("CREATE TABLE users (id INT PRIMARY KEY, name VARCHAR(255) UNIQUE);");
-        Statement statement = sqlParser.parseToken().getStatement();
+        Statement statement = sqlParser.parse();
         Assertions.assertTrue(statement instanceof CreateTableStatement);
 
         CreateTableStatement createTableStatement = (CreateTableStatement) statement;
@@ -147,7 +147,7 @@ class SqlParserTest {
     @Test
     public void test_createIndex() throws SqlException, TokenizerException {
         ISqlParser sqlParser = new SqlParser("CREATE INDEX user_name_index ON users(name);");
-        Statement statement = sqlParser.parseToken().getStatement();
+        Statement statement = sqlParser.parse();
         Assertions.assertTrue(statement instanceof CreateIndexStatement);
 
         CreateIndexStatement createIndexStatement = (CreateIndexStatement) statement;
@@ -160,7 +160,7 @@ class SqlParserTest {
     @Test
     public void test_createDb() throws SqlException, TokenizerException {
         ISqlParser sqlParser = new SqlParser("CREATE DATABASE userDb;");
-        Statement statement = sqlParser.parseToken().getStatement();
+        Statement statement = sqlParser.parse();
         Assertions.assertTrue(statement instanceof CreateStatement);
 
         CreateDbStatement createDbStatement = (CreateDbStatement) statement;
@@ -170,7 +170,7 @@ class SqlParserTest {
     @Test
     public void test_select() throws SqlException, TokenizerException {
         ISqlParser sqlParser = new SqlParser("SELECT id, name FROM users;");
-        Statement statement = sqlParser.parseToken().getStatement();
+        Statement statement = sqlParser.parse();
         Assertions.assertTrue(statement instanceof SelectStatement);
 
         SelectStatement selectStatement = (SelectStatement) statement;
@@ -182,7 +182,7 @@ class SqlParserTest {
     @Test
     public void test_selectWhere() throws SqlException, TokenizerException {
         ISqlParser sqlParser = new SqlParser("SELECT id, name FROM users WHERE id = 1;");
-        Statement statement = sqlParser.parseToken().getStatement();
+        Statement statement = sqlParser.parse();
 
         SelectStatement selectStatement = (SelectStatement) statement;
         Assertions.assertEquals("users", selectStatement.getFrom());
@@ -198,7 +198,7 @@ class SqlParserTest {
     @Test
     public void test_selectOrderBy() throws SqlException, TokenizerException {
         ISqlParser sqlParser = new SqlParser("SELECT id, name FROM users ORDER BY id;");
-        Statement statement = sqlParser.parseToken().getStatement();
+        Statement statement = sqlParser.parse();
         Assertions.assertTrue(statement instanceof SelectStatement);
 
         SelectStatement selectStatement = (SelectStatement) statement;
@@ -212,7 +212,7 @@ class SqlParserTest {
     @Test
     public void test_selectWhereOrderBy() throws SqlException, TokenizerException {
         ISqlParser sqlParser = new SqlParser("SELECT id, name FROM users WHERE id > 5 ORDER BY name;");
-        Statement statement = sqlParser.parseToken().getStatement();
+        Statement statement = sqlParser.parse();
         Assertions.assertTrue(statement instanceof SelectStatement);
 
         SelectStatement selectStatement = (SelectStatement) statement;
@@ -231,7 +231,7 @@ class SqlParserTest {
     @Test
     public void test_explain() throws SqlException, TokenizerException {
         ISqlParser sqlParser = new SqlParser("EXPLAIN SELECT id, name FROM users;");
-        ExplainStatement statement = (ExplainStatement) sqlParser.parseToken().getStatement();
+        ExplainStatement statement = (ExplainStatement) sqlParser.parse();
 
         SelectStatement selectStatement = (SelectStatement) statement.getStatement();
         Assertions.assertEquals("users", selectStatement.getFrom());
