@@ -6,4 +6,8 @@ public class DropTableStatement extends DropStatement {
     public DropTableStatement(String table) {
         this.table = table;
     }
+
+    public String getTable() {
+        return table;
+    }
 }

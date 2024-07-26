@@ -6,4 +6,8 @@ public class DropDbStatement extends DropStatement {
     public DropDbStatement(String db) {
         this.db = db;
     }
+
+    public String getDb() {
+        return db;
+    }
 }

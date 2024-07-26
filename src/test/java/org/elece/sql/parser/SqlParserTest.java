@@ -16,6 +16,26 @@ import org.junit.jupiter.api.Test;
 
 class SqlParserTest {
     @Test
+    public void test_dropDb() throws SqlException, TokenizerException {
+        ISqlParser sqlParser = new SqlParser("DROP DATABASE userDb;");
+        Statement statement = sqlParser.parseToken().getStatement();
+        Assertions.assertTrue(statement instanceof DropDbStatement);
+
+        DropDbStatement dropDbStatement = (DropDbStatement) statement;
+        Assertions.assertEquals("userDb", dropDbStatement.getDb());
+    }
+
+    @Test
+    public void test_dropTable() throws SqlException, TokenizerException {
+        ISqlParser sqlParser = new SqlParser("DROP TABLE users;");
+        Statement statement = sqlParser.parseToken().getStatement();
+        Assertions.assertTrue(statement instanceof DropTableStatement);
+
+        DropTableStatement dropTableStatement = (DropTableStatement) statement;
+        Assertions.assertEquals("users", dropTableStatement.getTable());
+    }
+
+    @Test
     public void test_startTransaction() throws SqlException, TokenizerException {
         ISqlParser sqlParser = new SqlParser("START TRANSACTION;");
         Statement statement = sqlParser.parseToken().getStatement();

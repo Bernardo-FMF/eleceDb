@@ -13,6 +13,7 @@ public class CommandFactory {
             case Insert -> new InsertKeywordCommand(tokenizer);
             case Delete -> new DeleteKeywordCommand(tokenizer);
             case Start -> new StartKeywordCommand(tokenizer);
+            case Drop -> new DropKeywordCommand(tokenizer);
             case Commit, Rollback -> new SimpleKeywordCommand(tokenizer, keyword);
             default -> null;
         };
