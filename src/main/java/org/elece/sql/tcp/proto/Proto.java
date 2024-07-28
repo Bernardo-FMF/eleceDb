@@ -7,6 +7,10 @@ import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
 
 public class Proto {
+    private Proto() {
+        // private constructor
+    }
+
     // TODO add comment to explain the logic
     public static String deserialize(InputStream inputStream) throws ProtoException {
         byte[] payloadLenBuf = new byte[Integer.BYTES];
