@@ -10,6 +10,7 @@ public class InsertStatement extends Statement {
     private final List<Expression> values;
 
     public InsertStatement(String table, List<String> columns, List<Expression> values) {
+        super(StatementType.Insert);
         this.table = table;
         this.columns = columns;
         this.values = values;

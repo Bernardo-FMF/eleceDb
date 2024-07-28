@@ -7,6 +7,7 @@ public class CreateIndexStatement extends CreateStatement {
     private final Boolean unique;
 
     public CreateIndexStatement(String name, String table, String column, Boolean unique) {
+        super(StatementType.CreateIndex);
         this.name = name;
         this.table = table;
         this.column = column;

@@ -227,6 +227,7 @@ public abstract class AbstractKeywordCommand implements IKeywordCommand {
         return 0;
     }
 
+    // TODO Create a specific error where we know the exact expected token
     protected Token expectToken(Predicate<Token> predicate) throws TokenizerException, SqlException {
         Token target = nextToken();
         if (!predicate.test(target)) {
