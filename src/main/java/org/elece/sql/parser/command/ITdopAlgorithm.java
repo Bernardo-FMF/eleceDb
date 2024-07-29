@@ -1,16 +1,16 @@
 package org.elece.sql.parser.command;
 
-import org.elece.sql.parser.error.SqlException;
+import org.elece.sql.parser.error.ParserException;
 import org.elece.sql.parser.expression.Expression;
 import org.elece.sql.token.error.TokenizerException;
 
 public interface ITdopAlgorithm {
-    Expression parseExpression(Integer precedence) throws SqlException, TokenizerException;
-    Expression parsePrefix() throws SqlException, TokenizerException;
-    Expression parseInfix(Expression expression, Integer nextPrecedence) throws SqlException, TokenizerException;
+    Expression parseExpression(Integer precedence) throws ParserException, TokenizerException;
+    Expression parsePrefix() throws ParserException, TokenizerException;
+    Expression parseInfix(Expression expression, Integer nextPrecedence) throws ParserException, TokenizerException;
     Integer getNextPrecedence() throws TokenizerException;
 
-    default Expression parseExpression() throws SqlException, TokenizerException {
+    default Expression parseExpression() throws ParserException, TokenizerException {
         return parseExpression(0);
     }
 }

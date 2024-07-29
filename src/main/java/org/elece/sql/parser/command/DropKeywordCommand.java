@@ -1,6 +1,6 @@
 package org.elece.sql.parser.command;
 
-import org.elece.sql.parser.error.SqlException;
+import org.elece.sql.parser.error.ParserException;
 import org.elece.sql.parser.statement.DropDbStatement;
 import org.elece.sql.parser.statement.DropTableStatement;
 import org.elece.sql.parser.statement.Statement;
@@ -17,7 +17,7 @@ public class DropKeywordCommand extends AbstractKeywordCommand {
     }
 
     @Override
-    public Statement parse() throws SqlException, TokenizerException {
+    public Statement parse() throws ParserException, TokenizerException {
         KeywordToken nextToken = (KeywordToken) expectToken(token -> token.getTokenType() == Token.TokenType.KeywordToken &&
                 (((KeywordToken) token).getKeyword() == Keyword.Table ||
                         ((KeywordToken) token).getKeyword() == Keyword.Database));

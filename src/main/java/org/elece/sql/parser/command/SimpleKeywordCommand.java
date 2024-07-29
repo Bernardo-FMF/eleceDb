@@ -1,6 +1,6 @@
 package org.elece.sql.parser.command;
 
-import org.elece.sql.parser.error.SqlException;
+import org.elece.sql.parser.error.ParserException;
 import org.elece.sql.parser.error.UnspecifiedError;
 import org.elece.sql.parser.statement.CommitStatement;
 import org.elece.sql.parser.statement.RollbackStatement;
@@ -18,11 +18,11 @@ public class SimpleKeywordCommand extends AbstractKeywordCommand {
     }
 
     @Override
-    public Statement parse() throws SqlException {
+    public Statement parse() throws ParserException {
         return switch (keyword) {
             case Commit -> new CommitStatement();
             case Rollback -> new RollbackStatement();
-            default -> throw new SqlException(new UnspecifiedError("Unknown query"));
+            default -> throw new ParserException(new UnspecifiedError("Unknown query"));
         };
     }
 }

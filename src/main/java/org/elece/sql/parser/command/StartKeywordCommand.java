@@ -1,6 +1,6 @@
 package org.elece.sql.parser.command;
 
-import org.elece.sql.parser.error.SqlException;
+import org.elece.sql.parser.error.ParserException;
 import org.elece.sql.parser.statement.Statement;
 import org.elece.sql.parser.statement.TransactionStatement;
 import org.elece.sql.token.IPeekableIterator;
@@ -16,7 +16,7 @@ public class StartKeywordCommand extends AbstractKeywordCommand {
     }
 
     @Override
-    public Statement parse() throws SqlException, TokenizerException {
+    public Statement parse() throws ParserException, TokenizerException {
         expectToken(token -> token.getTokenType() == Token.TokenType.KeywordToken && ((KeywordToken) token).getKeyword() == Keyword.Transaction);
 
         return new TransactionStatement();

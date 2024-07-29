@@ -1,6 +1,6 @@
 package org.elece.sql.parser.command;
 
-import org.elece.sql.parser.error.SqlException;
+import org.elece.sql.parser.error.ParserException;
 import org.elece.sql.parser.error.UnspecifiedError;
 import org.elece.sql.parser.statement.CreateDbStatement;
 import org.elece.sql.parser.statement.CreateIndexStatement;
@@ -25,7 +25,7 @@ public class CreateKeywordCommand extends AbstractKeywordCommand {
     }
 
     @Override
-    public Statement parse() throws SqlException, TokenizerException {
+    public Statement parse() throws ParserException, TokenizerException {
         KeywordToken nextToken = (KeywordToken) expectToken(token -> token.getTokenType() == Token.TokenType.KeywordToken &&
                 supportedCreateKeywords.contains(((KeywordToken) token).getKeyword()));
 
@@ -48,7 +48,7 @@ public class CreateKeywordCommand extends AbstractKeywordCommand {
 
                 yield new CreateIndexStatement(name, table, column, isUnique);
             }
-            default -> throw new SqlException(new UnspecifiedError("Unknown create query"));
+            default -> throw new ParserException(new UnspecifiedError("Unknown create query"));
         };
     }
 }

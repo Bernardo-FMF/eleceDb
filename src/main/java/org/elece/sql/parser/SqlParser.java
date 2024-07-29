@@ -2,7 +2,7 @@ package org.elece.sql.parser;
 
 import org.elece.sql.parser.command.CommandFactory;
 import org.elece.sql.parser.command.IKeywordCommand;
-import org.elece.sql.parser.error.SqlException;
+import org.elece.sql.parser.error.ParserException;
 import org.elece.sql.parser.error.UnexpectedToken;
 import org.elece.sql.parser.error.UnspecifiedError;
 import org.elece.sql.parser.statement.ExplainStatement;
@@ -27,7 +27,7 @@ public class SqlParser implements ISqlParser {
 
     private static final CommandFactory commandFactory = new CommandFactory();
 
-    public Statement parse() throws SqlException, TokenizerException {
+    public Statement parse() throws ParserException, TokenizerException {
         Iterator<TokenWrapper> whitespaceSkipper = tokenizerStream.takeWhile(token1 -> token1.hasToken() && token1.getToken().getTokenType() == Token.TokenType.WhitespaceToken);
         Token nextToken = whitespaceSkipper.next().unwrap();
 
@@ -38,12 +38,12 @@ public class SqlParser implements ISqlParser {
             } else {
                 IKeywordCommand IKeywordCommand = commandFactory.buildCommand(keywordToken.getKeyword(), tokenizerStream);
                 if (Objects.isNull(IKeywordCommand)) {
-                    throw new SqlException(new UnspecifiedError("Unresolved keyword command"));
+                    throw new ParserException(new UnspecifiedError("Unresolved keyword command"));
                 } else {
                     return IKeywordCommand.parse();
                 }
             }
         }
-        throw new SqlException(new UnexpectedToken(nextToken, "Keyword is not a supported statement"));
+        throw new ParserException(new UnexpectedToken(nextToken, "Keyword is not a supported statement"));
     }
 }
