@@ -11,4 +11,12 @@ public class DeleteStatement extends Statement {
         this.from = from;
         this.where = where;
     }
+
+    public String getFrom() {
+        return from;
+    }
+
+    public Expression getWhere() {
+        return where;
+    }
 }
