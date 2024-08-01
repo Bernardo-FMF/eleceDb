@@ -20,8 +20,6 @@ public enum Keyword implements IOperator {
     Table(false, false),
     Database(false, false),
     Int(false, true),
-    BigInt(false, true),
-    Unsigned(false, false),
     Varchar(false, true),
     Bool(false, true),
     True(false, false),

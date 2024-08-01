@@ -1,12 +1,14 @@
 package org.elece.sql.parser.expression.internal;
 
-public class SqlNumberValue extends SqlValue<Long> {
-    public SqlNumberValue(Long value) {
+import java.math.BigInteger;
+
+public class SqlNumberValue extends SqlValue<BigInteger> {
+    public SqlNumberValue(BigInteger value) {
         super(value);
     }
 
     @Override
-    protected Integer compare(SqlValue<Long> target) {
-        return Long.compare(this.getValue(), target.getValue());
+    protected Integer compare(SqlValue<BigInteger> target) {
+        return getValue().compareTo(target.getValue());
     }
 }

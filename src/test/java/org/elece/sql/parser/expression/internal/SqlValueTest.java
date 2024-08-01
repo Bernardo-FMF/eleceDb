@@ -4,18 +4,20 @@ import org.elece.sql.parser.error.ParserException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import java.math.BigInteger;
+
 class SqlValueTest {
     @Test
     public void test_number_equalValueTypes_equalValues() throws ParserException {
-        SqlNumberValue sourceValue = new SqlNumberValue(1L);
-        SqlNumberValue targetValue = new SqlNumberValue(1L);
+        SqlNumberValue sourceValue = new SqlNumberValue(new BigInteger("1"));
+        SqlNumberValue targetValue = new SqlNumberValue(new BigInteger("1"));
         Assertions.assertEquals(0, sourceValue.partialComparison(targetValue));
     }
 
     @Test
     public void test_number_equalValueTypes_differentValues() throws ParserException {
-        SqlNumberValue sourceValue = new SqlNumberValue(1L);
-        SqlNumberValue targetValue = new SqlNumberValue(2L);
+        SqlNumberValue sourceValue = new SqlNumberValue(new BigInteger("1"));
+        SqlNumberValue targetValue = new SqlNumberValue(new BigInteger("2"));
         Assertions.assertEquals(-1, sourceValue.partialComparison(targetValue));
     }
 

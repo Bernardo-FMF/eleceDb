@@ -14,6 +14,8 @@ import org.elece.sql.token.model.type.Symbol;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import java.math.BigInteger;
+
 class SqlParserTest {
     @Test
     public void test_dropDb() throws ParserException, TokenizerException {
@@ -69,7 +71,7 @@ class SqlParserTest {
         Assertions.assertEquals("id", insertStatement.getColumns().get(0));
         Assertions.assertEquals("name", insertStatement.getColumns().get(1));
 
-        Assertions.assertEquals(new SqlNumberValue(1L), ((ValueExpression<SqlNumberValue>) insertStatement.getValues().get(0)).getValue());
+        Assertions.assertEquals(new SqlNumberValue(new BigInteger("1")), ((ValueExpression<SqlNumberValue>) insertStatement.getValues().get(0)).getValue());
         Assertions.assertEquals(new SqlStringValue("user1"), ((ValueExpression<SqlStringValue>) insertStatement.getValues().get(1)).getValue());
     }
 
@@ -84,7 +86,7 @@ class SqlParserTest {
 
         Assertions.assertEquals(0, insertStatement.getColumns().size());
 
-        Assertions.assertEquals(new SqlNumberValue(1L), ((ValueExpression<SqlNumberValue>) insertStatement.getValues().get(0)).getValue());
+        Assertions.assertEquals(new SqlNumberValue(new BigInteger("1")), ((ValueExpression<SqlNumberValue>) insertStatement.getValues().get(0)).getValue());
         Assertions.assertEquals(new SqlStringValue("user1"), ((ValueExpression<SqlStringValue>) insertStatement.getValues().get(1)).getValue());
     }
 

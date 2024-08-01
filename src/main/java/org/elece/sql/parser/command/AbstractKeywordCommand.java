@@ -10,6 +10,7 @@ import org.elece.sql.token.model.*;
 import org.elece.sql.token.model.type.Keyword;
 import org.elece.sql.token.model.type.Symbol;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
@@ -90,20 +91,7 @@ public abstract class AbstractKeywordCommand implements IKeywordCommand {
         String name = parseIdentifier();
         Token nextToken = expectToken(token -> token.getTokenType() == Token.TokenType.KeywordToken && ((KeywordToken) token).getKeyword().isDataType());
         SqlType sqlType = switch (((KeywordToken) nextToken).getKeyword()) {
-            case Int -> {
-                boolean unsigned = expectOptionalToken(token -> token.getTokenType() == Token.TokenType.KeywordToken && ((KeywordToken) token).getKeyword() == Keyword.Unsigned);
-                if (unsigned) {
-                    yield SqlType.unsignedIntType;
-                }
-                yield SqlType.intType;
-            }
-            case BigInt -> {
-                boolean unsigned = expectOptionalToken(token -> token.getTokenType() == Token.TokenType.KeywordToken && ((KeywordToken) token).getKeyword() == Keyword.Unsigned);
-                if (unsigned) {
-                    yield SqlType.unsignedBigIntType;
-                }
-                yield SqlType.bigIntType;
-            }
+            case Int -> SqlType.intType;
             case Bool -> SqlType.boolType;
             case Varchar -> {
                 expectToken(token -> token.getTokenType() == Token.TokenType.SymbolToken && ((SymbolToken) token).getSymbol() == Symbol.LeftParenthesis);
@@ -173,12 +161,8 @@ public abstract class AbstractKeywordCommand implements IKeywordCommand {
             case IdentifierToken -> new IdentifierExpression(((IdentifierToken) nextToken).getIdentifier());
             case StringToken -> new ValueExpression<>(new SqlStringValue(((StringToken) nextToken).getString()));
             case NumberToken -> {
-                long value;
-                try {
-                    value = Long.parseLong(((NumberToken) nextToken).getNumber());
-                } catch (NumberFormatException exception) {
-                    throw new ParserException(new IntegerOutOfRange(((NumberToken) nextToken).getNumber()));
-                }
+                String number = ((NumberToken) nextToken).getNumber();
+                BigInteger value = new BigInteger(number);
                 yield new ValueExpression<>(new SqlNumberValue(value));
             }
             case KeywordToken -> switch (((KeywordToken) nextToken).getKeyword()) {
