@@ -4,6 +4,7 @@ import java.util.List;
 
 public class SqlType {
     private static final int VARCHAR_MAX_SIZE = 255;
+
     private final Type type;
     private final Integer usize;
     private final List<SqlConstraint> constraints;
@@ -23,9 +24,6 @@ public class SqlType {
     }
 
     public static SqlType intType = new SqlType(Type.Int, List.of(SqlConstraint.PrimaryKey, SqlConstraint.Unique));
-    public static SqlType bigIntType = new SqlType(Type.BigInt, List.of(SqlConstraint.PrimaryKey, SqlConstraint.Unique));
-    public static SqlType unsignedIntType = new SqlType(Type.UnsignedInt, List.of(SqlConstraint.PrimaryKey, SqlConstraint.Unique));
-    public static SqlType unsignedBigIntType = new SqlType(Type.UnsignedBigInt, List.of(SqlConstraint.PrimaryKey, SqlConstraint.Unique));
     public static SqlType boolType = new SqlType(Type.Bool);
     public static SqlType varcharType = new SqlType(Type.Varchar, VARCHAR_MAX_SIZE, List.of(SqlConstraint.PrimaryKey, SqlConstraint.Unique));
 
@@ -37,11 +35,12 @@ public class SqlType {
         return new SqlType(Type.Varchar, validSize, List.of(SqlConstraint.PrimaryKey, SqlConstraint.Unique));
     }
 
+    public Type getType() {
+        return type;
+    }
+
     public enum Type {
         Int,
-        BigInt,
-        UnsignedInt,
-        UnsignedBigInt,
         Bool,
         Varchar
     }
