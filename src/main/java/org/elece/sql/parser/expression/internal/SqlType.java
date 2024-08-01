@@ -6,7 +6,7 @@ public class SqlType {
     private static final int VARCHAR_MAX_SIZE = 255;
 
     private final Type type;
-    private final Integer usize;
+    private final Integer size;
     private final List<SqlConstraint> constraints;
 
     public SqlType(Type type) {
@@ -17,9 +17,9 @@ public class SqlType {
         this(type, 0, constraints);
     }
 
-    public SqlType(Type type, Integer usize, List<SqlConstraint> constraints) {
+    public SqlType(Type type, Integer size, List<SqlConstraint> constraints) {
         this.type = type;
-        this.usize = usize;
+        this.size = size;
         this.constraints = constraints;
     }
 
@@ -37,6 +37,10 @@ public class SqlType {
 
     public Type getType() {
         return type;
+    }
+
+    public Integer getSize() {
+        return size;
     }
 
     public enum Type {

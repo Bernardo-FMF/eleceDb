@@ -24,6 +24,6 @@ public class DeleteAnalyzerCommand implements IAnalyzerCommand {
             throw new AnalyzerException("");
         }
 
-        analyzeWhere(table.getSchema(), deleteStatement.getWhere());
+        analyzeWhere(table.schema(), deleteStatement.getWhere());
     }
 }

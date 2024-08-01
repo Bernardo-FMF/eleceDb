@@ -6,4 +6,8 @@ public class NestedExpression extends Expression {
     public NestedExpression(Expression expression) {
         this.expression = expression;
     }
+
+    public Expression getExpression() {
+        return expression;
+    }
 }

@@ -25,9 +25,9 @@ public class CreateIndexAnalyzerCommand implements IAnalyzerCommand {
             throw new AnalyzerException("");
         }
 
-        List<IndexMetadata> tableIndexes = table.getIndexMetadata();
+        List<IndexMetadata> tableIndexes = table.indexMetadata();
         for (IndexMetadata index : tableIndexes) {
-            if (index.getName().equals(createIndexStatement.getName())) {
+            if (index.name().equals(createIndexStatement.getName())) {
                 throw new AnalyzerException("");
             }
         }

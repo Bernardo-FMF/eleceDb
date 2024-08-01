@@ -29,6 +29,6 @@ public class UpdateAnalyzerCommand implements IAnalyzerCommand {
             analyzeAssignment(table, assignment, true);
         }
 
-        analyzeWhere(table.getSchema(), updateStatement.getWhere());
+        analyzeWhere(table.schema(), updateStatement.getWhere());
     }
 }
