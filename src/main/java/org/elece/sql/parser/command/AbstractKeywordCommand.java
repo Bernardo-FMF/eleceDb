@@ -69,7 +69,7 @@ public abstract class AbstractKeywordCommand implements IKeywordCommand {
             expectToken(token -> token.getTokenType() == Token.TokenType.KeywordToken && ((KeywordToken) token).getKeyword() == Keyword.By);
             return parseExpressionDefinitions(false);
         }
-        return null;
+        return List.of();
     }
 
     protected Expression parseWhere() throws TokenizerException, ParserException {
