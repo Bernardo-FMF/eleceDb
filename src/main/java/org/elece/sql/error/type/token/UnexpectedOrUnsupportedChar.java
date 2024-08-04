@@ -1,8 +1,9 @@
-package org.elece.sql.token.error;
+package org.elece.sql.error.type.token;
 
+import org.elece.sql.error.type.ISqlError;
 import org.elece.sql.token.Location;
 
-public class UnexpectedOrUnsupportedChar implements TokenError {
+public class UnexpectedOrUnsupportedChar implements ISqlError {
     private final Location location;
     private final Character unexpectedChar;
 
@@ -13,6 +14,6 @@ public class UnexpectedOrUnsupportedChar implements TokenError {
 
     @Override
     public String format() {
-        return String.format("Error(\n\tlocation: %s\n\tcause: unexpected character %c.\n)", location, unexpectedChar);
+        return format("Unexpected or unsupported character", String.format("Found the character %c on (%s, %s)", unexpectedChar, location.getLine(), location.getColumn()));
     }
 }

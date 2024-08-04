@@ -1,6 +1,6 @@
 package org.elece.sql.analyzer.command;
 
-import org.elece.sql.analyzer.error.AnalyzerException;
+import org.elece.sql.error.AnalyzerException;
 import org.elece.sql.db.Db;
 import org.elece.sql.db.IContext;
 import org.elece.sql.db.Schema;

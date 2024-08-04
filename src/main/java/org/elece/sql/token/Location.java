@@ -54,6 +54,14 @@ public class Location {
         this.pointer = pointer;
     }
 
+    public int getLine() {
+        return line;
+    }
+
+    public int getColumn() {
+        return column;
+    }
+
     protected Location copy() {
         Location copy = new Location();
         copy.setLine(line);

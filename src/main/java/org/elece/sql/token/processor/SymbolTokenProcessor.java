@@ -3,8 +3,8 @@ package org.elece.sql.token.processor;
 import org.elece.sql.token.CharStream;
 import org.elece.sql.token.Location;
 import org.elece.sql.token.TokenWrapper;
-import org.elece.sql.token.error.OperatorNotClosed;
-import org.elece.sql.token.error.UnexpectedCharInOperator;
+import org.elece.sql.error.type.token.OperatorNotClosed;
+import org.elece.sql.error.type.token.UnexpectedCharInOperator;
 import org.elece.sql.token.model.SymbolToken;
 import org.elece.sql.token.model.type.Symbol;
 

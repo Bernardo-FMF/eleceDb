@@ -3,7 +3,7 @@ package org.elece.sql.token.processor;
 import org.elece.sql.token.CharStream;
 import org.elece.sql.token.Location;
 import org.elece.sql.token.TokenWrapper;
-import org.elece.sql.token.error.StringNotClosed;
+import org.elece.sql.error.type.token.StringNotClosed;
 import org.elece.sql.token.model.StringToken;
 
 import java.util.Set;

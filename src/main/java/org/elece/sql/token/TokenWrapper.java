@@ -1,14 +1,14 @@
 package org.elece.sql.token;
 
-import org.elece.sql.token.error.TokenError;
-import org.elece.sql.token.error.TokenizerException;
+import org.elece.sql.error.TokenizerException;
+import org.elece.sql.error.type.ISqlError;
 import org.elece.sql.token.model.Token;
 
 import java.util.Objects;
 
 public class TokenWrapper {
     private final Token token;
-    private final TokenError error;
+    private final ISqlError error;
 
     private TokenWrapper(Builder builder) {
         this.token = builder.token;
@@ -21,14 +21,14 @@ public class TokenWrapper {
 
     public static class Builder {
         private Token token;
-        private TokenError error;
+        private ISqlError error;
 
         public Builder token(Token token) {
             this.token = token;
             return this;
         }
 
-        public Builder error(TokenError error) {
+        public Builder error(ISqlError error) {
             this.error = error;
             return this;
         }
@@ -46,7 +46,7 @@ public class TokenWrapper {
         return token;
     }
 
-    public TokenError getError() {
+    public ISqlError getError() {
         return error;
     }
 

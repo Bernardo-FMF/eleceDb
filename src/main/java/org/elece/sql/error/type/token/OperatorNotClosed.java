@@ -1,9 +1,10 @@
-package org.elece.sql.token.error;
+package org.elece.sql.error.type.token;
 
+import org.elece.sql.error.type.ISqlError;
 import org.elece.sql.token.Location;
 import org.elece.sql.token.model.type.Symbol;
 
-public class OperatorNotClosed implements TokenError {
+public class OperatorNotClosed implements ISqlError {
     private final Location location;
     private final Symbol expectedSymbol;
 
@@ -14,6 +15,6 @@ public class OperatorNotClosed implements TokenError {
 
     @Override
     public String format() {
-        return String.format("Error(\n\tlocation: %s\n\tcause: expected symbol %s.\n)", location, String.valueOf(expectedSymbol.getSymbolValue()));
+        return format("Operator not closed", String.format("Expected symbol %s on (%s, %s)", String.valueOf(expectedSymbol.getSymbolValue()), location.getLine(), location.getColumn()));
     }
 }

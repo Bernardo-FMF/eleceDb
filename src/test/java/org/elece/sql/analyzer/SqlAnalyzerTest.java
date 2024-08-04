@@ -1,15 +1,15 @@
 package org.elece.sql.analyzer;
 
-import org.elece.sql.analyzer.error.AnalyzerException;
+import org.elece.sql.error.AnalyzerException;
 import org.elece.sql.db.*;
 import org.elece.sql.parser.ISqlParser;
 import org.elece.sql.parser.SqlParser;
-import org.elece.sql.parser.error.ParserException;
+import org.elece.sql.error.ParserException;
 import org.elece.sql.parser.expression.internal.Column;
 import org.elece.sql.parser.expression.internal.SqlConstraint;
 import org.elece.sql.parser.expression.internal.SqlType;
 import org.elece.sql.parser.statement.Statement;
-import org.elece.sql.token.error.TokenizerException;
+import org.elece.sql.error.TokenizerException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

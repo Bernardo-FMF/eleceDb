@@ -1,8 +1,9 @@
-package org.elece.sql.parser.error;
+package org.elece.sql.error.type.parser;
 
+import org.elece.sql.error.type.ISqlError;
 import org.elece.sql.token.model.Token;
 
-public class UnexpectedToken implements StatementError {
+public class UnexpectedToken implements ISqlError {
     private final Token unexpectedToken;
     private final String message;
 
@@ -13,6 +14,6 @@ public class UnexpectedToken implements StatementError {
 
     @Override
     public String format() {
-        return String.format("Error(\n\tcause: unexpected token\n\tmessage: %s\n\tvalue: %s\n)", message, unexpectedToken);
+        return format(String.format("Unexpected token %s", unexpectedToken), message);
     }
 }

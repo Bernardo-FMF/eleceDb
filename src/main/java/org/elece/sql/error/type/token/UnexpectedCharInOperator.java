@@ -1,9 +1,10 @@
-package org.elece.sql.token.error;
+package org.elece.sql.error.type.token;
 
+import org.elece.sql.error.type.ISqlError;
 import org.elece.sql.token.Location;
 import org.elece.sql.token.model.type.Symbol;
 
-public class UnexpectedCharInOperator implements TokenError {
+public class UnexpectedCharInOperator implements ISqlError {
     private final Location location;
     private final Symbol expectedSymbol;
     private final Character unexpectedChar;
@@ -16,6 +17,6 @@ public class UnexpectedCharInOperator implements TokenError {
 
     @Override
     public String format() {
-        return String.format("Error(\n\tlocation: %s\n\tcause: expected symbol %s, but found %c\n)", location, String.valueOf(expectedSymbol.getSymbolValue()), unexpectedChar);
+        return format("Unexpected character in operator", String.format("Expected symbol %s, but found %c", String.valueOf(expectedSymbol.getSymbolValue()), unexpectedChar));
     }
 }

@@ -1,11 +1,12 @@
 package org.elece.sql.parser.command;
 
-import org.elece.sql.parser.error.*;
+import org.elece.sql.error.ParserException;
+import org.elece.sql.error.type.parser.UnexpectedToken;
 import org.elece.sql.parser.expression.*;
 import org.elece.sql.parser.expression.internal.*;
 import org.elece.sql.token.IPeekableIterator;
 import org.elece.sql.token.TokenWrapper;
-import org.elece.sql.token.error.TokenizerException;
+import org.elece.sql.error.TokenizerException;
 import org.elece.sql.token.model.*;
 import org.elece.sql.token.model.type.Keyword;
 import org.elece.sql.token.model.type.Symbol;
