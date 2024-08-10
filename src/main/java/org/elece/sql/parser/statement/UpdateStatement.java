@@ -7,8 +7,8 @@ import java.util.List;
 
 public class UpdateStatement extends Statement {
     private final String table;
-    private final List<Assignment> columns;
-    private final Expression where;
+    private List<Assignment> columns;
+    private Expression where;
 
     public UpdateStatement(String table, List<Assignment> columns, Expression where) {
         super(StatementType.Update);
@@ -27,5 +27,13 @@ public class UpdateStatement extends Statement {
 
     public Expression getWhere() {
         return where;
+    }
+
+    public void setColumns(List<Assignment> columns) {
+        this.columns = columns;
+    }
+
+    public void setWhere(Expression where) {
+        this.where = where;
     }
 }

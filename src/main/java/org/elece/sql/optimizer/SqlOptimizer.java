@@ -1,6 +1,5 @@
 package org.elece.sql.optimizer;
 
-import org.elece.sql.analyzer.command.*;
 import org.elece.sql.db.IContext;
 import org.elece.sql.db.TableMetadata;
 import org.elece.sql.optimizer.command.*;

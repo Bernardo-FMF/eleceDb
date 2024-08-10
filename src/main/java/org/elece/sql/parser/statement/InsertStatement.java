@@ -7,7 +7,7 @@ import java.util.List;
 public class InsertStatement extends Statement {
     private final String table;
     private final List<String> columns;
-    private final List<Expression> values;
+    private List<Expression> values;
 
     public InsertStatement(String table, List<String> columns, List<Expression> values) {
         super(StatementType.Insert);
@@ -26,5 +26,9 @@ public class InsertStatement extends Statement {
 
     public List<Expression> getValues() {
         return values;
+    }
+
+    public void setValues(List<Expression> values) {
+        this.values = values;
     }
 }
