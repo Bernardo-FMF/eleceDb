@@ -2,34 +2,47 @@ package org.elece.sql.optimizer.command;
 
 import org.elece.sql.db.IContext;
 import org.elece.sql.db.TableMetadata;
+import org.elece.sql.error.ParserException;
 import org.elece.sql.parser.expression.*;
 import org.elece.sql.parser.expression.internal.Assignment;
 import org.elece.sql.parser.expression.internal.SqlNumberValue;
 import org.elece.sql.parser.statement.Statement;
+import org.elece.sql.planner.ExpressionUtils;
 import org.elece.sql.token.model.type.Symbol;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.List;
 
 public interface IOptimizerCommand {
     SqlNumberValue sqlNumber1 = new SqlNumberValue(new BigInteger("1"));
     SqlNumberValue sqlNumber0 = new SqlNumberValue(new BigInteger("0"));
 
-    void optimize(IContext<String, TableMetadata> context, Statement statement);
+    void optimize(IContext<String, TableMetadata> context, Statement statement) throws ParserException;
 
-    default Expression optimizeWhere(Expression where) {
+    default Expression optimizeWhere(Expression where) throws ParserException {
         return optimize(where);
     }
 
-    default List<Expression> optimizeExpressions(List<Expression> expressions) {
-        return expressions.stream().map(this::optimize).toList();
+    default List<Expression> optimizeExpressions(List<Expression> expressions) throws ParserException {
+        List<Expression> list = new ArrayList<>();
+        for (Expression expression : expressions) {
+            Expression newExpression = optimize(expression);
+            list.add(newExpression);
+        }
+        return list;
     }
 
-    default List<Assignment> optimizeAssignments(List<Assignment> assignments) {
-        return assignments.stream().map(assignment -> new Assignment(assignment.getId(), optimize(assignment.getValue()))).toList();
+    default List<Assignment> optimizeAssignments(List<Assignment> assignments) throws ParserException {
+        List<Assignment> list = new ArrayList<>();
+        for (Assignment assignment : assignments) {
+            Assignment newAssignment = new Assignment(assignment.getId(), optimize(assignment.getValue()));
+            list.add(newAssignment);
+        }
+        return list;
     }
 
-    private Expression optimize(Expression expression) {
+    private Expression optimize(Expression expression) throws ParserException {
         if (expression instanceof UnaryExpression unaryExpression) {
             Expression optimizedExpression = optimize(unaryExpression.getExpression());
             if (optimizedExpression instanceof ValueExpression<?> valueExpression) {
@@ -99,7 +112,7 @@ public interface IOptimizerCommand {
         return expression;
     }
 
-    private Expression resolveLiteral(Expression expression) {
-        return null;
+    private Expression resolveLiteral(Expression expression) throws ParserException {
+        return new ValueExpression<>(ExpressionUtils.resolveLiteralExpression(expression));
     }
 }
