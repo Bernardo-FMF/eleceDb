@@ -8,7 +8,7 @@ import org.elece.sql.parser.statement.Statement;
 
 public class SelectOptimizerCommand implements IOptimizerCommand {
     @Override
-    public void optimize(IContext<String, TableMetadata> context, Statement statement) throws ParserException {
+    public void optimize(Statement statement) throws ParserException {
         SelectStatement selectStatement = (SelectStatement) statement;
 
         selectStatement.setColumns(optimizeExpressions(selectStatement.getColumns()));

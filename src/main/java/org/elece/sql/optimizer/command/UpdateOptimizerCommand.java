@@ -8,7 +8,7 @@ import org.elece.sql.parser.statement.UpdateStatement;
 
 public class UpdateOptimizerCommand implements IOptimizerCommand {
     @Override
-    public void optimize(IContext<String, TableMetadata> context, Statement statement) throws ParserException {
+    public void optimize(Statement statement) throws ParserException {
         UpdateStatement updateStatement = (UpdateStatement) statement;
 
         updateStatement.setWhere(optimizeWhere(updateStatement.getWhere()));

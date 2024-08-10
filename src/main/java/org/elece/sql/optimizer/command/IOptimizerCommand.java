@@ -18,7 +18,7 @@ public interface IOptimizerCommand {
     SqlNumberValue sqlNumber1 = new SqlNumberValue(new BigInteger("1"));
     SqlNumberValue sqlNumber0 = new SqlNumberValue(new BigInteger("0"));
 
-    void optimize(IContext<String, TableMetadata> context, Statement statement) throws ParserException;
+    void optimize(Statement statement) throws ParserException;
 
     default Expression optimizeWhere(Expression where) throws ParserException {
         return optimize(where);
@@ -97,8 +97,8 @@ public interface IOptimizerCommand {
                         innerBinaryExpression.setLeft(innerValueExpression);
                         binaryExpression.setRight(leftInnerExpression);
 
-                        Expression newLeftBinaryExpression = resolveLiteral(((BinaryExpression) binaryExpression.getLeft()).getLeft());
-                        ((BinaryExpression) binaryExpression.getLeft()).setLeft(newLeftBinaryExpression);
+                        Expression newLeftBinaryExpression = resolveLiteral(binaryExpression.getLeft());
+                        binaryExpression.setLeft(newLeftBinaryExpression);
 
                         Expression tempLeftInnerExpression = binaryExpression.getLeft();
                         binaryExpression.setLeft(binaryExpression.getRight());

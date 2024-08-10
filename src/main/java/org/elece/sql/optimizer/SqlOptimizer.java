@@ -23,16 +23,16 @@ public class SqlOptimizer implements ISqlOptimizer {
     }
 
     @Override
-    public void optimize(IContext<String, TableMetadata> context, Statement statement) throws ParserException {
+    public void optimize(Statement statement) throws ParserException {
         Statement.StatementType statementType = statement.getStatementType();
         if (statementType == Statement.StatementType.Explain) {
             ExplainStatement explainStatement = (ExplainStatement) statement;
-            optimize(context, explainStatement.getStatement());
+            optimize(explainStatement.getStatement());
         }
 
         IOptimizerCommand optimizerCommand = optimizerCommandMap.get(statementType);
         if (!Objects.isNull(optimizerCommand)) {
-            optimizerCommand.optimize(context, statement);
+            optimizerCommand.optimize(statement);
         }
     }
 }
