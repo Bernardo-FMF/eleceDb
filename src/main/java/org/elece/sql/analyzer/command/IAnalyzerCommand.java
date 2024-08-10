@@ -103,13 +103,13 @@ public interface IAnalyzerCommand {
             throw new AnalyzerException("");
         }
 
-        Column column = table.schema().findColumn(assignment.getId());
+        Column column = table.getSchema().findColumn(assignment.getId());
         if (Objects.isNull(column)) {
             throw new AnalyzerException("");
         }
 
         SqlType columnSqlType = column.getSqlType();
-        SqlType runtimeSqlType = analyzeExpression(allowIdentifiers ? table.schema() : null, columnSqlType, assignment.getValue());
+        SqlType runtimeSqlType = analyzeExpression(allowIdentifiers ? table.getSchema() : null, columnSqlType, assignment.getValue());
 
         if (columnSqlType.getType() != runtimeSqlType.getType()) {
             throw new AnalyzerException("");

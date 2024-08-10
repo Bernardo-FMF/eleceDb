@@ -25,13 +25,13 @@ public class SelectAnalyzerCommand implements IAnalyzerCommand {
             if (column instanceof WildcardExpression) {
                 continue;
             }
-            analyzeExpression(table.schema(), null, column);
+            analyzeExpression(table.getSchema(), null, column);
         }
 
-        analyzeWhere(table.schema(), selectStatement.getWhere());
+        analyzeWhere(table.getSchema(), selectStatement.getWhere());
 
         for (Expression orderBy : selectStatement.getOrderBy()) {
-            analyzeExpression(table.schema(), null, orderBy);
+            analyzeExpression(table.getSchema(), null, orderBy);
         }
     }
 }

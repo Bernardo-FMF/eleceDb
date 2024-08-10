@@ -15,6 +15,9 @@ public class Schema {
     public Schema(List<Column> columns) {
         this.columns = columns;
         this.indexedColumns = new HashMap<>();
+        for (int i = 0; i < columns.size(); i++) {
+            this.indexedColumns.put(columns.get(i).getName(), i);
+        }
     }
 
     private Schema() {
@@ -33,5 +36,9 @@ public class Schema {
 
     public Integer findColumnIndex(String columnName) {
         return indexedColumns.get(columnName);
+    }
+
+    public List<Column> getColumns() {
+        return columns;
     }
 }

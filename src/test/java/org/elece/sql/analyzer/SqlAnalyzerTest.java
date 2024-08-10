@@ -25,7 +25,7 @@ class SqlAnalyzerTest {
         Column nameColumn = new Column("name", SqlType.varchar(255), List.of());
         Column idColumn = new Column("id", SqlType.intType, List.of(SqlConstraint.Unique, SqlConstraint.PrimaryKey));
         Schema schema = new Schema(List.of(idColumn, nameColumn));
-        TableMetadata userTable = new TableMetadata(0, "users", schema, List.of(new IndexMetadata(0, "id_index", idColumn, schema, true)), 0L);
+        TableMetadata userTable = new TableMetadata(0, "users", schema, List.of(new IndexMetadata(0, "id_index", idColumn, schema, true)));
         context.insert("users", userTable);
     }
 

@@ -8,7 +8,7 @@ import org.elece.sql.parser.statement.Statement;
 
 public class DeleteOptimizerCommand implements IOptimizerCommand {
     @Override
-    public void optimize(Statement statement) throws ParserException {
+    public void optimize(IContext<String, TableMetadata> context, Statement statement) throws ParserException {
         DeleteStatement deleteStatement = (DeleteStatement) statement;
 
         deleteStatement.setWhere(optimizeWhere(deleteStatement.getWhere()));

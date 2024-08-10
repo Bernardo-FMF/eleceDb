@@ -13,11 +13,13 @@ import org.elece.sql.parser.expression.ValueExpression;
 import org.elece.sql.parser.expression.internal.Column;
 import org.elece.sql.parser.expression.internal.SqlConstraint;
 import org.elece.sql.parser.expression.internal.SqlType;
+import org.elece.sql.parser.statement.InsertStatement;
 import org.elece.sql.parser.statement.SelectStatement;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.List;
 
 class SqlOptimizerTest {
@@ -27,10 +29,11 @@ class SqlOptimizerTest {
     private static final IContext<String, TableMetadata> context = new DbContext();
 
     static {
+        Column rowIdColumn = new Column(Db.ROW_ID, SqlType.intType, List.of());
         Column nameColumn = new Column("name", SqlType.varchar(255), List.of());
         Column idColumn = new Column("id", SqlType.intType, List.of(SqlConstraint.Unique, SqlConstraint.PrimaryKey));
-        Schema schema = new Schema(List.of(idColumn, nameColumn));
-        TableMetadata userTable = new TableMetadata(0, "users", schema, List.of(new IndexMetadata(0, "id_index", idColumn, schema, true)), 0L);
+        Schema schema = new Schema(new ArrayList<>(List.of(rowIdColumn, idColumn, nameColumn)));
+        TableMetadata userTable = new TableMetadata(0, "users", schema, List.of(new IndexMetadata(0, "id_index", idColumn, schema, true)));
         context.insert("users", userTable);
     }
 
@@ -39,7 +42,7 @@ class SqlOptimizerTest {
         ISqlParser sqlParser = new SqlParser("SELECT id, name FROM users WHERE id + 0 = 1;");
         SelectStatement statement = (SelectStatement) sqlParser.parse();
         sqlAnalyzer.analyze(context, statement);
-        sqlOptimizer.optimize(statement);
+        sqlOptimizer.optimize(context, statement);
 
         Assertions.assertTrue(((BinaryExpression)statement.getWhere()).getLeft() instanceof IdentifierExpression);
     }
@@ -49,7 +52,7 @@ class SqlOptimizerTest {
         ISqlParser sqlParser = new SqlParser("SELECT id, name FROM users WHERE id - 0 = 1;");
         SelectStatement statement = (SelectStatement) sqlParser.parse();
         sqlAnalyzer.analyze(context, statement);
-        sqlOptimizer.optimize(statement);
+        sqlOptimizer.optimize(context, statement);
 
         Assertions.assertTrue(((BinaryExpression)statement.getWhere()).getLeft() instanceof IdentifierExpression);
     }
@@ -59,7 +62,7 @@ class SqlOptimizerTest {
         ISqlParser sqlParser = new SqlParser("SELECT id, name FROM users WHERE id / 1 = 1;");
         SelectStatement statement = (SelectStatement) sqlParser.parse();
         sqlAnalyzer.analyze(context, statement);
-        sqlOptimizer.optimize(statement);
+        sqlOptimizer.optimize(context, statement);
 
         Assertions.assertTrue(((BinaryExpression)statement.getWhere()).getLeft() instanceof IdentifierExpression);
     }
@@ -69,7 +72,7 @@ class SqlOptimizerTest {
         ISqlParser sqlParser = new SqlParser("SELECT id, name FROM users WHERE id * 1 = 1;");
         SelectStatement statement = (SelectStatement) sqlParser.parse();
         sqlAnalyzer.analyze(context, statement);
-        sqlOptimizer.optimize(statement);
+        sqlOptimizer.optimize(context, statement);
 
         Assertions.assertTrue(((BinaryExpression)statement.getWhere()).getLeft() instanceof IdentifierExpression);
     }
@@ -79,7 +82,7 @@ class SqlOptimizerTest {
         ISqlParser sqlParser = new SqlParser("SELECT id, name FROM users WHERE id + 2 + 4 > 8;");
         SelectStatement statement = (SelectStatement) sqlParser.parse();
         sqlAnalyzer.analyze(context, statement);
-        sqlOptimizer.optimize(statement);
+        sqlOptimizer.optimize(context, statement);
 
         Assertions.assertTrue(((BinaryExpression)statement.getWhere()).getLeft() instanceof BinaryExpression);
         Assertions.assertTrue(((BinaryExpression) ((BinaryExpression)statement.getWhere()).getLeft()).getLeft() instanceof IdentifierExpression);

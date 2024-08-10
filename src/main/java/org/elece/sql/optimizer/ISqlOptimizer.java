@@ -6,5 +6,5 @@ import org.elece.sql.error.ParserException;
 import org.elece.sql.parser.statement.Statement;
 
 public interface ISqlOptimizer {
-    void optimize(Statement statement) throws ParserException;
+    void optimize(IContext<String, TableMetadata> context, Statement statement) throws ParserException;
 }

@@ -18,7 +18,7 @@ public interface IOptimizerCommand {
     SqlNumberValue sqlNumber1 = new SqlNumberValue(new BigInteger("1"));
     SqlNumberValue sqlNumber0 = new SqlNumberValue(new BigInteger("0"));
 
-    void optimize(Statement statement) throws ParserException;
+    void optimize(IContext<String, TableMetadata> context, Statement statement) throws ParserException;
 
     default Expression optimizeWhere(Expression where) throws ParserException {
         return optimize(where);
