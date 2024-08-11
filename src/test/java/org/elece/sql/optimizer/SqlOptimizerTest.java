@@ -13,7 +13,6 @@ import org.elece.sql.parser.expression.ValueExpression;
 import org.elece.sql.parser.expression.internal.Column;
 import org.elece.sql.parser.expression.internal.SqlConstraint;
 import org.elece.sql.parser.expression.internal.SqlType;
-import org.elece.sql.parser.statement.InsertStatement;
 import org.elece.sql.parser.statement.SelectStatement;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;

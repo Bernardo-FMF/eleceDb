@@ -40,7 +40,14 @@ public class CreateTableAnalyzerCommand implements IAnalyzerCommand {
                 if (hasPrimaryKey) {
                     throw new AnalyzerException("");
                 }
+                if (!column.getSqlType().getConstraints().contains(SqlConstraint.PrimaryKey)) {
+                    throw new AnalyzerException("");
+                }
                 hasPrimaryKey = true;
+            }
+
+            if (column.getConstraints().contains(SqlConstraint.Unique) && !column.getSqlType().getConstraints().contains(SqlConstraint.Unique)) {
+                throw new AnalyzerException("");
             }
         }
     }

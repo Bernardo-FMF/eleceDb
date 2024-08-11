@@ -4,6 +4,7 @@ import org.elece.sql.error.AnalyzerException;
 import org.elece.sql.db.IContext;
 import org.elece.sql.db.IndexMetadata;
 import org.elece.sql.db.TableMetadata;
+import org.elece.sql.parser.expression.internal.SqlConstraint;
 import org.elece.sql.parser.statement.CreateIndexStatement;
 import org.elece.sql.parser.statement.Statement;
 
@@ -30,6 +31,10 @@ public class CreateIndexAnalyzerCommand implements IAnalyzerCommand {
             if (index.name().equals(createIndexStatement.getName())) {
                 throw new AnalyzerException("");
             }
+        }
+
+        if (!table.getSchema().findColumn(createIndexStatement.getColumn()).getConstraints().contains(SqlConstraint.Unique)) {
+            throw new AnalyzerException("");
         }
     }
 }

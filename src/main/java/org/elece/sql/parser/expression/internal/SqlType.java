@@ -43,6 +43,10 @@ public class SqlType {
         return size;
     }
 
+    public List<SqlConstraint> getConstraints() {
+        return constraints;
+    }
+
     public enum Type {
         Int,
         Bool,
