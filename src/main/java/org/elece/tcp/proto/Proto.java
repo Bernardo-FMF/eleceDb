@@ -1,4 +1,4 @@
-package org.elece.sql.tcp.proto;
+package org.elece.tcp.proto;
 
 import java.io.IOException;
 import java.io.InputStream;

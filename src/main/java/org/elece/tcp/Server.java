@@ -1,9 +1,9 @@
-package org.elece.sql.tcp;
+package org.elece.tcp;
 
 import org.elece.sql.config.IDbConfig;
-import org.elece.sql.thread.ISocketWorker;
-import org.elece.sql.thread.ManagedThreadPool;
-import org.elece.sql.thread.SocketWorker;
+import org.elece.thread.ISocketWorker;
+import org.elece.thread.ManagedThreadPool;
+import org.elece.thread.SocketWorker;
 
 import javax.net.ServerSocketFactory;
 import java.io.IOException;

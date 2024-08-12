@@ -1,4 +1,4 @@
-package org.elece.sql.tcp;
+package org.elece.tcp;
 
 import java.io.IOException;
 

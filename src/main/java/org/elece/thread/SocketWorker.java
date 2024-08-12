@@ -1,7 +1,7 @@
-package org.elece.sql.thread;
+package org.elece.thread;
 
-import org.elece.sql.tcp.proto.Proto;
-import org.elece.sql.tcp.proto.ProtoException;
+import org.elece.tcp.proto.Proto;
+import org.elece.tcp.proto.ProtoException;
 
 import java.io.IOException;
 import java.io.InputStream;

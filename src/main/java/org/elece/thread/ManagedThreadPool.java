@@ -1,4 +1,4 @@
-package org.elece.sql.thread;
+package org.elece.thread;
 
 import org.elece.sql.config.IDbConfig;
 

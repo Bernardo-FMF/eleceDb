@@ -1,4 +1,4 @@
-package org.elece.sql.thread;
+package org.elece.thread;
 
 public interface ISocketWorker extends Runnable {
 }
