@@ -1,6 +1,6 @@
 package org.elece.tcp;
 
-import org.elece.sql.config.IDbConfig;
+import org.elece.config.IDbConfig;
 import org.elece.thread.ISocketWorker;
 import org.elece.thread.ManagedThreadPool;
 import org.elece.thread.SocketWorker;

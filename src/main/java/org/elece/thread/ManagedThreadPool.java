@@ -1,6 +1,6 @@
 package org.elece.thread;
 
-import org.elece.sql.config.IDbConfig;
+import org.elece.config.IDbConfig;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.SynchronousQueue;
