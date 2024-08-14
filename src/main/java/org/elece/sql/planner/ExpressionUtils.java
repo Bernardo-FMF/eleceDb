@@ -2,13 +2,13 @@ package org.elece.sql.planner;
 
 import org.elece.sql.db.Schema;
 import org.elece.sql.error.ParserException;
+import org.elece.sql.error.type.parser.ArithmeticResultOutOfBounds;
 import org.elece.sql.parser.expression.*;
 import org.elece.sql.parser.expression.internal.SqlBoolValue;
 import org.elece.sql.parser.expression.internal.SqlNumberValue;
 import org.elece.sql.parser.expression.internal.SqlValue;
 import org.elece.sql.token.model.type.Symbol;
 
-import java.math.BigInteger;
 import java.util.Map;
 import java.util.Objects;
 
@@ -36,7 +36,7 @@ public class ExpressionUtils {
             SqlValue<?> resolvedValue = resolveExpression(valuesTuple, schema, unaryExpression.getExpression());
             if (resolvedValue instanceof SqlNumberValue numberValue) {
                 if (unaryExpression.getOperator() == Symbol.Minus) {
-                    return new SqlNumberValue(numberValue.getValue().negate());
+                    return new SqlNumberValue(numberValue.getValue() * -1);
                 }
                 return resolvedValue;
             } else {
@@ -81,23 +81,26 @@ public class ExpressionUtils {
                         return null;
                     }
 
-                    if (binaryExpression.getOperator() == Symbol.Div && Objects.equals(rightNumber.getValue(), BigInteger.ZERO)) {
+                    if (binaryExpression.getOperator() == Symbol.Div && rightNumber.getValue() == 0) {
                         // TODO: throw
                         return null;
                     }
 
-                    BigInteger arithmeticResult = switch (symbol) {
-                        case Plus -> leftNumber.getValue().add(rightNumber.getValue());
-                        case Minus -> leftNumber.getValue().subtract(rightNumber.getValue());
-                        case Mul -> leftNumber.getValue().multiply(rightNumber.getValue());
-                        case Div -> leftNumber.getValue().divide(rightNumber.getValue());
-                        default -> {
-                            // TODO: throw
-                            yield null;
-                        }
-                    };
-
-                    return new SqlNumberValue(arithmeticResult);
+                    try {
+                        Integer arithmeticResult = switch (symbol) {
+                            case Plus -> leftNumber.getValue() + rightNumber.getValue();
+                            case Minus -> leftNumber.getValue() - rightNumber.getValue();
+                            case Mul -> leftNumber.getValue() * rightNumber.getValue();
+                            case Div -> leftNumber.getValue() / rightNumber.getValue();
+                            default -> {
+                                // TODO: throw
+                                yield null;
+                            }
+                        };
+                        return new SqlNumberValue(arithmeticResult);
+                    } catch (NumberFormatException exception) {
+                        throw new ParserException(new ArithmeticResultOutOfBounds(leftNumber.getValue(), rightNumber.getValue(), symbol));
+                    }
                 }
 
                 // TODO: throw

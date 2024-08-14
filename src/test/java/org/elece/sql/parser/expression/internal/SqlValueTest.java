@@ -9,15 +9,15 @@ import java.math.BigInteger;
 class SqlValueTest {
     @Test
     public void test_number_equalValueTypes_equalValues() throws ParserException {
-        SqlNumberValue sourceValue = new SqlNumberValue(new BigInteger("1"));
-        SqlNumberValue targetValue = new SqlNumberValue(new BigInteger("1"));
+        SqlNumberValue sourceValue = new SqlNumberValue(1);
+        SqlNumberValue targetValue = new SqlNumberValue(1);
         Assertions.assertEquals(0, sourceValue.partialComparison(targetValue));
     }
 
     @Test
     public void test_number_equalValueTypes_differentValues() throws ParserException {
-        SqlNumberValue sourceValue = new SqlNumberValue(new BigInteger("1"));
-        SqlNumberValue targetValue = new SqlNumberValue(new BigInteger("2"));
+        SqlNumberValue sourceValue = new SqlNumberValue(1);
+        SqlNumberValue targetValue = new SqlNumberValue(2);
         Assertions.assertEquals(-1, sourceValue.partialComparison(targetValue));
     }
 

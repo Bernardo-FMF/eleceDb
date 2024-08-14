@@ -28,18 +28,6 @@ public class InsertOptimizerCommand implements IOptimizerCommand {
             insertStatement.setColumns(table.getSchema().getColumns().stream().map(Column::getName).toList());
         }
 
-        if (table.getSchema().getColumns().get(0).getName().equals(Db.ROW_ID)) {
-            if (!insertStatement.getColumns().get(0).equals(Db.ROW_ID)) {
-                ArrayList<String> newColumns = new ArrayList<>(insertStatement.getColumns());
-                newColumns.add(0, Db.ROW_ID);
-                insertStatement.setColumns(newColumns);
-            }
-            Long nextRowId = table.getNextRowId();
-            ArrayList<Expression> newValues = new ArrayList<>(insertStatement.getValues());
-            newValues.add(0, new ValueExpression<>(new SqlNumberValue(new BigInteger(String.valueOf(nextRowId)))));
-            insertStatement.setValues(newValues);
-        }
-
         List<Column> columns = table.getSchema().getColumns();
         for (int currentIndex = 0; currentIndex < columns.size(); currentIndex++) {
             Column currentColumn = columns.get(currentIndex);

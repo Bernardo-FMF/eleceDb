@@ -28,11 +28,10 @@ class SqlOptimizerTest {
     private static final IContext<String, TableMetadata> context = new DbContext();
 
     static {
-        Column rowIdColumn = new Column(Db.ROW_ID, SqlType.intType, List.of());
         Column nameColumn = new Column("name", SqlType.varchar(255), List.of());
         Column idColumn = new Column("id", SqlType.intType, List.of(SqlConstraint.Unique, SqlConstraint.PrimaryKey));
-        Schema schema = new Schema(new ArrayList<>(List.of(rowIdColumn, idColumn, nameColumn)));
-        TableMetadata userTable = new TableMetadata(0, "users", schema, List.of(new IndexMetadata(0, "id_index", idColumn, schema, true)));
+        Schema schema = new Schema(new ArrayList<>(List.of(idColumn, nameColumn)));
+        TableMetadata userTable = new TableMetadata("users", schema, List.of(new IndexMetadata(0, "id_index", idColumn, schema, true)));
         context.insert("users", userTable);
     }
 
@@ -86,6 +85,6 @@ class SqlOptimizerTest {
         Assertions.assertTrue(((BinaryExpression)statement.getWhere()).getLeft() instanceof BinaryExpression);
         Assertions.assertTrue(((BinaryExpression) ((BinaryExpression)statement.getWhere()).getLeft()).getLeft() instanceof IdentifierExpression);
         Assertions.assertTrue(((BinaryExpression) ((BinaryExpression)statement.getWhere()).getLeft()).getRight() instanceof ValueExpression<?>);
-        Assertions.assertEquals(new BigInteger("6"), ((ValueExpression<?>) ((BinaryExpression) ((BinaryExpression)statement.getWhere()).getLeft()).getRight()).getValue().getValue());
+        Assertions.assertEquals(6, ((ValueExpression<?>) ((BinaryExpression) ((BinaryExpression)statement.getWhere()).getLeft()).getRight()).getValue().getValue());
     }
 }

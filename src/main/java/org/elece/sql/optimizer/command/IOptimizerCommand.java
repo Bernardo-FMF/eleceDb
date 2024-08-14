@@ -15,8 +15,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public interface IOptimizerCommand {
-    SqlNumberValue sqlNumber1 = new SqlNumberValue(new BigInteger("1"));
-    SqlNumberValue sqlNumber0 = new SqlNumberValue(new BigInteger("0"));
+    SqlNumberValue sqlNumber1 = new SqlNumberValue(1);
+    SqlNumberValue sqlNumber0 = new SqlNumberValue(0);
 
     void optimize(IContext<String, TableMetadata> context, Statement statement) throws ParserException;
 

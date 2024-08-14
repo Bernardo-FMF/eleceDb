@@ -71,7 +71,7 @@ class SqlParserTest {
         Assertions.assertEquals("id", insertStatement.getColumns().get(0));
         Assertions.assertEquals("name", insertStatement.getColumns().get(1));
 
-        Assertions.assertEquals(new SqlNumberValue(new BigInteger("1")), ((ValueExpression<SqlNumberValue>) insertStatement.getValues().get(0)).getValue());
+        Assertions.assertEquals(new SqlNumberValue(1), ((ValueExpression<SqlNumberValue>) insertStatement.getValues().get(0)).getValue());
         Assertions.assertEquals(new SqlStringValue("user1"), ((ValueExpression<SqlStringValue>) insertStatement.getValues().get(1)).getValue());
     }
 
@@ -86,7 +86,7 @@ class SqlParserTest {
 
         Assertions.assertEquals(0, insertStatement.getColumns().size());
 
-        Assertions.assertEquals(new SqlNumberValue(new BigInteger("1")), ((ValueExpression<SqlNumberValue>) insertStatement.getValues().get(0)).getValue());
+        Assertions.assertEquals(new SqlNumberValue(1), ((ValueExpression<SqlNumberValue>) insertStatement.getValues().get(0)).getValue());
         Assertions.assertEquals(new SqlStringValue("user1"), ((ValueExpression<SqlStringValue>) insertStatement.getValues().get(1)).getValue());
     }
 
@@ -122,7 +122,7 @@ class SqlParserTest {
         BinaryExpression where = (BinaryExpression) updateStatement.getWhere();
         Assertions.assertEquals("id", ((IdentifierExpression) where.getLeft()).getName());
         Assertions.assertEquals(Symbol.Eq, where.getOperator());
-        Assertions.assertEquals(new BigInteger("1"), ((ValueExpression<SqlNumberValue>) where.getRight()).getValue().getValue());
+        Assertions.assertEquals(1, ((ValueExpression<SqlNumberValue>) where.getRight()).getValue().getValue());
     }
 
     @Test
@@ -194,7 +194,7 @@ class SqlParserTest {
         BinaryExpression where = (BinaryExpression) selectStatement.getWhere();
         Assertions.assertEquals("id", ((IdentifierExpression) where.getLeft()).getName());
         Assertions.assertEquals(Symbol.Eq, where.getOperator());
-        Assertions.assertEquals(new BigInteger("1"), ((ValueExpression<SqlNumberValue>) where.getRight()).getValue().getValue());
+        Assertions.assertEquals(1, ((ValueExpression<SqlNumberValue>) where.getRight()).getValue().getValue());
     }
 
     @Test
@@ -224,7 +224,7 @@ class SqlParserTest {
         BinaryExpression where = (BinaryExpression) selectStatement.getWhere();
         Assertions.assertEquals("id", ((IdentifierExpression) where.getLeft()).getName());
         Assertions.assertEquals(Symbol.Gt, where.getOperator());
-        Assertions.assertEquals(new BigInteger("5"), ((ValueExpression<SqlNumberValue>) where.getRight()).getValue().getValue());
+        Assertions.assertEquals(5, ((ValueExpression<SqlNumberValue>) where.getRight()).getValue().getValue());
         Assertions.assertNotNull(selectStatement.getOrderBy());
         Assertions.assertEquals(1, selectStatement.getOrderBy().size());
         Assertions.assertEquals("name", ((IdentifierExpression) selectStatement.getOrderBy().get(0)).getName());
