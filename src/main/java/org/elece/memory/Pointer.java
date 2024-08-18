@@ -57,6 +57,14 @@ public class Pointer {
         return type == TYPE_NODE;
     }
 
+    public long getPosition() {
+        return position;
+    }
+
+    public int getChunk() {
+        return chunk;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
