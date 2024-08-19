@@ -17,7 +17,7 @@ import java.util.concurrent.ExecutionException;
  * This implementation follows an in-memory snapshot approach, where the writes are done immediately on disk, but the updates and removals are stored in-memory,
  * only being persisted on disk followed by a call to {@link #commit()}, where the changes are finally persisted. Also, even though the writes are done on disk,
  * the pointer is still saved in-memory, so it can be reverted at any moment.
- * This allows to have flexibility in terms of reversibility, since in the context of a transaction we may roll back the changes previously.
+ * This allows to have flexibility in terms of reversibility, since in the context of a transaction we may roll back the changes previously done.
  * In terms of read operations, first we check the snapshot to see if pointer is stored in-memory, if so we deal we can use that stored value to
  * determine the return value, otherwise, the pointer needs to be read from disk.
  */
