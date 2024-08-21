@@ -1,9 +1,10 @@
 package org.elece.storage.index.session;
 
-import org.elece.memory.KvSize;
+import org.elece.memory.KeyValueSize;
 import org.elece.memory.Pointer;
 import org.elece.memory.tree.node.AbstractTreeNode;
-import org.elece.memory.tree.node.INodeFactory;
+import org.elece.memory.tree.node.NodeFactory;
+import org.elece.storage.error.StorageException;
 import org.elece.storage.index.IndexStorageManager;
 import org.elece.storage.index.NodeData;
 
@@ -11,20 +12,20 @@ import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
-public abstract class AbstractIOSession<K> implements IAtomicIOSession<K> {
+public abstract class AbstractIOSession<K> implements AtomicIOSession<K> {
     protected final IndexStorageManager indexStorageManager;
-    protected final INodeFactory<K> nodeFactory;
+    protected final NodeFactory<K> nodeFactory;
     protected final int indexId;
-    protected final KvSize kvSize;
+    protected final KeyValueSize keyValueSize;
 
-    public AbstractIOSession(IndexStorageManager indexStorageManager, INodeFactory<K> nodeFactory, int indexId, KvSize kvSize) {
+    public AbstractIOSession(IndexStorageManager indexStorageManager, NodeFactory<K> nodeFactory, int indexId, KeyValueSize keyValueSize) {
         this.indexStorageManager = indexStorageManager;
         this.nodeFactory = nodeFactory;
         this.indexId = indexId;
-        this.kvSize = kvSize;
+        this.keyValueSize = keyValueSize;
     }
 
-    public CompletableFuture<NodeData> writeNode(AbstractTreeNode<?> node) throws IOException, ExecutionException, InterruptedException {
+    public CompletableFuture<NodeData> writeNode(AbstractTreeNode<?> node) throws IOException, ExecutionException, InterruptedException, StorageException {
         NodeData nodeData = new NodeData(node.getPointer(), node.getData());
         if (!node.isModified() && node.getPointer() != null) {
             return CompletableFuture.completedFuture(nodeData);
@@ -52,16 +53,16 @@ public abstract class AbstractIOSession<K> implements IAtomicIOSession<K> {
         return output;
     }
 
-    public AbstractTreeNode<K> readNode(Pointer pointer) throws ExecutionException, InterruptedException, IOException {
-        return nodeFactory.fromNodeData(indexStorageManager.readNode(indexId, pointer, kvSize).get());
+    public AbstractTreeNode<K> readNode(Pointer pointer) throws ExecutionException, InterruptedException, IOException, StorageException {
+        return nodeFactory.fromNodeData(indexStorageManager.readNode(indexId, pointer, keyValueSize).get());
     }
 
-    public void updateNode(AbstractTreeNode<K> node) throws InterruptedException, IOException, ExecutionException {
+    public void updateNode(AbstractTreeNode<K> node) throws InterruptedException, IOException, ExecutionException, StorageException {
         indexStorageManager.updateNode(indexId, node.getData(), node.getPointer(), node.isRoot()).get();
     }
 
     public void removeNode(Pointer pointer) throws ExecutionException, InterruptedException {
-        indexStorageManager.removeNode(indexId, pointer, kvSize).get();
+        indexStorageManager.removeNode(indexId, pointer, keyValueSize).get();
     }
 
     @Override

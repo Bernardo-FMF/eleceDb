@@ -1,5 +1,7 @@
 package org.elece.memory;
 
+import org.elece.utils.BinaryUtils;
+
 import java.util.Objects;
 
 /**
@@ -20,7 +22,7 @@ public class Pointer {
     public static final int BYTES = Byte.BYTES + Long.BYTES + Integer.BYTES;
 
     private final byte type;
-    private final long position;
+    private long position;
     private final int chunk;
 
     public Pointer(byte type, long position, int chunk) {
@@ -63,6 +65,10 @@ public class Pointer {
 
     public int getChunk() {
         return chunk;
+    }
+
+    public void setPosition(long position) {
+        this.position = position;
     }
 
     @Override

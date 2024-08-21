@@ -1,8 +1,8 @@
-package org.elece.storage.error.type;
+package org.elece.memory.error.type;
 
 import java.util.Objects;
 
-public interface IStorageError {
+public interface BTreeError {
     String format();
 
     default String format(String cause, String message) {

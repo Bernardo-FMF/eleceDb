@@ -1,9 +1,9 @@
 package org.elece.storage.index.session;
 
-import org.elece.memory.KvSize;
+import org.elece.memory.KeyValueSize;
 import org.elece.memory.Pointer;
 import org.elece.memory.tree.node.AbstractTreeNode;
-import org.elece.memory.tree.node.INodeFactory;
+import org.elece.memory.tree.node.NodeFactory;
 import org.elece.storage.error.StorageException;
 import org.elece.storage.error.type.InternalStorageError;
 import org.elece.storage.index.IndexStorageManager;
@@ -18,14 +18,14 @@ import java.util.concurrent.ExecutionException;
  * This means that a rollback of operations is not possible.
  */
 public class ImmediateIOSession<K> extends AbstractIOSession<K> {
-    public ImmediateIOSession(IndexStorageManager indexStorageManager, INodeFactory<K> nodeFactory, int indexId, KvSize kvSize) {
-        super(indexStorageManager, nodeFactory, indexId, kvSize);
+    public ImmediateIOSession(IndexStorageManager indexStorageManager, NodeFactory<K> nodeFactory, int indexId, KeyValueSize keyValueSize) {
+        super(indexStorageManager, nodeFactory, indexId, keyValueSize);
     }
 
     @Override
     public Optional<AbstractTreeNode<K>> getRoot() throws StorageException {
         try {
-            Optional<NodeData> optional = indexStorageManager.getRoot(indexId, kvSize).get();
+            Optional<NodeData> optional = indexStorageManager.getRoot(indexId, keyValueSize).get();
             return optional.map(nodeFactory::fromNodeData);
         } catch (ExecutionException | InterruptedException exception) {
             throw new StorageException(new InternalStorageError(exception.getMessage()));

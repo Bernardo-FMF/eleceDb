@@ -1,7 +1,8 @@
 package org.elece.storage.index;
 
-import org.elece.memory.KvSize;
+import org.elece.memory.KeyValueSize;
 import org.elece.memory.Pointer;
+import org.elece.storage.error.StorageException;
 
 import java.io.IOException;
 import java.util.Optional;
@@ -9,30 +10,27 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
 public interface IndexStorageManager {
-    CompletableFuture<Optional<NodeData>> getRoot(int indexId, KvSize KvSize) throws InterruptedException;
+    CompletableFuture<Optional<NodeData>> getRoot(int indexId, KeyValueSize keyValueSize) throws InterruptedException, StorageException;
 
-    byte[] getEmptyNode(KvSize KvSize);
+    byte[] getEmptyNode(KeyValueSize keyValueSize);
 
-    default CompletableFuture<NodeData> readNode(int indexId, Pointer pointer, KvSize KvSize) throws InterruptedException, IOException {
-        return this.readNode(indexId, pointer.getPosition(), pointer.getChunk(), KvSize);
+    default CompletableFuture<NodeData> readNode(int indexId, Pointer pointer, KeyValueSize keyValueSize) throws InterruptedException, IOException, StorageException {
+        return this.readNode(indexId, pointer.getPosition(), pointer.getChunk(), keyValueSize);
     }
 
-    CompletableFuture<NodeData> readNode(int indexId, long position, int chunk, KvSize KvSize) throws InterruptedException, IOException;
+    CompletableFuture<NodeData> readNode(int indexId, long position, int chunk, KeyValueSize keyValueSize) throws InterruptedException, IOException, StorageException;
 
-    CompletableFuture<NodeData> writeNewNode(int indexId, byte[] data, boolean isRoot, KvSize size) throws IOException, ExecutionException, InterruptedException;
+    CompletableFuture<NodeData> writeNewNode(int indexId, byte[] data, boolean isRoot, KeyValueSize keyValueSize) throws IOException, ExecutionException, InterruptedException, StorageException;
 
-    CompletableFuture<Integer> updateNode(int indexId, byte[] data, Pointer pointer, boolean root) throws IOException, InterruptedException;
+    CompletableFuture<Integer> updateNode(int indexId, byte[] data, Pointer pointer, boolean root) throws IOException, InterruptedException, StorageException;
 
-    void close() throws IOException;
+    void close() throws IOException, StorageException;
 
-    CompletableFuture<Integer> removeNode(int indexId, Pointer pointer, KvSize size) throws InterruptedException;
+    CompletableFuture<Integer> removeNode(int indexId, Pointer pointer, KeyValueSize keyValueSize) throws InterruptedException;
 
     boolean exists(int indexId);
 
-    default boolean supportsPurge() {
-        return false;
-    }
+    boolean supportsPurge();
 
-    default void purgeIndex(int indexId) {
-    }
+    void purgeIndex(int indexId) throws IOException, InterruptedException, ExecutionException;
 }

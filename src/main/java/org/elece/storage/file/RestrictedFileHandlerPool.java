@@ -1,6 +1,6 @@
 package org.elece.storage.file;
 
-import org.elece.config.IDbConfig;
+import org.elece.config.DbConfig;
 
 import java.io.IOException;
 import java.nio.channels.AsynchronousFileChannel;
@@ -15,13 +15,13 @@ import java.util.concurrent.Semaphore;
  * So to remedy this, when we receive a request to acquire a file descriptor but the limit has been reached,
  * we can use a semaphore to wait for the moment a slot opened up and immediately acquire it.
  */
-public class RestrictedFileHandlerPool implements IFileHandlerPool {
+public class RestrictedFileHandlerPool implements FileHandlerPool {
     private final Map<String, FileHandler> fileHandlers;
     private final Semaphore semaphore;
-    private final FileHandlerFactory fileHandlerFactory;
-    private final IDbConfig dbConfig;
+    private final DefaultFileHandlerFactory fileHandlerFactory;
+    private final DbConfig dbConfig;
 
-    public RestrictedFileHandlerPool(FileHandlerFactory fileHandlerFactory, IDbConfig dbConfig) {
+    public RestrictedFileHandlerPool(DefaultFileHandlerFactory fileHandlerFactory, DbConfig dbConfig) {
         this.fileHandlerFactory = fileHandlerFactory;
         fileHandlers = new ConcurrentHashMap<>(dbConfig.getFileDescriptorAcquisitionSize());
         semaphore = new Semaphore(dbConfig.getFileDescriptorAcquisitionSize());
@@ -70,6 +70,7 @@ public class RestrictedFileHandlerPool implements IFileHandlerPool {
             try {
                 fileHandler.closeChannel(dbConfig.getCloseTimeoutTime(), dbConfig.getTimeoutUnit());
             } catch (IOException e) {
+                // TODO throw custom exception
                 throw new RuntimeException(e);
             }
         });

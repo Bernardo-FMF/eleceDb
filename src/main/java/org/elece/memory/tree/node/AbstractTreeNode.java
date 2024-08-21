@@ -1,8 +1,8 @@
 package org.elece.memory.tree.node;
 
-import org.elece.memory.KvSize;
+import org.elece.memory.KeyValueSize;
 import org.elece.memory.Pointer;
-import org.elece.memory.tree.node.data.IBinaryObject;
+import org.elece.memory.tree.node.data.BinaryObject;
 import org.elece.memory.tree.node.data.PointerBinaryObject;
 
 public abstract class AbstractTreeNode<K> {
@@ -13,9 +13,9 @@ public abstract class AbstractTreeNode<K> {
     private Pointer pointer;
     private final byte[] data;
     private boolean modified = false;
-    protected final IBinaryObject<K> keyIBinaryObject;
+    protected final BinaryObject<K> keyIBinaryObject;
 
-    public AbstractTreeNode(byte[] data, IBinaryObject<K> keyIBinaryObject) {
+    public AbstractTreeNode(byte[] data, BinaryObject<K> keyIBinaryObject) {
         this.data = data;
         this.keyIBinaryObject = keyIBinaryObject;
     }
@@ -53,7 +53,7 @@ public abstract class AbstractTreeNode<K> {
         return (data[0] & ROOT_BIT) == ROOT_BIT;
     }
 
-    public KvSize getKVSize() {
-        return new KvSize(keyIBinaryObject.size(), PointerBinaryObject.BYTES);
+    public KeyValueSize getKVSize() {
+        return new KeyValueSize(keyIBinaryObject.size(), PointerBinaryObject.BYTES);
     }
 }

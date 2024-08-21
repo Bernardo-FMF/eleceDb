@@ -14,13 +14,9 @@ public interface IndexHeaderManager {
 
     void setIndexBeginningInChunk(int indexId, Location location) throws StorageException;
 
-    default Optional<Location> getIndexBeginningInChunk(int indexId, int chunk) {
-        return Optional.of(new Location(0, 0));
-    }
+    Optional<Location> getIndexBeginningInChunk(int indexId, int chunk);
 
-    default Optional<Location> getNextIndexBeginningInChunk(int indexId, int chunk) {
-        return Optional.of(new Location(0, 0));
-    }
+    Optional<Location> getNextIndexBeginningInChunk(int indexId, int chunk);
 
     List<Integer> getIndexesInChunk(int chunk);
 

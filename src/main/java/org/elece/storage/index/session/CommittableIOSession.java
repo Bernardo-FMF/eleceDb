@@ -1,9 +1,9 @@
 package org.elece.storage.index.session;
 
-import org.elece.memory.KvSize;
+import org.elece.memory.KeyValueSize;
 import org.elece.memory.Pointer;
 import org.elece.memory.tree.node.AbstractTreeNode;
-import org.elece.memory.tree.node.INodeFactory;
+import org.elece.memory.tree.node.NodeFactory;
 import org.elece.storage.error.StorageException;
 import org.elece.storage.error.type.InternalStorageError;
 import org.elece.storage.index.IndexStorageManager;
@@ -29,8 +29,8 @@ public class CommittableIOSession<K> extends AbstractIOSession<K> {
     private final Map<Pointer, AbstractTreeNode<K>> original;
     private AbstractTreeNode<K> root;
 
-    public CommittableIOSession(IndexStorageManager indexStorageManager, INodeFactory<K> nodeFactory, int indexId, KvSize kvSize) {
-        super(indexStorageManager, nodeFactory, indexId, kvSize);
+    public CommittableIOSession(IndexStorageManager indexStorageManager, NodeFactory<K> nodeFactory, int indexId, KeyValueSize keyValueSize) {
+        super(indexStorageManager, nodeFactory, indexId, keyValueSize);
         updated = new HashSet<>();
         created = new LinkedList<>();
         deleted = new LinkedList<>();
@@ -43,7 +43,7 @@ public class CommittableIOSession<K> extends AbstractIOSession<K> {
         if (root == null) {
             Optional<NodeData> optional;
             try {
-                optional = indexStorageManager.getRoot(indexId, kvSize).get();
+                optional = indexStorageManager.getRoot(indexId, keyValueSize).get();
             } catch (InterruptedException | ExecutionException exception) {
                 throw new StorageException(new InternalStorageError(exception.getMessage()));
             }
@@ -154,7 +154,7 @@ public class CommittableIOSession<K> extends AbstractIOSession<K> {
     }
 
     @Override
-    public void rollback() throws IOException, InterruptedException, ExecutionException {
+    public void rollback() throws IOException, InterruptedException, ExecutionException, StorageException {
         for (Pointer pointer : deleted) {
             this.updateNode(original.get(pointer));
         }

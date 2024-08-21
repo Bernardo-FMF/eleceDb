@@ -1,6 +1,6 @@
 package org.elece.tcp;
 
-import org.elece.config.IDbConfig;
+import org.elece.config.DbConfig;
 import org.elece.thread.ISocketWorker;
 import org.elece.thread.ManagedThreadPool;
 import org.elece.thread.SocketWorker;
@@ -11,10 +11,10 @@ import java.net.ServerSocket;
 import java.net.Socket;
 
 public class Server implements IServer {
-    private final IDbConfig config;
+    private final DbConfig config;
     private final ManagedThreadPool<ISocketWorker> managedThreadPool;
 
-    public Server(IDbConfig config) {
+    public Server(DbConfig config) {
         this.config = config;
         this.managedThreadPool = new ManagedThreadPool<>(config);
     }

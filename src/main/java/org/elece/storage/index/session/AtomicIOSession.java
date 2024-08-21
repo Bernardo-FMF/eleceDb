@@ -10,7 +10,7 @@ import java.io.IOException;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
-public interface IAtomicIOSession<K> {
+public interface AtomicIOSession<K> {
     Optional<AbstractTreeNode<K>> getRoot() throws StorageException, InterruptedException, ExecutionException;
 
     NodeData write(AbstractTreeNode<K> node) throws StorageException;
@@ -23,7 +23,7 @@ public interface IAtomicIOSession<K> {
 
     void commit() throws StorageException;
 
-    void rollback() throws IOException, InterruptedException, ExecutionException;
+    void rollback() throws IOException, InterruptedException, ExecutionException, StorageException;
 
     IndexStorageManager getIndexStorageManager();
 }

@@ -1,6 +1,6 @@
 package org.elece.storage.error.type;
 
-public class InternalStorageError implements IStorageError {
+public class InternalStorageError implements StorageError {
     private final String message;
 
     public InternalStorageError(String message) {

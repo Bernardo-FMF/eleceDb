@@ -1,6 +1,8 @@
 package org.elece.storage.file;
 
-import org.elece.config.IDbConfig;
+import org.elece.config.DbConfig;
+import org.elece.storage.error.StorageException;
+import org.elece.storage.error.type.InternalStorageError;
 
 import java.io.IOException;
 import java.nio.channels.AsynchronousFileChannel;
@@ -14,12 +16,12 @@ import java.util.concurrent.ConcurrentHashMap;
  * that the limit of open file descriptors has been reached.
  * In this scenario, there is no fallback and the acquire operation will fail.
  */
-public class UnrestrictedFileHandlerPool implements IFileHandlerPool {
+public class UnrestrictedFileHandlerPool implements FileHandlerPool {
     private final Map<String, FileHandler> fileHandlers;
-    private final FileHandlerFactory fileHandlerFactory;
-    private final IDbConfig dbConfig;
+    private final DefaultFileHandlerFactory fileHandlerFactory;
+    private final DbConfig dbConfig;
 
-    public UnrestrictedFileHandlerPool(FileHandlerFactory fileHandlerFactory, IDbConfig dbConfig) {
+    public UnrestrictedFileHandlerPool(DefaultFileHandlerFactory fileHandlerFactory, DbConfig dbConfig) {
         this.fileHandlerFactory = fileHandlerFactory;
         this.fileHandlers = new ConcurrentHashMap<>();
         this.dbConfig = dbConfig;
@@ -47,13 +49,15 @@ public class UnrestrictedFileHandlerPool implements IFileHandlerPool {
     }
 
     @Override
-    public void closeAll() {
-        fileHandlers.forEach((pathName, fileHandler) -> {
+    public void closeAll() throws StorageException {
+        for (Map.Entry<String, FileHandler> entry : fileHandlers.entrySet()) {
+            String pathName = entry.getKey();
+            FileHandler fileHandler = entry.getValue();
             try {
                 fileHandler.closeChannel(dbConfig.getCloseTimeoutTime(), dbConfig.getTimeoutUnit());
             } catch (IOException e) {
-                throw new RuntimeException(e);
+                throw new StorageException(new InternalStorageError(""));
             }
-        });
+        }
     }
 }

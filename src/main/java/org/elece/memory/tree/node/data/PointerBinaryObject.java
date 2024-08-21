@@ -38,9 +38,4 @@ public class PointerBinaryObject extends AbstractBinaryObject<Pointer> {
     public int size() {
         return BYTES;
     }
-
-    @Override
-    public byte[] getBytes() {
-        return bytes;
-    }
 }

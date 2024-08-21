@@ -1,6 +1,6 @@
 package org.elece.thread;
 
-import org.elece.config.IDbConfig;
+import org.elece.config.DbConfig;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.SynchronousQueue;
@@ -10,7 +10,7 @@ import java.util.concurrent.TimeUnit;
 public class ManagedThreadPool<T extends Runnable> {
     private final ExecutorService executor;
 
-    public ManagedThreadPool(IDbConfig dbConfig) {
+    public ManagedThreadPool(DbConfig dbConfig) {
         this.executor = new ThreadPoolExecutor(
                 dbConfig.getPoolCoreSize(),
                 dbConfig.getPoolMaxSize(),

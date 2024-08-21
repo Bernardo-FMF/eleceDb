@@ -1,9 +1,9 @@
 package org.elece.storage.index.header;
 
-import org.elece.memory.BinaryUtils;
 import org.elece.storage.error.StorageException;
 import org.elece.storage.error.type.InternalStorageError;
-import org.elece.storage.file.IFileHandlerPool;
+import org.elece.storage.file.FileHandlerPool;
+import org.elece.utils.BinaryUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -22,11 +22,11 @@ import java.util.concurrent.ExecutionException;
  * | 4 bytes (chunk) | 4 bytes (size of the chunk offset list) | 4 bytes + 8 bytes (each element of the index offset list) |
  */
 public class BinaryIndexHeaderManager implements IndexHeaderManager {
-    private final IFileHandlerPool fileHandlerPool;
+    private final FileHandlerPool fileHandlerPool;
     private final Path path;
     private final IndexHeader header;
 
-    public BinaryIndexHeaderManager(Path path, IFileHandlerPool fileHandlerPool) throws IOException, StorageException {
+    public BinaryIndexHeaderManager(Path path, FileHandlerPool fileHandlerPool) throws IOException, StorageException {
         this.fileHandlerPool = fileHandlerPool;
         this.path = path;
         File file = this.path.toFile();
@@ -240,5 +240,18 @@ public class BinaryIndexHeaderManager implements IndexHeaderManager {
             indexOffsets.stream().filter(indexOffset -> indexOffset.getIndexId() == indexId).findAny().ifPresent(indexOffset -> chunks.add(chunk));
         });
         return chunks;
+    }
+
+    @Override
+    public Optional<Location> getIndexBeginningInChunk(int indexId, int chunk) {
+        TreeSet<IndexHeader.IndexOffset> indexOffsets = this.header.getIndexOffsets(chunk);
+        Optional<IndexHeader.IndexOffset> optionalIndexOffset = indexOffsets.stream().filter(indexOffset -> indexOffset.getIndexId() == indexId).findFirst();
+        return optionalIndexOffset.map(indexOffset -> new Location(chunk, indexOffset.getOffset()));
+    }
+
+    @Override
+    public Optional<Location> getNextIndexBeginningInChunk(int indexId, int chunk) {
+        Optional<IndexHeader.IndexOffset> nextIndexOffset = this.header.getNextIndexOffset(chunk, indexId);
+        return nextIndexOffset.map(indexOffset -> new Location(chunk, indexOffset.getOffset()));
     }
 }

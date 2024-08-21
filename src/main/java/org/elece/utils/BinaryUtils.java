@@ -1,4 +1,4 @@
-package org.elece.memory;
+package org.elece.utils;
 
 import java.nio.ByteBuffer;
 import java.util.Arrays;

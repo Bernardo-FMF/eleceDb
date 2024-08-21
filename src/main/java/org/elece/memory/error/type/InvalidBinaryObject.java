@@ -1,12 +1,12 @@
 package org.elece.memory.error.type;
 
-import org.elece.memory.tree.node.data.IBinaryObject;
+import org.elece.memory.tree.node.data.BinaryObject;
 
-public class InvalidBinaryObject implements IBTreeError {
+public class InvalidBinaryObject implements BTreeError {
     private final Object obj;
-    private final Class<? extends IBinaryObject<?>> objClass;
+    private final Class<? extends BinaryObject<?>> objClass;
 
-    public InvalidBinaryObject(Object obj, Class<? extends IBinaryObject<?>> objClass) {
+    public InvalidBinaryObject(Object obj, Class<? extends BinaryObject<?>> objClass) {
         this.obj = obj;
         this.objClass = objClass;
     }
