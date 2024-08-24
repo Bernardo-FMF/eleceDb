@@ -32,7 +32,7 @@ public abstract class AbstractIndexStorageManager implements IndexStorageManager
 
     public AbstractIndexStorageManager(String customName, IndexHeaderManagerFactory indexHeaderManagerFactory, DbConfig dbConfig, FileHandlerPool fileHandlerPool) throws IOException, StorageException {
         this.customName = customName;
-        this.indexHeaderManager = indexHeaderManagerFactory.getInstance(this.getHeaderPath(), fileHandlerPool);
+        this.indexHeaderManager = indexHeaderManagerFactory.getInstance(this.getHeaderPath());
         this.dbConfig = dbConfig;
         this.fileHandlerPool = fileHandlerPool;
         this.path = Path.of(dbConfig.getBaseDbPath());
