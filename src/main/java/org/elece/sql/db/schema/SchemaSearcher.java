@@ -18,7 +18,7 @@ public class SchemaSearcher {
 
     public static Optional<Column> findColumn(Collection collection, String name) {
         for (Column indexedColumn : collection.getColumns()) {
-            if (indexedColumn.name().equals(name)) {
+            if (indexedColumn.getName().equals(name)) {
                 return Optional.of(indexedColumn);
             }
         }

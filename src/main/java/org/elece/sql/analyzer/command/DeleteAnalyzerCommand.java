@@ -6,24 +6,21 @@ import org.elece.sql.db.schema.SchemaSearcher;
 import org.elece.sql.db.schema.model.Collection;
 import org.elece.sql.error.AnalyzerException;
 import org.elece.sql.parser.statement.DeleteStatement;
-import org.elece.sql.parser.statement.Statement;
 
 import java.util.Optional;
 
-public class DeleteAnalyzerCommand implements IAnalyzerCommand {
+public class DeleteAnalyzerCommand implements IAnalyzerCommand<DeleteStatement> {
     @Override
-    public void analyze(SchemaManager schemaManager, Statement statement) throws AnalyzerException {
-        DeleteStatement deleteStatement = (DeleteStatement) statement;
-
-        Optional<Collection> optionalCollection = SchemaSearcher.findCollection(schemaManager.getSchema(), deleteStatement.getFrom());
+    public void analyze(SchemaManager schemaManager, DeleteStatement statement) throws AnalyzerException {
+        Optional<Collection> optionalCollection = SchemaSearcher.findCollection(schemaManager.getSchema(), statement.getFrom());
         if (optionalCollection.isEmpty()) {
             throw new AnalyzerException("");
         }
 
-        if (deleteStatement.getFrom().equals(Db.META_TABLE)) {
+        if (statement.getFrom().equals(Db.META_TABLE)) {
             throw new AnalyzerException("");
         }
 
-        analyzeWhere(optionalCollection.get(), deleteStatement.getWhere());
+        analyzeWhere(optionalCollection.get(), statement.getWhere());
     }
 }

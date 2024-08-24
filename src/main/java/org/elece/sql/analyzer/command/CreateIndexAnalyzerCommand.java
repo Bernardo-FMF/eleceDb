@@ -8,21 +8,18 @@ import org.elece.sql.db.schema.model.Index;
 import org.elece.sql.error.AnalyzerException;
 import org.elece.sql.parser.expression.internal.SqlConstraint;
 import org.elece.sql.parser.statement.CreateIndexStatement;
-import org.elece.sql.parser.statement.Statement;
 
 import java.util.List;
 import java.util.Optional;
 
-public class CreateIndexAnalyzerCommand implements IAnalyzerCommand {
+public class CreateIndexAnalyzerCommand implements IAnalyzerCommand<CreateIndexStatement> {
     @Override
-    public void analyze(SchemaManager schemaManager, Statement statement) throws AnalyzerException {
-        CreateIndexStatement createIndexStatement = (CreateIndexStatement) statement;
-
-        if (!createIndexStatement.getUnique()) {
+    public void analyze(SchemaManager schemaManager, CreateIndexStatement statement) throws AnalyzerException {
+        if (!statement.getUnique()) {
             throw new AnalyzerException("");
         }
 
-        Optional<Collection> optionalCollection = SchemaSearcher.findCollection(schemaManager.getSchema(), createIndexStatement.getTable());
+        Optional<Collection> optionalCollection = SchemaSearcher.findCollection(schemaManager.getSchema(), statement.getTable());
 
         if (optionalCollection.isEmpty()) {
             throw new AnalyzerException("");
@@ -32,15 +29,15 @@ public class CreateIndexAnalyzerCommand implements IAnalyzerCommand {
 
         List<Index> indexes = collection.getIndexes();
         for (Index index : indexes) {
-            if (index.getName().equals(createIndexStatement.getName())) {
+            if (index.getName().equals(statement.getName())) {
                 throw new AnalyzerException("");
             }
-            if (index.getColumnName().equals(createIndexStatement.getColumn())) {
+            if (index.getColumnName().equals(statement.getColumn())) {
                 throw new AnalyzerException("");
             }
         }
 
-        Optional<Column> optionalColumn = SchemaSearcher.findColumn(collection, createIndexStatement.getColumn());
+        Optional<Column> optionalColumn = SchemaSearcher.findColumn(collection, statement.getColumn());
         if (optionalColumn.isEmpty()) {
             throw new AnalyzerException("");
         }

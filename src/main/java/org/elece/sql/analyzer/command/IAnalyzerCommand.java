@@ -16,8 +16,8 @@ import org.elece.sql.token.model.type.Symbol;
 import java.util.Objects;
 import java.util.Optional;
 
-public interface IAnalyzerCommand {
-    void analyze(SchemaManager schemaManager, Statement statement) throws AnalyzerException;
+public interface IAnalyzerCommand<T extends Statement> {
+    void analyze(SchemaManager schemaManager, T statement) throws AnalyzerException;
 
     default SqlType analyzeExpression(Collection collection, SqlType sqlType, Expression expression) throws AnalyzerException {
         if (expression instanceof ValueExpression<?> valueExpression) {

@@ -8,18 +8,15 @@ import org.elece.sql.db.schema.model.Column;
 import org.elece.sql.error.AnalyzerException;
 import org.elece.sql.parser.expression.internal.SqlConstraint;
 import org.elece.sql.parser.statement.CreateTableStatement;
-import org.elece.sql.parser.statement.Statement;
 
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
-public class CreateTableAnalyzerCommand implements IAnalyzerCommand {
+public class CreateTableAnalyzerCommand implements IAnalyzerCommand<CreateTableStatement> {
     @Override
-    public void analyze(SchemaManager schemaManager, Statement statement) throws AnalyzerException {
-        CreateTableStatement createTableStatement = (CreateTableStatement) statement;
-
-        Optional<Collection> optionalCollection = SchemaSearcher.findCollection(schemaManager.getSchema(), createTableStatement.getName());
+    public void analyze(SchemaManager schemaManager, CreateTableStatement statement) throws AnalyzerException {
+        Optional<Collection> optionalCollection = SchemaSearcher.findCollection(schemaManager.getSchema(), statement.getName());
         if (optionalCollection.isPresent()) {
             throw new AnalyzerException("Table already exists");
         }
@@ -27,7 +24,7 @@ public class CreateTableAnalyzerCommand implements IAnalyzerCommand {
         boolean hasPrimaryKey = false;
         Set<String> columnNames = new HashSet<>();
 
-        for (Column column : createTableStatement.getColumns()) {
+        for (Column column : statement.getColumns()) {
             if (columnNames.contains(column.getName())) {
                 throw new AnalyzerException("Duplicate columns");
             } else {
