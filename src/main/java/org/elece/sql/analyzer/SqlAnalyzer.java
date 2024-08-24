@@ -1,9 +1,8 @@
 package org.elece.sql.analyzer;
 
 import org.elece.sql.analyzer.command.*;
+import org.elece.sql.db.schema.SchemaManager;
 import org.elece.sql.error.AnalyzerException;
-import org.elece.sql.db.IContext;
-import org.elece.sql.db.TableMetadata;
 import org.elece.sql.parser.statement.ExplainStatement;
 import org.elece.sql.parser.statement.Statement;
 
@@ -26,16 +25,16 @@ public class SqlAnalyzer implements ISqlAnalyzer {
     }
 
     @Override
-    public void analyze(IContext<String, TableMetadata> context, Statement statement) throws AnalyzerException {
+    public void analyze(SchemaManager schemaManager, Statement statement) throws AnalyzerException {
         Statement.StatementType statementType = statement.getStatementType();
         if (statementType == Statement.StatementType.Explain) {
             ExplainStatement explainStatement = (ExplainStatement) statement;
-            analyze(context, explainStatement.getStatement());
+            analyze(schemaManager, explainStatement.getStatement());
         }
 
         IAnalyzerCommand analyzerCommand = analyzerCommandMap.get(statementType);
         if (!Objects.isNull(analyzerCommand)) {
-            analyzerCommand.analyze(context, statement);
+            analyzerCommand.analyze(schemaManager, statement);
         }
     }
 }

@@ -1,10 +1,11 @@
 package org.elece.sql.analyzer.command;
 
-import org.elece.sql.error.AnalyzerException;
 import org.elece.sql.db.Db;
-import org.elece.sql.db.IContext;
-import org.elece.sql.db.Schema;
-import org.elece.sql.db.TableMetadata;
+import org.elece.sql.db.schema.SchemaManager;
+import org.elece.sql.db.schema.SchemaSearcher;
+import org.elece.sql.db.schema.model.Collection;
+import org.elece.sql.db.schema.model.Column;
+import org.elece.sql.error.AnalyzerException;
 import org.elece.sql.parser.expression.*;
 import org.elece.sql.parser.expression.internal.*;
 import org.elece.sql.parser.statement.Statement;
@@ -13,11 +14,12 @@ import org.elece.sql.token.model.type.Keyword;
 import org.elece.sql.token.model.type.Symbol;
 
 import java.util.Objects;
+import java.util.Optional;
 
 public interface IAnalyzerCommand {
-    void analyze(IContext<String, TableMetadata> context, Statement statement) throws AnalyzerException;
+    void analyze(SchemaManager schemaManager, Statement statement) throws AnalyzerException;
 
-    default SqlType analyzeExpression(Schema schema, SqlType sqlType, Expression expression) throws AnalyzerException {
+    default SqlType analyzeExpression(Collection collection, SqlType sqlType, Expression expression) throws AnalyzerException {
         if (expression instanceof ValueExpression<?> valueExpression) {
             if (valueExpression.getValue() instanceof SqlBoolValue) {
                 return SqlType.boolType;
@@ -27,10 +29,12 @@ public interface IAnalyzerCommand {
                 return SqlType.varcharType;
             }
         } else if (expression instanceof IdentifierExpression identifierExpression) {
-            Column column = schema.findColumn(identifierExpression.getName());
-            if (Objects.isNull(column)) {
+            Optional<Column> optionalColumn = SchemaSearcher.findColumn(collection, identifierExpression.getName());
+            if (optionalColumn.isEmpty()) {
                 throw new AnalyzerException("");
             }
+
+            Column column = optionalColumn.get();
 
             return switch (column.getSqlType().getType()) {
                 case Int -> SqlType.intType;
@@ -47,15 +51,15 @@ public interface IAnalyzerCommand {
                 }
             }
 
-            SqlType innerDataType = analyzeExpression(schema, sqlType, innerExpression);
+            SqlType innerDataType = analyzeExpression(collection, sqlType, innerExpression);
             if (innerDataType.getType() == SqlType.Type.Int) {
                 return SqlType.intType;
             } else {
                 throw new AnalyzerException("");
             }
         } else if (expression instanceof BinaryExpression binaryExpression) {
-            SqlType leftSqlType = analyzeExpression(schema, sqlType, binaryExpression.getLeft());
-            SqlType rightSqlType = analyzeExpression(schema, sqlType, binaryExpression.getRight());
+            SqlType leftSqlType = analyzeExpression(collection, sqlType, binaryExpression.getLeft());
+            SqlType rightSqlType = analyzeExpression(collection, sqlType, binaryExpression.getRight());
 
             IOperator operator = binaryExpression.getOperator();
 
@@ -78,7 +82,7 @@ public interface IAnalyzerCommand {
                 };
             }
         } else if (expression instanceof NestedExpression nestedExpression) {
-            return analyzeExpression(schema, sqlType, nestedExpression.getExpression());
+            return analyzeExpression(collection, sqlType, nestedExpression.getExpression());
         } else if (expression instanceof WildcardExpression) {
             throw new AnalyzerException("");
         }
@@ -86,30 +90,32 @@ public interface IAnalyzerCommand {
         throw new AnalyzerException("");
     }
 
-    default void analyzeWhere(Schema schema, Expression expression) throws AnalyzerException {
+    default void analyzeWhere(Collection collection, Expression expression) throws AnalyzerException {
         if (Objects.isNull(expression)) {
             return;
         }
 
-        if (analyzeExpression(schema, null, expression) == SqlType.boolType) {
+        if (analyzeExpression(collection, null, expression) == SqlType.boolType) {
             return;
         }
 
         throw new AnalyzerException("");
     }
 
-    default void analyzeAssignment(TableMetadata table, Assignment assignment, Boolean allowIdentifiers) throws AnalyzerException {
+    default void analyzeAssignment(Collection collection, Assignment assignment, Boolean allowIdentifiers) throws AnalyzerException {
         if (Db.ROW_ID.equals(assignment.getId())) {
             throw new AnalyzerException("");
         }
 
-        Column column = table.getSchema().findColumn(assignment.getId());
-        if (Objects.isNull(column)) {
+        Optional<Column> optionalColumn = SchemaSearcher.findColumn(collection, assignment.getId());
+        if (optionalColumn.isEmpty()) {
             throw new AnalyzerException("");
         }
 
+        Column column = optionalColumn.get();
+
         SqlType columnSqlType = column.getSqlType();
-        SqlType runtimeSqlType = analyzeExpression(allowIdentifiers ? table.getSchema() : null, columnSqlType, assignment.getValue());
+        SqlType runtimeSqlType = analyzeExpression(allowIdentifiers ? collection : null, columnSqlType, assignment.getValue());
 
         if (columnSqlType.getType() != runtimeSqlType.getType()) {
             throw new AnalyzerException("");

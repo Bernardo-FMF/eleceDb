@@ -1,6 +1,6 @@
 package org.elece.sql.parser.statement;
 
-import org.elece.sql.parser.expression.internal.Column;
+import org.elece.sql.db.schema.model.Column;
 
 import java.util.List;
 

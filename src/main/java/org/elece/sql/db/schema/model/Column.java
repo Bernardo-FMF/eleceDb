@@ -19,22 +19,22 @@ public final class Column {
         this.constraints = constraints;
     }
 
-    public int id() {
+    public int getId() {
         return id;
     }
 
-    public String name() {
+    public String getName() {
         return name;
     }
 
-    public SqlType sqlType() {
+    public SqlType getSqlType() {
         return sqlType;
     }
 
-    public List<SqlConstraint> constraints() {
+    public List<SqlConstraint> getConstraints() {
         return constraints;
     }
-    
+
     @Override
     public int hashCode() {
         return Objects.hash(id, name, sqlType, constraints);

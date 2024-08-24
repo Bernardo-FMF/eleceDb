@@ -1,37 +1,39 @@
 package org.elece.sql.analyzer.command;
 
+import org.elece.sql.db.schema.SchemaManager;
+import org.elece.sql.db.schema.SchemaSearcher;
+import org.elece.sql.db.schema.model.Collection;
 import org.elece.sql.error.AnalyzerException;
-import org.elece.sql.db.IContext;
-import org.elece.sql.db.TableMetadata;
 import org.elece.sql.parser.expression.Expression;
 import org.elece.sql.parser.expression.WildcardExpression;
 import org.elece.sql.parser.statement.SelectStatement;
 import org.elece.sql.parser.statement.Statement;
 
-import java.util.Objects;
+import java.util.Optional;
 
 public class SelectAnalyzerCommand implements IAnalyzerCommand {
     @Override
-    public void analyze(IContext<String, TableMetadata> context, Statement statement) throws AnalyzerException {
+    public void analyze(SchemaManager schemaManager, Statement statement) throws AnalyzerException {
         SelectStatement selectStatement = (SelectStatement) statement;
 
-        TableMetadata table = context.findMetadata(selectStatement.getFrom());
-
-        if (Objects.isNull(table)) {
+        Optional<Collection> optionalCollection = SchemaSearcher.findCollection(schemaManager.getSchema(), selectStatement.getFrom());
+        if (optionalCollection.isEmpty()) {
             throw new AnalyzerException("");
         }
+
+        Collection collection = optionalCollection.get();
 
         for (Expression column : selectStatement.getColumns()) {
             if (column instanceof WildcardExpression) {
                 continue;
             }
-            analyzeExpression(table.getSchema(), null, column);
+            analyzeExpression(collection, null, column);
         }
 
-        analyzeWhere(table.getSchema(), selectStatement.getWhere());
+        analyzeWhere(collection, selectStatement.getWhere());
 
         for (Expression orderBy : selectStatement.getOrderBy()) {
-            analyzeExpression(table.getSchema(), null, orderBy);
+            analyzeExpression(collection, null, orderBy);
         }
     }
 }
