@@ -7,16 +7,19 @@ import java.util.List;
 import java.util.Objects;
 
 public final class Column {
-    private final int id;
+    private int id;
     private final String name;
     private final SqlType sqlType;
     private final List<SqlConstraint> constraints;
 
-    public Column(int id, String name, SqlType sqlType, List<SqlConstraint> constraints) {
-        this.id = id;
+    public Column(String name, SqlType sqlType, List<SqlConstraint> constraints) {
         this.name = name;
         this.sqlType = sqlType;
         this.constraints = constraints;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public int getId() {
