@@ -19,6 +19,7 @@ public class SqlOptimizer implements ISqlOptimizer {
         optimizerCommandMap.put(Statement.StatementType.Insert, new InsertOptimizerCommand());
         optimizerCommandMap.put(Statement.StatementType.Select, new SelectOptimizerCommand());
         optimizerCommandMap.put(Statement.StatementType.Update, new UpdateOptimizerCommand());
+        optimizerCommandMap.put(Statement.StatementType.CreateTable, new CreateTableOptimizerCommand());
     }
 
     @Override

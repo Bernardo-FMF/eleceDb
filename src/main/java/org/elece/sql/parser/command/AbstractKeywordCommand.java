@@ -1,5 +1,6 @@
 package org.elece.sql.parser.command;
 
+import org.elece.sql.db.schema.model.Column;
 import org.elece.sql.error.ParserException;
 import org.elece.sql.error.TokenizerException;
 import org.elece.sql.error.type.parser.IntegerOutOfBounds;
@@ -43,7 +44,6 @@ public abstract class AbstractKeywordCommand implements IKeywordCommand {
 
         return new Assignment(identifier, expression);
     }
-
 
     protected <T> List<T> parseCommaSeparated(IParserFunction<T> parserFunction, Boolean requiresParenthesis) throws ParserException, TokenizerException {
         if (requiresParenthesis) {

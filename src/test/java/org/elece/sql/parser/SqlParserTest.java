@@ -1,6 +1,7 @@
 package org.elece.sql.parser;
 
 import org.elece.sql.error.ParserException;
+import org.elece.sql.error.TokenizerException;
 import org.elece.sql.parser.expression.BinaryExpression;
 import org.elece.sql.parser.expression.IdentifierExpression;
 import org.elece.sql.parser.expression.ValueExpression;
@@ -9,12 +10,9 @@ import org.elece.sql.parser.expression.internal.SqlNumberValue;
 import org.elece.sql.parser.expression.internal.SqlStringValue;
 import org.elece.sql.parser.expression.internal.SqlType;
 import org.elece.sql.parser.statement.*;
-import org.elece.sql.error.TokenizerException;
 import org.elece.sql.token.model.type.Symbol;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-
-import java.math.BigInteger;
 
 class SqlParserTest {
     @Test
