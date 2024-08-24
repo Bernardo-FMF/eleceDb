@@ -1,7 +1,6 @@
 package org.elece.sql.optimizer.command;
 
-import org.elece.sql.db.IContext;
-import org.elece.sql.db.TableMetadata;
+import org.elece.sql.db.schema.SchemaManager;
 import org.elece.sql.error.ParserException;
 import org.elece.sql.parser.expression.*;
 import org.elece.sql.parser.expression.internal.Assignment;
@@ -10,15 +9,14 @@ import org.elece.sql.parser.statement.Statement;
 import org.elece.sql.planner.ExpressionUtils;
 import org.elece.sql.token.model.type.Symbol;
 
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
-public interface IOptimizerCommand {
+public interface IOptimizerCommand<T extends Statement> {
     SqlNumberValue sqlNumber1 = new SqlNumberValue(1);
     SqlNumberValue sqlNumber0 = new SqlNumberValue(0);
 
-    void optimize(IContext<String, TableMetadata> context, Statement statement) throws ParserException;
+    void optimize(SchemaManager schemaManager, T statement) throws ParserException;
 
     default Expression optimizeWhere(Expression where) throws ParserException {
         return optimize(where);

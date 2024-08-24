@@ -1,41 +1,40 @@
 package org.elece.sql.optimizer.command;
 
-import org.elece.sql.db.Db;
-import org.elece.sql.db.IContext;
-import org.elece.sql.db.TableMetadata;
+import org.elece.sql.db.schema.SchemaManager;
+import org.elece.sql.db.schema.SchemaSearcher;
+import org.elece.sql.db.schema.model.Collection;
+import org.elece.sql.db.schema.model.Column;
 import org.elece.sql.error.ParserException;
-import org.elece.sql.parser.expression.Expression;
-import org.elece.sql.parser.expression.ValueExpression;
-import org.elece.sql.parser.expression.internal.Column;
-import org.elece.sql.parser.expression.internal.SqlNumberValue;
 import org.elece.sql.parser.statement.InsertStatement;
-import org.elece.sql.parser.statement.Statement;
 
-import java.math.BigInteger;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
-public class InsertOptimizerCommand implements IOptimizerCommand {
+public class InsertOptimizerCommand implements IOptimizerCommand<InsertStatement> {
     @Override
-    public void optimize(IContext<String, TableMetadata> context, Statement statement) throws ParserException {
-        InsertStatement insertStatement = (InsertStatement) statement;
+    public void optimize(SchemaManager schemaManager, InsertStatement statement) throws ParserException {
+        statement.setValues(optimizeExpressions(statement.getValues()));
 
-        insertStatement.setValues(optimizeExpressions(insertStatement.getValues()));
-
-        TableMetadata table = context.findMetadata(insertStatement.getTable());
-        if (insertStatement.getColumns().isEmpty()) {
-            insertStatement.setColumns(table.getSchema().getColumns().stream().map(Column::getName).toList());
+        Optional<Collection> optionalCollection = SchemaSearcher.findCollection(schemaManager.getSchema(), statement.getTable());
+        if (optionalCollection.isEmpty()) {
+            throw new ParserException(null);
         }
 
-        List<Column> columns = table.getSchema().getColumns();
+        Collection collection = optionalCollection.get();
+
+        if (statement.getColumns().isEmpty()) {
+            statement.setColumns(collection.getColumns().stream().map(Column::getName).toList());
+        }
+
+        List<Column> columns = collection.getColumns();
         for (int currentIndex = 0; currentIndex < columns.size(); currentIndex++) {
             Column currentColumn = columns.get(currentIndex);
-            Integer sortedIndex = table.getSchema().findColumnIndex(currentColumn.getName());
+            int sortedIndex = currentColumn.getId();
 
             if (currentIndex != sortedIndex) {
                 Collections.swap(columns, currentIndex, sortedIndex);
-                Collections.swap(insertStatement.getValues(), currentIndex, sortedIndex);
+                Collections.swap(statement.getValues(), currentIndex, sortedIndex);
             }
         }
     }

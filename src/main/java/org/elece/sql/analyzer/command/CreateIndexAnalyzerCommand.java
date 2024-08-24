@@ -20,7 +20,6 @@ public class CreateIndexAnalyzerCommand implements IAnalyzerCommand<CreateIndexS
         }
 
         Optional<Collection> optionalCollection = SchemaSearcher.findCollection(schemaManager.getSchema(), statement.getTable());
-
         if (optionalCollection.isEmpty()) {
             throw new AnalyzerException("");
         }

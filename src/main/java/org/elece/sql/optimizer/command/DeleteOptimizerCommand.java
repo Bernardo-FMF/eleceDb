@@ -1,16 +1,12 @@
 package org.elece.sql.optimizer.command;
 
-import org.elece.sql.db.IContext;
-import org.elece.sql.db.TableMetadata;
+import org.elece.sql.db.schema.SchemaManager;
 import org.elece.sql.error.ParserException;
 import org.elece.sql.parser.statement.DeleteStatement;
-import org.elece.sql.parser.statement.Statement;
 
-public class DeleteOptimizerCommand implements IOptimizerCommand {
+public class DeleteOptimizerCommand implements IOptimizerCommand<DeleteStatement> {
     @Override
-    public void optimize(IContext<String, TableMetadata> context, Statement statement) throws ParserException {
-        DeleteStatement deleteStatement = (DeleteStatement) statement;
-
-        deleteStatement.setWhere(optimizeWhere(deleteStatement.getWhere()));
+    public void optimize(SchemaManager schemaManager, DeleteStatement statement) throws ParserException {
+        statement.setWhere(optimizeWhere(statement.getWhere()));
     }
 }

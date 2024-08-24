@@ -1,7 +1,6 @@
 package org.elece.sql.optimizer;
 
-import org.elece.sql.db.IContext;
-import org.elece.sql.db.TableMetadata;
+import org.elece.sql.db.schema.SchemaManager;
 import org.elece.sql.error.ParserException;
 import org.elece.sql.optimizer.command.*;
 import org.elece.sql.parser.statement.ExplainStatement;
@@ -23,16 +22,16 @@ public class SqlOptimizer implements ISqlOptimizer {
     }
 
     @Override
-    public void optimize(IContext<String, TableMetadata> context, Statement statement) throws ParserException {
+    public void optimize(SchemaManager schemaManager, Statement statement) throws ParserException {
         Statement.StatementType statementType = statement.getStatementType();
         if (statementType == Statement.StatementType.Explain) {
             ExplainStatement explainStatement = (ExplainStatement) statement;
-            optimize(context, explainStatement.getStatement());
+            optimize(schemaManager, explainStatement.getStatement());
         }
 
         IOptimizerCommand optimizerCommand = optimizerCommandMap.get(statementType);
         if (!Objects.isNull(optimizerCommand)) {
-            optimizerCommand.optimize(context, statement);
+            optimizerCommand.optimize(schemaManager, statement);
         }
     }
 }
