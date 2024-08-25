@@ -1,8 +1,8 @@
 package org.elece.sql.db.schema;
 
-import org.elece.sql.db.schema.model.Collection;
 import org.elece.sql.db.schema.model.Column;
 import org.elece.sql.db.schema.model.Schema;
+import org.elece.sql.db.schema.model.Table;
 
 import java.util.List;
 import java.util.Optional;
@@ -12,12 +12,12 @@ public class SchemaSearcher {
         // private constructor
     }
 
-    public static Optional<Collection> findCollection(Schema schema, String name) {
+    public static Optional<Table> findTable(Schema schema, String name) {
         return schema.getCollections().stream().filter(collection -> collection.getName().equals(name)).findFirst();
     }
 
-    public static Optional<Column> findColumn(Collection collection, String name) {
-        for (Column indexedColumn : collection.getColumns()) {
+    public static Optional<Column> findColumn(Table table, String name) {
+        for (Column indexedColumn : table.getColumns()) {
             if (indexedColumn.getName().equals(name)) {
                 return Optional.of(indexedColumn);
             }
@@ -25,7 +25,7 @@ public class SchemaSearcher {
         return Optional.empty();
     }
 
-    public static List<Column> findIndexedColumns(Collection collection) {
-        return collection.getIndexes().stream().map(index -> findColumn(collection, index.getColumnName())).filter(Optional::isPresent).map(Optional::get).toList();
+    public static List<Column> findIndexedColumns(Table table) {
+        return table.getIndexes().stream().map(index -> findColumn(table, index.getColumnName())).filter(Optional::isPresent).map(Optional::get).toList();
     }
 }

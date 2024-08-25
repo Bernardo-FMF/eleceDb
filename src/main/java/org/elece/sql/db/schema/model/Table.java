@@ -2,13 +2,13 @@ package org.elece.sql.db.schema.model;
 
 import java.util.List;
 
-public class Collection {
+public class Table {
     private final int id;
     private final String name;
     private final List<Column> columns;
     private final List<Index> indexes;
 
-    public Collection(int id, String name, List<Column> columns, List<Index> indexes) {
+    public Table(int id, String name, List<Column> columns, List<Index> indexes) {
         this.id = id;
         this.name = name;
         this.columns = columns;

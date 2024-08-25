@@ -3,8 +3,8 @@ package org.elece.sql.analyzer.command;
 import org.elece.sql.db.Db;
 import org.elece.sql.db.schema.SchemaManager;
 import org.elece.sql.db.schema.SchemaSearcher;
-import org.elece.sql.db.schema.model.Collection;
 import org.elece.sql.db.schema.model.Column;
+import org.elece.sql.db.schema.model.Table;
 import org.elece.sql.error.AnalyzerException;
 import org.elece.sql.parser.expression.internal.SqlConstraint;
 import org.elece.sql.parser.statement.CreateTableStatement;
@@ -16,8 +16,8 @@ import java.util.Set;
 public class CreateTableAnalyzerCommand implements IAnalyzerCommand<CreateTableStatement> {
     @Override
     public void analyze(SchemaManager schemaManager, CreateTableStatement statement) throws AnalyzerException {
-        Optional<Collection> optionalCollection = SchemaSearcher.findCollection(schemaManager.getSchema(), statement.getName());
-        if (optionalCollection.isPresent()) {
+        Optional<Table> optionalTable = SchemaSearcher.findTable(schemaManager.getSchema(), statement.getName());
+        if (optionalTable.isPresent()) {
             throw new AnalyzerException("Table already exists");
         }
 

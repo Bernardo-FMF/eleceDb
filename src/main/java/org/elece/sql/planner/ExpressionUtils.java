@@ -1,8 +1,8 @@
 package org.elece.sql.planner;
 
 import org.elece.sql.db.schema.SchemaSearcher;
-import org.elece.sql.db.schema.model.Collection;
 import org.elece.sql.db.schema.model.Column;
+import org.elece.sql.db.schema.model.Table;
 import org.elece.sql.error.ParserException;
 import org.elece.sql.error.type.parser.ArithmeticResultOutOfBounds;
 import org.elece.sql.parser.expression.*;
@@ -24,22 +24,22 @@ public class ExpressionUtils {
         return resolveExpression(Map.of(), null, expression);
     }
 
-    public static SqlValue<?> resolveExpression(Map<String, SqlValue<?>> valuesTuple, Collection collection, Expression expression) throws ParserException {
+    public static SqlValue<?> resolveExpression(Map<String, SqlValue<?>> valuesTuple, Table table, Expression expression) throws ParserException {
         if (expression instanceof ValueExpression<?> valueExpression) {
             return valueExpression.getValue();
         } else if (expression instanceof IdentifierExpression identifierExpression) {
-            if (Objects.isNull(collection)) {
+            if (Objects.isNull(table)) {
                 // TODO: throw
                 return null;
             }
-            Optional<Column> optionalColumn = SchemaSearcher.findColumn(collection, identifierExpression.getName());
+            Optional<Column> optionalColumn = SchemaSearcher.findColumn(table, identifierExpression.getName());
             if (optionalColumn.isEmpty()) {
                 throw new ParserException(null);
             }
 
             return valuesTuple.get(identifierExpression.getName());
         } else if (expression instanceof UnaryExpression unaryExpression) {
-            SqlValue<?> resolvedValue = resolveExpression(valuesTuple, collection, unaryExpression.getExpression());
+            SqlValue<?> resolvedValue = resolveExpression(valuesTuple, table, unaryExpression.getExpression());
             if (resolvedValue instanceof SqlNumberValue numberValue) {
                 if (unaryExpression.getOperator() == Symbol.Minus) {
                     return new SqlNumberValue(numberValue.getValue() * -1);
@@ -50,8 +50,8 @@ public class ExpressionUtils {
                 return null;
             }
         } else if (expression instanceof BinaryExpression binaryExpression) {
-            SqlValue<?> leftValue = resolveExpression(valuesTuple, collection, binaryExpression.getLeft());
-            SqlValue<?> rightValue = resolveExpression(valuesTuple, collection, binaryExpression.getRight());
+            SqlValue<?> leftValue = resolveExpression(valuesTuple, table, binaryExpression.getLeft());
+            SqlValue<?> rightValue = resolveExpression(valuesTuple, table, binaryExpression.getRight());
 
             if (Objects.isNull(leftValue) || Objects.isNull(rightValue)) {
                 // TODO: throw
@@ -113,7 +113,7 @@ public class ExpressionUtils {
                 return null;
             }
         } else if (expression instanceof NestedExpression nestedExpression) {
-            return resolveExpression(valuesTuple, collection, nestedExpression.getExpression());
+            return resolveExpression(valuesTuple, table, nestedExpression.getExpression());
         } else if (expression instanceof WildcardExpression) {
             // TODO: throw
             return null;

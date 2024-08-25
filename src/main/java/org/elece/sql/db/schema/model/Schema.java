@@ -4,18 +4,18 @@ import java.util.List;
 
 public class Schema {
     private final String dbName;
-    private final List<Collection> collections;
+    private final List<Table> tables;
 
-    public Schema(String dbName, List<Collection> collections) {
+    public Schema(String dbName, List<Table> tables) {
         this.dbName = dbName;
-        this.collections = collections;
+        this.tables = tables;
     }
 
     public String getDbName() {
         return dbName;
     }
 
-    public List<Collection> getCollections() {
-        return collections;
+    public List<Table> getCollections() {
+        return tables;
     }
 }

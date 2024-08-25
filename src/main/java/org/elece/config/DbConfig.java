@@ -26,4 +26,18 @@ public interface DbConfig {
     String getBaseDbPath();
 
     long getBTreeMaxFileSize();
+
+    IndexStorageManagerStrategy getIndexStorageManagerStrategy();
+
+    FileHandlerStrategy getFileHandlerStrategy();
+
+    int getFileHandlerPoolThreads();
+
+    enum IndexStorageManagerStrategy {
+        ORGANIZED, COMPACT
+    }
+
+    enum FileHandlerStrategy {
+        LIMITED, UNLIMITED
+    }
 }

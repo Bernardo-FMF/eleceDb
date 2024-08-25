@@ -1,10 +1,10 @@
 package org.elece.sql.analyzer;
 
 import org.elece.sql.db.schema.SchemaManager;
-import org.elece.sql.db.schema.model.Collection;
 import org.elece.sql.db.schema.model.Column;
 import org.elece.sql.db.schema.model.Index;
 import org.elece.sql.db.schema.model.Schema;
+import org.elece.sql.db.schema.model.Table;
 import org.elece.sql.error.AnalyzerException;
 import org.elece.sql.error.ParserException;
 import org.elece.sql.error.TokenizerException;
@@ -36,10 +36,10 @@ class SqlAnalyzerTest {
         List<Index> indexes = new ArrayList<>();
         indexes.add(new Index("pk_index", "id"));
 
-        List<Collection> collections = new ArrayList<>();
-        collections.add(new Collection(1, "users", columns, indexes));
+        List<Table> tables = new ArrayList<>();
+        tables.add(new Table(1, "users", columns, indexes));
 
-        Schema schema = new Schema("userDb", collections);
+        Schema schema = new Schema("userDb", tables);
 
         Mockito.when(schemaManager.getSchema()).thenReturn(schema);
     }

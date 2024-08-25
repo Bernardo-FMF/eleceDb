@@ -2,8 +2,8 @@ package org.elece.sql.optimizer.command;
 
 import org.elece.sql.db.schema.SchemaManager;
 import org.elece.sql.db.schema.SchemaSearcher;
-import org.elece.sql.db.schema.model.Collection;
 import org.elece.sql.db.schema.model.Column;
+import org.elece.sql.db.schema.model.Table;
 import org.elece.sql.error.ParserException;
 import org.elece.sql.parser.statement.InsertStatement;
 
@@ -16,18 +16,18 @@ public class InsertOptimizerCommand implements IOptimizerCommand<InsertStatement
     public void optimize(SchemaManager schemaManager, InsertStatement statement) throws ParserException {
         statement.setValues(optimizeExpressions(statement.getValues()));
 
-        Optional<Collection> optionalCollection = SchemaSearcher.findCollection(schemaManager.getSchema(), statement.getTable());
-        if (optionalCollection.isEmpty()) {
+        Optional<Table> optionalTable = SchemaSearcher.findTable(schemaManager.getSchema(), statement.getTable());
+        if (optionalTable.isEmpty()) {
             throw new ParserException(null);
         }
 
-        Collection collection = optionalCollection.get();
+        Table table = optionalTable.get();
 
         if (statement.getColumns().isEmpty()) {
-            statement.setColumns(collection.getColumns().stream().map(Column::getName).toList());
+            statement.setColumns(table.getColumns().stream().map(Column::getName).toList());
         }
 
-        List<Column> columns = collection.getColumns();
+        List<Column> columns = table.getColumns();
         for (int currentIndex = 0; currentIndex < columns.size(); currentIndex++) {
             Column currentColumn = columns.get(currentIndex);
             int sortedIndex = currentColumn.getId();

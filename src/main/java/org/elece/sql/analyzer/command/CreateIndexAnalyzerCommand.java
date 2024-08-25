@@ -2,9 +2,9 @@ package org.elece.sql.analyzer.command;
 
 import org.elece.sql.db.schema.SchemaManager;
 import org.elece.sql.db.schema.SchemaSearcher;
-import org.elece.sql.db.schema.model.Collection;
 import org.elece.sql.db.schema.model.Column;
 import org.elece.sql.db.schema.model.Index;
+import org.elece.sql.db.schema.model.Table;
 import org.elece.sql.error.AnalyzerException;
 import org.elece.sql.parser.expression.internal.SqlConstraint;
 import org.elece.sql.parser.statement.CreateIndexStatement;
@@ -19,14 +19,14 @@ public class CreateIndexAnalyzerCommand implements IAnalyzerCommand<CreateIndexS
             throw new AnalyzerException("");
         }
 
-        Optional<Collection> optionalCollection = SchemaSearcher.findCollection(schemaManager.getSchema(), statement.getTable());
-        if (optionalCollection.isEmpty()) {
+        Optional<Table> optionalTable = SchemaSearcher.findTable(schemaManager.getSchema(), statement.getTable());
+        if (optionalTable.isEmpty()) {
             throw new AnalyzerException("");
         }
 
-        Collection collection = optionalCollection.get();
+        Table table = optionalTable.get();
 
-        List<Index> indexes = collection.getIndexes();
+        List<Index> indexes = table.getIndexes();
         for (Index index : indexes) {
             if (index.getName().equals(statement.getName())) {
                 throw new AnalyzerException("");
@@ -36,7 +36,7 @@ public class CreateIndexAnalyzerCommand implements IAnalyzerCommand<CreateIndexS
             }
         }
 
-        Optional<Column> optionalColumn = SchemaSearcher.findColumn(collection, statement.getColumn());
+        Optional<Column> optionalColumn = SchemaSearcher.findColumn(table, statement.getColumn());
         if (optionalColumn.isEmpty()) {
             throw new AnalyzerException("");
         }

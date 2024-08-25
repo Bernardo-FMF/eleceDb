@@ -15,8 +15,11 @@ public class DefaultDbConfig implements DbConfig {
     private final int bTreeGrowthNodeAllocationCount;
     private final String baseDbPath;
     private final long bTreeMaxFileSize;
+    private final IndexStorageManagerStrategy indexStorageManagerStrategy;
+    private final FileHandlerStrategy fileHandlerStrategy;
+    private final int fileHandlerPoolThreads;
 
-    public DefaultDbConfig(int port, int poolCoreSize, int poolMaxSize, long keepAliveTime, int fileDescriptorAcquisitionSize, long closeTimeoutTime, long acquisitionTimeoutTime, TimeUnit timeoutUnit, int bTreeDegree, int bTreeGrowthNodeAllocationCount, String baseDbPath, long bTreeMaxFileSize) {
+    public DefaultDbConfig(int port, int poolCoreSize, int poolMaxSize, long keepAliveTime, int fileDescriptorAcquisitionSize, long closeTimeoutTime, long acquisitionTimeoutTime, TimeUnit timeoutUnit, int bTreeDegree, int bTreeGrowthNodeAllocationCount, String baseDbPath, long bTreeMaxFileSize, IndexStorageManagerStrategy indexStorageManagerStrategy, FileHandlerStrategy fileHandlerStrategy, int fileHandlerPoolThreads) {
         this.port = port;
         this.poolCoreSize = poolCoreSize;
         this.poolMaxSize = poolMaxSize;
@@ -29,6 +32,9 @@ public class DefaultDbConfig implements DbConfig {
         this.bTreeGrowthNodeAllocationCount = bTreeGrowthNodeAllocationCount;
         this.baseDbPath = baseDbPath;
         this.bTreeMaxFileSize = bTreeMaxFileSize;
+        this.indexStorageManagerStrategy = indexStorageManagerStrategy;
+        this.fileHandlerStrategy = fileHandlerStrategy;
+        this.fileHandlerPoolThreads = fileHandlerPoolThreads;
     }
 
     @Override
@@ -89,5 +95,20 @@ public class DefaultDbConfig implements DbConfig {
     @Override
     public long getBTreeMaxFileSize() {
         return bTreeMaxFileSize;
+    }
+
+    @Override
+    public IndexStorageManagerStrategy getIndexStorageManagerStrategy() {
+        return indexStorageManagerStrategy;
+    }
+
+    @Override
+    public FileHandlerStrategy getFileHandlerStrategy() {
+        return fileHandlerStrategy;
+    }
+
+    @Override
+    public int getFileHandlerPoolThreads() {
+        return fileHandlerPoolThreads;
     }
 }
