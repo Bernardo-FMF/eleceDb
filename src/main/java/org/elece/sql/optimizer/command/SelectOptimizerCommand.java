@@ -1,6 +1,5 @@
 package org.elece.sql.optimizer.command;
 
-import org.elece.sql.db.Db;
 import org.elece.sql.db.schema.SchemaManager;
 import org.elece.sql.db.schema.SchemaSearcher;
 import org.elece.sql.db.schema.model.Column;
@@ -32,10 +31,8 @@ public class SelectOptimizerCommand implements IOptimizerCommand<SelectStatement
 
             List<Expression> identifiers = new ArrayList<>();
             for (Column column : table.getColumns()) {
-                if (!column.getName().equals(Db.ROW_ID)) {
-                    IdentifierExpression identifierExpression = new IdentifierExpression(column.getName());
-                    identifiers.add(identifierExpression);
-                }
+                IdentifierExpression identifierExpression = new IdentifierExpression(column.getName());
+                identifiers.add(identifierExpression);
             }
 
             statement.setColumns(identifiers);

@@ -1,6 +1,5 @@
 package org.elece.sql.analyzer.command;
 
-import org.elece.sql.db.Db;
 import org.elece.sql.db.schema.SchemaManager;
 import org.elece.sql.db.schema.SchemaSearcher;
 import org.elece.sql.db.schema.model.Column;
@@ -103,10 +102,6 @@ public interface IAnalyzerCommand<T extends Statement> {
     }
 
     default void analyzeAssignment(Table table, Assignment assignment, Boolean allowIdentifiers) throws AnalyzerException {
-        if (Db.ROW_ID.equals(assignment.getId())) {
-            throw new AnalyzerException("");
-        }
-
         Optional<Column> optionalColumn = SchemaSearcher.findColumn(table, assignment.getId());
         if (optionalColumn.isEmpty()) {
             throw new AnalyzerException("");

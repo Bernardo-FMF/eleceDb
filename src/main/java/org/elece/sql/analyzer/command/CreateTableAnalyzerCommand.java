@@ -1,6 +1,5 @@
 package org.elece.sql.analyzer.command;
 
-import org.elece.sql.db.Db;
 import org.elece.sql.db.schema.SchemaManager;
 import org.elece.sql.db.schema.SchemaSearcher;
 import org.elece.sql.db.schema.model.Column;
@@ -29,10 +28,6 @@ public class CreateTableAnalyzerCommand implements IAnalyzerCommand<CreateTableS
                 throw new AnalyzerException("Duplicate columns");
             } else {
                 columnNames.add(column.getName());
-            }
-
-            if (Db.ROW_ID.equals(column.getName())) {
-                throw new AnalyzerException("");
             }
 
             if (column.getConstraints().contains(SqlConstraint.PrimaryKey)) {
