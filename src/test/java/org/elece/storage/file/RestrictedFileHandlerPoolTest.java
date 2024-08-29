@@ -3,6 +3,8 @@ package org.elece.storage.file;
 import org.elece.config.DbConfig;
 import org.elece.config.DefaultDbConfigBuilder;
 import org.elece.storage.error.StorageException;
+import org.elece.utils.FileTestUtils;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -29,6 +31,11 @@ class RestrictedFileHandlerPoolTest {
                 .build();
 
         fileHandlerPool = new RestrictedFileHandlerPool(DefaultFileHandlerFactory.getInstance(dbConfig.getFileHandlerPoolThreads()), dbConfig);
+    }
+
+    @AfterEach
+    public void destroy() throws IOException {
+        FileTestUtils.deleteDirectory(dbPath.toString());
     }
 
     @Test

@@ -6,6 +6,10 @@ import org.elece.sql.db.schema.model.Column;
 import org.elece.sql.db.schema.model.Index;
 import org.elece.sql.db.schema.model.Schema;
 import org.elece.sql.db.schema.model.Table;
+import org.elece.sql.db.schema.model.builder.ColumnBuilder;
+import org.elece.sql.db.schema.model.builder.IndexBuilder;
+import org.elece.sql.db.schema.model.builder.SchemaBuilder;
+import org.elece.sql.db.schema.model.builder.TableBuilder;
 import org.elece.sql.error.AnalyzerException;
 import org.elece.sql.error.ParserException;
 import org.elece.sql.error.TokenizerException;
@@ -34,16 +38,27 @@ class SqlOptimizerTest {
     @BeforeEach
     public void setup() {
         List<Column> columns = new ArrayList<>();
-        columns.add(new Column("name", SqlType.varchar(255), List.of()));
-        columns.add(new Column("id", SqlType.intType, List.of(SqlConstraint.Unique, SqlConstraint.PrimaryKey)));
+        columns.add(ColumnBuilder.builder().setName("name").setSqlType(SqlType.varchar(255)).setConstraints(List.of()).build());
+        columns.add(ColumnBuilder.builder().setName("id").setSqlType(SqlType.intType).setConstraints(List.of(SqlConstraint.Unique, SqlConstraint.PrimaryKey)).build());
 
         List<Index> indexes = new ArrayList<>();
-        indexes.add(new Index("pk_index", "id"));
+        indexes.add(IndexBuilder.builder()
+                .setName("pk_index")
+                .setColumnName("id")
+                .build());
 
         List<Table> tables = new ArrayList<>();
-        tables.add(new Table(1, "users", columns, indexes));
+        tables.add(TableBuilder.builder()
+                .setId(1)
+                .setName("users")
+                .setColumns(columns)
+                .setIndexes(indexes)
+                .build());
 
-        Schema schema = new Schema("userDb", tables);
+        Schema schema = SchemaBuilder.builder()
+                .setDbName("userDb")
+                .setTables(tables)
+                .build();
 
         Mockito.when(schemaManager.getSchema()).thenReturn(schema);
     }
