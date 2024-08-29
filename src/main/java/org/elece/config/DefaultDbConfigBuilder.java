@@ -21,6 +21,14 @@ public class DefaultDbConfigBuilder {
     private DbConfig.FileHandlerStrategy fileHandlerStrategy;
     private Integer fileHandlerPoolThreads;
 
+    private DefaultDbConfigBuilder() {
+        // private constructor
+    }
+
+    public static DefaultDbConfigBuilder builder() {
+        return new DefaultDbConfigBuilder();
+    }
+
     public DefaultDbConfigBuilder setPort(int port) {
         this.port = port;
         return this;
@@ -156,7 +164,7 @@ public class DefaultDbConfigBuilder {
         return Objects.requireNonNullElse(fileHandlerPoolThreads, 10);
     }
 
-    public DefaultDbConfig createDefaultDbConfig() {
+    public DefaultDbConfig build() {
         return new DefaultDbConfig(getPort(), getPoolCoreSize(), getPoolMaxSize(), getKeepAliveTime(),
                 getFileDescriptorAcquisitionSize(), getCloseTimeoutTime(), getAcquisitionTimeoutTime(), getTimeoutUnit(),
                 getbTreeDegree(), getbTreeGrowthNodeAllocationCount(), getBaseDbPath(), getbTreeMaxFileSize(),

@@ -51,7 +51,6 @@ public class UnrestrictedFileHandlerPool implements FileHandlerPool {
     @Override
     public void closeAll() throws StorageException {
         for (Map.Entry<String, FileHandler> entry : fileHandlers.entrySet()) {
-            String pathName = entry.getKey();
             FileHandler fileHandler = entry.getValue();
             try {
                 fileHandler.closeChannel(dbConfig.getCloseTimeoutTime(), dbConfig.getTimeoutUnit());
