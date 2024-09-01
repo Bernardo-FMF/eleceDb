@@ -1,8 +1,8 @@
 package org.elece.memory.tree.operation;
 
 import org.elece.config.DbConfig;
+import org.elece.exception.btree.BTreeException;
 import org.elece.memory.KeyValueSize;
-import org.elece.memory.error.BTreeException;
 import org.elece.memory.tree.node.AbstractTreeNode;
 import org.elece.memory.tree.node.data.BinaryObject;
 import org.elece.storage.error.StorageException;

@@ -1,8 +1,9 @@
-package org.elece.memory.error.type;
+package org.elece.exception.btree.type;
 
+import org.elece.exception.DbError;
 import org.elece.memory.tree.node.data.BinaryObject;
 
-public class InvalidBinaryObject implements BTreeError {
+public class InvalidBinaryObject implements DbError {
     private final Object obj;
     private final Class<? extends BinaryObject<?>> objClass;
 
@@ -13,6 +14,6 @@ public class InvalidBinaryObject implements BTreeError {
 
     @Override
     public String format() {
-        return format("Internal tree error", String.format("Binary object %s is not valid for type %s", obj.toString(), objClass));
+        return String.format("Binary object %s is not valid for type %s", obj.toString(), objClass);
     }
 }

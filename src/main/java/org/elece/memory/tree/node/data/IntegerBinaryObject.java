@@ -1,7 +1,7 @@
 package org.elece.memory.tree.node.data;
 
-import org.elece.memory.error.BTreeException;
-import org.elece.memory.error.type.InvalidBinaryObject;
+import org.elece.exception.btree.BTreeException;
+import org.elece.exception.btree.type.InvalidBinaryObject;
 import org.elece.utils.BinaryUtils;
 
 public class IntegerBinaryObject extends AbstractBinaryObject<Integer> {

@@ -1,6 +1,6 @@
 package org.elece.memory.tree.node.data;
 
-import org.elece.memory.error.BTreeException;
+import org.elece.exception.btree.BTreeException;
 
 public interface BinaryObject<E> {
     BinaryObject<E> load(E e) throws BTreeException;

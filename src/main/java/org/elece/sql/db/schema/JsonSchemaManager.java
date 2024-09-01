@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+// TODO: add functionality of persisting new schema (for when the db is created/deleted, a table is created/deleted, an index is created/deleted).
 public class JsonSchemaManager implements SchemaManager {
     private Schema schema;
     private final DbConfig dbConfig;
@@ -21,6 +22,7 @@ public class JsonSchemaManager implements SchemaManager {
         this.dbConfig = dbConfig;
         this.gson = new GsonBuilder().serializeNulls().create();
         loadSchema();
+        // TODO: add some schema validation
     }
 
     // TODO: throw proper exception
