@@ -1,7 +1,7 @@
 package org.elece.memory.tree.node.data;
 
 import org.elece.exception.btree.BTreeException;
-import org.elece.exception.btree.type.InvalidBinaryObject;
+import org.elece.exception.btree.type.InvalidBinaryObjectError;
 import org.elece.utils.BinaryUtils;
 
 public class IntegerBinaryObject extends AbstractBinaryObject<Integer> {
@@ -18,7 +18,7 @@ public class IntegerBinaryObject extends AbstractBinaryObject<Integer> {
     public BinaryObject<Integer> load(Integer integer) throws BTreeException {
         // TODO: add logic in analyzer to avoid this type of situations
         if (integer == 0) {
-            throw new BTreeException(new InvalidBinaryObject(integer, this.getClass()));
+            throw new BTreeException(new InvalidBinaryObjectError(integer, this.getClass()));
         }
         return new IntegerBinaryObject(BinaryUtils.integerToBytes(integer));
     }

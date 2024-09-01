@@ -1,9 +1,9 @@
 package org.elece.storage.index;
 
 import org.elece.config.DbConfig;
+import org.elece.exception.storage.StorageException;
 import org.elece.sql.db.schema.model.Column;
 import org.elece.sql.db.schema.model.Table;
-import org.elece.storage.error.StorageException;
 import org.elece.storage.index.header.IndexHeaderManagerFactory;
 
 public abstract class IndexStorageManagerFactory {

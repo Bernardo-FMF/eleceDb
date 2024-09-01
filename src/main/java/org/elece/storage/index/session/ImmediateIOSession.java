@@ -1,11 +1,11 @@
 package org.elece.storage.index.session;
 
+import org.elece.exception.storage.StorageException;
+import org.elece.exception.storage.type.InternalStorageError;
 import org.elece.memory.KeyValueSize;
 import org.elece.memory.Pointer;
 import org.elece.memory.tree.node.AbstractTreeNode;
 import org.elece.memory.tree.node.NodeFactory;
-import org.elece.storage.error.StorageException;
-import org.elece.storage.error.type.InternalStorageError;
 import org.elece.storage.index.IndexStorageManager;
 import org.elece.storage.index.NodeData;
 

@@ -3,11 +3,11 @@ package org.elece.exception.btree.type;
 import org.elece.exception.DbError;
 import org.elece.memory.tree.node.data.BinaryObject;
 
-public class InvalidBinaryObject implements DbError {
+public class InvalidBinaryObjectError implements DbError {
     private final Object obj;
     private final Class<? extends BinaryObject<?>> objClass;
 
-    public InvalidBinaryObject(Object obj, Class<? extends BinaryObject<?>> objClass) {
+    public InvalidBinaryObjectError(Object obj, Class<? extends BinaryObject<?>> objClass) {
         this.obj = obj;
         this.objClass = objClass;
     }

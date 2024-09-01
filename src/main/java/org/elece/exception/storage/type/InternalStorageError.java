@@ -1,6 +1,8 @@
-package org.elece.storage.error.type;
+package org.elece.exception.storage.type;
 
-public class InternalStorageError implements StorageError {
+import org.elece.exception.DbError;
+
+public class InternalStorageError implements DbError {
     private final String message;
 
     public InternalStorageError(String message) {
@@ -9,6 +11,6 @@ public class InternalStorageError implements StorageError {
 
     @Override
     public String format() {
-        return format("Internal storage error", message);
+        return message;
     }
 }

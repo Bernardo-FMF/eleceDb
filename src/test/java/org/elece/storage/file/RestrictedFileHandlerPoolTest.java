@@ -2,7 +2,7 @@ package org.elece.storage.file;
 
 import org.elece.config.DbConfig;
 import org.elece.config.DefaultDbConfigBuilder;
-import org.elece.storage.error.StorageException;
+import org.elece.exception.storage.StorageException;
 import org.elece.utils.FileTestUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;

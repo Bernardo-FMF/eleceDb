@@ -1,7 +1,7 @@
 package org.elece.storage.index.header;
 
+import org.elece.exception.storage.StorageException;
 import org.elece.memory.Pointer;
-import org.elece.storage.error.StorageException;
 
 import java.util.List;
 import java.util.Objects;

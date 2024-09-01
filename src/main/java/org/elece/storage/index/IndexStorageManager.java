@@ -1,8 +1,8 @@
 package org.elece.storage.index;
 
+import org.elece.exception.storage.StorageException;
 import org.elece.memory.KeyValueSize;
 import org.elece.memory.Pointer;
-import org.elece.storage.error.StorageException;
 
 import java.io.IOException;
 import java.util.Optional;

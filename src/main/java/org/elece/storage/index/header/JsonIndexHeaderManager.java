@@ -3,8 +3,8 @@ package org.elece.storage.index.header;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.stream.JsonReader;
-import org.elece.storage.error.StorageException;
-import org.elece.storage.error.type.InternalStorageError;
+import org.elece.exception.storage.StorageException;
+import org.elece.exception.storage.type.InternalStorageError;
 
 import java.io.*;
 import java.nio.file.Path;

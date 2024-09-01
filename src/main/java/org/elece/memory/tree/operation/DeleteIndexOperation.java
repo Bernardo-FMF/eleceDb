@@ -2,10 +2,10 @@ package org.elece.memory.tree.operation;
 
 import org.elece.config.DbConfig;
 import org.elece.exception.btree.BTreeException;
+import org.elece.exception.storage.StorageException;
 import org.elece.memory.tree.node.AbstractTreeNode;
 import org.elece.memory.tree.node.NodeFactory;
 import org.elece.memory.tree.node.data.BinaryObject;
-import org.elece.storage.error.StorageException;
 import org.elece.storage.index.session.AtomicIOSession;
 
 public class DeleteIndexOperation<K, V> {

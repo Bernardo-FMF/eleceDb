@@ -1,9 +1,9 @@
 package org.elece.storage.index;
 
 import org.elece.config.DbConfig;
+import org.elece.exception.storage.StorageException;
 import org.elece.memory.KeyValueSize;
 import org.elece.memory.Pointer;
-import org.elece.storage.error.StorageException;
 import org.elece.storage.file.FileHandlerPool;
 import org.elece.storage.index.header.IndexHeaderManager;
 import org.elece.storage.index.header.IndexHeaderManagerFactory;
