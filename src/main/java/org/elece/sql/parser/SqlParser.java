@@ -1,16 +1,16 @@
 package org.elece.sql.parser;
 
+import org.elece.exception.sql.ParserException;
+import org.elece.exception.sql.TokenizerException;
+import org.elece.exception.sql.type.parser.UnexpectedTokenError;
+import org.elece.exception.sql.type.parser.UnspecifiedError;
 import org.elece.sql.parser.command.CommandFactory;
 import org.elece.sql.parser.command.IKeywordCommand;
-import org.elece.sql.error.ParserException;
-import org.elece.sql.error.type.parser.UnexpectedToken;
-import org.elece.sql.error.type.parser.UnspecifiedError;
 import org.elece.sql.parser.statement.ExplainStatement;
 import org.elece.sql.parser.statement.Statement;
 import org.elece.sql.token.IPeekableIterator;
 import org.elece.sql.token.TokenWrapper;
 import org.elece.sql.token.Tokenizer;
-import org.elece.sql.error.TokenizerException;
 import org.elece.sql.token.model.KeywordToken;
 import org.elece.sql.token.model.Token;
 import org.elece.sql.token.model.type.Keyword;
@@ -44,6 +44,6 @@ public class SqlParser implements ISqlParser {
                 }
             }
         }
-        throw new ParserException(new UnexpectedToken(nextToken, "Keyword is not a supported statement"));
+        throw new ParserException(new UnexpectedTokenError(nextToken, "Keyword is not a supported statement"));
     }
 }

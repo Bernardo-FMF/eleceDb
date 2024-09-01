@@ -1,5 +1,9 @@
 package org.elece.tcp.proto;
 
+import org.elece.exception.proto.ProtoException;
+import org.elece.exception.proto.type.InputStreamError;
+import org.elece.exception.proto.type.InvalidHeaderSizeError;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
@@ -17,19 +21,21 @@ public class Proto {
         byte[] payloadBuf;
 
         try {
-            if (inputStream.read(payloadLenBuf) != Integer.BYTES) {
-                throw new ProtoException("Size header is not valid");
+            int payloadLenSize = inputStream.read(payloadLenBuf);
+            if (payloadLenSize != Integer.BYTES) {
+                throw new ProtoException(new InvalidHeaderSizeError(payloadLenSize, Integer.BYTES));
             }
 
             int payloadLen = ByteBuffer.wrap(payloadLenBuf).order(ByteOrder.LITTLE_ENDIAN).getInt();
 
             payloadBuf = new byte[payloadLen];
 
-            if (inputStream.read(payloadBuf) != payloadLen) {
-                throw new ProtoException("Size header is not valid");
+            int payloadSize = inputStream.read(payloadBuf);
+            if (payloadSize != payloadLen) {
+                throw new ProtoException(new InvalidHeaderSizeError(payloadSize, payloadLen));
             }
         } catch (IOException e) {
-            throw new ProtoException("Error while reading the input stream");
+            throw new ProtoException(new InputStreamError());
         }
 
         return new String(payloadBuf, StandardCharsets.UTF_8);

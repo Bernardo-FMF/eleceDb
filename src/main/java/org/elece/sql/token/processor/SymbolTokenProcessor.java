@@ -1,10 +1,10 @@
 package org.elece.sql.token.processor;
 
+import org.elece.exception.sql.type.token.OperatorNotClosedError;
+import org.elece.exception.sql.type.token.UnexpectedCharInOperatorError;
 import org.elece.sql.token.CharStream;
 import org.elece.sql.token.Location;
 import org.elece.sql.token.TokenWrapper;
-import org.elece.sql.error.type.token.OperatorNotClosed;
-import org.elece.sql.error.type.token.UnexpectedCharInOperator;
 import org.elece.sql.token.model.SymbolToken;
 import org.elece.sql.token.model.type.Symbol;
 
@@ -43,9 +43,9 @@ public class SymbolTokenProcessor implements ITokenProcessor<Character> {
         if (!tokenBuilder.hasToken()) {
             if (currentSymbol == '!') {
                 if (Objects.isNull(nextSymbol)) {
-                    tokenBuilder.error(new OperatorNotClosed(initialLocation, Symbol.Neq));
+                    tokenBuilder.error(new OperatorNotClosedError(initialLocation, Symbol.Neq));
                 } else {
-                    tokenBuilder.error(new UnexpectedCharInOperator(initialLocation, Symbol.Neq, nextSymbol));
+                    tokenBuilder.error(new UnexpectedCharInOperatorError(initialLocation, Symbol.Neq, nextSymbol));
                 }
             }
         }

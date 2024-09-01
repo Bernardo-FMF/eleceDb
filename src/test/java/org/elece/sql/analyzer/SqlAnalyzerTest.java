@@ -1,5 +1,8 @@
 package org.elece.sql.analyzer;
 
+import org.elece.exception.sql.AnalyzerException;
+import org.elece.exception.sql.ParserException;
+import org.elece.exception.sql.TokenizerException;
 import org.elece.sql.db.schema.SchemaManager;
 import org.elece.sql.db.schema.model.Column;
 import org.elece.sql.db.schema.model.Index;
@@ -9,9 +12,6 @@ import org.elece.sql.db.schema.model.builder.ColumnBuilder;
 import org.elece.sql.db.schema.model.builder.IndexBuilder;
 import org.elece.sql.db.schema.model.builder.SchemaBuilder;
 import org.elece.sql.db.schema.model.builder.TableBuilder;
-import org.elece.sql.error.AnalyzerException;
-import org.elece.sql.error.ParserException;
-import org.elece.sql.error.TokenizerException;
 import org.elece.sql.parser.ISqlParser;
 import org.elece.sql.parser.SqlParser;
 import org.elece.sql.parser.expression.internal.SqlConstraint;
@@ -34,7 +34,7 @@ class SqlAnalyzerTest {
     @BeforeEach
     public void setup() {
         List<Column> columns = new ArrayList<>();
-        columns.add(ColumnBuilder.builder().setName("name").setSqlType(SqlType.varchar(255)).setConstraints(List.of()).build());
+        columns.add(ColumnBuilder.builder().setName("name").setSqlType(SqlType.varchar(255)).setConstraints(List.of(SqlConstraint.Unique)).build());
         columns.add(ColumnBuilder.builder().setName("id").setSqlType(SqlType.intType).setConstraints(List.of(SqlConstraint.Unique, SqlConstraint.PrimaryKey)).build());
 
         List<Index> indexes = new ArrayList<>();

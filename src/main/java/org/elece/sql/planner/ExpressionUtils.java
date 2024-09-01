@@ -1,10 +1,12 @@
 package org.elece.sql.planner;
 
+import org.elece.exception.sql.ParserException;
+import org.elece.exception.sql.type.analyzer.ColumnNotPresentError;
+import org.elece.exception.sql.type.analyzer.TableNotPresentError;
+import org.elece.exception.sql.type.parser.*;
 import org.elece.sql.db.schema.SchemaSearcher;
 import org.elece.sql.db.schema.model.Column;
 import org.elece.sql.db.schema.model.Table;
-import org.elece.sql.error.ParserException;
-import org.elece.sql.error.type.parser.ArithmeticResultOutOfBounds;
 import org.elece.sql.parser.expression.*;
 import org.elece.sql.parser.expression.internal.SqlBoolValue;
 import org.elece.sql.parser.expression.internal.SqlNumberValue;
@@ -29,12 +31,11 @@ public class ExpressionUtils {
             return valueExpression.getValue();
         } else if (expression instanceof IdentifierExpression identifierExpression) {
             if (Objects.isNull(table)) {
-                // TODO: throw
-                return null;
+                throw new ParserException(new TableNotPresentError(null));
             }
             Optional<Column> optionalColumn = SchemaSearcher.findColumn(table, identifierExpression.getName());
             if (optionalColumn.isEmpty()) {
-                throw new ParserException(null);
+                throw new ParserException(new ColumnNotPresentError(identifierExpression.getName(), table.getName()));
             }
 
             return valuesTuple.get(identifierExpression.getName());
@@ -46,16 +47,14 @@ public class ExpressionUtils {
                 }
                 return resolvedValue;
             } else {
-                // TODO: throw
-                return null;
+                throw new ParserException(new CannotApplyUnaryError(unaryExpression.getOperator(), resolvedValue));
             }
         } else if (expression instanceof BinaryExpression binaryExpression) {
             SqlValue<?> leftValue = resolveExpression(valuesTuple, table, binaryExpression.getLeft());
             SqlValue<?> rightValue = resolveExpression(valuesTuple, table, binaryExpression.getRight());
 
             if (Objects.isNull(leftValue) || Objects.isNull(rightValue)) {
-                // TODO: throw
-                return null;
+                throw new ParserException(new CannotApplyBinaryError(binaryExpression.getOperator(), binaryExpression.getLeft(), binaryExpression.getRight()));
             }
 
             // The comparison between values is irrelevant, but the class comparison is needed
@@ -69,11 +68,9 @@ public class ExpressionUtils {
                     case LtEq -> new SqlBoolValue(comparisonResult <= 0);
                     case Gt -> new SqlBoolValue(comparisonResult > 0);
                     case GtEq -> new SqlBoolValue(comparisonResult >= 0);
-                    default -> {
-                        // TODO: throw
-                        yield null;
-                    }
+                    default -> null;
                 };
+
                 if (sqlValue != null) {
                     return sqlValue;
                 }
@@ -82,14 +79,8 @@ public class ExpressionUtils {
                         binaryExpression.getRight() instanceof ValueExpression<?> rightValueExpression &&
                         leftValueExpression.getValue() instanceof SqlNumberValue leftNumber &&
                         rightValueExpression.getValue() instanceof SqlNumberValue rightNumber) {
-                    if (!(binaryExpression.getOperator() instanceof Symbol)) {
-                        // TODO: throw
-                        return null;
-                    }
-
                     if (binaryExpression.getOperator() == Symbol.Div && rightNumber.getValue() == 0) {
-                        // TODO: throw
-                        return null;
+                        throw new ParserException(new DivisionByZeroError(leftNumber.getValue(), rightNumber.getValue()));
                     }
 
                     try {
@@ -98,27 +89,19 @@ public class ExpressionUtils {
                             case Minus -> leftNumber.getValue() - rightNumber.getValue();
                             case Mul -> leftNumber.getValue() * rightNumber.getValue();
                             case Div -> leftNumber.getValue() / rightNumber.getValue();
-                            default -> {
-                                // TODO: throw
-                                yield null;
-                            }
+                            default -> throw new ParserException(new UnhandledArithmeticOperatorError(symbol));
                         };
                         return new SqlNumberValue(arithmeticResult);
                     } catch (NumberFormatException exception) {
-                        throw new ParserException(new ArithmeticResultOutOfBounds(leftNumber.getValue(), rightNumber.getValue(), symbol));
+                        throw new ParserException(new ArithmeticResultOutOfBoundsError(leftNumber.getValue(), rightNumber.getValue(), symbol));
                     }
                 }
-
-                // TODO: throw
-                return null;
             }
         } else if (expression instanceof NestedExpression nestedExpression) {
             return resolveExpression(valuesTuple, table, nestedExpression.getExpression());
         } else if (expression instanceof WildcardExpression) {
-            // TODO: throw
-            return null;
+            throw new ParserException(new UnsolvedWildcardError());
         }
-        // TODO: throw
-        return null;
+        throw new ParserException(new UnsolvedExpressionError());
     }
 }

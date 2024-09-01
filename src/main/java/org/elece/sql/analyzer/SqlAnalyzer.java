@@ -1,8 +1,8 @@
 package org.elece.sql.analyzer;
 
+import org.elece.exception.sql.AnalyzerException;
 import org.elece.sql.analyzer.command.*;
 import org.elece.sql.db.schema.SchemaManager;
-import org.elece.sql.error.AnalyzerException;
 import org.elece.sql.parser.statement.ExplainStatement;
 import org.elece.sql.parser.statement.Statement;
 

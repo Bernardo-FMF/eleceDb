@@ -1,11 +1,11 @@
 package org.elece.sql.parser.command;
 
+import org.elece.exception.sql.ParserException;
+import org.elece.exception.sql.TokenizerException;
+import org.elece.exception.sql.type.parser.IntegerOutOfBoundsError;
+import org.elece.exception.sql.type.parser.UnexpectedTokenError;
 import org.elece.sql.db.schema.model.Column;
 import org.elece.sql.db.schema.model.builder.ColumnBuilder;
-import org.elece.sql.error.ParserException;
-import org.elece.sql.error.TokenizerException;
-import org.elece.sql.error.type.parser.IntegerOutOfBounds;
-import org.elece.sql.error.type.parser.UnexpectedToken;
 import org.elece.sql.parser.expression.*;
 import org.elece.sql.parser.expression.internal.*;
 import org.elece.sql.token.IPeekableIterator;
@@ -86,7 +86,7 @@ public abstract class AbstractKeywordCommand implements IKeywordCommand {
         if (nextToken.getTokenType() == Token.TokenType.IdentifierToken) {
             return ((IdentifierToken) nextToken).getIdentifier();
         }
-        throw new ParserException(new UnexpectedToken(nextToken, "Expected an identifier"));
+        throw new ParserException(new UnexpectedTokenError(nextToken, "Expected an identifier"));
     }
 
     protected Column parseColumn() throws TokenizerException, ParserException {
@@ -100,7 +100,7 @@ public abstract class AbstractKeywordCommand implements IKeywordCommand {
 
                 Token varcharToken = nextToken();
                 if (varcharToken.getTokenType() != Token.TokenType.NumberToken) {
-                    throw new ParserException(new UnexpectedToken(varcharToken, "Expected a number corresponding to the varchar size"));
+                    throw new ParserException(new UnexpectedTokenError(varcharToken, "Expected a number corresponding to the varchar size"));
                 }
                 int size = Integer.parseInt(((NumberToken) varcharToken).getNumber());
 
@@ -108,7 +108,7 @@ public abstract class AbstractKeywordCommand implements IKeywordCommand {
                 yield SqlType.varchar(size);
             }
             default ->
-                    throw new ParserException(new UnexpectedToken(nextToken, "Token is invalid in the query context"));
+                    throw new ParserException(new UnexpectedTokenError(nextToken, "Token is invalid in the query context"));
         };
 
         List<SqlConstraint> columnCapabilities = new ArrayList<>();
@@ -125,7 +125,7 @@ public abstract class AbstractKeywordCommand implements IKeywordCommand {
             } else if (keywordToken.getKeyword() == Keyword.Unique) {
                 columnCapabilities.add(SqlConstraint.Unique);
             } else {
-                throw new ParserException(new UnexpectedToken(capabilityToken, "Token is invalid in the query context"));
+                throw new ParserException(new UnexpectedTokenError(capabilityToken, "Token is invalid in the query context"));
             }
         }
 
@@ -158,7 +158,7 @@ public abstract class AbstractKeywordCommand implements IKeywordCommand {
         if (nextToken.getTokenType() == Token.TokenType.KeywordToken && ((KeywordToken) nextToken).getKeyword().isBinaryOperator()) {
             return new BinaryExpression(expression, ((KeywordToken) nextToken).getKeyword(), parseExpression(nextPrecedence));
         }
-        throw new ParserException(new UnexpectedToken(nextToken, "Token is invalid in the query context"));
+        throw new ParserException(new UnexpectedTokenError(nextToken, "Token is invalid in the query context"));
     }
 
     @Override
@@ -173,7 +173,7 @@ public abstract class AbstractKeywordCommand implements IKeywordCommand {
                 try {
                     value = Integer.parseInt(number);
                 } catch (NumberFormatException exception) {
-                    throw new ParserException(new IntegerOutOfBounds(number));
+                    throw new ParserException(new IntegerOutOfBoundsError(number));
                 }
                 yield new ValueExpression<>(new SqlNumberValue(value));
             }
@@ -181,7 +181,7 @@ public abstract class AbstractKeywordCommand implements IKeywordCommand {
                 case True -> new ValueExpression<>(new SqlBoolValue(true));
                 case False -> new ValueExpression<>(new SqlBoolValue(false));
                 default ->
-                        throw new ParserException(new UnexpectedToken(nextToken, "Token is invalid in the query context"));
+                        throw new ParserException(new UnexpectedTokenError(nextToken, "Token is invalid in the query context"));
             };
             case SymbolToken -> switch (((SymbolToken) nextToken).getSymbol()) {
                 case Mul -> new WildcardExpression();
@@ -193,10 +193,10 @@ public abstract class AbstractKeywordCommand implements IKeywordCommand {
                     yield new NestedExpression(expression);
                 }
                 default ->
-                        throw new ParserException(new UnexpectedToken(nextToken, "Token is invalid in the query context"));
+                        throw new ParserException(new UnexpectedTokenError(nextToken, "Token is invalid in the query context"));
             };
             default ->
-                    throw new ParserException(new UnexpectedToken(nextToken, "Token is invalid in the query context"));
+                    throw new ParserException(new UnexpectedTokenError(nextToken, "Token is invalid in the query context"));
         };
     }
 
@@ -228,7 +228,7 @@ public abstract class AbstractKeywordCommand implements IKeywordCommand {
     protected Token expectToken(Predicate<Token> predicate) throws TokenizerException, ParserException {
         Token target = nextToken();
         if (!predicate.test(target)) {
-            throw new ParserException(new UnexpectedToken(target, "Expected token not found"));
+            throw new ParserException(new UnexpectedTokenError(target, "Expected token not found"));
         }
         return target;
     }

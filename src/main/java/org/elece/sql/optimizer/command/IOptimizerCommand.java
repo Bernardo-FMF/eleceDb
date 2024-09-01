@@ -1,7 +1,7 @@
 package org.elece.sql.optimizer.command;
 
+import org.elece.exception.sql.ParserException;
 import org.elece.sql.db.schema.SchemaManager;
-import org.elece.sql.error.ParserException;
 import org.elece.sql.parser.expression.*;
 import org.elece.sql.parser.expression.internal.Assignment;
 import org.elece.sql.parser.expression.internal.SqlNumberValue;

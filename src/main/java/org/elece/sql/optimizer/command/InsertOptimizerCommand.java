@@ -1,10 +1,10 @@
 package org.elece.sql.optimizer.command;
 
+import org.elece.exception.sql.ParserException;
 import org.elece.sql.db.schema.SchemaManager;
 import org.elece.sql.db.schema.SchemaSearcher;
 import org.elece.sql.db.schema.model.Column;
 import org.elece.sql.db.schema.model.Table;
-import org.elece.sql.error.ParserException;
 import org.elece.sql.parser.statement.InsertStatement;
 
 import java.util.Collections;

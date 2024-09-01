@@ -1,9 +1,10 @@
 package org.elece.sql.analyzer.command;
 
+import org.elece.exception.sql.AnalyzerException;
+import org.elece.exception.sql.type.analyzer.TableNotPresentError;
 import org.elece.sql.db.schema.SchemaManager;
 import org.elece.sql.db.schema.SchemaSearcher;
 import org.elece.sql.db.schema.model.Table;
-import org.elece.sql.error.AnalyzerException;
 import org.elece.sql.parser.expression.Expression;
 import org.elece.sql.parser.expression.WildcardExpression;
 import org.elece.sql.parser.statement.SelectStatement;
@@ -15,7 +16,7 @@ public class SelectAnalyzerCommand implements IAnalyzerCommand<SelectStatement> 
     public void analyze(SchemaManager schemaManager, SelectStatement statement) throws AnalyzerException {
         Optional<Table> optionalTable = SchemaSearcher.findTable(schemaManager.getSchema(), statement.getFrom());
         if (optionalTable.isEmpty()) {
-            throw new AnalyzerException("");
+            throw new AnalyzerException(new TableNotPresentError(statement.getFrom()));
         }
 
         Table table = optionalTable.get();

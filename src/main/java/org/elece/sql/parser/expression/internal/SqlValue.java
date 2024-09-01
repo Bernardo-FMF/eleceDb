@@ -1,7 +1,7 @@
 package org.elece.sql.parser.expression.internal;
 
-import org.elece.sql.error.ParserException;
-import org.elece.sql.error.type.parser.UnspecifiedError;
+import org.elece.exception.sql.ParserException;
+import org.elece.exception.sql.type.parser.UnspecifiedError;
 
 import java.util.Objects;
 

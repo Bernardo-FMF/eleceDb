@@ -1,6 +1,6 @@
 package org.elece.sql.token;
 
-import org.elece.sql.error.TokenizerException;
+import org.elece.exception.sql.TokenizerException;
 
 public interface ITokenizer {
     IPeekableIterator<TokenWrapper> tokenize() throws TokenizerException;

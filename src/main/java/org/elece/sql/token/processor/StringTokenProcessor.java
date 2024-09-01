@@ -1,9 +1,9 @@
 package org.elece.sql.token.processor;
 
+import org.elece.exception.sql.type.token.StringNotClosedError;
 import org.elece.sql.token.CharStream;
 import org.elece.sql.token.Location;
 import org.elece.sql.token.TokenWrapper;
-import org.elece.sql.error.type.token.StringNotClosed;
 import org.elece.sql.token.model.StringToken;
 
 import java.util.Set;
@@ -35,7 +35,7 @@ public class StringTokenProcessor implements ITokenProcessor<Character> {
         if (quotationMark == closingQuotationMark) {
             tokenBuilder.token(stringToken);
         } else {
-            tokenBuilder.error(new StringNotClosed(initialLocation));
+            tokenBuilder.error(new StringNotClosedError(initialLocation));
         }
 
         return tokenBuilder.build();
