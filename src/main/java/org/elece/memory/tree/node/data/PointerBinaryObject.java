@@ -1,5 +1,6 @@
 package org.elece.memory.tree.node.data;
 
+import org.elece.exception.btree.BTreeException;
 import org.elece.memory.Pointer;
 
 public class PointerBinaryObject extends AbstractBinaryObject<Pointer> {
@@ -10,18 +11,6 @@ public class PointerBinaryObject extends AbstractBinaryObject<Pointer> {
 
     public PointerBinaryObject(byte[] bytes) {
         super(bytes);
-    }
-
-    @Override
-    public PointerBinaryObject load(Pointer pointer) {
-        return new PointerBinaryObject(pointer.toBytes());
-    }
-
-    @Override
-    public PointerBinaryObject load(byte[] bytes, int beginning) {
-        byte[] value = new byte[BYTES];
-        System.arraycopy(bytes, beginning, value, 0, Pointer.BYTES);
-        return new PointerBinaryObject(value);
     }
 
     @Override
@@ -37,5 +26,24 @@ public class PointerBinaryObject extends AbstractBinaryObject<Pointer> {
     @Override
     public int size() {
         return BYTES;
+    }
+
+    public static class Factory implements BinaryObjectFactory<Pointer> {
+        @Override
+        public PointerBinaryObject create(Pointer pointer) throws BTreeException {
+            return new PointerBinaryObject(pointer.toBytes());
+        }
+
+        @Override
+        public PointerBinaryObject create(byte[] bytes, int beginning) {
+            byte[] value = new byte[BYTES];
+            System.arraycopy(bytes, beginning, value, 0, Pointer.BYTES);
+            return new PointerBinaryObject(value);
+        }
+
+        @Override
+        public int size() {
+            return BYTES;
+        }
     }
 }

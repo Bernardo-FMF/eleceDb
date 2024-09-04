@@ -1,6 +1,5 @@
 package org.elece.memory.tree.node.data;
 
-// TODO: implement a VarCharBinaryObject
 public abstract class AbstractBinaryObject<E> implements BinaryObject<E> {
     protected byte[] bytes;
 

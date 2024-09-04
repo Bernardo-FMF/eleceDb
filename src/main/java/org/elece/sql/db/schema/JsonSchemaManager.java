@@ -30,7 +30,7 @@ public class JsonSchemaManager implements SchemaManager {
         loadSchema();
         // TODO: add some schema validation
 
-        tableIndex = new AtomicInteger(schema.getCollections().size() == 0 ? 0 : schema.getCollections().getLast().getId());
+        tableIndex = new AtomicInteger(schema.getCollections().size() == 0 ? 0 : schema.getCollections().get(schema.getCollections().size() - 1).getId());
     }
 
     // TODO: throw proper exception

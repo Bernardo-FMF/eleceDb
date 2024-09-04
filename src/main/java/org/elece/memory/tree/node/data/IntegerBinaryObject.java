@@ -7,27 +7,8 @@ import org.elece.utils.BinaryUtils;
 public class IntegerBinaryObject extends AbstractBinaryObject<Integer> {
     public static int BYTES = Integer.BYTES;
 
-    public IntegerBinaryObject() {
-    }
-
     public IntegerBinaryObject(byte[] bytes) {
         super(bytes);
-    }
-
-    @Override
-    public BinaryObject<Integer> load(Integer integer) throws BTreeException {
-        // TODO: add logic in analyzer to avoid this type of situations
-        if (integer == 0) {
-            throw new BTreeException(new InvalidBinaryObjectError(integer, this.getClass()));
-        }
-        return new IntegerBinaryObject(BinaryUtils.integerToBytes(integer));
-    }
-
-    @Override
-    public BinaryObject<Integer> load(byte[] bytes, int beginning) {
-        byte[] value = new byte[BYTES];
-        System.arraycopy(bytes, beginning, value, 0, Integer.BYTES);
-        return new IntegerBinaryObject(value);
     }
 
     @Override
@@ -43,5 +24,27 @@ public class IntegerBinaryObject extends AbstractBinaryObject<Integer> {
     @Override
     public int size() {
         return BYTES;
+    }
+
+    public static class Factory implements BinaryObjectFactory<Integer> {
+        @Override
+        public IntegerBinaryObject create(Integer value) throws BTreeException {
+            if (value == 0) {
+                throw new BTreeException(new InvalidBinaryObjectError(value, IntegerBinaryObject.class));
+            }
+            return new IntegerBinaryObject(BinaryUtils.integerToBytes(value));
+        }
+
+        @Override
+        public IntegerBinaryObject create(byte[] bytes, int beginning) {
+            byte[] value = new byte[BYTES];
+            System.arraycopy(bytes, beginning, value, 0, Integer.BYTES);
+            return new IntegerBinaryObject(value);
+        }
+
+        @Override
+        public int size() {
+            return BYTES;
+        }
     }
 }

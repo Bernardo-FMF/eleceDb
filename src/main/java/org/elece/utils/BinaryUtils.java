@@ -23,4 +23,10 @@ public class BinaryUtils {
         buffer.putInt(value);
         return buffer.array();
     }
+
+    public static void fillPadding(int dataEndIndex, int dataSize, byte[] data) {
+        for (int idx = dataEndIndex; idx < dataSize; idx++) {
+            data[idx] = 0;
+        }
+    }
 }
