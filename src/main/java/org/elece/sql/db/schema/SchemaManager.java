@@ -9,6 +9,8 @@ import java.io.IOException;
 public interface SchemaManager {
     Schema getSchema();
 
+    void createSchema(String dbName) throws IOException;
+
     void createTable(Table table) throws IOException;
 
     void deleteTable(String tableName) throws IOException;

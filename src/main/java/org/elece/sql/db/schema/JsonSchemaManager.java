@@ -7,6 +7,7 @@ import org.elece.config.DbConfig;
 import org.elece.sql.db.schema.model.Index;
 import org.elece.sql.db.schema.model.Schema;
 import org.elece.sql.db.schema.model.Table;
+import org.elece.sql.db.schema.model.builder.SchemaBuilder;
 
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -36,6 +37,7 @@ public class JsonSchemaManager implements SchemaManager {
     private void loadSchema() {
         String schemePath = getSchemePath();
         if (!Files.exists(Path.of(schemePath))) {
+            this.schema = null;
             return;
         }
         try {
@@ -60,6 +62,14 @@ public class JsonSchemaManager implements SchemaManager {
 
     public Schema getSchema() {
         return schema;
+    }
+
+    @Override
+    public synchronized void createSchema(String dbName) throws IOException {
+        this.schema = SchemaBuilder.builder()
+                .setDbName(dbName)
+                .build();
+        persistSchema();
     }
 
     @Override
