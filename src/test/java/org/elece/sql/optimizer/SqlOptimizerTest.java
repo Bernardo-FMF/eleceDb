@@ -49,7 +49,6 @@ class SqlOptimizerTest {
 
         List<Table> tables = new ArrayList<>();
         tables.add(TableBuilder.builder()
-                .setId(1)
                 .setName("users")
                 .setColumns(columns)
                 .setIndexes(indexes)

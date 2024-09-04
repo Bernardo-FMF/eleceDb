@@ -20,11 +20,6 @@ public class TableBuilder {
         return new TableBuilder();
     }
 
-    public TableBuilder setId(int id) {
-        this.id = id;
-        return this;
-    }
-
     public TableBuilder setName(String name) {
         this.name = name;
         return this;
@@ -41,6 +36,6 @@ public class TableBuilder {
     }
 
     public Table build() {
-        return new Table(id, name, columns, indexes);
+        return new Table(name, columns, indexes);
     }
 }

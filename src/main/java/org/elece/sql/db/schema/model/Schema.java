@@ -18,4 +18,12 @@ public class Schema {
     public List<Table> getCollections() {
         return tables;
     }
+
+    public void addTable(Table table) {
+        tables.add(table);
+    }
+
+    public void removeTable(String tableName) {
+        tables.removeIf(table -> table.getName().equals(tableName));
+    }
 }
