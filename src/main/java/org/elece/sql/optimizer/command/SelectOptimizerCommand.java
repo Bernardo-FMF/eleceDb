@@ -1,6 +1,7 @@
 package org.elece.sql.optimizer.command;
 
 import org.elece.exception.sql.ParserException;
+import org.elece.exception.sql.type.analyzer.TableNotPresentError;
 import org.elece.sql.db.schema.SchemaManager;
 import org.elece.sql.db.schema.SchemaSearcher;
 import org.elece.sql.db.schema.model.Column;
@@ -24,7 +25,7 @@ public class SelectOptimizerCommand implements IOptimizerCommand<SelectStatement
         if (statement.getColumns().stream().anyMatch(expression -> expression instanceof WildcardExpression)) {
             Optional<Table> optionalTable = SchemaSearcher.findTable(schemaManager.getSchema(), statement.getFrom());
             if (optionalTable.isEmpty()) {
-                throw new ParserException(null);
+                throw new ParserException(new TableNotPresentError(statement.getFrom()));
             }
 
             Table table = optionalTable.get();

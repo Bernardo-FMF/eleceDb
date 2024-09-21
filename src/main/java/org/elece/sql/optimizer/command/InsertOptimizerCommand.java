@@ -1,6 +1,7 @@
 package org.elece.sql.optimizer.command;
 
 import org.elece.exception.sql.ParserException;
+import org.elece.exception.sql.type.analyzer.TableNotPresentError;
 import org.elece.sql.db.schema.SchemaManager;
 import org.elece.sql.db.schema.SchemaSearcher;
 import org.elece.sql.db.schema.model.Column;
@@ -18,7 +19,7 @@ public class InsertOptimizerCommand implements IOptimizerCommand<InsertStatement
 
         Optional<Table> optionalTable = SchemaSearcher.findTable(schemaManager.getSchema(), statement.getTable());
         if (optionalTable.isEmpty()) {
-            throw new ParserException(null);
+            throw new ParserException(new TableNotPresentError(statement.getTable()));
         }
 
         Table table = optionalTable.get();
