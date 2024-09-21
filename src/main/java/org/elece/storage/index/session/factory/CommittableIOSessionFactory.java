@@ -22,7 +22,7 @@ public class CommittableIOSessionFactory implements AtomicIOSessionFactory {
     }
 
     @Override
-    public <K> AtomicIOSession<K> create(IndexStorageManager indexStorageManager, int indexId, NodeFactory<K> nodeFactory, KeyValueSize keyValueSize) {
+    public <K extends Comparable<K>> AtomicIOSession<K> create(IndexStorageManager indexStorageManager, int indexId, NodeFactory<K> nodeFactory, KeyValueSize keyValueSize) {
         return new CommittableIOSession<>(indexStorageManager, nodeFactory, indexId, keyValueSize);
     }
 }

@@ -12,7 +12,7 @@ import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
-public abstract class AbstractIOSession<K> implements AtomicIOSession<K> {
+public abstract class AbstractIOSession<K extends Comparable<K>> implements AtomicIOSession<K> {
     protected final IndexStorageManager indexStorageManager;
     protected final NodeFactory<K> nodeFactory;
     protected final int indexId;
@@ -33,7 +33,7 @@ public abstract class AbstractIOSession<K> implements AtomicIOSession<K> {
         CompletableFuture<NodeData> output = new CompletableFuture<>();
 
         if (node.getPointer() == null) {
-            indexStorageManager.writeNewNode(indexId, node.getData(), node.isRoot(), node.getKVSize()).whenComplete((nodeData1, throwable) -> {
+            indexStorageManager.writeNewNode(indexId, node.getData(), node.isRoot(), node.getKeyValueSize()).whenComplete((nodeData1, throwable) -> {
                 if (throwable != null) {
                     output.completeExceptionally(throwable);
                     return;

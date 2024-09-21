@@ -57,7 +57,7 @@ public class FileUtils {
     public static CompletableFuture<Long> allocate(AsynchronousFileChannel asynchronousFileChannel, int size) throws IOException {
         CompletableFuture<Long> future = new CompletableFuture<>();
         long fileSize = asynchronousFileChannel.size();
-        asynchronousFileChannel.write(ByteBuffer.allocate(size), fileSize, null, new CompletionHandler<Integer, Object>() {
+        asynchronousFileChannel.write(ByteBuffer.allocate(size), fileSize, null, new CompletionHandler<>() {
             @Override
             public void completed(Integer result, Object attachment) {
                 future.complete(fileSize);

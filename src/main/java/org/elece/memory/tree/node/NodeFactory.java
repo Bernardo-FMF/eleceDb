@@ -3,7 +3,7 @@ package org.elece.memory.tree.node;
 import org.elece.memory.Pointer;
 import org.elece.storage.index.NodeData;
 
-public interface NodeFactory<K> {
+public interface NodeFactory<K extends Comparable<K>> {
     AbstractTreeNode<K> fromBytes(byte[] bytes);
 
     default AbstractTreeNode<K> fromBytes(byte[] bytes, Pointer pointer) {

@@ -32,11 +32,7 @@ public class Pointer {
     }
 
     public static Pointer fromBytes(byte[] bytes, int position) {
-        return new Pointer(
-                bytes[position],
-                BinaryUtils.bytesToLong(bytes, position + Byte.BYTES),
-                BinaryUtils.bytesToInteger(bytes, position + Byte.BYTES + Long.BYTES)
-        );
+        return new Pointer(bytes[position], BinaryUtils.bytesToLong(bytes, position + Byte.BYTES), BinaryUtils.bytesToInteger(bytes, position + Byte.BYTES + Long.BYTES));
     }
 
     public static Pointer fromBytes(byte[] bytes) {
@@ -73,8 +69,12 @@ public class Pointer {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         Pointer pointer = (Pointer) o;
         return type == pointer.type && position == pointer.position && chunk == pointer.chunk;
     }

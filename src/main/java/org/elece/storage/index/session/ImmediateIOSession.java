@@ -17,7 +17,7 @@ import java.util.concurrent.ExecutionException;
  * This implementation follows an immediate commit-to-disk approach, where the tree nodes are immediately persisted on disk.
  * This means that a rollback of operations is not possible.
  */
-public class ImmediateIOSession<K> extends AbstractIOSession<K> {
+public class ImmediateIOSession<K extends Comparable<K>> extends AbstractIOSession<K> {
     public ImmediateIOSession(IndexStorageManager indexStorageManager, NodeFactory<K> nodeFactory, int indexId, KeyValueSize keyValueSize) {
         super(indexStorageManager, nodeFactory, indexId, keyValueSize);
     }

@@ -8,7 +8,7 @@ import org.elece.memory.tree.node.NodeFactory;
 import org.elece.memory.tree.node.data.BinaryObject;
 import org.elece.storage.index.session.AtomicIOSession;
 
-public class DeleteIndexOperation<K, V> {
+public class DeleteIndexOperation<K extends Comparable<K>, V> {
     private final DbConfig dbConfig;
     private final int indexId;
     private final AtomicIOSession<K> atomicIOSession;

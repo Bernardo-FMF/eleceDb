@@ -10,7 +10,7 @@ import java.io.IOException;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
-public interface AtomicIOSession<K> {
+public interface AtomicIOSession<K extends Comparable<K>> {
     Optional<AbstractTreeNode<K>> getRoot() throws StorageException, InterruptedException, ExecutionException;
 
     NodeData write(AbstractTreeNode<K> node) throws StorageException;

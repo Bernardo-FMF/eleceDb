@@ -21,7 +21,7 @@ import java.util.concurrent.ExecutionException;
  * In terms of read operations, first we check the snapshot to see if pointer is stored in-memory, if so we deal we can use that stored value to
  * determine the return value, otherwise, the pointer needs to be read from disk.
  */
-public class CommittableIOSession<K> extends AbstractIOSession<K> {
+public class CommittableIOSession<K extends Comparable<K>> extends AbstractIOSession<K> {
     private final Set<Pointer> updated;
     private final List<Pointer> created;
     private final List<Pointer> deleted;

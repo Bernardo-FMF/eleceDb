@@ -6,5 +6,5 @@ import org.elece.storage.index.IndexStorageManager;
 import org.elece.storage.index.session.AtomicIOSession;
 
 public interface AtomicIOSessionFactory {
-    <K> AtomicIOSession<K> create(IndexStorageManager indexStorageManager, int indexId, NodeFactory<K> nodeFactory, KeyValueSize keyValueSize);
+    <K extends Comparable<K>> AtomicIOSession<K> create(IndexStorageManager indexStorageManager, int indexId, NodeFactory<K> nodeFactory, KeyValueSize keyValueSize);
 }
