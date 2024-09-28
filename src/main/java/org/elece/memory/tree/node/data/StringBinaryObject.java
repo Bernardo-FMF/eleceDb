@@ -8,10 +8,9 @@ import java.nio.charset.StandardCharsets;
 
 public class StringBinaryObject extends AbstractBinaryObject<String> {
     public final int BYTES;
-    private final byte[] bytes;
 
     public StringBinaryObject(byte[] bytes) {
-        this.bytes = bytes;
+        super(bytes);
         this.BYTES = bytes.length;
     }
 

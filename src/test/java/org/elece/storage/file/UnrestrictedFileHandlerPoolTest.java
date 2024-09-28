@@ -19,7 +19,7 @@ class UnrestrictedFileHandlerPoolTest {
 
     @BeforeEach
     public void setup() throws IOException {
-        dbPath = Files.createTempDirectory("Restricted_File_Handler_Pool_Test_Case");
+        dbPath = Files.createTempDirectory("Unrestricted_File_Handler_Pool_Test_Case");
         DbConfig dbConfig = DefaultDbConfigBuilder.builder()
                 .setFileDescriptorAcquisitionSize(1)
                 .setAcquisitionTimeoutTime(3)

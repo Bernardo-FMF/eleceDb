@@ -12,7 +12,7 @@ public interface NodeFactory<K extends Comparable<K>> {
         return treeNode;
     }
 
-    AbstractTreeNode<K> fromBytes(byte[] emptyNode, NodeType type);
+    AbstractTreeNode<K> fromBytes(byte[] bytes, NodeType type);
 
     default AbstractTreeNode<K> fromNodeData(NodeData nodeData) {
         return this.fromBytes(nodeData.bytes(), nodeData.pointer());

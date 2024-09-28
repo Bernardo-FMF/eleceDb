@@ -11,7 +11,7 @@ import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
 public interface AtomicIOSession<K extends Comparable<K>> {
-    Optional<AbstractTreeNode<K>> getRoot() throws StorageException, InterruptedException, ExecutionException;
+    Optional<AbstractTreeNode<K>> getRoot() throws StorageException;
 
     NodeData write(AbstractTreeNode<K> node) throws StorageException;
 

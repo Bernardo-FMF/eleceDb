@@ -32,10 +32,10 @@ public abstract class AbstractIndexStorageManager implements IndexStorageManager
 
     public AbstractIndexStorageManager(String customName, IndexHeaderManagerFactory indexHeaderManagerFactory, DbConfig dbConfig, FileHandlerPool fileHandlerPool) throws IOException, StorageException {
         this.customName = customName;
+        this.path = Path.of(dbConfig.getBaseDbPath());
         this.indexHeaderManager = indexHeaderManagerFactory.getInstance(this.getHeaderPath());
         this.dbConfig = dbConfig;
         this.fileHandlerPool = fileHandlerPool;
-        this.path = Path.of(dbConfig.getBaseDbPath());
     }
 
     protected int getBinarySpace(KeyValueSize keyValueSize) {
@@ -140,8 +140,7 @@ public abstract class AbstractIndexStorageManager implements IndexStorageManager
         int binarySpace = this.getBinarySpace(keyValueSize);
         if (data.length < binarySpace) {
             byte[] finalData = new byte[binarySpace];
-            // TODO: data.length < binarySpace causes an error (?)
-            System.arraycopy(data, 0, finalData, 0, binarySpace);
+            System.arraycopy(data, 0, finalData, 0, data.length);
             data = finalData;
         }
 

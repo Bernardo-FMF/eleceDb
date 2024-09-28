@@ -77,6 +77,10 @@ public class LeafTreeNode<K extends Comparable<K>, V> extends AbstractTreeNode<K
         return allKeyValues.subList(mid + 1, allKeyValues.size());
     }
 
+    public void setKeyValue(int index, KeyValue<K, V> keyValue) throws BTreeException {
+        TreeNodeUtils.setKeyValueAtIndex(this, index, kBinaryObjectFactory.create(keyValue.key()), vBinaryObjectFactory.create(keyValue.value()));
+    }
+
     /**
      * Sets the key-value pairs in the node and updates the node's data array.
      *
@@ -90,7 +94,7 @@ public class LeafTreeNode<K extends Comparable<K>, V> extends AbstractTreeNode<K
         // Iterate over the key-value list and set each key-value pair in the node.
         for (int index = 0; index < keyValueList.size(); index++) {
             KeyValue<K, V> keyValue = keyValueList.get(index);
-            TreeNodeUtils.setKeyValueAtIndex(this, index, kBinaryObjectFactory.create(keyValue.key()), vBinaryObjectFactory.create(keyValue.value()));
+            setKeyValue(index, keyValue);
         }
 
         // Removes possible stale key-value pairs.
