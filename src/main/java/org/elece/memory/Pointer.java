@@ -8,8 +8,6 @@ import java.util.Objects;
  * A pointer represents the memory position where the respective data begins, or the position of another node.
  */
 public class Pointer {
-    public static final Pointer EMPTY_POINTER = new Pointer((byte) 0x00, 0, 0);
-
     public static final byte TYPE_DATA = 0x01;
     public static final byte TYPE_NODE = 0x02;
 
@@ -37,6 +35,10 @@ public class Pointer {
 
     public static Pointer fromBytes(byte[] bytes) {
         return Pointer.fromBytes(bytes, 0);
+    }
+
+    public static Pointer empty() {
+        return new Pointer((byte) 0x00, 0, 0);
     }
 
     public byte[] toBytes() {

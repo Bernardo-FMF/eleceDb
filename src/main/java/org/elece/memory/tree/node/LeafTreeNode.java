@@ -131,12 +131,63 @@ public class LeafTreeNode<K extends Comparable<K>, V> extends AbstractTreeNode<K
         TreeNodeUtils.setPreviousPointer(this, degree, pointer, kBinaryObjectFactory.size(), vBinaryObjectFactory.size());
     }
 
-    protected List<KeyValue<K, V>> getKeyValueList(int degree) {
+    public List<KeyValue<K, V>> getKeyValueList(int degree) {
         return CollectionUtils.immutableList(getKeyValues(degree));
     }
 
     protected Iterator<KeyValue<K, V>> getKeyValues(int degree) {
         return new KeyValueIterator(this, degree);
+    }
+
+    /**
+     * Removes the key-value pair with the specified key from the leaf node.
+     *
+     * @param key    The key of the key-value pair to remove.
+     * @param degree The degree of the B+ tree.
+     * @return True if the key-value pair was removed; false otherwise.
+     * @throws BTreeException If an error occurs during the operation.
+     */
+    public boolean removeKeyValue(K key, int degree) throws BTreeException {
+        List<KeyValue<K, V>> keyValueList = new ArrayList<>(this.getKeyValueList(degree));
+
+        // Remove the key-value pair matching the specified key.
+        boolean removed = keyValueList.removeIf(keyValue -> keyValue.key.compareTo(key) == 0);
+
+        // Update the node's key-values with the modified list.
+        setKeyValues(keyValueList, degree);
+        return removed;
+    }
+
+    /**
+     * Retrieves the list of keys stored in the leaf node.
+     *
+     * @param degree The degree of the B+ tree.
+     * @return A list of keys in the leaf node.
+     */
+    public List<K> getKeyList(int degree) {
+        return super.getKeyList(degree, vBinaryObjectFactory.size());
+    }
+
+    /**
+     * Adds a key-value pair to the leaf node using a KeyValue object.
+     *
+     * @param keyValue The key-value pair to add.
+     * @param degree   The degree of the B+ tree.
+     * @return The index at which the key-value pair was inserted.
+     * @throws BTreeException If an error occurs during insertion.
+     */
+    public int addKeyValue(KeyValue<K, V> keyValue, int degree) throws BTreeException {
+        return this.addKeyValue(keyValue.key, keyValue.value, degree);
+    }
+
+    /**
+     * Retrieves the pointer to the previous sibling leaf node, if it exists.
+     *
+     * @param degree The degree of the B+ tree.
+     * @return An Optional containing the previous sibling pointer if it exists; otherwise, Optional.empty().
+     */
+    public Optional<Pointer> getPreviousSiblingPointer(int degree) {
+        return TreeNodeUtils.getPreviousPointer(this, degree, kBinaryObjectFactory.size(), vBinaryObjectFactory.size());
     }
 
     /**

@@ -29,4 +29,14 @@ public class BinaryUtils {
             data[idx] = 0;
         }
     }
+
+    public static boolean isAllZeros(byte[] array, int offset, int size) {
+        int end = offset + size;
+        for (int i = offset; i < end; i++) {
+            if (array[i] != 0) {
+                return false;  // Short-circuit as soon as a non-zero byte is found
+            }
+        }
+        return true;  // All bytes in the range are zero
+    }
 }

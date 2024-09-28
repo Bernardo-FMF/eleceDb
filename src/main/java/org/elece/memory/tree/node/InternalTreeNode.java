@@ -221,6 +221,113 @@ public class InternalTreeNode<K extends Comparable<K>> extends AbstractTreeNode<
     }
 
     /**
+     * Retrieves the index of the specified child pointer in the internal node.
+     *
+     * @param pointer The child pointer to find.
+     * @return The index of the child pointer, or -1 if not found.
+     */
+    public int getIndexOfChild(Pointer pointer) {
+        return this.getChildrenList().indexOf(pointer);
+    }
+
+    /**
+     * Sets the key at the specified index in the internal node.
+     *
+     * @param index The index at which to set the key.
+     * @param key   The key to set.
+     * @throws BTreeException If an error occurs during the operation.
+     */
+    public void setKey(int index, K key) throws BTreeException {
+        super.setKey(index, key, PointerBinaryObject.BYTES);
+    }
+
+    /**
+     * Retrieves the child pointer at the specified index in the internal node.
+     *
+     * @param index The index of the child pointer to retrieve.
+     * @return The child pointer at the specified index.
+     */
+    public Pointer getChildAtIndex(int index) {
+        return TreeNodeUtils.getChildPointerAtIndex(this, index, kBinaryObjectFactory.size());
+    }
+
+    /**
+     * Sets the child pointers in the internal node.
+     *
+     * @param childPointers The list of child pointers to set.
+     */
+    public void setChildren(ArrayList<Pointer> childPointers) {
+        // Iterate over the child pointers and set each at the corresponding index.
+        for (int index = 0; index < childPointers.size(); index++) {
+            this.setChildAtIndex(index, childPointers.get(index));
+        }
+    }
+
+    /**
+     * Sets the child pointer at the specified index in the internal node.
+     *
+     * @param index   The index at which to set the child pointer.
+     * @param pointer The child pointer to set.
+     */
+    public void setChildAtIndex(int index, Pointer pointer) {
+        TreeNodeUtils.setPointerToChild(this, index, pointer, kBinaryObjectFactory.size());
+    }
+
+    /**
+     * Sets the keys in the internal node.
+     *
+     * @param childKeyList The list of keys to set.
+     * @throws BTreeException If an error occurs during the operation.
+     */
+    public void setKeys(List<K> childKeyList) throws BTreeException {
+        // Iterate over the keys and set each at the corresponding index.
+        for (int index = 0; index < childKeyList.size(); index++) {
+            this.setKey(index, childKeyList.get(index));
+        }
+    }
+
+    /**
+     * Removes the key at the specified index from the internal node.
+     *
+     * @param idx    The index of the key to remove.
+     * @param degree The degree of the B+ tree.
+     * @throws BTreeException If an error occurs during the operation.
+     */
+    public void removeKey(int idx, int degree) throws BTreeException {
+        super.removeKey(idx, degree, PointerBinaryObject.BYTES);
+    }
+
+    /**
+     * Removes the child pointer at the specified index from the internal node.
+     *
+     * @param index  The index of the child pointer to remove.
+     * @param degree The degree of the B+ tree.
+     */
+    public void removeChild(int index, int degree) {
+        List<Pointer> pointerList = this.getChildrenList();
+
+        // Remove the child pointer at the specified index.
+        TreeNodeUtils.removeChildAtIndex(this, index, kBinaryObjectFactory.size());
+
+        // Get the sublist of child pointers after the removed index.
+        List<Pointer> subList = pointerList.subList(index + 1, pointerList.size());
+        int lastIndex = -1;
+
+        // Shift the child pointers to fill the gap.
+        for (int subListIndex = 0; subListIndex < subList.size(); subListIndex++) {
+            lastIndex = index + subListIndex;
+            TreeNodeUtils.setPointerToChild(this, lastIndex, subList.get(subListIndex), kBinaryObjectFactory.size());
+        }
+
+        // Clear any remaining child pointer slots.
+        if (lastIndex != -1) {
+            for (int clearIndex = lastIndex + 1; clearIndex < degree; clearIndex++) {
+                TreeNodeUtils.removeChildAtIndex(this, clearIndex, kBinaryObjectFactory.size());
+            }
+        }
+    }
+
+    /**
      * Inner class that iterates over child pointers in the node.
      */
     private static class ChildrenIterator implements Iterator<Pointer> {
@@ -300,7 +407,7 @@ public class InternalTreeNode<K extends Comparable<K>> extends AbstractTreeNode<
      */
     public static class ChildPointers<E> {
         private int index;
-        private final E key;
+        private E key;
         private Pointer left;
         private Pointer right;
 
@@ -341,6 +448,10 @@ public class InternalTreeNode<K extends Comparable<K>> extends AbstractTreeNode<
 
         public void setRight(Pointer right) {
             this.right = right;
+        }
+
+        public void setKey(E key) {
+            this.key = key;
         }
     }
 }

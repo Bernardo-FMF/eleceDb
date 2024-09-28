@@ -1,14 +1,17 @@
 package org.elece.utils;
 
 import org.elece.exception.btree.BTreeException;
+import org.elece.exception.btree.type.TaskInterruptedError;
 import org.elece.exception.storage.StorageException;
 import org.elece.memory.Pointer;
-import org.elece.memory.tree.node.AbstractTreeNode;
-import org.elece.memory.tree.node.InternalTreeNode;
-import org.elece.memory.tree.node.NodeType;
+import org.elece.memory.tree.node.*;
+import org.elece.memory.tree.node.data.BinaryObjectFactory;
+import org.elece.storage.index.IndexStorageManager;
 import org.elece.storage.index.session.AtomicIOSession;
 
+import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 public class BTreeUtils {
     /**
@@ -59,5 +62,37 @@ public class BTreeUtils {
                 return;
             }
         }
+    }
+
+    public static <K extends Comparable<K>, V> LeafTreeNode<K, V> getResponsibleNode(IndexStorageManager indexStorageManager, AbstractTreeNode<K> node, K identifier, int index, int degree, NodeFactory<K> nodeFactory, BinaryObjectFactory<V> vIndexBinaryObject) throws BTreeException, StorageException {
+        if (node.isLeaf()) {
+            return (LeafTreeNode<K, V>) node;
+        }
+
+        List<Pointer> childrenList = ((InternalTreeNode<K>) node).getChildrenList();
+        List<K> keys = node.getKeyList(degree, vIndexBinaryObject.size());
+        int i;
+        K keyAtIndex;
+        boolean flag = false;
+        for (i = 0; i < keys.size(); i++) {
+            keyAtIndex = keys.get(i);
+            if (identifier.compareTo(keyAtIndex) < 0) {
+                flag = true;
+                break;
+            }
+        }
+
+        try {
+            AbstractTreeNode<K> nextNode;
+            if (flag) {
+                nextNode = nodeFactory.fromNodeData(indexStorageManager.readNode(index, childrenList.get(i), node.getKeyValueSize()).get());
+            } else {
+                nextNode = nodeFactory.fromNodeData(indexStorageManager.readNode(index, childrenList.getLast(), node.getKeyValueSize()).get());
+            }
+            return getResponsibleNode(indexStorageManager, nextNode, identifier, index, degree, nodeFactory, vIndexBinaryObject);
+        } catch (ExecutionException | InterruptedException | IOException exception) {
+            throw new BTreeException(new TaskInterruptedError(exception.getMessage()));
+        }
+
     }
 }

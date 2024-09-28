@@ -31,7 +31,7 @@ public class TreeNodeUtils {
             return false;
         }
 
-        return kBinaryObjectFactory.create(treeNode.getData(), keyStartIndex).hasValue();
+        return !BinaryUtils.isAllZeros(treeNode.getData(), keyStartIndex, kBinaryObjectFactory.size()) || !BinaryUtils.isAllZeros(treeNode.getData(), keyStartIndex + kBinaryObjectFactory.size(), valueSize);
     }
 
     private static int getKeyStartOffset(AbstractTreeNode<?> treeNode, int index, int keySize, int valueSize) {
@@ -100,6 +100,11 @@ public class TreeNodeUtils {
         int maxNodeSize = degree - 1;
 
         for (int nodeIndex = 0; nodeIndex < maxNodeSize; nodeIndex++) {
+            if (!hasKeyAtIndex(node, nodeIndex, degree, kBinaryObjectFactory, valueSize)) {
+                indexToFill = nodeIndex;
+                break;
+            }
+
             // Retrieve the key at the current index in the node.
             keyAtIndex = getKeyAtIndex(node, nodeIndex, kBinaryObjectFactory, valueSize);
 
@@ -108,7 +113,7 @@ public class TreeNodeUtils {
 
             // Check if the slot is empty or if the existing key is greater than the new key.
             // Comparing the keys allows to maintain the keys in the node ordered.
-            if (!keyAtIndex.hasValue() || data.compareTo(key) > 0) {
+            if (data.compareTo(key) > 0) {
                 indexToFill = nodeIndex;
                 break;
             }
@@ -208,5 +213,42 @@ public class TreeNodeUtils {
 
     private static int calculateDataArrayPosition(int index, int keySize) {
         return OFFSET_TREE_NODE_FLAGS_END + (index * (Pointer.BYTES + keySize));
+    }
+
+    /**
+     * Retrieves the pointer to the previous sibling of a leaf node.
+     *
+     * @param node      The leaf node from which to retrieve the previous sibling pointer.
+     * @param degree    The degree (order) of the B+ tree.
+     * @param keySize   The size of the key in bytes.
+     * @param valueSize The size of the value in bytes.
+     * @return An Optional containing the previous sibling pointer if it exists; otherwise, Optional.empty().
+     */
+    public static Optional<Pointer> getPreviousPointer(AbstractTreeNode<?> node, int degree, int keySize, int valueSize) {
+        // Calculate the offset where the previous sibling pointer is stored.
+        int offset = OFFSET_LEAF_NODE_KEY_BEGIN + ((degree - 1) * (keySize + valueSize));
+
+        // Check if the byte at the offset is zero, indicating no previous sibling pointer.
+        if (node.getData()[offset] == (byte) 0x0) {
+            return Optional.empty();
+        }
+
+        return Optional.of(Pointer.fromBytes(node.getData(), offset));
+    }
+
+    /**
+     * Removes the key at the specified index from the node by clearing its bytes.
+     *
+     * @param treeNode  The node from which to remove the key.
+     * @param index     The index of the key to remove.
+     * @param keySize   The size of the key in bytes.
+     * @param valueSize The size of the value in bytes.
+     */
+    public static void removeKeyAtIndex(AbstractTreeNode<?> treeNode, int index, int keySize, int valueSize) {
+        // Calculate the offset where the key starts in the data array.
+        int keyOffset = getKeyStartOffset(treeNode, index, keySize, valueSize);
+
+        // Overwrite the key's bytes in the data array with zeros.
+        System.arraycopy(new byte[keySize], 0, treeNode.getData(), keyOffset, keySize);
     }
 }

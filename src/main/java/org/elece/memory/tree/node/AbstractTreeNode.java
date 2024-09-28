@@ -1,5 +1,6 @@
 package org.elece.memory.tree.node;
 
+import org.elece.exception.btree.BTreeException;
 import org.elece.memory.KeyValueSize;
 import org.elece.memory.Pointer;
 import org.elece.memory.tree.node.data.BinaryObject;
@@ -121,6 +122,49 @@ public abstract class AbstractTreeNode<K extends Comparable<K>> {
 
     protected Iterator<K> getKeys(int degree, int valueSize) {
         return new TreeNodeKeysIterator<K>(this, degree, valueSize);
+    }
+
+    /**
+     * Sets the key at the specified index in the node.
+     *
+     * @param index     The index at which to set the key.
+     * @param key       The key to set.
+     * @param valueSize The size of the value associated with the key.
+     * @throws BTreeException If an error occurs during the operation.
+     */
+    public void setKey(int index, K key, int valueSize) throws BTreeException {
+        TreeNodeUtils.setKeyAtIndex(this, index, kBinaryObjectFactory.create(key), valueSize);
+    }
+
+    /**
+     * Removes the key at the specified index from the node.
+     *
+     * @param index     The index of the key to remove.
+     * @param degree    The degree of the B+ tree.
+     * @param valueSize The size of the value associated with the key.
+     * @throws BTreeException If an error occurs during the operation.
+     */
+    public void removeKey(int index, int degree, int valueSize) throws BTreeException {
+        List<K> keyList = this.getKeyList(degree, valueSize);
+
+        // Remove the key at the specified index.
+        TreeNodeUtils.removeKeyAtIndex(this, index, kBinaryObjectFactory.size(), valueSize);
+
+        // Get the sublist of keys after the removed index.
+        List<K> subList = keyList.subList(index + 1, keyList.size());
+        int lastIndex = -1;
+
+        // Shift the keys to fill the gap.
+        for (int subListIndex = 0; subListIndex < subList.size(); subListIndex++) {
+            lastIndex = index + subListIndex;
+            TreeNodeUtils.setKeyAtIndex(this, lastIndex, kBinaryObjectFactory.create(subList.get(subListIndex)), valueSize);
+        }
+        if (lastIndex != -1) {
+            // Clear any remaining child pointer slots.
+            for (int i = lastIndex + 1; i < degree - 1; i++) {
+                TreeNodeUtils.removeKeyAtIndex(this, i, kBinaryObjectFactory.size(), valueSize);
+            }
+        }
     }
 
     /**

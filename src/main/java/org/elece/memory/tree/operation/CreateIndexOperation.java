@@ -18,6 +18,12 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Handles the insertion of a key-value pair (index) from a tree.
+ *
+ * @param <K> The type of keys.
+ * @param <V> The type of values associated with the keys.
+ */
 public class CreateIndexOperation<K extends Comparable<K>, V> {
     private final DbConfig dbConfig;
     private final AtomicIOSession<K> atomicIOSession;
@@ -79,7 +85,7 @@ public class CreateIndexOperation<K extends Comparable<K>, V> {
                 atomicIOSession.write(newSiblingLeafNode);
 
                 // Fix the sibling pointers between the current node and the new sibling.
-                fixSiblingPointers((LeafTreeNode<K, V>) currentNode, newSiblingLeafNode);
+                fixSiblingPointers((LeafTreeNode<K, V>) currentNode, newSiblingLeafNode, bTreeDegree);
                 atomicIOSession.write(newSiblingLeafNode);
                 atomicIOSession.write(currentNode);
 
@@ -162,9 +168,7 @@ public class CreateIndexOperation<K extends Comparable<K>, V> {
         throw new BTreeException(new FailedIndexCreationError<>(identifier, value));
     }
 
-    private void fixSiblingPointers(LeafTreeNode<K, V> currentNode, LeafTreeNode<K, V> newLeafTreeNode) throws StorageException {
-        int bTreeDegree = dbConfig.getBTreeDegree();
-
+    private void fixSiblingPointers(LeafTreeNode<K, V> currentNode, LeafTreeNode<K, V> newLeafTreeNode, int bTreeDegree) throws StorageException {
         // Get the pointer to the next sibling of the current node.
         Optional<Pointer> currentNodeNextSiblingPointer = currentNode.getNextSiblingPointer(bTreeDegree);
 
