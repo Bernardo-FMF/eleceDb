@@ -20,6 +20,7 @@ public class DefaultDbConfigBuilder {
     private DbConfig.IndexStorageManagerStrategy indexStorageManagerStrategy;
     private DbConfig.FileHandlerStrategy fileHandlerStrategy;
     private Integer fileHandlerPoolThreads;
+    private DbConfig.IOSessionStrategy iOSessionStrategy;
 
     private DefaultDbConfigBuilder() {
         // private constructor
@@ -104,6 +105,11 @@ public class DefaultDbConfigBuilder {
         return this;
     }
 
+    public DefaultDbConfigBuilder setIOSessionStrategy(DbConfig.IOSessionStrategy iOSessionStrategy) {
+        this.iOSessionStrategy = iOSessionStrategy;
+        return this;
+    }
+
     private int getPort() {
         return Objects.requireNonNullElse(port, 3000);
     }
@@ -148,7 +154,7 @@ public class DefaultDbConfigBuilder {
         return Objects.requireNonNullElse(baseDbPath, "/temp");
     }
 
-    private long getbTreeMaxFileSize() {
+    private long getBTreeMaxFileSize() {
         return Objects.requireNonNullElse(bTreeMaxFileSize, -1L);
     }
 
@@ -164,10 +170,14 @@ public class DefaultDbConfigBuilder {
         return Objects.requireNonNullElse(fileHandlerPoolThreads, 10);
     }
 
+    private DbConfig.IOSessionStrategy getIOSessionStrategy() {
+        return Objects.requireNonNullElse(iOSessionStrategy, DbConfig.IOSessionStrategy.IMMEDIATE);
+    }
+
     public DefaultDbConfig build() {
         return new DefaultDbConfig(getPort(), getPoolCoreSize(), getPoolMaxSize(), getKeepAliveTime(),
                 getFileDescriptorAcquisitionSize(), getCloseTimeoutTime(), getAcquisitionTimeoutTime(), getTimeoutUnit(),
-                getbTreeDegree(), getbTreeGrowthNodeAllocationCount(), getBaseDbPath(), getbTreeMaxFileSize(),
-                getIndexStorageManagerStrategy(), getFileHandlerStrategy(), getFileHandlerPoolThreads());
+                getbTreeDegree(), getbTreeGrowthNodeAllocationCount(), getBaseDbPath(), getBTreeMaxFileSize(),
+                getIndexStorageManagerStrategy(), getFileHandlerStrategy(), getFileHandlerPoolThreads(), getIOSessionStrategy());
     }
 }

@@ -3,6 +3,7 @@ package org.elece.sql.db.schema;
 import org.elece.sql.db.schema.model.Column;
 import org.elece.sql.db.schema.model.Schema;
 import org.elece.sql.db.schema.model.Table;
+import org.elece.sql.parser.expression.internal.SqlConstraint;
 
 import java.util.List;
 import java.util.Optional;
@@ -27,5 +28,9 @@ public class SchemaSearcher {
 
     public static List<Column> findIndexedColumns(Table table) {
         return table.getIndexes().stream().map(index -> findColumn(table, index.getColumnName())).filter(Optional::isPresent).map(Optional::get).toList();
+    }
+
+    public static Optional<Column> findPrimaryColumn(Table table) {
+        return table.getColumns().stream().filter(column -> column.getConstraints().contains(SqlConstraint.PrimaryKey)).findFirst();
     }
 }

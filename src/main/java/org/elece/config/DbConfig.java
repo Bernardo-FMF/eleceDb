@@ -33,6 +33,12 @@ public interface DbConfig {
 
     int getFileHandlerPoolThreads();
 
+    IOSessionStrategy getIOSessionStrategy();
+
+    enum IOSessionStrategy {
+        COMMITTABLE, IMMEDIATE
+    }
+
     enum IndexStorageManagerStrategy {
         ORGANIZED, COMPACT
     }

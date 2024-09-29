@@ -15,7 +15,7 @@ import org.elece.memory.tree.operation.DeleteIndexOperation;
 import org.elece.storage.index.IndexStorageManager;
 import org.elece.storage.index.NodeData;
 import org.elece.storage.index.session.AtomicIOSession;
-import org.elece.storage.index.session.factory.AtomicIOSessionFactory;
+import org.elece.storage.index.session.factory.IOSessionFactory;
 import org.elece.utils.BTreeUtils;
 
 import java.io.IOException;
@@ -25,17 +25,17 @@ import java.util.concurrent.ExecutionException;
 
 public class TreeIndexManager<K extends Comparable<K>, V> extends AbstractTreeIndexManager<K, V> {
     private final IndexStorageManager indexStorageManager;
-    private final AtomicIOSessionFactory atomicIOSessionFactory;
+    private final IOSessionFactory IOSessionFactory;
     private final DbConfig dbConfig;
     private final BinaryObjectFactory<K> kBinaryObjectFactory;
     private final BinaryObjectFactory<V> vBinaryObjectFactory;
     private final NodeFactory<K> nodeFactory;
     protected final KeyValueSize keyValueSize;
 
-    public TreeIndexManager(int indexId, IndexStorageManager indexStorageManager, AtomicIOSessionFactory atomicIOSessionFactory, DbConfig dbConfig, BinaryObjectFactory<K> kBinaryObjectFactory, BinaryObjectFactory<V> vBinaryObjectFactory, NodeFactory<K> nodeFactory) {
+    public TreeIndexManager(int indexId, IndexStorageManager indexStorageManager, IOSessionFactory iOSessionFactory, DbConfig dbConfig, BinaryObjectFactory<K> kBinaryObjectFactory, BinaryObjectFactory<V> vBinaryObjectFactory, NodeFactory<K> nodeFactory) {
         super(indexId);
         this.indexStorageManager = indexStorageManager;
-        this.atomicIOSessionFactory = atomicIOSessionFactory;
+        this.IOSessionFactory = iOSessionFactory;
         this.dbConfig = dbConfig;
         this.kBinaryObjectFactory = kBinaryObjectFactory;
         this.vBinaryObjectFactory = vBinaryObjectFactory;
@@ -45,14 +45,14 @@ public class TreeIndexManager<K extends Comparable<K>, V> extends AbstractTreeIn
 
     @Override
     public AbstractTreeNode<K> addIndex(K identifier, V value) throws BTreeException, StorageException {
-        AtomicIOSession<K> atomicIOSession = this.atomicIOSessionFactory.create(indexStorageManager, indexId, nodeFactory, keyValueSize);
+        AtomicIOSession<K> atomicIOSession = this.IOSessionFactory.create(indexStorageManager, indexId, nodeFactory, keyValueSize);
         AbstractTreeNode<K> root = getRoot(atomicIOSession);
         return new CreateIndexOperation<>(dbConfig, atomicIOSession, kBinaryObjectFactory, vBinaryObjectFactory, keyValueSize).addIndex(root, identifier, value);
     }
 
     @Override
     public AbstractTreeNode<K> updateIndex(K identifier, V value) throws BTreeException, StorageException {
-        AtomicIOSession<K> atomicIOSession = this.atomicIOSessionFactory.create(indexStorageManager, indexId, nodeFactory, keyValueSize);
+        AtomicIOSession<K> atomicIOSession = this.IOSessionFactory.create(indexStorageManager, indexId, nodeFactory, keyValueSize);
 
         int bTreeDegree = dbConfig.getBTreeDegree();
         LeafTreeNode<K, V> node = BTreeUtils.getResponsibleNode(indexStorageManager, getRoot(atomicIOSession), identifier, indexId, bTreeDegree, nodeFactory, vBinaryObjectFactory);
@@ -69,7 +69,7 @@ public class TreeIndexManager<K extends Comparable<K>, V> extends AbstractTreeIn
 
     @Override
     public Optional<V> getIndex(K identifier) throws BTreeException, StorageException {
-        AtomicIOSession<K> atomicIOSession = this.atomicIOSessionFactory.create(indexStorageManager, indexId, nodeFactory, keyValueSize);
+        AtomicIOSession<K> atomicIOSession = this.IOSessionFactory.create(indexStorageManager, indexId, nodeFactory, keyValueSize);
 
         int bTreeDegree = dbConfig.getBTreeDegree();
         LeafTreeNode<K, V> baseTreeNode = BTreeUtils.getResponsibleNode(indexStorageManager, getRoot(atomicIOSession), identifier, indexId, bTreeDegree, nodeFactory, vBinaryObjectFactory);
@@ -84,7 +84,7 @@ public class TreeIndexManager<K extends Comparable<K>, V> extends AbstractTreeIn
 
     @Override
     public boolean removeIndex(K identifier) throws BTreeException, StorageException {
-        AtomicIOSession<K> atomicIOSession = this.atomicIOSessionFactory.create(indexStorageManager, indexId, nodeFactory, keyValueSize);
+        AtomicIOSession<K> atomicIOSession = this.IOSessionFactory.create(indexStorageManager, indexId, nodeFactory, keyValueSize);
         AbstractTreeNode<K> root = getRoot(atomicIOSession);
         return new DeleteIndexOperation<>(dbConfig, atomicIOSession, vBinaryObjectFactory, nodeFactory, indexId).removeIndex(root, identifier);
     }

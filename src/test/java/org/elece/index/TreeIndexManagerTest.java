@@ -14,7 +14,7 @@ import org.elece.storage.file.UnrestrictedFileHandlerPool;
 import org.elece.storage.index.IndexStorageManager;
 import org.elece.storage.index.OrganizedIndexStorageManager;
 import org.elece.storage.index.header.DefaultIndexHeaderManagerFactory;
-import org.elece.storage.index.session.factory.ImmediateIOSessionFactory;
+import org.elece.storage.index.session.factory.AtomicIOSessionFactory;
 import org.elece.utils.BTreeUtils;
 import org.elece.utils.FileTestUtils;
 import org.junit.jupiter.api.AfterEach;
@@ -26,8 +26,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
@@ -54,6 +52,7 @@ class TreeIndexManagerTest {
                 .setbTreeDegree(4)
                 .setbTreeGrowthNodeAllocationCount(2)
                 .setbTreeMaxFileSize(4L * BTreeUtils.calculateBPlusTreeSize(4, IntegerBinaryObject.BYTES, PointerBinaryObject.BYTES))
+                .setIOSessionStrategy(DbConfig.IOSessionStrategy.IMMEDIATE)
                 .build();
 
         stringDbConfig = DefaultDbConfigBuilder.builder()
@@ -80,7 +79,7 @@ class TreeIndexManagerTest {
 
     @Test
     public void test_tryToAddZero() {
-        IndexManager<Integer, Pointer> indexManager = new TreeIndexManager<>(1, indexStorageManager, ImmediateIOSessionFactory.getInstance(), integerDbConfig,
+        IndexManager<Integer, Pointer> indexManager = new TreeIndexManager<>(1, indexStorageManager, AtomicIOSessionFactory.getInstance(integerDbConfig), integerDbConfig,
                 integerKBinaryObjectFactory, vBinaryObjectFactory, new DefaultNodeFactory<>(integerKBinaryObjectFactory, vBinaryObjectFactory));
 
         Assertions.assertThrows(BTreeException.class, () -> indexManager.addIndex(0, Pointer.empty()));
@@ -88,7 +87,7 @@ class TreeIndexManagerTest {
 
     @Test
     public void test_addIntegerIndexes() throws BTreeException, StorageException {
-        IndexManager<Integer, Pointer> indexManager = new TreeIndexManager<>(1, indexStorageManager, ImmediateIOSessionFactory.getInstance(), integerDbConfig,
+        IndexManager<Integer, Pointer> indexManager = new TreeIndexManager<>(1, indexStorageManager, AtomicIOSessionFactory.getInstance(integerDbConfig), integerDbConfig,
                 integerKBinaryObjectFactory, vBinaryObjectFactory, new DefaultNodeFactory<>(integerKBinaryObjectFactory, vBinaryObjectFactory));
 
         for (int index = 1; index <= 3; index++) {
@@ -107,7 +106,7 @@ class TreeIndexManagerTest {
 
     @Test
     public void test_addStringIndexes() throws BTreeException, StorageException {
-        IndexManager<String, Pointer> stringIndexManager = new TreeIndexManager<>(1, indexStorageManager, ImmediateIOSessionFactory.getInstance(), stringDbConfig,
+        IndexManager<String, Pointer> stringIndexManager = new TreeIndexManager<>(1, indexStorageManager, AtomicIOSessionFactory.getInstance(stringDbConfig), stringDbConfig,
                 stringKBinaryObjectFactory, vBinaryObjectFactory, new DefaultNodeFactory<>(stringKBinaryObjectFactory, vBinaryObjectFactory));
 
         for (int index = 1; index <= 3; index++) {
@@ -126,7 +125,7 @@ class TreeIndexManagerTest {
 
     @Test
     public void test_updateIntegerIndexes() throws BTreeException, StorageException {
-        IndexManager<Integer, Pointer> indexManager = new TreeIndexManager<>(1, indexStorageManager, ImmediateIOSessionFactory.getInstance(), integerDbConfig,
+        IndexManager<Integer, Pointer> indexManager = new TreeIndexManager<>(1, indexStorageManager, AtomicIOSessionFactory.getInstance(stringDbConfig), integerDbConfig,
                 integerKBinaryObjectFactory, vBinaryObjectFactory, new DefaultNodeFactory<>(integerKBinaryObjectFactory, vBinaryObjectFactory));
 
         for (int index = 1; index <= 3; index++) {
@@ -148,17 +147,13 @@ class TreeIndexManagerTest {
 
     @Test
     public void test_purgeIndex() throws StorageException, IOException, InterruptedException, ExecutionException, BTreeException {
-        IndexManager<String, Pointer> stringIndexManager = new TreeIndexManager<>(1, indexStorageManager, ImmediateIOSessionFactory.getInstance(), stringDbConfig,
+        IndexManager<String, Pointer> stringIndexManager = new TreeIndexManager<>(1, indexStorageManager, AtomicIOSessionFactory.getInstance(stringDbConfig), stringDbConfig,
                 stringKBinaryObjectFactory, vBinaryObjectFactory, new DefaultNodeFactory<>(stringKBinaryObjectFactory, vBinaryObjectFactory));
-
-        Map<Integer, Pointer> pointerMap = new HashMap<>();
 
         for (int index = 1; index <= 3; index++) {
             String stringIndex = "index" + index;
             Pointer pointer = new Pointer(Pointer.TYPE_DATA, Pointer.BYTES * (index - 1) + index, 1);
             stringIndexManager.addIndex(stringIndex, pointer);
-
-            pointerMap.put(index, pointer);
         }
 
         indexStorageManager.purgeIndex(1);

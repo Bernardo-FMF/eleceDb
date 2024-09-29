@@ -18,8 +18,9 @@ public class DefaultDbConfig implements DbConfig {
     private final IndexStorageManagerStrategy indexStorageManagerStrategy;
     private final FileHandlerStrategy fileHandlerStrategy;
     private final int fileHandlerPoolThreads;
+    private final IOSessionStrategy iOSessionStrategy;
 
-    public DefaultDbConfig(int port, int poolCoreSize, int poolMaxSize, long keepAliveTime, int fileDescriptorAcquisitionSize, long closeTimeoutTime, long acquisitionTimeoutTime, TimeUnit timeoutUnit, int bTreeDegree, int bTreeGrowthNodeAllocationCount, String baseDbPath, long bTreeMaxFileSize, IndexStorageManagerStrategy indexStorageManagerStrategy, FileHandlerStrategy fileHandlerStrategy, int fileHandlerPoolThreads) {
+    public DefaultDbConfig(int port, int poolCoreSize, int poolMaxSize, long keepAliveTime, int fileDescriptorAcquisitionSize, long closeTimeoutTime, long acquisitionTimeoutTime, TimeUnit timeoutUnit, int bTreeDegree, int bTreeGrowthNodeAllocationCount, String baseDbPath, long bTreeMaxFileSize, IndexStorageManagerStrategy indexStorageManagerStrategy, FileHandlerStrategy fileHandlerStrategy, int fileHandlerPoolThreads, IOSessionStrategy iOSessionStrategy) {
         this.port = port;
         this.poolCoreSize = poolCoreSize;
         this.poolMaxSize = poolMaxSize;
@@ -35,6 +36,7 @@ public class DefaultDbConfig implements DbConfig {
         this.indexStorageManagerStrategy = indexStorageManagerStrategy;
         this.fileHandlerStrategy = fileHandlerStrategy;
         this.fileHandlerPoolThreads = fileHandlerPoolThreads;
+        this.iOSessionStrategy = iOSessionStrategy;
     }
 
     @Override
@@ -110,5 +112,10 @@ public class DefaultDbConfig implements DbConfig {
     @Override
     public int getFileHandlerPoolThreads() {
         return fileHandlerPoolThreads;
+    }
+
+    @Override
+    public IOSessionStrategy getIOSessionStrategy() {
+        return iOSessionStrategy;
     }
 }

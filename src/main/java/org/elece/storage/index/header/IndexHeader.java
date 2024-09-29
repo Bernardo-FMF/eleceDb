@@ -28,7 +28,7 @@ public class IndexHeader {
     }
 
     public TreeSet<IndexOffset> getIndexOffsets(int chunk) {
-        return this.chunkIndexOffsets.computeIfAbsent(chunk, k -> new TreeSet<>(Comparator.comparingLong(IndexOffset::getOffset)));
+        return this.chunkIndexOffsets.computeIfAbsent(chunk, _ -> new TreeSet<>(Comparator.comparingLong(IndexOffset::getOffset)));
     }
 
     public Optional<IndexOffset> getNextIndexOffset(int chunk, int indexId) {

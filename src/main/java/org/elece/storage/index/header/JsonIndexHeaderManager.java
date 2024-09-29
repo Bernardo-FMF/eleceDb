@@ -109,7 +109,7 @@ public class JsonIndexHeaderManager implements IndexHeaderManager {
 
         IndexHeader.IndexOffset next = indexOffsets.higher(current.get());
 
-        return next != null ? Optional.of(next.getIndexId()) : Optional.empty();
+        return !Objects.isNull(next) ? Optional.of(next.getIndexId()) : Optional.empty();
     }
 
     @Override
@@ -117,7 +117,7 @@ public class JsonIndexHeaderManager implements IndexHeaderManager {
         List<Integer> chunks = new ArrayList<>();
         Map<Integer, TreeSet<IndexHeader.IndexOffset>> chunkIndexOffset = this.header.getChunkIndexOffsets();
         chunkIndexOffset.forEach((chunk, indexOffsets) -> {
-            indexOffsets.stream().filter(indexOffset -> indexOffset.getIndexId() == indexId).findAny().ifPresent(indexOffset -> chunks.add(chunk));
+            indexOffsets.stream().filter(indexOffset -> indexOffset.getIndexId() == indexId).findAny().ifPresent(_ -> chunks.add(chunk));
         });
         return chunks;
     }
