@@ -1,13 +1,10 @@
-package org.elece.memory.tree.node.data;
+package org.elece.memory.data;
 
 import org.elece.exception.btree.BTreeException;
 import org.elece.memory.Pointer;
 
 public class PointerBinaryObject extends AbstractBinaryObject<Pointer> {
     public static int BYTES = Pointer.BYTES;
-
-    public PointerBinaryObject() {
-    }
 
     public PointerBinaryObject(byte[] bytes) {
         super(bytes);

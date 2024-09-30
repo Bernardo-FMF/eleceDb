@@ -2,11 +2,12 @@ package org.elece.utils;
 
 import org.elece.exception.btree.BTreeException;
 import org.elece.exception.btree.type.FailedToFindIndexInNodeError;
+import org.elece.exception.serialization.SerializationException;
 import org.elece.memory.Pointer;
+import org.elece.memory.data.BinaryObject;
+import org.elece.memory.data.BinaryObjectFactory;
 import org.elece.memory.tree.node.AbstractTreeNode;
 import org.elece.memory.tree.node.InternalTreeNode;
-import org.elece.memory.tree.node.data.BinaryObject;
-import org.elece.memory.tree.node.data.BinaryObjectFactory;
 
 import java.util.AbstractMap;
 import java.util.Map;
@@ -91,7 +92,7 @@ public class TreeNodeUtils {
         return node.getData()[dataIndex] == Pointer.TYPE_NODE;
     }
 
-    public static <K extends Comparable<K>, V> int addKeyValueAndGetIndex(AbstractTreeNode<?> node, int degree, BinaryObjectFactory<K> kBinaryObjectFactory, K key, BinaryObjectFactory<V> vBinaryObjectFactory, V value) throws BTreeException {
+    public static <K extends Comparable<K>, V> int addKeyValueAndGetIndex(AbstractTreeNode<?> node, int degree, BinaryObjectFactory<K> kBinaryObjectFactory, K key, BinaryObjectFactory<V> vBinaryObjectFactory, V value) throws BTreeException, SerializationException {
         int indexToFill = -1;
         BinaryObject<K> keyAtIndex;
         int keySize = kBinaryObjectFactory.size();

@@ -1,13 +1,13 @@
-package org.elece.exception.btree.type;
+package org.elece.exception.serialization.type;
 
 import org.elece.exception.DbError;
-import org.elece.memory.tree.node.data.BinaryObject;
+import org.elece.serializer.Serializer;
 
 public class InvalidBinaryObjectError implements DbError {
     private final Object obj;
-    private final Class<? extends BinaryObject<?>> objClass;
+    private final Class<? extends Serializer<?>> objClass;
 
-    public InvalidBinaryObjectError(Object obj, Class<? extends BinaryObject<?>> objClass) {
+    public InvalidBinaryObjectError(Object obj, Class<? extends Serializer<?>> objClass) {
         this.obj = obj;
         this.objClass = objClass;
     }

@@ -1,10 +1,11 @@
 package org.elece.memory.tree.node;
 
 import org.elece.exception.btree.BTreeException;
+import org.elece.exception.serialization.SerializationException;
 import org.elece.memory.Pointer;
-import org.elece.memory.tree.node.data.BinaryObject;
-import org.elece.memory.tree.node.data.BinaryObjectFactory;
-import org.elece.memory.tree.node.data.PointerBinaryObject;
+import org.elece.memory.data.BinaryObject;
+import org.elece.memory.data.BinaryObjectFactory;
+import org.elece.memory.data.PointerBinaryObject;
 import org.elece.utils.CollectionUtils;
 import org.elece.utils.TreeNodeUtils;
 
@@ -53,7 +54,7 @@ public class InternalTreeNode<K extends Comparable<K>> extends AbstractTreeNode<
      * @param cleanRest     If true, cleans the remaining space in the node's data array.
      * @throws BTreeException If an error occurs while setting child pointers.
      */
-    public void setChildPointers(List<ChildPointers<K>> childPointers, int degree, boolean cleanRest) throws BTreeException {
+    public void setChildPointers(List<ChildPointers<K>> childPointers, int degree, boolean cleanRest) throws BTreeException, SerializationException {
         setModified();
         if (cleanRest) {
             // Clears the existing child pointers in the node's data array.
@@ -113,7 +114,7 @@ public class InternalTreeNode<K extends Comparable<K>> extends AbstractTreeNode<
      * @param clearIfNullPointer If true, removes child pointers if left or right is null.
      * @throws BTreeException If an error occurs while adding child pointers.
      */
-    public void addChildPointers(K key, Pointer left, Pointer right, int degree, boolean clearIfNullPointer) throws BTreeException {
+    public void addChildPointers(K key, Pointer left, Pointer right, int degree, boolean clearIfNullPointer) throws BTreeException, SerializationException {
         setModified();
 
         // Add the key to the node and get the index where it was inserted.
@@ -146,7 +147,7 @@ public class InternalTreeNode<K extends Comparable<K>> extends AbstractTreeNode<
      * @return The index at which the key was inserted.
      * @throws BTreeException If an error occurs during insertion.
      */
-    public int addKey(K key, int degree) throws BTreeException {
+    public int addKey(K key, int degree) throws BTreeException, SerializationException {
         // Retrieve the current list of keys from the node.
         List<K> keyList = new ArrayList<>(this.getKeyList(degree));
         int index = CollectionUtils.findIndex(keyList, key);
@@ -191,7 +192,7 @@ public class InternalTreeNode<K extends Comparable<K>> extends AbstractTreeNode<
      * @return A list of ChildPointers<K> that should be moved to the new node.
      * @throws BTreeException If an error occurs during the operation.
      */
-    public List<ChildPointers<K>> addAndSplit(K key, Pointer pointer, int degree) throws BTreeException {
+    public List<ChildPointers<K>> addAndSplit(K key, Pointer pointer, int degree) throws BTreeException, SerializationException {
         setModified();
         int mid = (degree - 1) / 2;
 
@@ -237,7 +238,7 @@ public class InternalTreeNode<K extends Comparable<K>> extends AbstractTreeNode<
      * @param key   The key to set.
      * @throws BTreeException If an error occurs during the operation.
      */
-    public void setKey(int index, K key) throws BTreeException {
+    public void setKey(int index, K key) throws BTreeException, SerializationException {
         super.setKey(index, key, PointerBinaryObject.BYTES);
     }
 
@@ -279,7 +280,7 @@ public class InternalTreeNode<K extends Comparable<K>> extends AbstractTreeNode<
      * @param childKeyList The list of keys to set.
      * @throws BTreeException If an error occurs during the operation.
      */
-    public void setKeys(List<K> childKeyList) throws BTreeException {
+    public void setKeys(List<K> childKeyList) throws BTreeException, SerializationException {
         // Iterate over the keys and set each at the corresponding index.
         for (int index = 0; index < childKeyList.size(); index++) {
             this.setKey(index, childKeyList.get(index));
@@ -293,7 +294,7 @@ public class InternalTreeNode<K extends Comparable<K>> extends AbstractTreeNode<
      * @param degree The degree of the B+ tree.
      * @throws BTreeException If an error occurs during the operation.
      */
-    public void removeKey(int idx, int degree) throws BTreeException {
+    public void removeKey(int idx, int degree) throws BTreeException, SerializationException {
         super.removeKey(idx, degree, PointerBinaryObject.BYTES);
     }
 

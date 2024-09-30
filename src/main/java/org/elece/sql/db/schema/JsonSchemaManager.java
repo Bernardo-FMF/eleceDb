@@ -103,8 +103,11 @@ public class JsonSchemaManager implements SchemaManager {
         schema.addTable(table);
 
         persistSchema();
+
+        // TODO: create index manager for primary key
     }
 
+    // TODO: Can return number of rows deleted
     @Override
     public synchronized void deleteTable(String tableName) throws SchemaException, IOException, ExecutionException, InterruptedException, StorageException {
         validateSchemaExists();
@@ -127,6 +130,7 @@ public class JsonSchemaManager implements SchemaManager {
         }
     }
 
+    // TODO: Can return number of rows affected
     @Override
     public synchronized void createIndex(String tableName, Index index) throws SchemaException {
         validateSchemaExists();
@@ -142,6 +146,8 @@ public class JsonSchemaManager implements SchemaManager {
         persistSchema();
 
         // TODO: create index manager and fill the index
+        //       to fill the index, we can obtain the pk index manager and create an iterator method to obtain pointers for each object stored; then for each object
+        //       we use a mask to obtain the value of the column we are creating the index for and use that value to add in the new index manager.
     }
 
     private void validateSchemaExists() throws SchemaException {

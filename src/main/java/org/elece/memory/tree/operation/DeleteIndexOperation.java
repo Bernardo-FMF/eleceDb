@@ -3,13 +3,14 @@ package org.elece.memory.tree.operation;
 import org.elece.config.DbConfig;
 import org.elece.exception.btree.BTreeException;
 import org.elece.exception.btree.type.NodeMismatchError;
+import org.elece.exception.serialization.SerializationException;
 import org.elece.exception.storage.StorageException;
 import org.elece.memory.Pointer;
+import org.elece.memory.data.BinaryObjectFactory;
 import org.elece.memory.tree.node.AbstractTreeNode;
 import org.elece.memory.tree.node.InternalTreeNode;
 import org.elece.memory.tree.node.LeafTreeNode;
 import org.elece.memory.tree.node.NodeFactory;
-import org.elece.memory.tree.node.data.BinaryObjectFactory;
 import org.elece.storage.index.session.AtomicIOSession;
 import org.elece.utils.BTreeUtils;
 
@@ -61,7 +62,7 @@ public class DeleteIndexOperation<K extends Comparable<K>, V> {
      * @throws BTreeException   If an error occurs during deletion.
      * @throws StorageException If an error occurs during storage operations.
      */
-    public boolean removeIndex(AbstractTreeNode<K> root, K identifier) throws BTreeException, StorageException {
+    public boolean removeIndex(AbstractTreeNode<K> root, K identifier) throws BTreeException, StorageException, SerializationException {
         int bTreeDegree = dbConfig.getBTreeDegree();
 
         List<AbstractTreeNode<K>> path = new LinkedList<>();
@@ -111,7 +112,7 @@ public class DeleteIndexOperation<K extends Comparable<K>, V> {
      * @throws BTreeException   If an error occurs during deletion.
      * @throws StorageException If an error occurs during storage operations.
      */
-    private void deleteInternalNode(InternalTreeNode<K> parent, InternalTreeNode<K> node, int index, int bTreeDegree) throws BTreeException, StorageException {
+    private void deleteInternalNode(InternalTreeNode<K> parent, InternalTreeNode<K> node, int index, int bTreeDegree) throws BTreeException, StorageException, SerializationException {
         List<Pointer> childrenList = node.getChildrenList();
         if (index != 0) {
             // Try to replace the key with its predecessor.
@@ -190,7 +191,7 @@ public class DeleteIndexOperation<K extends Comparable<K>, V> {
      * @throws BTreeException   If an error occurs during deletion.
      * @throws StorageException If an error occurs during storage operations.
      */
-    private void checkInternalNode(InternalTreeNode<K> internalTreeNode, List<AbstractTreeNode<K>> path, int index, K identifier, int bTreeDegree) throws BTreeException, StorageException {
+    private void checkInternalNode(InternalTreeNode<K> internalTreeNode, List<AbstractTreeNode<K>> path, int index, K identifier, int bTreeDegree) throws BTreeException, StorageException, SerializationException {
         List<K> keyList = internalTreeNode.getKeyList(bTreeDegree);
 
         // If it's the root and has no keys, return.
@@ -228,7 +229,7 @@ public class DeleteIndexOperation<K extends Comparable<K>, V> {
      * @throws StorageException If an error occurs during storage operations.
      * @throws BTreeException   If an error occurs during deletion.
      */
-    private void fillRootAtIndex(InternalTreeNode<K> internalTreeNode, int indexOfKey, K identifier, int bTreeDegree) throws StorageException, BTreeException {
+    private void fillRootAtIndex(InternalTreeNode<K> internalTreeNode, int indexOfKey, K identifier, int bTreeDegree) throws StorageException, BTreeException, SerializationException {
         // Get the child node where the replacement key can be found.
         LeafTreeNode<K, ?> leafTreeNode = BTreeUtils.getResponsibleNode(atomicIOSession.getIndexStorageManager(), atomicIOSession.read(internalTreeNode.getChildAtIndex(indexOfKey + 1)), identifier, indexId, bTreeDegree, nodeFactory, vBinaryObjectFactory);
 
@@ -249,7 +250,7 @@ public class DeleteIndexOperation<K extends Comparable<K>, V> {
      * @throws BTreeException   If an error occurs during balancing.
      * @throws StorageException If an error occurs during storage operations.
      */
-    private void fillNode(AbstractTreeNode<K> currentNode, InternalTreeNode<K> parentNode, int index, int bTreeDegree) throws BTreeException, StorageException {
+    private void fillNode(AbstractTreeNode<K> currentNode, InternalTreeNode<K> parentNode, int index, int bTreeDegree) throws BTreeException, StorageException, SerializationException {
         boolean borrowed;
 
         // The first node is a leaf node.
@@ -283,7 +284,7 @@ public class DeleteIndexOperation<K extends Comparable<K>, V> {
      * @throws StorageException If an error occurs during storage operations.
      * @throws BTreeException   If an error occurs during balancing.
      */
-    private boolean tryBorrowRight(InternalTreeNode<K> parentNode, int idx, AbstractTreeNode<K> child, int bTreeDegree) throws StorageException, BTreeException {
+    private boolean tryBorrowRight(InternalTreeNode<K> parentNode, int idx, AbstractTreeNode<K> child, int bTreeDegree) throws StorageException, BTreeException, SerializationException {
         // Get the right sibling.
         AbstractTreeNode<K> sibling = atomicIOSession.read(parentNode.getChildrenList().get(idx + 1));
 
@@ -306,7 +307,7 @@ public class DeleteIndexOperation<K extends Comparable<K>, V> {
      * @throws StorageException If an error occurs during storage operations.
      * @throws BTreeException   If an error occurs during balancing.
      */
-    private boolean tryBorrowLeft(InternalTreeNode<K> parentNode, int idx, AbstractTreeNode<K> child, int bTreeDegree) throws StorageException, BTreeException {
+    private boolean tryBorrowLeft(InternalTreeNode<K> parentNode, int idx, AbstractTreeNode<K> child, int bTreeDegree) throws StorageException, BTreeException, SerializationException {
         // Get the left sibling.
         AbstractTreeNode<K> sibling = atomicIOSession.read(parentNode.getChildrenList().get(idx - 1));
 
@@ -328,7 +329,7 @@ public class DeleteIndexOperation<K extends Comparable<K>, V> {
      * @throws StorageException If an error occurs during storage operations.
      * @throws BTreeException   If an error occurs during balancing.
      */
-    private void borrowFromPrev(InternalTreeNode<K> parent, int index, AbstractTreeNode<K> optionalChild, int bTreeDegree) throws StorageException, BTreeException {
+    private void borrowFromPrev(InternalTreeNode<K> parent, int index, AbstractTreeNode<K> optionalChild, int bTreeDegree) throws StorageException, BTreeException, SerializationException {
         AbstractTreeNode<K> child = optionalChild != null ? optionalChild : atomicIOSession.read(parent.getChildrenList().get(index));
         AbstractTreeNode<K> sibling = atomicIOSession.read(parent.getChildrenList().get(index - 1));
 
@@ -371,7 +372,6 @@ public class DeleteIndexOperation<K extends Comparable<K>, V> {
             siblingLeafNode.setKeyValues(keyValueList, bTreeDegree);
 
             parent.setKey(index - 1, keyValue.key());
-
             childLeafNode.addKeyValue(keyValue, bTreeDegree);
         }
         atomicIOSession.update(parent);
@@ -389,7 +389,7 @@ public class DeleteIndexOperation<K extends Comparable<K>, V> {
      * @throws StorageException If an error occurs during storage operations.
      * @throws BTreeException   If an error occurs during balancing.
      */
-    private void borrowFromNext(InternalTreeNode<K> parent, int index, AbstractTreeNode<K> optionalChild, int bTreeDegree) throws StorageException, BTreeException {
+    private void borrowFromNext(InternalTreeNode<K> parent, int index, AbstractTreeNode<K> optionalChild, int bTreeDegree) throws StorageException, BTreeException, SerializationException {
         AbstractTreeNode<K> child = optionalChild != null ? optionalChild : atomicIOSession.read(parent.getChildrenList().get(index));
         AbstractTreeNode<K> sibling = atomicIOSession.read(parent.getChildrenList().get(index + 1));
 
@@ -450,7 +450,7 @@ public class DeleteIndexOperation<K extends Comparable<K>, V> {
      * @throws StorageException If an error occurs during storage operations.
      * @throws BTreeException   If an error occurs during merging.
      */
-    private void merge(InternalTreeNode<K> parent, AbstractTreeNode<K> child, int index, int bTreeDegree) throws StorageException, BTreeException {
+    private void merge(InternalTreeNode<K> parent, AbstractTreeNode<K> child, int index, int bTreeDegree) throws StorageException, BTreeException, SerializationException {
         // We need to decide which sibling is to be merged with under filled node.
         // By default, we first try the right sibling, if it's not possible we try with the left sibling.
         int siblingIndex = index + 1;

@@ -2,8 +2,7 @@ package org.elece.storage.index;
 
 import org.elece.config.DbConfig;
 import org.elece.exception.storage.StorageException;
-import org.elece.sql.db.schema.model.Column;
-import org.elece.sql.db.schema.model.Table;
+import org.elece.index.IndexId;
 import org.elece.storage.file.DefaultFileHandlerFactory;
 import org.elece.storage.file.FileHandlerPool;
 import org.elece.storage.file.RestrictedFileHandlerPool;
@@ -43,9 +42,9 @@ public class DefaultIndexStorageManagerFactory extends IndexStorageManagerFactor
     }
 
     @Override
-    public IndexStorageManager create(Table table, Column column) {
-        String managerId = getManagerId(table.getId(), column.getId());
-        return this.storageManagers.computeIfAbsent(managerId, key -> {
+    public IndexStorageManager create(IndexId indexId) {
+        String managerId = indexId.asString();
+        return this.storageManagers.computeIfAbsent(managerId, _ -> {
             DbConfig.IndexStorageManagerStrategy indexStorageManagerStrategy = dbConfig.getIndexStorageManagerStrategy();
             try {
                 if (indexStorageManagerStrategy == DbConfig.IndexStorageManagerStrategy.ORGANIZED) {

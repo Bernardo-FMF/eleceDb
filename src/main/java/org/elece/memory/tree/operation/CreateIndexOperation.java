@@ -4,13 +4,14 @@ import org.elece.config.DbConfig;
 import org.elece.exception.btree.BTreeException;
 import org.elece.exception.btree.type.DuplicateIndexInsertionError;
 import org.elece.exception.btree.type.FailedIndexCreationError;
+import org.elece.exception.serialization.SerializationException;
 import org.elece.exception.storage.StorageException;
 import org.elece.memory.KeyValueSize;
 import org.elece.memory.Pointer;
+import org.elece.memory.data.BinaryObjectFactory;
 import org.elece.memory.tree.node.AbstractTreeNode;
 import org.elece.memory.tree.node.InternalTreeNode;
 import org.elece.memory.tree.node.LeafTreeNode;
-import org.elece.memory.tree.node.data.BinaryObjectFactory;
 import org.elece.storage.index.session.AtomicIOSession;
 import org.elece.utils.BTreeUtils;
 
@@ -39,7 +40,7 @@ public class CreateIndexOperation<K extends Comparable<K>, V> {
         this.keyValueSize = keyValueSize;
     }
 
-    public AbstractTreeNode<K> addIndex(AbstractTreeNode<K> root, K identifier, V value) throws BTreeException, StorageException {
+    public AbstractTreeNode<K> addIndex(AbstractTreeNode<K> root, K identifier, V value) throws BTreeException, StorageException, SerializationException {
         List<AbstractTreeNode<K>> path = new LinkedList<>();
         int bTreeDegree = dbConfig.getBTreeDegree();
 

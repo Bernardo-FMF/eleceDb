@@ -3,13 +3,14 @@ package org.elece.index;
 import org.elece.config.DbConfig;
 import org.elece.exception.btree.BTreeException;
 import org.elece.exception.btree.type.IndexNotFoundError;
+import org.elece.exception.serialization.SerializationException;
 import org.elece.exception.storage.StorageException;
 import org.elece.memory.KeyValueSize;
+import org.elece.memory.data.BinaryObjectFactory;
 import org.elece.memory.tree.node.AbstractTreeNode;
 import org.elece.memory.tree.node.LeafTreeNode;
 import org.elece.memory.tree.node.NodeFactory;
 import org.elece.memory.tree.node.NodeType;
-import org.elece.memory.tree.node.data.BinaryObjectFactory;
 import org.elece.memory.tree.operation.CreateIndexOperation;
 import org.elece.memory.tree.operation.DeleteIndexOperation;
 import org.elece.storage.index.IndexStorageManager;
@@ -44,14 +45,14 @@ public class TreeIndexManager<K extends Comparable<K>, V> extends AbstractTreeIn
     }
 
     @Override
-    public AbstractTreeNode<K> addIndex(K identifier, V value) throws BTreeException, StorageException {
+    public AbstractTreeNode<K> addIndex(K identifier, V value) throws BTreeException, StorageException, SerializationException {
         AtomicIOSession<K> atomicIOSession = this.IOSessionFactory.create(indexStorageManager, indexId, nodeFactory, keyValueSize);
         AbstractTreeNode<K> root = getRoot(atomicIOSession);
         return new CreateIndexOperation<>(dbConfig, atomicIOSession, kBinaryObjectFactory, vBinaryObjectFactory, keyValueSize).addIndex(root, identifier, value);
     }
 
     @Override
-    public AbstractTreeNode<K> updateIndex(K identifier, V value) throws BTreeException, StorageException {
+    public AbstractTreeNode<K> updateIndex(K identifier, V value) throws BTreeException, StorageException, SerializationException {
         AtomicIOSession<K> atomicIOSession = this.IOSessionFactory.create(indexStorageManager, indexId, nodeFactory, keyValueSize);
 
         int bTreeDegree = dbConfig.getBTreeDegree();
@@ -83,7 +84,7 @@ public class TreeIndexManager<K extends Comparable<K>, V> extends AbstractTreeIn
     }
 
     @Override
-    public boolean removeIndex(K identifier) throws BTreeException, StorageException {
+    public boolean removeIndex(K identifier) throws BTreeException, StorageException, SerializationException {
         AtomicIOSession<K> atomicIOSession = this.IOSessionFactory.create(indexStorageManager, indexId, nodeFactory, keyValueSize);
         AbstractTreeNode<K> root = getRoot(atomicIOSession);
         return new DeleteIndexOperation<>(dbConfig, atomicIOSession, vBinaryObjectFactory, nodeFactory, indexId).removeIndex(root, identifier);
@@ -95,7 +96,6 @@ public class TreeIndexManager<K extends Comparable<K>, V> extends AbstractTreeIn
             this.indexStorageManager.purgeIndex(indexId);
         }
     }
-
 
     private AbstractTreeNode<K> getRoot(AtomicIOSession<K> atomicIOSession) throws StorageException {
         Optional<AbstractTreeNode<K>> optionalRoot = atomicIOSession.getRoot();

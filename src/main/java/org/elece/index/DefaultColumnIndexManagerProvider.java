@@ -5,9 +5,9 @@ import org.elece.exception.schema.SchemaException;
 import org.elece.exception.schema.type.TableWithNoPrimaryKeyError;
 import org.elece.exception.storage.StorageException;
 import org.elece.memory.Pointer;
+import org.elece.memory.data.BinaryObjectFactory;
+import org.elece.memory.data.PointerBinaryObject;
 import org.elece.memory.tree.node.DefaultNodeFactory;
-import org.elece.memory.tree.node.data.BinaryObjectFactory;
-import org.elece.memory.tree.node.data.PointerBinaryObject;
 import org.elece.serializer.Serializer;
 import org.elece.serializer.SerializerRegistry;
 import org.elece.sql.db.schema.SchemaSearcher;
@@ -30,33 +30,35 @@ public class DefaultColumnIndexManagerProvider extends ColumnIndexManagerProvide
 
     @Override
     public IndexManager<?, ?> getIndexManager(Table table, Column column) throws SchemaException, StorageException {
-        String indexId = getIndexId(table, column);
-        if (indexManagers.containsKey(indexId)) {
-            return indexManagers.get(indexId);
+        IndexId indexId = new IndexId(table.getId(), column.getId());
+        String indexIdString = indexId.asString();
+        if (indexManagers.containsKey(indexIdString)) {
+            return indexManagers.get(indexIdString);
         } else {
             IndexManager<?, ?> indexManager = buildIndexManager(table, column);
-            indexManagers.put(indexId, indexManager);
+            indexManagers.put(indexIdString, indexManager);
             return indexManager;
         }
     }
 
     @Override
     public void clearIndexManager(Table table, Column column) {
-        indexManagers.remove(getIndexId(table, column));
+        IndexId indexId = new IndexId(table.getId(), column.getId());
+        indexManagers.remove(indexId.asString());
     }
 
     private <K extends Comparable<K>> IndexManager<K, ?> buildIndexManager(Table table, Column column) throws StorageException, SchemaException {
-        int indexId = getIndexId(table, column).hashCode();
+        IndexId indexId = new IndexId(table.getId(), column.getId());
 
         Serializer<K> serializer = SerializerRegistry.getInstance().getSerializer(column.getSqlType().getType());
 
         if (column.getConstraints().contains(SqlConstraint.PrimaryKey)) {
-            BinaryObjectFactory<K> kBinaryObjectFactory = serializer.getIndexBinaryObjectFactory(column);
+            BinaryObjectFactory<K> kBinaryObjectFactory = serializer.getBinaryObjectFactory(column);
             BinaryObjectFactory<Pointer> vBinaryObjectFactory = new PointerBinaryObject.Factory();
 
             return new TreeIndexManager<>(
-                    indexId,
-                    indexStorageManagerFactory.create(table, column),
+                    indexId.asInt(),
+                    indexStorageManagerFactory.create(indexId),
                     AtomicIOSessionFactory.getInstance(dbConfig),
                     dbConfig,
                     kBinaryObjectFactory,
@@ -71,11 +73,11 @@ public class DefaultColumnIndexManagerProvider extends ColumnIndexManagerProvide
 
             Serializer<?> primarySerializer = SerializerRegistry.getInstance().getSerializer(primaryColumn.get().getSqlType().getType());
 
-            BinaryObjectFactory<K> kBinaryObjectFactory = serializer.getIndexBinaryObjectFactory(column);
-            BinaryObjectFactory<?> vBinaryObjectFactory = primarySerializer.getIndexBinaryObjectFactory(primaryColumn.get());
+            BinaryObjectFactory<K> kBinaryObjectFactory = serializer.getBinaryObjectFactory(column);
+            BinaryObjectFactory<?> vBinaryObjectFactory = primarySerializer.getBinaryObjectFactory(primaryColumn.get());
             return new TreeIndexManager<>(
-                    indexId,
-                    indexStorageManagerFactory.create(table, column),
+                    indexId.asInt(),
+                    indexStorageManagerFactory.create(indexId),
                     AtomicIOSessionFactory.getInstance(dbConfig),
                     dbConfig,
                     kBinaryObjectFactory,
@@ -83,9 +85,5 @@ public class DefaultColumnIndexManagerProvider extends ColumnIndexManagerProvide
                     new DefaultNodeFactory<>(kBinaryObjectFactory, vBinaryObjectFactory)
             );
         }
-    }
-
-    private String getIndexId(Table table, Column column) {
-        return "%d_%d".formatted(table.getId(), column.getId());
     }
 }

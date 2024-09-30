@@ -1,11 +1,12 @@
 package org.elece.memory.tree.node;
 
 import org.elece.exception.btree.BTreeException;
+import org.elece.exception.serialization.SerializationException;
 import org.elece.memory.KeyValueSize;
 import org.elece.memory.Pointer;
-import org.elece.memory.tree.node.data.BinaryObject;
-import org.elece.memory.tree.node.data.BinaryObjectFactory;
-import org.elece.memory.tree.node.data.PointerBinaryObject;
+import org.elece.memory.data.BinaryObject;
+import org.elece.memory.data.BinaryObjectFactory;
+import org.elece.memory.data.PointerBinaryObject;
 import org.elece.utils.CollectionUtils;
 import org.elece.utils.TreeNodeUtils;
 
@@ -132,7 +133,7 @@ public abstract class AbstractTreeNode<K extends Comparable<K>> {
      * @param valueSize The size of the value associated with the key.
      * @throws BTreeException If an error occurs during the operation.
      */
-    public void setKey(int index, K key, int valueSize) throws BTreeException {
+    public void setKey(int index, K key, int valueSize) throws BTreeException, SerializationException {
         TreeNodeUtils.setKeyAtIndex(this, index, kBinaryObjectFactory.create(key), valueSize);
     }
 
@@ -144,7 +145,7 @@ public abstract class AbstractTreeNode<K extends Comparable<K>> {
      * @param valueSize The size of the value associated with the key.
      * @throws BTreeException If an error occurs during the operation.
      */
-    public void removeKey(int index, int degree, int valueSize) throws BTreeException {
+    public void removeKey(int index, int degree, int valueSize) throws BTreeException, SerializationException {
         List<K> keyList = this.getKeyList(degree, valueSize);
 
         // Remove the key at the specified index.

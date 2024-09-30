@@ -1,4 +1,4 @@
-package org.elece.memory.tree.node.data;
+package org.elece.memory.data;
 
 public interface BinaryObject<E> {
     E asObject();

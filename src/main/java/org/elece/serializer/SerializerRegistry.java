@@ -12,9 +12,9 @@ public class SerializerRegistry {
 
     public SerializerRegistry() {
         this.serializers = new HashMap<>();
-        // this.serializers.put(SqlType.Type.Int, new IntegerSerializer());
-        // this.serializers.put(SqlType.Type.Bool, new BooleanSerializer());
-        // this.serializers.put(SqlType.Type.Varchar, new StringSerializer());
+        this.serializers.put(SqlType.Type.Int, new IntegerSerializer());
+        this.serializers.put(SqlType.Type.Bool, new BooleanSerializer());
+        this.serializers.put(SqlType.Type.Varchar, new StringSerializer());
     }
 
     public static SerializerRegistry getInstance() {

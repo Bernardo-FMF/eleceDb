@@ -4,8 +4,8 @@ import org.elece.exception.btree.BTreeException;
 import org.elece.exception.btree.type.TaskInterruptedError;
 import org.elece.exception.storage.StorageException;
 import org.elece.memory.Pointer;
+import org.elece.memory.data.BinaryObjectFactory;
 import org.elece.memory.tree.node.*;
-import org.elece.memory.tree.node.data.BinaryObjectFactory;
 import org.elece.storage.index.IndexStorageManager;
 import org.elece.storage.index.session.AtomicIOSession;
 

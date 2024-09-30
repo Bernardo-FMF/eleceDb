@@ -1,8 +1,9 @@
 package org.elece.memory.tree.node;
 
 import org.elece.exception.btree.BTreeException;
+import org.elece.exception.serialization.SerializationException;
 import org.elece.memory.Pointer;
-import org.elece.memory.tree.node.data.BinaryObjectFactory;
+import org.elece.memory.data.BinaryObjectFactory;
 import org.elece.utils.CollectionUtils;
 import org.elece.utils.TreeNodeUtils;
 
@@ -40,7 +41,7 @@ public class LeafTreeNode<K extends Comparable<K>, V> extends AbstractTreeNode<K
      * @return The index at which the key-value pair was inserted.
      * @throws BTreeException If an error occurs during insertion.
      */
-    public int addKeyValue(K key, V value, int degree) throws BTreeException {
+    public int addKeyValue(K key, V value, int degree) throws BTreeException, SerializationException {
         return TreeNodeUtils.addKeyValueAndGetIndex(this, degree, kBinaryObjectFactory, key, vBinaryObjectFactory, value);
     }
 
@@ -54,7 +55,7 @@ public class LeafTreeNode<K extends Comparable<K>, V> extends AbstractTreeNode<K
      * @return A list of key-value pairs to be moved to the new node.
      * @throws BTreeException If an error occurs during insertion or splitting.
      */
-    public List<KeyValue<K, V>> addAndSplit(K key, V value, int degree) throws BTreeException {
+    public List<KeyValue<K, V>> addAndSplit(K key, V value, int degree) throws BTreeException, SerializationException {
         int mid = (degree - 1) / 2;
 
         // Get the current list of key-value pairs.
@@ -77,7 +78,7 @@ public class LeafTreeNode<K extends Comparable<K>, V> extends AbstractTreeNode<K
         return allKeyValues.subList(mid + 1, allKeyValues.size());
     }
 
-    public void setKeyValue(int index, KeyValue<K, V> keyValue) throws BTreeException {
+    public void setKeyValue(int index, KeyValue<K, V> keyValue) throws BTreeException, SerializationException {
         TreeNodeUtils.setKeyValueAtIndex(this, index, kBinaryObjectFactory.create(keyValue.key()), vBinaryObjectFactory.create(keyValue.value()));
     }
 
@@ -88,7 +89,7 @@ public class LeafTreeNode<K extends Comparable<K>, V> extends AbstractTreeNode<K
      * @param degree       The degree of the B+ tree.
      * @throws BTreeException If an error occurs during the update.
      */
-    public void setKeyValues(List<KeyValue<K, V>> keyValueList, int degree) throws BTreeException {
+    public void setKeyValues(List<KeyValue<K, V>> keyValueList, int degree) throws BTreeException, SerializationException {
         setModified();
 
         // Iterate over the key-value list and set each key-value pair in the node.
@@ -151,7 +152,7 @@ public class LeafTreeNode<K extends Comparable<K>, V> extends AbstractTreeNode<K
      * @return True if the key-value pair was removed; false otherwise.
      * @throws BTreeException If an error occurs during the operation.
      */
-    public boolean removeKeyValue(K key, int degree) throws BTreeException {
+    public boolean removeKeyValue(K key, int degree) throws BTreeException, SerializationException {
         List<KeyValue<K, V>> keyValueList = new ArrayList<>(this.getKeyValueList(degree));
 
         // Remove the key-value pair matching the specified key.
@@ -180,7 +181,7 @@ public class LeafTreeNode<K extends Comparable<K>, V> extends AbstractTreeNode<K
      * @return The index at which the key-value pair was inserted.
      * @throws BTreeException If an error occurs during insertion.
      */
-    public int addKeyValue(KeyValue<K, V> keyValue, int degree) throws BTreeException {
+    public int addKeyValue(KeyValue<K, V> keyValue, int degree) throws BTreeException, SerializationException {
         return this.addKeyValue(keyValue.key, keyValue.value, degree);
     }
 

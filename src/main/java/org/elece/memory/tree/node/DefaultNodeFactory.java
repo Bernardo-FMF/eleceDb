@@ -1,6 +1,6 @@
 package org.elece.memory.tree.node;
 
-import org.elece.memory.tree.node.data.BinaryObjectFactory;
+import org.elece.memory.data.BinaryObjectFactory;
 
 import static org.elece.memory.tree.node.AbstractTreeNode.TYPE_LEAF_NODE_BIT;
 
