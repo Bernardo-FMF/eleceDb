@@ -1,4 +1,4 @@
-package org.elece.sql.db.schema.model;
+package org.elece.db.schema.model;
 
 public class Index {
     private final String name;

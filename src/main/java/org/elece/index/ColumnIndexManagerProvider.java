@@ -1,10 +1,10 @@
 package org.elece.index;
 
 import org.elece.config.DbConfig;
+import org.elece.db.schema.model.Column;
+import org.elece.db.schema.model.Table;
 import org.elece.exception.schema.SchemaException;
 import org.elece.exception.storage.StorageException;
-import org.elece.sql.db.schema.model.Column;
-import org.elece.sql.db.schema.model.Table;
 import org.elece.storage.index.IndexStorageManagerFactory;
 
 public abstract class ColumnIndexManagerProvider {

@@ -1,11 +1,11 @@
 package org.elece.sql.parser.command;
 
+import org.elece.db.schema.model.Column;
+import org.elece.db.schema.model.builder.ColumnBuilder;
 import org.elece.exception.sql.ParserException;
 import org.elece.exception.sql.TokenizerException;
 import org.elece.exception.sql.type.parser.IntegerOutOfBoundsError;
 import org.elece.exception.sql.type.parser.UnexpectedTokenError;
-import org.elece.sql.db.schema.model.Column;
-import org.elece.sql.db.schema.model.builder.ColumnBuilder;
 import org.elece.sql.parser.expression.*;
 import org.elece.sql.parser.expression.internal.*;
 import org.elece.sql.token.IPeekableIterator;

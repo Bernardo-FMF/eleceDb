@@ -1,18 +1,18 @@
 package org.elece.sql.optimizer;
 
+import org.elece.db.schema.SchemaManager;
+import org.elece.db.schema.model.Column;
+import org.elece.db.schema.model.Index;
+import org.elece.db.schema.model.Schema;
+import org.elece.db.schema.model.Table;
+import org.elece.db.schema.model.builder.ColumnBuilder;
+import org.elece.db.schema.model.builder.IndexBuilder;
+import org.elece.db.schema.model.builder.SchemaBuilder;
+import org.elece.db.schema.model.builder.TableBuilder;
 import org.elece.exception.sql.AnalyzerException;
 import org.elece.exception.sql.ParserException;
 import org.elece.exception.sql.TokenizerException;
 import org.elece.sql.analyzer.SqlAnalyzer;
-import org.elece.sql.db.schema.SchemaManager;
-import org.elece.sql.db.schema.model.Column;
-import org.elece.sql.db.schema.model.Index;
-import org.elece.sql.db.schema.model.Schema;
-import org.elece.sql.db.schema.model.Table;
-import org.elece.sql.db.schema.model.builder.ColumnBuilder;
-import org.elece.sql.db.schema.model.builder.IndexBuilder;
-import org.elece.sql.db.schema.model.builder.SchemaBuilder;
-import org.elece.sql.db.schema.model.builder.TableBuilder;
 import org.elece.sql.parser.ISqlParser;
 import org.elece.sql.parser.SqlParser;
 import org.elece.sql.parser.expression.BinaryExpression;

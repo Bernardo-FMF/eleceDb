@@ -1,6 +1,9 @@
 package org.elece.index;
 
 import org.elece.config.DbConfig;
+import org.elece.db.schema.SchemaSearcher;
+import org.elece.db.schema.model.Column;
+import org.elece.db.schema.model.Table;
 import org.elece.exception.schema.SchemaException;
 import org.elece.exception.schema.type.TableWithNoPrimaryKeyError;
 import org.elece.exception.storage.StorageException;
@@ -10,9 +13,6 @@ import org.elece.memory.data.PointerBinaryObject;
 import org.elece.memory.tree.node.DefaultNodeFactory;
 import org.elece.serializer.Serializer;
 import org.elece.serializer.SerializerRegistry;
-import org.elece.sql.db.schema.SchemaSearcher;
-import org.elece.sql.db.schema.model.Column;
-import org.elece.sql.db.schema.model.Table;
 import org.elece.sql.parser.expression.internal.SqlConstraint;
 import org.elece.storage.index.IndexStorageManagerFactory;
 import org.elece.storage.index.session.factory.AtomicIOSessionFactory;

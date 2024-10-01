@@ -1,10 +1,10 @@
-package org.elece.sql.db.schema;
+package org.elece.db.schema;
 
+import org.elece.db.schema.model.Index;
+import org.elece.db.schema.model.Schema;
+import org.elece.db.schema.model.Table;
 import org.elece.exception.schema.SchemaException;
 import org.elece.exception.storage.StorageException;
-import org.elece.sql.db.schema.model.Index;
-import org.elece.sql.db.schema.model.Schema;
-import org.elece.sql.db.schema.model.Table;
 
 import java.io.IOException;
 import java.util.concurrent.ExecutionException;

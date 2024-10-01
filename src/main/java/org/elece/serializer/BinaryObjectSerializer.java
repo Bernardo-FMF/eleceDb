@@ -1,10 +1,10 @@
 package org.elece.serializer;
 
+import org.elece.db.schema.model.Column;
 import org.elece.exception.RuntimeDbException;
 import org.elece.exception.serialization.DeserializationException;
 import org.elece.exception.serialization.SerializationException;
 import org.elece.memory.data.BinaryObject;
-import org.elece.sql.db.schema.model.Column;
 
 public class BinaryObjectSerializer<T extends Comparable<T>> implements BinaryObject<T> {
     protected final byte[] bytes;

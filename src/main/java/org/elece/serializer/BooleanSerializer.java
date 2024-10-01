@@ -1,6 +1,6 @@
 package org.elece.serializer;
 
-import org.elece.sql.db.schema.model.Column;
+import org.elece.db.schema.model.Column;
 import org.elece.sql.parser.expression.internal.SqlType;
 
 public class BooleanSerializer implements Serializer<Boolean> {

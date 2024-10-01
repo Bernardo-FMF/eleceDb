@@ -1,6 +1,6 @@
-package org.elece.sql.db.schema.model.builder;
+package org.elece.db.schema.model.builder;
 
-import org.elece.sql.db.schema.model.Column;
+import org.elece.db.schema.model.Column;
 import org.elece.sql.parser.expression.internal.SqlConstraint;
 import org.elece.sql.parser.expression.internal.SqlType;
 

@@ -1,7 +1,7 @@
 package org.elece.sql.optimizer.command;
 
-import org.elece.sql.db.schema.SchemaManager;
-import org.elece.sql.db.schema.model.Column;
+import org.elece.db.schema.SchemaManager;
+import org.elece.db.schema.model.Column;
 import org.elece.sql.parser.statement.CreateTableStatement;
 
 import java.util.concurrent.atomic.AtomicInteger;

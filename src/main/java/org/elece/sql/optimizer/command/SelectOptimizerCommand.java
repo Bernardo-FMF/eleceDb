@@ -1,11 +1,11 @@
 package org.elece.sql.optimizer.command;
 
+import org.elece.db.schema.SchemaManager;
+import org.elece.db.schema.SchemaSearcher;
+import org.elece.db.schema.model.Column;
+import org.elece.db.schema.model.Table;
 import org.elece.exception.sql.ParserException;
 import org.elece.exception.sql.type.analyzer.TableNotPresentError;
-import org.elece.sql.db.schema.SchemaManager;
-import org.elece.sql.db.schema.SchemaSearcher;
-import org.elece.sql.db.schema.model.Column;
-import org.elece.sql.db.schema.model.Table;
 import org.elece.sql.parser.expression.Expression;
 import org.elece.sql.parser.expression.IdentifierExpression;
 import org.elece.sql.parser.expression.WildcardExpression;

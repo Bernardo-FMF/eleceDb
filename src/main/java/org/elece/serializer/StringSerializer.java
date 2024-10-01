@@ -1,5 +1,6 @@
 package org.elece.serializer;
 
+import org.elece.db.schema.model.Column;
 import org.elece.exception.RuntimeDbException;
 import org.elece.exception.btree.BTreeException;
 import org.elece.exception.serialization.DeserializationException;
@@ -8,7 +9,6 @@ import org.elece.exception.serialization.type.ValueExceedsLimitForDeserializatio
 import org.elece.exception.serialization.type.ValueExceedsLimitForSerialization;
 import org.elece.memory.data.BinaryObject;
 import org.elece.memory.data.BinaryObjectFactory;
-import org.elece.sql.db.schema.model.Column;
 import org.elece.utils.BinaryUtils;
 
 public class StringSerializer implements Serializer<String> {

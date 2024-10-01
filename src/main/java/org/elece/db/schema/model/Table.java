@@ -1,4 +1,4 @@
-package org.elece.sql.db.schema.model;
+package org.elece.db.schema.model;
 
 import java.util.List;
 

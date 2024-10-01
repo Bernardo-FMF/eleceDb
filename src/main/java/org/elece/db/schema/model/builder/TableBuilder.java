@@ -1,8 +1,8 @@
-package org.elece.sql.db.schema.model.builder;
+package org.elece.db.schema.model.builder;
 
-import org.elece.sql.db.schema.model.Column;
-import org.elece.sql.db.schema.model.Index;
-import org.elece.sql.db.schema.model.Table;
+import org.elece.db.schema.model.Column;
+import org.elece.db.schema.model.Index;
+import org.elece.db.schema.model.Table;
 
 import java.util.List;
 

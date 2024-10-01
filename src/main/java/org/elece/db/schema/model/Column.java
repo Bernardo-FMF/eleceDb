@@ -1,4 +1,4 @@
-package org.elece.sql.db.schema.model;
+package org.elece.db.schema.model;
 
 import org.elece.sql.parser.expression.internal.SqlConstraint;
 import org.elece.sql.parser.expression.internal.SqlType;

@@ -1,8 +1,8 @@
 package org.elece.serializer;
 
+import org.elece.db.schema.model.Column;
 import org.elece.exception.serialization.SerializationException;
 import org.elece.exception.serialization.type.InvalidBinaryObjectError;
-import org.elece.sql.db.schema.model.Column;
 import org.elece.sql.parser.expression.internal.SqlType;
 import org.elece.utils.BinaryUtils;
 

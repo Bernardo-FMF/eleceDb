@@ -1,9 +1,14 @@
-package org.elece.sql.db.schema;
+package org.elece.db.schema;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.stream.JsonReader;
 import org.elece.config.DbConfig;
+import org.elece.db.schema.model.Column;
+import org.elece.db.schema.model.Index;
+import org.elece.db.schema.model.Schema;
+import org.elece.db.schema.model.Table;
+import org.elece.db.schema.model.builder.SchemaBuilder;
 import org.elece.exception.schema.SchemaException;
 import org.elece.exception.schema.type.SchemaAlreadyExistsError;
 import org.elece.exception.schema.type.SchemaDoesNotExistError;
@@ -12,11 +17,6 @@ import org.elece.exception.sql.type.analyzer.TableNotPresentError;
 import org.elece.exception.storage.StorageException;
 import org.elece.index.ColumnIndexManagerProvider;
 import org.elece.index.IndexManager;
-import org.elece.sql.db.schema.model.Column;
-import org.elece.sql.db.schema.model.Index;
-import org.elece.sql.db.schema.model.Schema;
-import org.elece.sql.db.schema.model.Table;
-import org.elece.sql.db.schema.model.builder.SchemaBuilder;
 
 import java.io.FileReader;
 import java.io.FileWriter;

@@ -1,12 +1,12 @@
 package org.elece.sql.planner;
 
+import org.elece.db.schema.SchemaSearcher;
+import org.elece.db.schema.model.Column;
+import org.elece.db.schema.model.Table;
 import org.elece.exception.sql.ParserException;
 import org.elece.exception.sql.type.analyzer.ColumnNotPresentError;
 import org.elece.exception.sql.type.analyzer.TableNotPresentError;
 import org.elece.exception.sql.type.parser.*;
-import org.elece.sql.db.schema.SchemaSearcher;
-import org.elece.sql.db.schema.model.Column;
-import org.elece.sql.db.schema.model.Table;
 import org.elece.sql.parser.expression.*;
 import org.elece.sql.parser.expression.internal.SqlBoolValue;
 import org.elece.sql.parser.expression.internal.SqlNumberValue;

@@ -2,6 +2,7 @@ package org.elece.index;
 
 import org.elece.config.DbConfig;
 import org.elece.config.DefaultDbConfigBuilder;
+import org.elece.db.schema.model.builder.ColumnBuilder;
 import org.elece.exception.btree.BTreeException;
 import org.elece.exception.serialization.SerializationException;
 import org.elece.exception.storage.StorageException;
@@ -11,7 +12,6 @@ import org.elece.memory.data.PointerBinaryObject;
 import org.elece.memory.tree.node.DefaultNodeFactory;
 import org.elece.serializer.IntegerSerializer;
 import org.elece.serializer.StringSerializer;
-import org.elece.sql.db.schema.model.builder.ColumnBuilder;
 import org.elece.sql.parser.expression.internal.SqlType;
 import org.elece.storage.file.DefaultFileHandlerFactory;
 import org.elece.storage.file.UnrestrictedFileHandlerPool;

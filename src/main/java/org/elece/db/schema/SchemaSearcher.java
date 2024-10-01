@@ -1,8 +1,8 @@
-package org.elece.sql.db.schema;
+package org.elece.db.schema;
 
-import org.elece.sql.db.schema.model.Column;
-import org.elece.sql.db.schema.model.Schema;
-import org.elece.sql.db.schema.model.Table;
+import org.elece.db.schema.model.Column;
+import org.elece.db.schema.model.Schema;
+import org.elece.db.schema.model.Table;
 import org.elece.sql.parser.expression.internal.SqlConstraint;
 
 import java.util.List;

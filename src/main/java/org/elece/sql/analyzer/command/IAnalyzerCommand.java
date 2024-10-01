@@ -1,5 +1,9 @@
 package org.elece.sql.analyzer.command;
 
+import org.elece.db.schema.SchemaManager;
+import org.elece.db.schema.SchemaSearcher;
+import org.elece.db.schema.model.Column;
+import org.elece.db.schema.model.Table;
 import org.elece.exception.sql.AnalyzerException;
 import org.elece.exception.sql.type.analyzer.ColumnNotPresentError;
 import org.elece.exception.sql.type.analyzer.UnexpectedTypeError;
@@ -7,10 +11,6 @@ import org.elece.exception.sql.type.analyzer.ValueSizeExceedsLimitError;
 import org.elece.exception.sql.type.parser.CannotApplyBinaryError;
 import org.elece.exception.sql.type.parser.UnsolvedExpressionError;
 import org.elece.exception.sql.type.parser.UnsolvedWildcardError;
-import org.elece.sql.db.schema.SchemaManager;
-import org.elece.sql.db.schema.SchemaSearcher;
-import org.elece.sql.db.schema.model.Column;
-import org.elece.sql.db.schema.model.Table;
 import org.elece.sql.parser.expression.*;
 import org.elece.sql.parser.expression.internal.*;
 import org.elece.sql.parser.statement.Statement;
