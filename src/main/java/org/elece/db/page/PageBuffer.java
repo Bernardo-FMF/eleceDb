@@ -7,6 +7,8 @@ import org.elece.config.DbConfig;
 import org.elece.exception.RuntimeDbException;
 import org.elece.exception.db.DbException;
 import org.elece.exception.db.type.InternalDbError;
+import org.elece.exception.storage.StorageException;
+import org.elece.exception.storage.type.InternalStorageError;
 import org.elece.storage.file.FileHandlerPool;
 import org.elece.utils.FileUtils;
 
@@ -105,10 +107,9 @@ public class PageBuffer {
      * updates the last page title, and returns the last page.
      *
      * @return An Optional containing the last buffered Page, or an empty Optional if no pages are available.
-     * @throws IOException          if an I/O error occurs.
-     * @throws InterruptedException if the current thread is interrupted while acquiring the file handler.
+     * @throws IOException if an I/O error occurs.
      */
-    public Optional<Page> getBufferedLastPage() throws IOException, InterruptedException, DbException {
+    public Optional<Page> getBufferedLastPage() throws DbException, StorageException {
         if (this.lastPageTitle != null) {
             return Optional.of(acquire(this.lastPageTitle));
         }
@@ -124,8 +125,12 @@ public class PageBuffer {
         }
 
         synchronized (this) {
-            AsynchronousFileChannel fileChannel = fileHandlerPool.acquireFileHandler(dbFileFunction.apply(lastChunk));
-            int pageNumber = (int) fileChannel.size() / this.dbConfig.getDbPageSize();
+            int pageNumber;
+            try (AsynchronousFileChannel fileChannel = fileHandlerPool.acquireFileHandler(dbFileFunction.apply(lastChunk))) {
+                pageNumber = (int) fileChannel.size() / this.dbConfig.getDbPageSize();
+            } catch (IOException | InterruptedException e) {
+                throw new StorageException(new InternalStorageError("Internal file channel error"));
+            }
             fileHandlerPool.releaseFileHandler(dbFileFunction.apply(lastChunk));
 
             this.lastPageTitle = new PageTitle(lastChunk, pageNumber);
@@ -144,7 +149,7 @@ public class PageBuffer {
      * @throws ExecutionException   If the page generation or acquisition encounters an execution error.
      * @throws InterruptedException If the page generation or acquisition operation is interrupted.
      */
-    public Page getBufferedNewPage() throws IOException, ExecutionException, InterruptedException, DbException {
+    public Page getBufferedNewPage() throws DbException, IOException, ExecutionException, InterruptedException {
         PageTitle lastPageTitle = this.lastPageTitle;
 
         int chunk = 0;
