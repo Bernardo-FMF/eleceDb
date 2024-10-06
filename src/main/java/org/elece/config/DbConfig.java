@@ -3,6 +3,8 @@ package org.elece.config;
 import java.util.concurrent.TimeUnit;
 
 public interface DbConfig {
+    Integer UNLIMITED_FILE_SIZE = -1;
+
     int getPort();
 
     int getPoolMaxSize();
@@ -34,6 +36,12 @@ public interface DbConfig {
     int getFileHandlerPoolThreads();
 
     IOSessionStrategy getIOSessionStrategy();
+
+    int getDbPageSize();
+
+    int getDbPageBufferSize();
+
+    int getDbPageMaxFileSize();
 
     enum IOSessionStrategy {
         COMMITTABLE, IMMEDIATE

@@ -30,10 +30,10 @@ public class BTreeUtils {
     }
 
     /**
-     * @param path       this is the list where we store the sequence of nodes that start from the root to the target leaf node. The leaf node is the node where the new key should be inserted.
-     * @param node       this is the root of the tree.
-     * @param identifier the new key being added.
-     * @param degree     the degree of the btree.
+     * @param path       This is the list where we store the sequence of nodes that start from the root to the target leaf node. The leaf node is the node where the new key should be inserted.
+     * @param node       This is the root of the tree.
+     * @param identifier The new key being added.
+     * @param degree     The degree of the btree.
      */
     public static <K extends Comparable<K>> void getPathToResponsibleNode(AtomicIOSession<K> atomicIOSession, List<AbstractTreeNode<K>> path, AbstractTreeNode<K> node, K identifier, int degree) throws BTreeException, StorageException {
         // Corresponds to the fast path, if the node being observed is a leaf then we reached the end of the search.

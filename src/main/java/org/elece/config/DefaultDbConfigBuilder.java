@@ -21,6 +21,9 @@ public class DefaultDbConfigBuilder {
     private DbConfig.FileHandlerStrategy fileHandlerStrategy;
     private Integer fileHandlerPoolThreads;
     private DbConfig.IOSessionStrategy iOSessionStrategy;
+    private Integer dbPageSize;
+    private Integer dbPageBufferSize;
+    private Integer dbPageMaxFileSize;
 
     private DefaultDbConfigBuilder() {
         // private constructor
@@ -110,6 +113,21 @@ public class DefaultDbConfigBuilder {
         return this;
     }
 
+    public DefaultDbConfigBuilder setDbPageSize(Integer dbPageSize) {
+        this.dbPageSize = dbPageSize;
+        return this;
+    }
+
+    public DefaultDbConfigBuilder setDbPageMaxFileSize(Integer dbPageMaxFileSize) {
+        this.dbPageMaxFileSize = dbPageMaxFileSize;
+        return this;
+    }
+
+    public DefaultDbConfigBuilder setDbPageBufferSize(Integer dbPageBufferSize) {
+        this.dbPageBufferSize = dbPageBufferSize;
+        return this;
+    }
+
     private int getPort() {
         return Objects.requireNonNullElse(port, 3000);
     }
@@ -174,10 +192,23 @@ public class DefaultDbConfigBuilder {
         return Objects.requireNonNullElse(iOSessionStrategy, DbConfig.IOSessionStrategy.IMMEDIATE);
     }
 
+    private int getDbPageSize() {
+        return Objects.requireNonNullElse(dbPageSize, 64000);
+    }
+
+    private int getDbPageBufferSize() {
+        return Objects.requireNonNullElse(dbPageBufferSize, 100);
+    }
+
+    private int getDbPageMaxFileSize() {
+        return Objects.requireNonNullElse(dbPageMaxFileSize, DbConfig.UNLIMITED_FILE_SIZE);
+    }
+
     public DefaultDbConfig build() {
         return new DefaultDbConfig(getPort(), getPoolCoreSize(), getPoolMaxSize(), getKeepAliveTime(),
                 getFileDescriptorAcquisitionSize(), getCloseTimeoutTime(), getAcquisitionTimeoutTime(), getTimeoutUnit(),
                 getbTreeDegree(), getbTreeGrowthNodeAllocationCount(), getBaseDbPath(), getBTreeMaxFileSize(),
-                getIndexStorageManagerStrategy(), getFileHandlerStrategy(), getFileHandlerPoolThreads(), getIOSessionStrategy());
+                getIndexStorageManagerStrategy(), getFileHandlerStrategy(), getFileHandlerPoolThreads(), getIOSessionStrategy(),
+                getDbPageSize(), getDbPageBufferSize(), getDbPageMaxFileSize());
     }
 }
