@@ -1,9 +1,6 @@
 package org.elece.db;
 
-import java.util.LinkedList;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Queue;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class InMemoryReservedSlotTracer implements ReservedSlotTracer {
@@ -19,15 +16,37 @@ public class InMemoryReservedSlotTracer implements ReservedSlotTracer {
     @Override
     public Optional<DbObjectSlotLocation> getFreeDbObjectSlotLocation(int length) {
         Queue<DbObjectSlotLocation> queue = freeDbObjectSlotLocations.get(length);
-        if (queue == null || queue.isEmpty()) {
-            return Optional.empty();
+        if (!Objects.isNull(queue) && !queue.isEmpty()) {
+            DbObjectSlotLocation dbObjectSlotLocation = queue.poll();
+            if (queue.isEmpty()) {
+                freeDbObjectSlotLocations.remove(length);
+            }
+
+            return Optional.of(dbObjectSlotLocation);
         }
 
-        DbObjectSlotLocation dbObjectSlotLocation = queue.poll();
-        if (queue.isEmpty()) {
-            freeDbObjectSlotLocations.remove(length);
+        Integer smallestFittingLength = null;
+        DbObjectSlotLocation dbObjectSlotLocation = null;
+
+        for (Map.Entry<Integer, Queue<DbObjectSlotLocation>> entry : freeDbObjectSlotLocations.entrySet()) {
+            int currentLength = entry.getKey();
+            if (currentLength >= length) {
+                if (smallestFittingLength == null || currentLength < smallestFittingLength) {
+                    smallestFittingLength = currentLength;
+                }
+            }
         }
 
-        return Optional.of(dbObjectSlotLocation);
+        if (smallestFittingLength != null) {
+            Queue<DbObjectSlotLocation> smallestQueue = freeDbObjectSlotLocations.get(smallestFittingLength);
+            if (smallestQueue != null && !smallestQueue.isEmpty()) {
+                dbObjectSlotLocation = smallestQueue.poll();
+                if (smallestQueue.isEmpty()) {
+                    freeDbObjectSlotLocations.remove(smallestFittingLength);
+                }
+            }
+        }
+
+        return Optional.ofNullable(dbObjectSlotLocation);
     }
 }
