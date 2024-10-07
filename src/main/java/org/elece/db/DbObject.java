@@ -55,6 +55,16 @@ public class DbObject {
         return BinaryUtils.bytesToInteger(wrappedData, begin + META_SIZE_OFFSET);
     }
 
+    public byte[] getData() {
+        byte[] result = new byte[getDataSize()];
+        System.arraycopy(this.wrappedData, begin + META_BYTES, result, 0, result.length);
+        return result;
+    }
+
+    public int getDataSize() {
+        return DbObject.getDataSize(this.wrappedData, this.begin);
+    }
+
     public static int getWrappedSize(int length) {
         return META_SIZE_OFFSET + length;
     }
@@ -81,5 +91,13 @@ public class DbObject {
 
     public long getBegin() {
         return begin;
+    }
+
+    public boolean isAlive() {
+        return DbObject.isAlive(this.wrappedData, this.begin);
+    }
+
+    public static boolean isAlive(byte[] wrappedData, int begin) {
+        return (wrappedData[begin] & ALIVE_OBJ) == ALIVE_OBJ;
     }
 }

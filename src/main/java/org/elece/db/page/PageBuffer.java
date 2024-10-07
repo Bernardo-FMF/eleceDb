@@ -71,10 +71,13 @@ public class PageBuffer {
     public synchronized Page acquire(PageTitle title) throws DbException {
         PageWrapper pageWrapper = this.loadedPages.get(title);
         if (pageWrapper == null) {
-            Page page = pageFactory.getPage(title);
-            pageWrapper = new PageWrapper(page);
-            buffer.put(title, pageWrapper);
-            this.loadedPages.put(title, pageWrapper);
+            pageWrapper = this.buffer.getIfPresent(title);
+            if (pageWrapper == null) {
+                Page page = pageFactory.getPage(title);
+                pageWrapper = new PageWrapper(page);
+                buffer.put(title, pageWrapper);
+                this.loadedPages.put(title, pageWrapper);
+            }
         }
 
         pageWrapper.incrementRefCount();
