@@ -18,5 +18,7 @@ public abstract class ColumnIndexManagerProvider {
 
     public abstract IndexManager<?, ?> getIndexManager(Table table, Column column) throws SchemaException, StorageException;
 
+    public abstract IndexManager<?, ?> getClusterIndexManager(Table table) throws SchemaException, StorageException;
+
     public abstract void clearIndexManager(Table table, Column column);
 }

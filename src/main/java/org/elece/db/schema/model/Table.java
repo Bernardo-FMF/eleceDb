@@ -1,6 +1,7 @@
 package org.elece.db.schema.model;
 
 import java.util.List;
+import java.util.Objects;
 
 public class Table {
     private int id;
@@ -36,5 +37,22 @@ public class Table {
 
     public void addIndex(Index index) {
         indexes.add(index);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (Objects.isNull(obj) || getClass() != obj.getClass()) {
+            return false;
+        }
+        Table table = (Table) obj;
+        return id == table.id && Objects.equals(name, table.name) && Objects.equals(columns, table.columns) && Objects.equals(indexes, table.indexes);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, name, columns, indexes);
     }
 }

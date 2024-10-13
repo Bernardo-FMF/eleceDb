@@ -15,6 +15,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import static org.elece.db.schema.model.Column.CLUSTER_ID;
+
 public class SelectOptimizerCommand implements IOptimizerCommand<SelectStatement> {
     @Override
     public void optimize(SchemaManager schemaManager, SelectStatement statement) throws ParserException {
@@ -32,6 +34,10 @@ public class SelectOptimizerCommand implements IOptimizerCommand<SelectStatement
 
             List<Expression> identifiers = new ArrayList<>();
             for (Column column : table.getColumns()) {
+                if (CLUSTER_ID.equals(column.getName())) {
+                    continue;
+                }
+
                 IdentifierExpression identifierExpression = new IdentifierExpression(column.getName());
                 identifiers.add(identifierExpression);
             }

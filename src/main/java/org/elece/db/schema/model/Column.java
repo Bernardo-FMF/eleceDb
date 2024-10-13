@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Objects;
 
 public final class Column {
+    public static final String CLUSTER_ID = "cluster_id";
+
     private int id;
     private final String name;
     private final SqlType sqlType;
@@ -36,6 +38,22 @@ public final class Column {
 
     public List<SqlConstraint> getConstraints() {
         return constraints;
+    }
+
+    public boolean addConstraint(SqlConstraint constraint) {
+        return constraints.add(constraint);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (Objects.isNull(obj) || getClass() != obj.getClass()) {
+            return false;
+        }
+        Column column = (Column) obj;
+        return id == column.id && Objects.equals(name, column.name) && Objects.equals(sqlType, column.sqlType) && Objects.equals(constraints, column.constraints);
     }
 
     @Override

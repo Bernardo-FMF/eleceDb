@@ -85,8 +85,8 @@ public class DbObject {
         System.arraycopy(value, 0, this.wrappedData, begin + META_BYTES, value.length);
     }
 
-    public void setCollectionId(int collectionId) {
-        System.arraycopy(BinaryUtils.integerToBytes(collectionId), 0, this.wrappedData, begin + META_COLLECTION_ID_OFFSET, Integer.BYTES);
+    public void setTableId(int tableId) {
+        System.arraycopy(BinaryUtils.integerToBytes(tableId), 0, this.wrappedData, begin + META_COLLECTION_ID_OFFSET, Integer.BYTES);
     }
 
     public long getBegin() {
@@ -99,5 +99,12 @@ public class DbObject {
 
     public static boolean isAlive(byte[] wrappedData, int begin) {
         return (wrappedData[begin] & ALIVE_OBJ) == ALIVE_OBJ;
+    }
+
+    public byte[] readData(int offset, int size) {
+        byte[] output = new byte[size];
+
+        System.arraycopy(this.wrappedData, begin + META_BYTES + offset, output, 0, size);
+        return output;
     }
 }

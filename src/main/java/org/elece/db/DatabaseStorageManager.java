@@ -10,7 +10,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.function.Consumer;
 
 public interface DatabaseStorageManager {
-    Pointer store(int collectionId, byte[] data) throws DbException, StorageException, IOException, ExecutionException, InterruptedException;
+    Pointer store(int tableId, byte[] data) throws DbException, StorageException, IOException, ExecutionException, InterruptedException;
 
     void update(Pointer pointer, Consumer<DbObject> dbObjectConsumer) throws DbException, StorageException, IOException, InterruptedException;
 

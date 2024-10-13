@@ -34,7 +34,7 @@ public class DiskPageDatabaseStorageManager implements DatabaseStorageManager {
     }
 
     @Override
-    public Pointer store(int collectionId, byte[] data) throws DbException, StorageException, IOException, ExecutionException, InterruptedException {
+    public Pointer store(int tableId, byte[] data) throws DbException, StorageException, IOException, ExecutionException, InterruptedException {
         // Try to find a free slot that can fit the data.
         Optional<DbObjectSlotLocation> optionalDbObjectSlotLocation = this.reservedSlotTracer.getFreeDbObjectSlotLocation(data.length);
 
@@ -46,7 +46,7 @@ public class DiskPageDatabaseStorageManager implements DatabaseStorageManager {
             Optional<DbObject> optionalDbObject = page.getDBObjectWrapper(offset);
             if (optionalDbObject.isPresent()) {
                 try {
-                    this.store(optionalDbObject.get(), collectionId, data);
+                    this.store(optionalDbObject.get(), tableId, data);
                     return dbObjectSlotLocation.pointer();
                 } finally {
                     this.pageBuffer.release(PageTitle.of(page));
@@ -89,7 +89,7 @@ public class DiskPageDatabaseStorageManager implements DatabaseStorageManager {
 
         // Store the data in the DbObject and return the new pointer.
         try {
-            this.store(dbObject, collectionId, data);
+            this.store(dbObject, tableId, data);
             return new Pointer(Pointer.TYPE_DATA, ((long) page.getPageNumber() * this.dbConfig.getDbPageSize()) + dbObject.getBegin(), page.getChunk());
         } finally {
             this.pageBuffer.release(PageTitle.of(page));
@@ -180,10 +180,10 @@ public class DiskPageDatabaseStorageManager implements DatabaseStorageManager {
         this.fileHandlerPool.releaseFileHandler(path);
     }
 
-    private void store(DbObject dbObject, int collectionId, byte[] data) throws DbException, IOException, InterruptedException {
+    private void store(DbObject dbObject, int tableId, byte[] data) throws DbException, IOException, InterruptedException {
         dbObject.activate();
         dbObject.modifyData(data);
-        dbObject.setCollectionId(collectionId);
+        dbObject.setTableId(tableId);
         dbObject.setSize(data.length);
         this.commitPage(dbObject.getPage());
     }

@@ -3,10 +3,10 @@ package org.elece.db.schema;
 import org.elece.db.schema.model.Column;
 import org.elece.db.schema.model.Schema;
 import org.elece.db.schema.model.Table;
-import org.elece.sql.parser.expression.internal.SqlConstraint;
 
-import java.util.List;
 import java.util.Optional;
+
+import static org.elece.db.schema.model.Column.CLUSTER_ID;
 
 public class SchemaSearcher {
     private SchemaSearcher() {
@@ -26,11 +26,7 @@ public class SchemaSearcher {
         return Optional.empty();
     }
 
-    public static List<Column> findIndexedColumns(Table table) {
-        return table.getIndexes().stream().map(index -> findColumn(table, index.getColumnName())).filter(Optional::isPresent).map(Optional::get).toList();
-    }
-
-    public static Optional<Column> findPrimaryColumn(Table table) {
-        return table.getColumns().stream().filter(column -> column.getConstraints().contains(SqlConstraint.PrimaryKey)).findFirst();
+    public static Optional<Column> findClusterColumn(Table table) {
+        return table.getColumns().stream().filter(column -> CLUSTER_ID.equals(column.getName())).findFirst();
     }
 }

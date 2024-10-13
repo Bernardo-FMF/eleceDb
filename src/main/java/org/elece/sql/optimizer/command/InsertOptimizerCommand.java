@@ -12,6 +12,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import static org.elece.db.schema.model.Column.CLUSTER_ID;
+
 public class InsertOptimizerCommand implements IOptimizerCommand<InsertStatement> {
     @Override
     public void optimize(SchemaManager schemaManager, InsertStatement statement) throws ParserException {
@@ -25,7 +27,7 @@ public class InsertOptimizerCommand implements IOptimizerCommand<InsertStatement
         Table table = optionalTable.get();
 
         if (statement.getColumns().isEmpty()) {
-            statement.setColumns(table.getColumns().stream().map(Column::getName).toList());
+            statement.setColumns(table.getColumns().stream().map(Column::getName).filter(name -> !CLUSTER_ID.equals(name)).toList());
         }
 
         List<Column> columns = table.getColumns();

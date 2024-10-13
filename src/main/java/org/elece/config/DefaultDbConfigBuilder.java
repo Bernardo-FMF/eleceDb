@@ -3,7 +3,6 @@ package org.elece.config;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
-// TODO: Create constants for default values
 public class DefaultDbConfigBuilder {
     private Integer port;
     private Integer poolCoreSize;

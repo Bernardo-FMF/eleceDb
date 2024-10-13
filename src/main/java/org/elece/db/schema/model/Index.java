@@ -1,5 +1,7 @@
 package org.elece.db.schema.model;
 
+import java.util.Objects;
+
 public class Index {
     private final String name;
     private final String columnName;
@@ -15,5 +17,22 @@ public class Index {
 
     public String getColumnName() {
         return columnName;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (Objects.isNull(obj) || getClass() != obj.getClass()) {
+            return false;
+        }
+        Index index = (Index) obj;
+        return Objects.equals(name, index.name) && Objects.equals(columnName, index.columnName);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, columnName);
     }
 }

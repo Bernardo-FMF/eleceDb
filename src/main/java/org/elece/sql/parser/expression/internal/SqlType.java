@@ -1,6 +1,7 @@
 package org.elece.sql.parser.expression.internal;
 
 import java.util.List;
+import java.util.Objects;
 
 public class SqlType {
     private static final int VARCHAR_MAX_SIZE = 255;
@@ -43,5 +44,22 @@ public class SqlType {
         Int,
         Bool,
         Varchar
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (Objects.isNull(obj) || getClass() != obj.getClass()) {
+            return false;
+        }
+        SqlType sqlType = (SqlType) obj;
+        return type == sqlType.type && Objects.equals(size, sqlType.size) && Objects.equals(constraints, sqlType.constraints);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(type, size, constraints);
     }
 }

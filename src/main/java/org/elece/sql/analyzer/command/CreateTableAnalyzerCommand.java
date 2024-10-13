@@ -13,6 +13,8 @@ import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
+import static org.elece.db.schema.model.Column.CLUSTER_ID;
+
 public class CreateTableAnalyzerCommand implements IAnalyzerCommand<CreateTableStatement> {
     @Override
     public void analyze(SchemaManager schemaManager, CreateTableStatement statement) throws AnalyzerException {
@@ -29,6 +31,10 @@ public class CreateTableAnalyzerCommand implements IAnalyzerCommand<CreateTableS
                 throw new AnalyzerException(new DuplicateColumnError(column.getName()));
             } else {
                 columnNames.add(column.getName());
+            }
+
+            if (CLUSTER_ID.equals(column.getName())) {
+                throw new AnalyzerException(new InvalidColumnError(CLUSTER_ID));
             }
 
             if (column.getConstraints().contains(SqlConstraint.PrimaryKey)) {

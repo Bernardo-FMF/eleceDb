@@ -4,46 +4,61 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.stream.JsonReader;
 import org.elece.config.DbConfig;
+import org.elece.db.DatabaseStorageManager;
+import org.elece.db.DbObject;
 import org.elece.db.schema.model.Column;
 import org.elece.db.schema.model.Index;
 import org.elece.db.schema.model.Schema;
 import org.elece.db.schema.model.Table;
 import org.elece.db.schema.model.builder.SchemaBuilder;
+import org.elece.exception.btree.BTreeException;
+import org.elece.exception.db.DbException;
 import org.elece.exception.schema.SchemaException;
 import org.elece.exception.schema.type.SchemaAlreadyExistsError;
 import org.elece.exception.schema.type.SchemaDoesNotExistError;
 import org.elece.exception.schema.type.SchemaPersistenceError;
+import org.elece.exception.serialization.DeserializationException;
+import org.elece.exception.serialization.SerializationException;
+import org.elece.exception.sql.type.analyzer.ColumnNotPresentError;
 import org.elece.exception.sql.type.analyzer.TableNotPresentError;
 import org.elece.exception.storage.StorageException;
 import org.elece.index.ColumnIndexManagerProvider;
 import org.elece.index.IndexManager;
+import org.elece.index.LockableIterator;
+import org.elece.memory.Pointer;
+import org.elece.memory.tree.node.LeafTreeNode;
+import org.elece.sql.parser.expression.internal.SqlConstraint;
+import org.elece.utils.SerializationUtils;
 
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
 
-// TODO: add functionality of persisting new schema (for when the db is created/deleted, a table is created/deleted, an index is created/deleted).
+import static org.elece.db.schema.model.Column.CLUSTER_ID;
+
 public class JsonSchemaManager implements SchemaManager {
     private Schema schema;
     private final DbConfig dbConfig;
     private final ColumnIndexManagerProvider columnIndexManagerProvider;
+    private final DatabaseStorageManager databaseStorageManager;
     private final Gson gson;
     private final AtomicInteger tableIndex;
 
-    public JsonSchemaManager(DbConfig dbConfig, ColumnIndexManagerProvider columnIndexManagerProvider) throws SchemaException {
+    public JsonSchemaManager(DbConfig dbConfig, ColumnIndexManagerProvider columnIndexManagerProvider, DatabaseStorageManager databaseStorageManager) throws SchemaException {
         this.dbConfig = dbConfig;
         this.columnIndexManagerProvider = columnIndexManagerProvider;
+        this.databaseStorageManager = databaseStorageManager;
         this.gson = new GsonBuilder().serializeNulls().create();
         loadSchema();
-        // TODO: add some schema validation
 
-        tableIndex = new AtomicInteger(schema.getCollections().isEmpty() ? 0 : schema.getCollections().getLast().getId());
+        tableIndex = new AtomicInteger(Objects.isNull(schema) || schema.getCollections().isEmpty() ? 0 : schema.getCollections().getLast().getId());
     }
 
     private void loadSchema() throws SchemaException {
@@ -89,27 +104,35 @@ public class JsonSchemaManager implements SchemaManager {
 
         this.schema = SchemaBuilder.builder()
                 .setDbName(dbName)
+                .setTables(new ArrayList<>())
                 .build();
         persistSchema();
     }
 
     @Override
-    public synchronized void createTable(Table table) throws SchemaException {
+    public synchronized void createTable(Table table) throws SchemaException, StorageException {
         validateSchemaExists();
 
         int nextTableIndex = tableIndex.incrementAndGet();
         table.setId(nextTableIndex);
 
+        for (Column column : table.getColumns()) {
+            if (CLUSTER_ID.equals(column.getName())) {
+                table.addIndex(new Index("cluster_index", CLUSTER_ID));
+                columnIndexManagerProvider.getClusterIndexManager(table);
+            } else if (column.getConstraints().contains(SqlConstraint.PrimaryKey) || column.getConstraints().contains(SqlConstraint.Unique)) {
+                table.addIndex(new Index(String.format("col_index_%d", column.getId()), column.getName()));
+                columnIndexManagerProvider.getIndexManager(table, column);
+            }
+        }
+
         schema.addTable(table);
 
         persistSchema();
-
-        // TODO: create index manager for primary key
     }
 
-    // TODO: Can return number of rows deleted
     @Override
-    public synchronized void deleteTable(String tableName) throws SchemaException, IOException, ExecutionException, InterruptedException, StorageException {
+    public synchronized <K extends Number & Comparable<K>> int deleteTable(String tableName) throws SchemaException, IOException, ExecutionException, InterruptedException, StorageException, DbException {
         validateSchemaExists();
 
         Optional<Table> optionalTable = SchemaSearcher.findTable(schema, tableName);
@@ -122,17 +145,37 @@ public class JsonSchemaManager implements SchemaManager {
         persistSchema();
 
         Table table = optionalTable.get();
-        for (Column column : table.getColumns()) {
-            IndexManager<?, ?> indexManager = columnIndexManagerProvider.getIndexManager(table, column);
-            indexManager.purgeIndex();
 
-            columnIndexManagerProvider.clearIndexManager(table, column);
+        int rowCount = 0;
+
+        IndexManager<K, Pointer> clusterIndexManager = (IndexManager<K, Pointer>) columnIndexManagerProvider.getClusterIndexManager(table);
+        LockableIterator<LeafTreeNode.KeyValue<K, Pointer>> sortedIterator = clusterIndexManager.getSortedIterator();
+        try {
+            sortedIterator.lock();
+            while (sortedIterator.hasNext()) {
+                LeafTreeNode.KeyValue<K, Pointer> keyValue = sortedIterator.next();
+                databaseStorageManager.remove(keyValue.value());
+                rowCount++;
+            }
+        } finally {
+            sortedIterator.unlock();
+            columnIndexManagerProvider.clearIndexManager(table, SchemaSearcher.findClusterColumn(table).get());
         }
+
+        for (Column column : table.getColumns()) {
+            if (column.getConstraints().contains(SqlConstraint.PrimaryKey) || column.getConstraints().contains(SqlConstraint.Unique)) {
+                IndexManager<?, ?> indexManager = columnIndexManagerProvider.getIndexManager(table, column);
+                indexManager.purgeIndex();
+
+                columnIndexManagerProvider.clearIndexManager(table, column);
+            }
+        }
+
+        return rowCount;
     }
 
-    // TODO: Can return number of rows affected
     @Override
-    public synchronized void createIndex(String tableName, Index index) throws SchemaException {
+    public synchronized <K extends Number & Comparable<K>> int createIndex(String tableName, Index index) throws SchemaException, StorageException, DbException, DeserializationException, BTreeException, SerializationException {
         validateSchemaExists();
 
         Optional<Table> optionalTable = SchemaSearcher.findTable(schema, tableName);
@@ -143,11 +186,41 @@ public class JsonSchemaManager implements SchemaManager {
         Table table = optionalTable.get();
         table.addIndex(index);
 
+        Optional<Column> optionalColumn = SchemaSearcher.findColumn(table, index.getColumnName());
+        if (optionalColumn.isEmpty()) {
+            throw new SchemaException(new ColumnNotPresentError(index.getColumnName(), tableName));
+        }
+
+        Column column = optionalColumn.get();
+        column.addConstraint(SqlConstraint.Unique);
+
         persistSchema();
 
-        // TODO: create index manager and fill the index
-        //       to fill the index, we can obtain the pk index manager and create an iterator method to obtain pointers for each object stored; then for each object
-        //       we use a mask to obtain the value of the column we are creating the index for and use that value to add in the new index manager.
+        int rowCount = 0;
+
+        IndexManager<K, Pointer> clusterIndexManager = (IndexManager<K, Pointer>) columnIndexManagerProvider.getClusterIndexManager(table);
+        IndexManager<?, K> indexManager = (IndexManager<?, K>) columnIndexManagerProvider.getIndexManager(table, optionalColumn.get());
+        LockableIterator<LeafTreeNode.KeyValue<K, Pointer>> sortedIterator = clusterIndexManager.getSortedIterator();
+        try {
+            sortedIterator.lock();
+            while (sortedIterator.hasNext()) {
+                LeafTreeNode.KeyValue<K, Pointer> keyValue = sortedIterator.next();
+
+                Optional<DbObject> optionalDbObject = databaseStorageManager.select(keyValue.value());
+                if (optionalDbObject.isEmpty()) {
+                    continue;
+                }
+
+                DbObject dbObject = optionalDbObject.get();
+
+                indexManager.addIndex(SerializationUtils.getValueOfFieldAsObject(table, column, dbObject.getData()), keyValue.key());
+                rowCount++;
+            }
+        } finally {
+            sortedIterator.unlock();
+        }
+
+        return rowCount;
     }
 
     private void validateSchemaExists() throws SchemaException {
