@@ -17,7 +17,7 @@ import java.util.Optional;
 
 import static org.elece.db.schema.model.Column.CLUSTER_ID;
 
-public class SelectOptimizerCommand implements IOptimizerCommand<SelectStatement> {
+public class SelectOptimizerCommand implements OptimizerCommand<SelectStatement> {
     @Override
     public void optimize(SchemaManager schemaManager, SelectStatement statement) throws ParserException {
         statement.setColumns(optimizeExpressions(statement.getColumns()));

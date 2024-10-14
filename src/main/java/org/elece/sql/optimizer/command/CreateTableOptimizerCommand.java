@@ -12,7 +12,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.elece.db.schema.model.Column.CLUSTER_ID;
 
-public class CreateTableOptimizerCommand implements IOptimizerCommand<CreateTableStatement> {
+public class CreateTableOptimizerCommand implements OptimizerCommand<CreateTableStatement> {
     @Override
     public void optimize(SchemaManager schemaManager, CreateTableStatement statement) {
         AtomicInteger idGenerator = new AtomicInteger(1);

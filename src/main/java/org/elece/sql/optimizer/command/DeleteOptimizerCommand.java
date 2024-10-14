@@ -4,7 +4,7 @@ import org.elece.db.schema.SchemaManager;
 import org.elece.exception.sql.ParserException;
 import org.elece.sql.parser.statement.DeleteStatement;
 
-public class DeleteOptimizerCommand implements IOptimizerCommand<DeleteStatement> {
+public class DeleteOptimizerCommand implements OptimizerCommand<DeleteStatement> {
     @Override
     public void optimize(SchemaManager schemaManager, DeleteStatement statement) throws ParserException {
         statement.setWhere(optimizeWhere(statement.getWhere()));

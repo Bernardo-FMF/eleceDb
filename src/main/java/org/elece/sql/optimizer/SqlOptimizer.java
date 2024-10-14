@@ -10,8 +10,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-public class SqlOptimizer implements ISqlOptimizer {
-    private static final Map<Statement.StatementType, IOptimizerCommand> optimizerCommandMap;
+public class SqlOptimizer {
+    private static final Map<Statement.StatementType, OptimizerCommand> optimizerCommandMap;
 
     static {
         optimizerCommandMap = new HashMap<>();
@@ -22,7 +22,6 @@ public class SqlOptimizer implements ISqlOptimizer {
         optimizerCommandMap.put(Statement.StatementType.CreateTable, new CreateTableOptimizerCommand());
     }
 
-    @Override
     public void optimize(SchemaManager schemaManager, Statement statement) throws ParserException {
         Statement.StatementType statementType = statement.getStatementType();
         if (statementType == Statement.StatementType.Explain) {
@@ -30,7 +29,7 @@ public class SqlOptimizer implements ISqlOptimizer {
             optimize(schemaManager, explainStatement.getStatement());
         }
 
-        IOptimizerCommand optimizerCommand = optimizerCommandMap.get(statementType);
+        OptimizerCommand optimizerCommand = optimizerCommandMap.get(statementType);
         if (!Objects.isNull(optimizerCommand)) {
             optimizerCommand.optimize(schemaManager, statement);
         }

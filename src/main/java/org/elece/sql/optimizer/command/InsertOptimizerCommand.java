@@ -14,7 +14,7 @@ import java.util.Optional;
 
 import static org.elece.db.schema.model.Column.CLUSTER_ID;
 
-public class InsertOptimizerCommand implements IOptimizerCommand<InsertStatement> {
+public class InsertOptimizerCommand implements OptimizerCommand<InsertStatement> {
     @Override
     public void optimize(SchemaManager schemaManager, InsertStatement statement) throws ParserException {
         statement.setValues(optimizeExpressions(statement.getValues()));
