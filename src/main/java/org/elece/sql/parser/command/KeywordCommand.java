@@ -4,6 +4,6 @@ import org.elece.exception.sql.ParserException;
 import org.elece.exception.sql.TokenizerException;
 import org.elece.sql.parser.statement.Statement;
 
-public interface IKeywordCommand extends ITdopAlgorithm {
+public interface KeywordCommand extends TdopAlgorithm {
     Statement parse() throws ParserException, TokenizerException;
 }

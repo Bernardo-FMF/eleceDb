@@ -8,8 +8,6 @@ import org.elece.sql.parser.statement.Statement;
 import org.elece.sql.parser.statement.UpdateStatement;
 import org.elece.sql.token.IPeekableIterator;
 import org.elece.sql.token.TokenWrapper;
-import org.elece.sql.token.model.KeywordToken;
-import org.elece.sql.token.model.Token;
 import org.elece.sql.token.model.type.Keyword;
 
 import java.util.List;
@@ -23,7 +21,7 @@ public class UpdateKeywordCommand extends AbstractKeywordCommand {
     public Statement parse() throws ParserException, TokenizerException {
         String table = parseIdentifier();
 
-        expectToken(token -> token.getTokenType() == Token.TokenType.KeywordToken && ((KeywordToken) token).getKeyword() == Keyword.Set);
+        expectKeywordToken(Keyword.Set);
 
         List<Assignment> assignments = parseCommaSeparated(this::parseAssignment, false);
         Expression where = parseWhere();

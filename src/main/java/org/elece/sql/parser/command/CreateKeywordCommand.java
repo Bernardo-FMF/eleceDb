@@ -10,7 +10,6 @@ import org.elece.sql.parser.statement.Statement;
 import org.elece.sql.token.IPeekableIterator;
 import org.elece.sql.token.TokenWrapper;
 import org.elece.sql.token.model.KeywordToken;
-import org.elece.sql.token.model.SymbolToken;
 import org.elece.sql.token.model.Token;
 import org.elece.sql.token.model.type.Keyword;
 import org.elece.sql.token.model.type.Symbol;
@@ -35,16 +34,16 @@ public class CreateKeywordCommand extends AbstractKeywordCommand {
             case Unique, Index -> {
                 boolean isUnique = nextToken.getKeyword() == Keyword.Unique;
                 if (isUnique) {
-                    expectToken(token -> token.getTokenType() == Token.TokenType.KeywordToken && ((KeywordToken) token).getKeyword() == Keyword.Index);
+                    expectKeywordToken(Keyword.Index);
                 }
 
                 String name = parseIdentifier();
-                expectToken(token -> token.getTokenType() == Token.TokenType.KeywordToken && ((KeywordToken) token).getKeyword() == Keyword.On);
+                expectKeywordToken(Keyword.On);
                 String table = parseIdentifier();
 
-                expectToken(token -> token.getTokenType() == Token.TokenType.SymbolToken && ((SymbolToken) token).getSymbol() == Symbol.LeftParenthesis);
+                expectSymbolToken(Symbol.LeftParenthesis);
                 String column = parseIdentifier();
-                expectToken(token -> token.getTokenType() == Token.TokenType.SymbolToken && ((SymbolToken) token).getSymbol() == Symbol.RightParenthesis);
+                expectSymbolToken(Symbol.RightParenthesis);
 
                 yield new CreateIndexStatement(name, table, column, isUnique);
             }

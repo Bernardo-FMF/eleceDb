@@ -7,9 +7,6 @@ import org.elece.sql.parser.statement.SelectStatement;
 import org.elece.sql.parser.statement.Statement;
 import org.elece.sql.token.IPeekableIterator;
 import org.elece.sql.token.TokenWrapper;
-import org.elece.sql.token.model.KeywordToken;
-import org.elece.sql.token.model.SymbolToken;
-import org.elece.sql.token.model.Token;
 import org.elece.sql.token.model.type.Keyword;
 import org.elece.sql.token.model.type.Symbol;
 
@@ -24,13 +21,13 @@ public class SelectKeywordCommand extends AbstractKeywordCommand {
     public Statement parse() throws ParserException, TokenizerException {
         List<Expression> selectedColumns = parseExpressionDefinitions(false);
 
-        expectToken(token -> token.getTokenType() == Token.TokenType.KeywordToken && ((KeywordToken) token).getKeyword() == Keyword.From);
+        expectKeywordToken(Keyword.From);
 
         String identifier = parseIdentifier();
         Expression where = parseWhere();
         List<Expression> orderBy = parseOrderBy();
 
-        expectToken(token -> token.getTokenType() == Token.TokenType.SymbolToken && ((SymbolToken) token).getSymbol() == Symbol.SemiColon);
+        expectSymbolToken(Symbol.SemiColon);
 
         return new SelectStatement(selectedColumns, identifier, where, orderBy);
     }

@@ -18,7 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
 
-public abstract class AbstractKeywordCommand implements IKeywordCommand {
+public abstract class AbstractKeywordCommand implements KeywordCommand {
     private final IPeekableIterator<TokenWrapper> tokenizer;
 
     public AbstractKeywordCommand(IPeekableIterator<TokenWrapper> tokenizer) {
@@ -40,42 +40,42 @@ public abstract class AbstractKeywordCommand implements IKeywordCommand {
 
     protected Assignment parseAssignment() throws ParserException, TokenizerException {
         String identifier = parseIdentifier();
-        expectToken(token -> token.getTokenType() == Token.TokenType.SymbolToken && ((SymbolToken) token).getSymbol() == Symbol.Eq);
+        expectSymbolToken(Symbol.Eq);
         Expression expression = parseExpression();
 
         return new Assignment(identifier, expression);
     }
 
-    protected <T> List<T> parseCommaSeparated(IParserFunction<T> parserFunction, Boolean requiresParenthesis) throws ParserException, TokenizerException {
+    protected <T> List<T> parseCommaSeparated(ParserFunction<T> parserFunction, Boolean requiresParenthesis) throws ParserException, TokenizerException {
         if (requiresParenthesis) {
-            expectToken(token -> token.getTokenType() == Token.TokenType.SymbolToken && ((SymbolToken) token).getSymbol() == Symbol.LeftParenthesis);
+            expectSymbolToken(Symbol.LeftParenthesis);
         }
 
         List<T> results = new ArrayList<>();
         T parsedExpression = parserFunction.parse();
         results.add(parsedExpression);
 
-        while (expectOptionalToken(token -> token.getTokenType() == Token.TokenType.SymbolToken && ((SymbolToken) token).getSymbol() == Symbol.Comma)) {
+        while (expectOptionalSymbolToken(Symbol.Comma)) {
             results.add(parserFunction.parse());
         }
 
         if (requiresParenthesis) {
-            expectToken(token -> token.getTokenType() == Token.TokenType.SymbolToken && ((SymbolToken) token).getSymbol() == Symbol.RightParenthesis);
+            expectSymbolToken(Symbol.RightParenthesis);
         }
 
         return results;
     }
 
     protected List<Expression> parseOrderBy() throws TokenizerException, ParserException {
-        if (expectOptionalToken(token -> token.getTokenType() == Token.TokenType.KeywordToken && ((KeywordToken) token).getKeyword() == Keyword.Order)) {
-            expectToken(token -> token.getTokenType() == Token.TokenType.KeywordToken && ((KeywordToken) token).getKeyword() == Keyword.By);
+        if (expectOptionalKeywordToken(Keyword.Order)) {
+            expectKeywordToken(Keyword.By);
             return parseExpressionDefinitions(false);
         }
         return List.of();
     }
 
     protected Expression parseWhere() throws TokenizerException, ParserException {
-        if (expectOptionalToken(token -> token.getTokenType() == Token.TokenType.KeywordToken && ((KeywordToken) token).getKeyword() == Keyword.Where)) {
+        if (expectOptionalKeywordToken(Keyword.Where)) {
             return parseExpression();
         }
         return null;
@@ -96,7 +96,7 @@ public abstract class AbstractKeywordCommand implements IKeywordCommand {
             case Int -> SqlType.intType;
             case Bool -> SqlType.boolType;
             case Varchar -> {
-                expectToken(token -> token.getTokenType() == Token.TokenType.SymbolToken && ((SymbolToken) token).getSymbol() == Symbol.LeftParenthesis);
+                expectSymbolToken(Symbol.LeftParenthesis);
 
                 Token varcharToken = nextToken();
                 if (varcharToken.getTokenType() != Token.TokenType.NumberToken) {
@@ -104,7 +104,7 @@ public abstract class AbstractKeywordCommand implements IKeywordCommand {
                 }
                 int size = Integer.parseInt(((NumberToken) varcharToken).getNumber());
 
-                expectToken(token -> token.getTokenType() == Token.TokenType.SymbolToken && ((SymbolToken) token).getSymbol() == Symbol.RightParenthesis);
+                expectSymbolToken(Symbol.RightParenthesis);
                 yield SqlType.varchar(size);
             }
             default ->
@@ -119,7 +119,7 @@ public abstract class AbstractKeywordCommand implements IKeywordCommand {
                         ((KeywordToken) capabilityToken).getKeyword() == Keyword.Unique)) {
             KeywordToken keywordToken = (KeywordToken) nextToken();
             if (keywordToken.getKeyword() == Keyword.Primary) {
-                expectToken(token -> token.getTokenType() == Token.TokenType.KeywordToken && ((KeywordToken) token).getKeyword() == Keyword.Key);
+                expectKeywordToken(Keyword.Key);
 
                 columnCapabilities.add(SqlConstraint.PrimaryKey);
             } else if (keywordToken.getKeyword() == Keyword.Unique) {
@@ -188,7 +188,7 @@ public abstract class AbstractKeywordCommand implements IKeywordCommand {
                 case Minus, Plus -> new UnaryExpression(((SymbolToken) nextToken).getSymbol(), parseExpression(50));
                 case LeftParenthesis -> {
                     Expression expression = parseExpression();
-                    expectToken(token1 -> token1.getTokenType() == Token.TokenType.SymbolToken && ((SymbolToken) token1).getSymbol() == Symbol.RightParenthesis);
+                    expectSymbolToken(Symbol.RightParenthesis);
 
                     yield new NestedExpression(expression);
                 }
@@ -222,6 +222,22 @@ public abstract class AbstractKeywordCommand implements IKeywordCommand {
         }
 
         return 0;
+    }
+
+    protected Token expectKeywordToken(Keyword keyword) throws TokenizerException, ParserException {
+        return expectToken(token -> token.getTokenType() == Token.TokenType.KeywordToken && ((KeywordToken) token).getKeyword() == keyword);
+    }
+
+    protected Token expectSymbolToken(Symbol symbol) throws TokenizerException, ParserException {
+        return expectToken(token -> token.getTokenType() == Token.TokenType.SymbolToken && ((SymbolToken) token).getSymbol() == symbol);
+    }
+
+    protected Boolean expectOptionalKeywordToken(Keyword keyword) throws TokenizerException {
+        return expectOptionalToken(token -> token.getTokenType() == Token.TokenType.KeywordToken && ((KeywordToken) token).getKeyword() == keyword);
+    }
+
+    protected Boolean expectOptionalSymbolToken(Symbol symbol) throws TokenizerException {
+        return expectOptionalToken(token -> token.getTokenType() == Token.TokenType.SymbolToken && ((SymbolToken) token).getSymbol() == symbol);
     }
 
     protected Token expectToken(Predicate<Token> predicate) throws TokenizerException, ParserException {

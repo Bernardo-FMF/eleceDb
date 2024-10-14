@@ -7,8 +7,6 @@ import org.elece.sql.parser.statement.DeleteStatement;
 import org.elece.sql.parser.statement.Statement;
 import org.elece.sql.token.IPeekableIterator;
 import org.elece.sql.token.TokenWrapper;
-import org.elece.sql.token.model.KeywordToken;
-import org.elece.sql.token.model.Token;
 import org.elece.sql.token.model.type.Keyword;
 
 public class DeleteKeywordCommand extends AbstractKeywordCommand {
@@ -18,7 +16,7 @@ public class DeleteKeywordCommand extends AbstractKeywordCommand {
 
     @Override
     public Statement parse() throws ParserException, TokenizerException {
-        expectToken(token -> token.getTokenType() == Token.TokenType.KeywordToken && ((KeywordToken) token).getKeyword() == Keyword.From);
+        expectKeywordToken(Keyword.From);
 
         String identifier = parseIdentifier();
         Expression where = parseWhere();

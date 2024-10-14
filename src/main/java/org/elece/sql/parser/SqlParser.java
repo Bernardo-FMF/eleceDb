@@ -5,7 +5,7 @@ import org.elece.exception.sql.TokenizerException;
 import org.elece.exception.sql.type.parser.UnexpectedTokenError;
 import org.elece.exception.sql.type.parser.UnspecifiedError;
 import org.elece.sql.parser.command.CommandFactory;
-import org.elece.sql.parser.command.IKeywordCommand;
+import org.elece.sql.parser.command.KeywordCommand;
 import org.elece.sql.parser.statement.ExplainStatement;
 import org.elece.sql.parser.statement.Statement;
 import org.elece.sql.token.IPeekableIterator;
@@ -36,7 +36,7 @@ public class SqlParser implements ISqlParser {
             if (keywordToken.getKeyword() == Keyword.Explain) {
                 return new ExplainStatement(parse());
             } else {
-                IKeywordCommand IKeywordCommand = commandFactory.buildCommand(keywordToken.getKeyword(), tokenizerStream);
+                KeywordCommand IKeywordCommand = commandFactory.buildCommand(keywordToken.getKeyword(), tokenizerStream);
                 if (Objects.isNull(IKeywordCommand)) {
                     throw new ParserException(new UnspecifiedError("Unresolved keyword command"));
                 } else {

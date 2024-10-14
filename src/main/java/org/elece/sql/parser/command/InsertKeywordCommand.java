@@ -7,7 +7,6 @@ import org.elece.sql.parser.statement.InsertStatement;
 import org.elece.sql.parser.statement.Statement;
 import org.elece.sql.token.IPeekableIterator;
 import org.elece.sql.token.TokenWrapper;
-import org.elece.sql.token.model.KeywordToken;
 import org.elece.sql.token.model.SymbolToken;
 import org.elece.sql.token.model.Token;
 import org.elece.sql.token.model.type.Keyword;
@@ -23,7 +22,7 @@ public class InsertKeywordCommand extends AbstractKeywordCommand {
 
     @Override
     public Statement parse() throws ParserException, TokenizerException {
-        expectToken(token -> token.getTokenType() == Token.TokenType.KeywordToken && ((KeywordToken) token).getKeyword() == Keyword.Into);
+        expectKeywordToken(Keyword.Into);
 
         String table = parseIdentifier();
 
@@ -35,7 +34,7 @@ public class InsertKeywordCommand extends AbstractKeywordCommand {
             columns.addAll(parseIdentifierList());
         }
 
-        expectToken(token -> token.getTokenType() == Token.TokenType.KeywordToken && ((KeywordToken) token).getKeyword() == Keyword.Values);
+        expectKeywordToken(Keyword.Values);
 
         List<Expression> values = parseExpressionDefinitions(true);
 

@@ -4,7 +4,7 @@ import org.elece.exception.sql.ParserException;
 import org.elece.exception.sql.TokenizerException;
 import org.elece.sql.parser.expression.Expression;
 
-public interface ITdopAlgorithm {
+public interface TdopAlgorithm {
     Expression parseExpression(Integer precedence) throws ParserException, TokenizerException;
     Expression parsePrefix() throws ParserException, TokenizerException;
     Expression parseInfix(Expression expression, Integer nextPrecedence) throws ParserException, TokenizerException;
