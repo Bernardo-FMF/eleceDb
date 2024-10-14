@@ -15,7 +15,7 @@ import java.util.Set;
 
 import static org.elece.db.schema.model.Column.CLUSTER_ID;
 
-public class CreateTableAnalyzerCommand implements IAnalyzerCommand<CreateTableStatement> {
+public class CreateTableAnalyzerCommand implements AnalyzerCommand<CreateTableStatement> {
     @Override
     public void analyze(SchemaManager schemaManager, CreateTableStatement statement) throws AnalyzerException {
         Optional<Table> optionalTable = SchemaSearcher.findTable(schemaManager.getSchema(), statement.getName());

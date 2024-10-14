@@ -10,7 +10,7 @@ import org.elece.sql.parser.statement.UpdateStatement;
 
 import java.util.Optional;
 
-public class UpdateAnalyzerCommand implements IAnalyzerCommand<UpdateStatement> {
+public class UpdateAnalyzerCommand implements AnalyzerCommand<UpdateStatement> {
     @Override
     public void analyze(SchemaManager schemaManager, UpdateStatement statement) throws AnalyzerException {
         Optional<Table> optionalTable = SchemaSearcher.findTable(schemaManager.getSchema(), statement.getTable());

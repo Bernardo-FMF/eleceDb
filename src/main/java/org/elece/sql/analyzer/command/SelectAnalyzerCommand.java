@@ -11,7 +11,7 @@ import org.elece.sql.parser.statement.SelectStatement;
 
 import java.util.Optional;
 
-public class SelectAnalyzerCommand implements IAnalyzerCommand<SelectStatement> {
+public class SelectAnalyzerCommand implements AnalyzerCommand<SelectStatement> {
     @Override
     public void analyze(SchemaManager schemaManager, SelectStatement statement) throws AnalyzerException {
         Optional<Table> optionalTable = SchemaSearcher.findTable(schemaManager.getSchema(), statement.getFrom());
@@ -25,13 +25,13 @@ public class SelectAnalyzerCommand implements IAnalyzerCommand<SelectStatement> 
             if (column instanceof WildcardExpression) {
                 continue;
             }
-            analyzeExpression(table, null, column);
+            analyzeExpression(new ExpressionContext(table, null), column);
         }
 
         analyzeWhere(table, statement.getWhere());
 
         for (Expression orderBy : statement.getOrderBy()) {
-            analyzeExpression(table, null, orderBy);
+            analyzeExpression(new ExpressionContext(table, null), orderBy);
         }
     }
 }

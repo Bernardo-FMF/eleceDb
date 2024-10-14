@@ -9,7 +9,7 @@ import org.elece.sql.parser.statement.InsertStatement;
 
 import java.util.Optional;
 
-public class InsertAnalyzerCommand implements IAnalyzerCommand<InsertStatement> {
+public class InsertAnalyzerCommand implements AnalyzerCommand<InsertStatement> {
     @Override
     public void analyze(SchemaManager schemaManager, InsertStatement statement) throws AnalyzerException {
         Optional<Table> optionalTable = SchemaSearcher.findTable(schemaManager.getSchema(), statement.getTable());

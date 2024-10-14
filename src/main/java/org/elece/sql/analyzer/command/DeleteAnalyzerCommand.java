@@ -9,7 +9,7 @@ import org.elece.sql.parser.statement.DeleteStatement;
 
 import java.util.Optional;
 
-public class DeleteAnalyzerCommand implements IAnalyzerCommand<DeleteStatement> {
+public class DeleteAnalyzerCommand implements AnalyzerCommand<DeleteStatement> {
     @Override
     public void analyze(SchemaManager schemaManager, DeleteStatement statement) throws AnalyzerException {
         Optional<Table> optionalTable = SchemaSearcher.findTable(schemaManager.getSchema(), statement.getFrom());

@@ -10,8 +10,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-public class SqlAnalyzer implements ISqlAnalyzer {
-    private static final Map<Statement.StatementType, IAnalyzerCommand> analyzerCommandMap;
+public class SqlAnalyzer {
+    private static final Map<Statement.StatementType, AnalyzerCommand> analyzerCommandMap;
 
     static {
         analyzerCommandMap = new HashMap<>();
@@ -24,7 +24,6 @@ public class SqlAnalyzer implements ISqlAnalyzer {
         analyzerCommandMap.put(Statement.StatementType.Update, new UpdateAnalyzerCommand());
     }
 
-    @Override
     public void analyze(SchemaManager schemaManager, Statement statement) throws AnalyzerException {
         Statement.StatementType statementType = statement.getStatementType();
         if (statementType == Statement.StatementType.Explain) {
@@ -32,7 +31,7 @@ public class SqlAnalyzer implements ISqlAnalyzer {
             analyze(schemaManager, explainStatement.getStatement());
         }
 
-        IAnalyzerCommand analyzerCommand = analyzerCommandMap.get(statementType);
+        AnalyzerCommand analyzerCommand = analyzerCommandMap.get(statementType);
         if (!Objects.isNull(analyzerCommand)) {
             analyzerCommand.analyze(schemaManager, statement);
         }

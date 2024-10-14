@@ -9,7 +9,7 @@ import org.elece.sql.parser.statement.DropTableStatement;
 
 import java.util.Optional;
 
-public class DropTableAnalyzerCommand implements IAnalyzerCommand<DropTableStatement> {
+public class DropTableAnalyzerCommand implements AnalyzerCommand<DropTableStatement> {
     @Override
     public void analyze(SchemaManager schemaManager, DropTableStatement statement) throws AnalyzerException {
         Optional<Table> optionalTable = SchemaSearcher.findTable(schemaManager.getSchema(), statement.getTable());

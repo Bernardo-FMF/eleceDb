@@ -13,7 +13,7 @@ import org.elece.sql.parser.statement.CreateIndexStatement;
 import java.util.List;
 import java.util.Optional;
 
-public class CreateIndexAnalyzerCommand implements IAnalyzerCommand<CreateIndexStatement> {
+public class CreateIndexAnalyzerCommand implements AnalyzerCommand<CreateIndexStatement> {
     @Override
     public void analyze(SchemaManager schemaManager, CreateIndexStatement statement) throws AnalyzerException {
         if (!statement.getUnique()) {
