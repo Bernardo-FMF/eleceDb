@@ -18,7 +18,7 @@ import org.elece.sql.token.model.type.Keyword;
 import java.util.Iterator;
 import java.util.Objects;
 
-public class SqlParser implements ISqlParser {
+public class SqlParser {
     private final IPeekableIterator<TokenWrapper> tokenizerStream;
 
     public SqlParser(String input) {
@@ -36,11 +36,11 @@ public class SqlParser implements ISqlParser {
             if (keywordToken.getKeyword() == Keyword.Explain) {
                 return new ExplainStatement(parse());
             } else {
-                KeywordCommand IKeywordCommand = commandFactory.buildCommand(keywordToken.getKeyword(), tokenizerStream);
-                if (Objects.isNull(IKeywordCommand)) {
+                KeywordCommand keywordCommand = commandFactory.buildCommand(keywordToken.getKeyword(), tokenizerStream);
+                if (Objects.isNull(keywordCommand)) {
                     throw new ParserException(new UnspecifiedError("Unresolved keyword command"));
                 } else {
-                    return IKeywordCommand.parse();
+                    return keywordCommand.parse();
                 }
             }
         }

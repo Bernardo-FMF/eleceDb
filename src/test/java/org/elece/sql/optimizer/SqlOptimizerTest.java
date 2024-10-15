@@ -13,7 +13,6 @@ import org.elece.exception.sql.AnalyzerException;
 import org.elece.exception.sql.ParserException;
 import org.elece.exception.sql.TokenizerException;
 import org.elece.sql.analyzer.SqlAnalyzer;
-import org.elece.sql.parser.ISqlParser;
 import org.elece.sql.parser.SqlParser;
 import org.elece.sql.parser.expression.BinaryExpression;
 import org.elece.sql.parser.expression.IdentifierExpression;
@@ -64,7 +63,7 @@ class SqlOptimizerTest {
 
     @Test
     public void test_selectWhere_sumZero() throws ParserException, TokenizerException, AnalyzerException {
-        ISqlParser sqlParser = new SqlParser("SELECT id, name FROM users WHERE id + 0 = 1;");
+        SqlParser sqlParser = new SqlParser("SELECT id, name FROM users WHERE id + 0 = 1;");
         SelectStatement statement = (SelectStatement) sqlParser.parse();
         sqlAnalyzer.analyze(schemaManager, statement);
         sqlOptimizer.optimize(schemaManager, statement);
@@ -74,7 +73,7 @@ class SqlOptimizerTest {
 
     @Test
     public void test_selectWhere_subtractZero() throws ParserException, TokenizerException, AnalyzerException {
-        ISqlParser sqlParser = new SqlParser("SELECT id, name FROM users WHERE id - 0 = 1;");
+        SqlParser sqlParser = new SqlParser("SELECT id, name FROM users WHERE id - 0 = 1;");
         SelectStatement statement = (SelectStatement) sqlParser.parse();
         sqlAnalyzer.analyze(schemaManager, statement);
         sqlOptimizer.optimize(schemaManager, statement);
@@ -84,7 +83,7 @@ class SqlOptimizerTest {
 
     @Test
     public void test_selectWhere_divOne() throws ParserException, TokenizerException, AnalyzerException {
-        ISqlParser sqlParser = new SqlParser("SELECT id, name FROM users WHERE id / 1 = 1;");
+        SqlParser sqlParser = new SqlParser("SELECT id, name FROM users WHERE id / 1 = 1;");
         SelectStatement statement = (SelectStatement) sqlParser.parse();
         sqlAnalyzer.analyze(schemaManager, statement);
         sqlOptimizer.optimize(schemaManager, statement);
@@ -94,7 +93,7 @@ class SqlOptimizerTest {
 
     @Test
     public void test_selectWhere_mulOne() throws ParserException, TokenizerException, AnalyzerException {
-        ISqlParser sqlParser = new SqlParser("SELECT id, name FROM users WHERE id * 1 = 1;");
+        SqlParser sqlParser = new SqlParser("SELECT id, name FROM users WHERE id * 1 = 1;");
         SelectStatement statement = (SelectStatement) sqlParser.parse();
         sqlAnalyzer.analyze(schemaManager, statement);
         sqlOptimizer.optimize(schemaManager, statement);
@@ -104,7 +103,7 @@ class SqlOptimizerTest {
 
     @Test
     public void test_selectWhere_simplifySum() throws ParserException, TokenizerException, AnalyzerException {
-        ISqlParser sqlParser = new SqlParser("SELECT id, name FROM users WHERE id + 2 + 4 > 8;");
+        SqlParser sqlParser = new SqlParser("SELECT id, name FROM users WHERE id + 2 + 4 > 8;");
         SelectStatement statement = (SelectStatement) sqlParser.parse();
         sqlAnalyzer.analyze(schemaManager, statement);
         sqlOptimizer.optimize(schemaManager, statement);

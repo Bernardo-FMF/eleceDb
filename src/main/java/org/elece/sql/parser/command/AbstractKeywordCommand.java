@@ -29,7 +29,6 @@ public abstract class AbstractKeywordCommand implements KeywordCommand {
         return parseCommaSeparated(this::parseExpression, requiresParenthesis);
     }
 
-
     protected List<Column> parseColumnDefinitions() throws ParserException, TokenizerException {
         return parseCommaSeparated(this::parseColumn, true);
     }

@@ -12,7 +12,6 @@ import org.elece.db.schema.model.builder.TableBuilder;
 import org.elece.exception.sql.AnalyzerException;
 import org.elece.exception.sql.ParserException;
 import org.elece.exception.sql.TokenizerException;
-import org.elece.sql.parser.ISqlParser;
 import org.elece.sql.parser.SqlParser;
 import org.elece.sql.parser.expression.internal.SqlConstraint;
 import org.elece.sql.parser.expression.internal.SqlType;
@@ -60,133 +59,133 @@ class SqlAnalyzerTest {
 
     @Test
     public void test_dropDb() throws ParserException, TokenizerException, AnalyzerException {
-        ISqlParser sqlParser = new SqlParser("DROP DATABASE userDb;");
+        SqlParser sqlParser = new SqlParser("DROP DATABASE userDb;");
         Statement statement = sqlParser.parse();
         sqlAnalyzer.analyze(schemaManager, statement);
     }
 
     @Test
     public void test_dropTable() throws ParserException, TokenizerException, AnalyzerException {
-        ISqlParser sqlParser = new SqlParser("DROP TABLE users;");
+        SqlParser sqlParser = new SqlParser("DROP TABLE users;");
         Statement statement = sqlParser.parse();
         sqlAnalyzer.analyze(schemaManager, statement);
     }
 
     @Test
     public void test_startTransaction() throws ParserException, TokenizerException, AnalyzerException {
-        ISqlParser sqlParser = new SqlParser("START TRANSACTION;");
+        SqlParser sqlParser = new SqlParser("START TRANSACTION;");
         Statement statement = sqlParser.parse();
         sqlAnalyzer.analyze(schemaManager, statement);
     }
 
     @Test
     public void test_rollback() throws ParserException, TokenizerException, AnalyzerException {
-        ISqlParser sqlParser = new SqlParser("ROLLBACK;");
+        SqlParser sqlParser = new SqlParser("ROLLBACK;");
         Statement statement = sqlParser.parse();
         sqlAnalyzer.analyze(schemaManager, statement);
     }
 
     @Test
     public void test_commit() throws ParserException, TokenizerException, AnalyzerException {
-        ISqlParser sqlParser = new SqlParser("COMMIT;");
+        SqlParser sqlParser = new SqlParser("COMMIT;");
         Statement statement = sqlParser.parse();
         sqlAnalyzer.analyze(schemaManager, statement);
     }
 
     @Test
     public void test_insertWithColumns() throws ParserException, TokenizerException, AnalyzerException {
-        ISqlParser sqlParser = new SqlParser("INSERT INTO users (id, name) VALUES (1, \"user1\");");
+        SqlParser sqlParser = new SqlParser("INSERT INTO users (id, name) VALUES (1, \"user1\");");
         Statement statement = sqlParser.parse();
         sqlAnalyzer.analyze(schemaManager, statement);
     }
 
     @Test
     public void test_insertWithoutColumns() throws ParserException, TokenizerException, AnalyzerException {
-        ISqlParser sqlParser = new SqlParser("INSERT INTO users VALUES (1, \"user1\");");
+        SqlParser sqlParser = new SqlParser("INSERT INTO users VALUES (1, \"user1\");");
         Statement statement = sqlParser.parse();
         sqlAnalyzer.analyze(schemaManager, statement);
     }
 
     @Test
     public void test_update() throws ParserException, TokenizerException, AnalyzerException {
-        ISqlParser sqlParser = new SqlParser("UPDATE users SET name = \"newName\";");
+        SqlParser sqlParser = new SqlParser("UPDATE users SET name = \"newName\";");
         Statement statement = sqlParser.parse();
         sqlAnalyzer.analyze(schemaManager, statement);
     }
 
     @Test
     public void test_updateWhere() throws ParserException, TokenizerException, AnalyzerException {
-        ISqlParser sqlParser = new SqlParser("UPDATE users SET name = \"newName\" WHERE id = 1;");
+        SqlParser sqlParser = new SqlParser("UPDATE users SET name = \"newName\" WHERE id = 1;");
         Statement statement = sqlParser.parse();
         sqlAnalyzer.analyze(schemaManager, statement);
     }
 
     @Test
     public void test_createTable() throws ParserException, TokenizerException, AnalyzerException {
-        ISqlParser sqlParser = new SqlParser("CREATE TABLE usersAddresses (id INT PRIMARY KEY, address VARCHAR(255));");
+        SqlParser sqlParser = new SqlParser("CREATE TABLE usersAddresses (id INT PRIMARY KEY, address VARCHAR(255));");
         Statement statement = sqlParser.parse();
         sqlAnalyzer.analyze(schemaManager, statement);
     }
 
     @Test
     public void test_fail_createTable() throws ParserException, TokenizerException {
-        ISqlParser sqlParser = new SqlParser("CREATE TABLE users (id INT PRIMARY KEY, name VARCHAR(255));");
+        SqlParser sqlParser = new SqlParser("CREATE TABLE users (id INT PRIMARY KEY, name VARCHAR(255));");
         Statement statement = sqlParser.parse();
         Assertions.assertThrows(AnalyzerException.class, () -> sqlAnalyzer.analyze(schemaManager, statement));
     }
 
     @Test
     public void test_createIndex() throws ParserException, TokenizerException, AnalyzerException {
-        ISqlParser sqlParser = new SqlParser("CREATE UNIQUE INDEX user_name_index ON users(name);");
+        SqlParser sqlParser = new SqlParser("CREATE UNIQUE INDEX user_name_index ON users(name);");
         Statement statement = sqlParser.parse();
         sqlAnalyzer.analyze(schemaManager, statement);
     }
 
     @Test
     public void test_fail_createIndex() throws ParserException, TokenizerException {
-        ISqlParser sqlParser = new SqlParser("CREATE UNIQUE INDEX id_index ON users(id);");
+        SqlParser sqlParser = new SqlParser("CREATE UNIQUE INDEX id_index ON users(id);");
         Statement statement = sqlParser.parse();
         Assertions.assertThrows(AnalyzerException.class, () -> sqlAnalyzer.analyze(schemaManager, statement));
     }
 
     @Test
     public void test_createDb() throws ParserException, TokenizerException, AnalyzerException {
-        ISqlParser sqlParser = new SqlParser("CREATE DATABASE userDb;");
+        SqlParser sqlParser = new SqlParser("CREATE DATABASE userDb;");
         Statement statement = sqlParser.parse();
         sqlAnalyzer.analyze(schemaManager, statement);
     }
 
     @Test
     public void test_select() throws ParserException, TokenizerException, AnalyzerException {
-        ISqlParser sqlParser = new SqlParser("SELECT id, name FROM users;");
+        SqlParser sqlParser = new SqlParser("SELECT id, name FROM users;");
         Statement statement = sqlParser.parse();
         sqlAnalyzer.analyze(schemaManager, statement);
     }
 
     @Test
     public void test_selectWhere() throws ParserException, TokenizerException, AnalyzerException {
-        ISqlParser sqlParser = new SqlParser("SELECT id, name FROM users WHERE id = 1;");
+        SqlParser sqlParser = new SqlParser("SELECT id, name FROM users WHERE id = 1;");
         Statement statement = sqlParser.parse();
         sqlAnalyzer.analyze(schemaManager, statement);
     }
 
     @Test
     public void test_selectOrderBy() throws ParserException, TokenizerException, AnalyzerException {
-        ISqlParser sqlParser = new SqlParser("SELECT id, name FROM users ORDER BY id;");
+        SqlParser sqlParser = new SqlParser("SELECT id, name FROM users ORDER BY id;");
         Statement statement = sqlParser.parse();
         sqlAnalyzer.analyze(schemaManager, statement);
     }
 
     @Test
     public void test_selectWhereOrderBy() throws ParserException, TokenizerException, AnalyzerException {
-        ISqlParser sqlParser = new SqlParser("SELECT id, name FROM users WHERE id > 5 ORDER BY name;");
+        SqlParser sqlParser = new SqlParser("SELECT id, name FROM users WHERE id > 5 ORDER BY name;");
         Statement statement = sqlParser.parse();
         sqlAnalyzer.analyze(schemaManager, statement);
     }
 
     @Test
     public void test_explain() throws ParserException, TokenizerException, AnalyzerException {
-        ISqlParser sqlParser = new SqlParser("EXPLAIN SELECT id, name FROM users;");
+        SqlParser sqlParser = new SqlParser("EXPLAIN SELECT id, name FROM users;");
         Statement statement = sqlParser.parse();
         sqlAnalyzer.analyze(schemaManager, statement);
     }
