@@ -2,11 +2,11 @@ package org.elece.sql.optimizer.command;
 
 import org.elece.db.schema.SchemaManager;
 import org.elece.exception.sql.ParserException;
+import org.elece.sql.ExpressionUtils;
 import org.elece.sql.parser.expression.*;
 import org.elece.sql.parser.expression.internal.Assignment;
 import org.elece.sql.parser.expression.internal.SqlNumberValue;
 import org.elece.sql.parser.statement.Statement;
-import org.elece.sql.planner.ExpressionUtils;
 import org.elece.sql.token.model.type.Symbol;
 
 import java.util.ArrayList;

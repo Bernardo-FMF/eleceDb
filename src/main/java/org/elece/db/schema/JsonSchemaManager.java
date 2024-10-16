@@ -110,6 +110,22 @@ public class JsonSchemaManager implements SchemaManager {
     }
 
     @Override
+    public int deleteSchema() throws IOException, SchemaException, ExecutionException, InterruptedException, StorageException, DbException {
+        validateSchemaExists();
+
+        int totalRowCount = 0;
+        for (Table table : schema.getCollections()) {
+            totalRowCount += deleteTable(table.getName());
+        }
+
+        this.schema = null;
+
+        persistSchema();
+
+        return totalRowCount;
+    }
+
+    @Override
     public synchronized void createTable(Table table) throws SchemaException, StorageException {
         validateSchemaExists();
 

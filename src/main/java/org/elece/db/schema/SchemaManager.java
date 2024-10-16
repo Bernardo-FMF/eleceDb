@@ -18,6 +18,8 @@ public interface SchemaManager {
 
     void createSchema(String dbName) throws IOException, SchemaException;
 
+    int deleteSchema() throws IOException, SchemaException, ExecutionException, InterruptedException, StorageException, DbException;
+
     void createTable(Table table) throws IOException, SchemaException, StorageException;
 
     <K extends Number & Comparable<K>> int deleteTable(String tableName) throws IOException, SchemaException, ExecutionException, InterruptedException, StorageException, DbException;

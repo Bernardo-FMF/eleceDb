@@ -1,4 +1,4 @@
-package org.elece.sql.planner;
+package org.elece.sql;
 
 import org.elece.db.schema.SchemaSearcher;
 import org.elece.db.schema.model.Column;
