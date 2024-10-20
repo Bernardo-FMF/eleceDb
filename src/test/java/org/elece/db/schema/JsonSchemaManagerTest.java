@@ -140,8 +140,8 @@ public class JsonSchemaManagerTest {
         BinaryUtils.fillPadding(Integer.BYTES + Integer.BYTES + 5, row1.length, row1);
 
         Pointer row1Pointer = databaseStorageManager.store(table.getId(), row1);
-        IndexManager<Integer, Pointer> clusterIndexManager = (IndexManager<Integer, Pointer>) columnIndexManagerProvider.getClusterIndexManager(table);
-        IndexManager<Integer, Integer> idIndexManager = (IndexManager<Integer, Integer>) columnIndexManagerProvider.getIndexManager(table, SchemaSearcher.findColumn(table, COLUMN_ID_PRIMARY).get());
+        IndexManager<Integer, Pointer> clusterIndexManager = columnIndexManagerProvider.getClusterIndexManager(table);
+        IndexManager<Integer, Integer> idIndexManager = columnIndexManagerProvider.getIndexManager(table, SchemaSearcher.findColumn(table, COLUMN_ID_PRIMARY).get());
 
         clusterIndexManager.addIndex(1, row1Pointer);
         idIndexManager.addIndex(1, 1);
@@ -199,8 +199,8 @@ public class JsonSchemaManagerTest {
         BinaryUtils.fillPadding(Integer.BYTES + Integer.BYTES + 5, row1.length, row1);
 
         Pointer row1Pointer = databaseStorageManager.store(table.getId(), row1);
-        IndexManager<Integer, Pointer> clusterIndexManager = (IndexManager<Integer, Pointer>) columnIndexManagerProvider.getClusterIndexManager(table);
-        IndexManager<Integer, Integer> idIndexManager = (IndexManager<Integer, Integer>) columnIndexManagerProvider.getIndexManager(table, SchemaSearcher.findColumn(table, COLUMN_ID_PRIMARY).get());
+        IndexManager<Integer, Pointer> clusterIndexManager = columnIndexManagerProvider.getClusterIndexManager(table);
+        IndexManager<Integer, Integer> idIndexManager = columnIndexManagerProvider.getIndexManager(table, SchemaSearcher.findColumn(table, COLUMN_ID_PRIMARY).get());
 
         clusterIndexManager.addIndex(1, row1Pointer);
         idIndexManager.addIndex(1, 1);

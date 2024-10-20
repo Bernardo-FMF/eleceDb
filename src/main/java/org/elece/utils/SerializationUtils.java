@@ -40,4 +40,10 @@ public class SerializationUtils {
         byte[] output = getValueOfField(table, column, value);
         return serializer.deserialize(output, column);
     }
+
+    public static void setValueOfField(Table table, Column column, byte[] serializedValue, byte[] rowData) {
+        int offset = getByteArrayOffsetTillFieldIndex(table.getColumns(), table.getColumns().indexOf(column));
+        int size = getByteArraySizeOfField(column);
+        System.arraycopy(serializedValue, 0, rowData, offset, size);
+    }
 }

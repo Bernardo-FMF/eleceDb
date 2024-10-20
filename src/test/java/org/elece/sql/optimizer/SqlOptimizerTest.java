@@ -9,10 +9,8 @@ import org.elece.db.schema.model.builder.ColumnBuilder;
 import org.elece.db.schema.model.builder.IndexBuilder;
 import org.elece.db.schema.model.builder.SchemaBuilder;
 import org.elece.db.schema.model.builder.TableBuilder;
-import org.elece.exception.sql.AnalyzerException;
 import org.elece.exception.sql.ParserException;
 import org.elece.exception.sql.TokenizerException;
-import org.elece.sql.analyzer.SqlAnalyzer;
 import org.elece.sql.parser.SqlParser;
 import org.elece.sql.parser.expression.BinaryExpression;
 import org.elece.sql.parser.expression.IdentifierExpression;
@@ -29,7 +27,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 class SqlOptimizerTest {
-    private static final SqlAnalyzer sqlAnalyzer = new SqlAnalyzer();
     private static final SqlOptimizer sqlOptimizer = new SqlOptimizer();
 
     private static final SchemaManager schemaManager = Mockito.mock(SchemaManager.class);
@@ -62,55 +59,50 @@ class SqlOptimizerTest {
     }
 
     @Test
-    public void test_selectWhere_sumZero() throws ParserException, TokenizerException, AnalyzerException {
+    public void test_selectWhere_sumZero() throws ParserException, TokenizerException {
         SqlParser sqlParser = new SqlParser("SELECT id, name FROM users WHERE id + 0 = 1;");
         SelectStatement statement = (SelectStatement) sqlParser.parse();
-        sqlAnalyzer.analyze(schemaManager, statement);
         sqlOptimizer.optimize(schemaManager, statement);
 
-        Assertions.assertTrue(((BinaryExpression) statement.getWhere()).getLeft() instanceof IdentifierExpression);
+        Assertions.assertInstanceOf(IdentifierExpression.class, ((BinaryExpression) statement.getWhere()).getLeft());
     }
 
     @Test
-    public void test_selectWhere_subtractZero() throws ParserException, TokenizerException, AnalyzerException {
+    public void test_selectWhere_subtractZero() throws ParserException, TokenizerException {
         SqlParser sqlParser = new SqlParser("SELECT id, name FROM users WHERE id - 0 = 1;");
         SelectStatement statement = (SelectStatement) sqlParser.parse();
-        sqlAnalyzer.analyze(schemaManager, statement);
         sqlOptimizer.optimize(schemaManager, statement);
 
-        Assertions.assertTrue(((BinaryExpression) statement.getWhere()).getLeft() instanceof IdentifierExpression);
+        Assertions.assertInstanceOf(IdentifierExpression.class, ((BinaryExpression) statement.getWhere()).getLeft());
     }
 
     @Test
-    public void test_selectWhere_divOne() throws ParserException, TokenizerException, AnalyzerException {
+    public void test_selectWhere_divOne() throws ParserException, TokenizerException {
         SqlParser sqlParser = new SqlParser("SELECT id, name FROM users WHERE id / 1 = 1;");
         SelectStatement statement = (SelectStatement) sqlParser.parse();
-        sqlAnalyzer.analyze(schemaManager, statement);
         sqlOptimizer.optimize(schemaManager, statement);
 
-        Assertions.assertTrue(((BinaryExpression) statement.getWhere()).getLeft() instanceof IdentifierExpression);
+        Assertions.assertInstanceOf(IdentifierExpression.class, ((BinaryExpression) statement.getWhere()).getLeft());
     }
 
     @Test
-    public void test_selectWhere_mulOne() throws ParserException, TokenizerException, AnalyzerException {
+    public void test_selectWhere_mulOne() throws ParserException, TokenizerException {
         SqlParser sqlParser = new SqlParser("SELECT id, name FROM users WHERE id * 1 = 1;");
         SelectStatement statement = (SelectStatement) sqlParser.parse();
-        sqlAnalyzer.analyze(schemaManager, statement);
         sqlOptimizer.optimize(schemaManager, statement);
 
-        Assertions.assertTrue(((BinaryExpression) statement.getWhere()).getLeft() instanceof IdentifierExpression);
+        Assertions.assertInstanceOf(IdentifierExpression.class, ((BinaryExpression) statement.getWhere()).getLeft());
     }
 
     @Test
-    public void test_selectWhere_simplifySum() throws ParserException, TokenizerException, AnalyzerException {
+    public void test_selectWhere_simplifySum() throws ParserException, TokenizerException {
         SqlParser sqlParser = new SqlParser("SELECT id, name FROM users WHERE id + 2 + 4 > 8;");
         SelectStatement statement = (SelectStatement) sqlParser.parse();
-        sqlAnalyzer.analyze(schemaManager, statement);
         sqlOptimizer.optimize(schemaManager, statement);
 
-        Assertions.assertTrue(((BinaryExpression) statement.getWhere()).getLeft() instanceof BinaryExpression);
-        Assertions.assertTrue(((BinaryExpression) ((BinaryExpression) statement.getWhere()).getLeft()).getLeft() instanceof IdentifierExpression);
-        Assertions.assertTrue(((BinaryExpression) ((BinaryExpression) statement.getWhere()).getLeft()).getRight() instanceof ValueExpression<?>);
+        Assertions.assertInstanceOf(BinaryExpression.class, ((BinaryExpression) statement.getWhere()).getLeft());
+        Assertions.assertInstanceOf(IdentifierExpression.class, ((BinaryExpression) ((BinaryExpression) statement.getWhere()).getLeft()).getLeft());
+        Assertions.assertInstanceOf(ValueExpression.class, ((BinaryExpression) ((BinaryExpression) statement.getWhere()).getLeft()).getRight());
         Assertions.assertEquals(6, ((ValueExpression<?>) ((BinaryExpression) ((BinaryExpression) statement.getWhere()).getLeft()).getRight()).getValue().getValue());
     }
 }

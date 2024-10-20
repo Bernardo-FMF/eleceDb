@@ -13,7 +13,6 @@ import org.elece.memory.data.BinaryObjectFactory;
 import org.elece.memory.tree.node.DefaultNodeFactory;
 import org.elece.serializer.Serializer;
 import org.elece.serializer.SerializerRegistry;
-import org.elece.sql.parser.expression.internal.SqlConstraint;
 import org.elece.storage.index.IndexStorageManagerFactory;
 import org.elece.storage.index.session.factory.AtomicIOSessionFactory;
 
@@ -75,8 +74,8 @@ public class DefaultColumnIndexManagerProvider extends ColumnIndexManagerProvide
             );
         }
 
-        if (!column.getConstraints().contains(SqlConstraint.PrimaryKey) && !column.getConstraints().contains(SqlConstraint.Unique)) {
-            throw new SchemaException(new IncompatibleTypeForIndexError(CLUSTER_ID, column.getSqlType().getType()));
+        if (!column.isUnique()) {
+            throw new SchemaException(new IncompatibleTypeForIndexError(column.getName(), column.getSqlType().getType()));
         }
 
         Optional<Column> optionalClusterColumn = SchemaSearcher.findClusterColumn(table);

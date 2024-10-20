@@ -23,4 +23,6 @@ public interface IndexManager<K extends Comparable<K>, V> {
     int getIndexId();
 
     LockableIterator<LeafTreeNode.KeyValue<K, V>> getSortedIterator() throws StorageException;
+
+    K getLastIndex() throws StorageException;
 }

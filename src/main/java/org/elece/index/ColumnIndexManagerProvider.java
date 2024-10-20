@@ -5,6 +5,7 @@ import org.elece.db.schema.model.Column;
 import org.elece.db.schema.model.Table;
 import org.elece.exception.schema.SchemaException;
 import org.elece.exception.storage.StorageException;
+import org.elece.memory.Pointer;
 import org.elece.storage.index.IndexStorageManagerFactory;
 
 public abstract class ColumnIndexManagerProvider {
@@ -16,9 +17,9 @@ public abstract class ColumnIndexManagerProvider {
         this.indexStorageManagerFactory = indexStorageManagerFactory;
     }
 
-    public abstract IndexManager<?, ?> getIndexManager(Table table, Column column) throws SchemaException, StorageException;
+    public abstract <K extends Comparable<K>, T extends Number> IndexManager<K, T> getIndexManager(Table table, Column column) throws SchemaException, StorageException;
 
-    public abstract IndexManager<?, ?> getClusterIndexManager(Table table) throws SchemaException, StorageException;
+    public abstract <K extends Comparable<K>> IndexManager<K, Pointer> getClusterIndexManager(Table table) throws SchemaException, StorageException;
 
     public abstract void clearIndexManager(Table table, Column column);
 }

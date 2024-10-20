@@ -7,6 +7,7 @@ import org.elece.exception.btree.type.IndexNotFoundError;
 import org.elece.exception.serialization.SerializationException;
 import org.elece.exception.storage.StorageException;
 import org.elece.memory.KeyValueSize;
+import org.elece.memory.Pointer;
 import org.elece.memory.data.BinaryObjectFactory;
 import org.elece.memory.tree.node.*;
 import org.elece.memory.tree.operation.CreateIndexOperation;
@@ -113,8 +114,9 @@ public class TreeIndexManager<K extends Comparable<K>, V> extends AbstractTreeIn
             @Override
             public boolean hasNext() {
                 int size = currentLeaf.getKeyList(dbConfig.getBTreeDegree()).size();
-                if (keyIndex == size)
+                if (keyIndex == size) {
                     return currentLeaf.getNextSiblingPointer(dbConfig.getBTreeDegree()).isPresent();
+                }
                 return true;
             }
 
@@ -137,6 +139,12 @@ public class TreeIndexManager<K extends Comparable<K>, V> extends AbstractTreeIn
                 return output;
             }
         };
+    }
+
+    @Override
+    public K getLastIndex() throws StorageException {
+        LeafTreeNode<K, V> farRightLeaf = getFarRightLeaf();
+        return farRightLeaf.getKeyList(dbConfig.getBTreeDegree()).getLast();
     }
 
     private AbstractTreeNode<K> getRoot(AtomicIOSession<K> atomicIOSession) throws StorageException {
@@ -168,5 +176,22 @@ public class TreeIndexManager<K extends Comparable<K>, V> extends AbstractTreeIn
         }
 
         return (LeafTreeNode<K, V>) farLeftChild;
+    }
+
+    protected LeafTreeNode<K, V> getFarRightLeaf() throws StorageException {
+        AtomicIOSession<K> indexIOSession = this.IOSessionFactory.create(indexStorageManager, indexId, nodeFactory, keyValueSize);
+        AbstractTreeNode<K> root = getRoot(indexIOSession);
+        if (root.isLeaf()) {
+            return (LeafTreeNode<K, V>) root;
+        }
+
+        AbstractTreeNode<K> farRightChild = root;
+
+        while (!farRightChild.isLeaf()) {
+            List<Pointer> childrenList = ((InternalTreeNode<K>) farRightChild).getChildrenList();
+            farRightChild = indexIOSession.read(childrenList.getLast());
+        }
+
+        return (LeafTreeNode<K, V>) farRightChild;
     }
 }

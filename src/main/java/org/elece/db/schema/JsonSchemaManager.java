@@ -136,7 +136,7 @@ public class JsonSchemaManager implements SchemaManager {
             if (CLUSTER_ID.equals(column.getName())) {
                 table.addIndex(new Index("cluster_index", CLUSTER_ID));
                 columnIndexManagerProvider.getClusterIndexManager(table);
-            } else if (column.getConstraints().contains(SqlConstraint.PrimaryKey) || column.getConstraints().contains(SqlConstraint.Unique)) {
+            } else if (column.isUnique()) {
                 table.addIndex(new Index(String.format("col_index_%d", column.getId()), column.getName()));
                 columnIndexManagerProvider.getIndexManager(table, column);
             }
@@ -179,7 +179,7 @@ public class JsonSchemaManager implements SchemaManager {
         }
 
         for (Column column : table.getColumns()) {
-            if (column.getConstraints().contains(SqlConstraint.PrimaryKey) || column.getConstraints().contains(SqlConstraint.Unique)) {
+            if (column.isUnique()) {
                 IndexManager<?, ?> indexManager = columnIndexManagerProvider.getIndexManager(table, column);
                 indexManager.purgeIndex();
 
@@ -214,8 +214,8 @@ public class JsonSchemaManager implements SchemaManager {
 
         int rowCount = 0;
 
-        IndexManager<K, Pointer> clusterIndexManager = (IndexManager<K, Pointer>) columnIndexManagerProvider.getClusterIndexManager(table);
-        IndexManager<?, K> indexManager = (IndexManager<?, K>) columnIndexManagerProvider.getIndexManager(table, optionalColumn.get());
+        IndexManager<K, Pointer> clusterIndexManager = columnIndexManagerProvider.getClusterIndexManager(table);
+        IndexManager<?, K> indexManager = columnIndexManagerProvider.getIndexManager(table, optionalColumn.get());
         LockableIterator<LeafTreeNode.KeyValue<K, Pointer>> sortedIterator = clusterIndexManager.getSortedIterator();
         try {
             sortedIterator.lock();

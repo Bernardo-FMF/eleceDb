@@ -39,6 +39,12 @@ public class Table {
         indexes.add(index);
     }
 
+    public int getRowSize() {
+        return columns.stream()
+                .mapToInt(column -> column.getSqlType().getSize())
+                .sum();
+    }
+
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {
