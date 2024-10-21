@@ -40,8 +40,12 @@ public final class Column {
         return constraints;
     }
 
-    public boolean addConstraint(SqlConstraint constraint) {
-        return constraints.add(constraint);
+    public void addConstraint(SqlConstraint constraint) {
+        constraints.add(constraint);
+    }
+
+    public boolean isUnique() {
+        return constraints.contains(SqlConstraint.PrimaryKey) || constraints.contains(SqlConstraint.Unique);
     }
 
     @Override
