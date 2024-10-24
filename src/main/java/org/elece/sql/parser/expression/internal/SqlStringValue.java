@@ -6,7 +6,7 @@ public class SqlStringValue extends SqlValue<String> {
     }
 
     @Override
-    protected Integer compare(SqlValue<String> target) {
+    public Integer compare(SqlValue<String> target) {
         return this.getValue().compareTo(target.getValue());
     }
 }

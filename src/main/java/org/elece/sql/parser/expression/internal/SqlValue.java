@@ -16,7 +16,7 @@ public abstract class SqlValue<T> {
         return value;
     }
 
-    protected abstract Integer compare(SqlValue<T> target);
+    public abstract Integer compare(SqlValue<T> target);
 
     public Integer partialComparison(SqlValue<?> obj) throws ParserException {
         if (this.getClass() != obj.getClass()) {

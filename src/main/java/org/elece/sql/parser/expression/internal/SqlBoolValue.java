@@ -6,7 +6,7 @@ public class SqlBoolValue extends SqlValue<Boolean> {
     }
 
     @Override
-    protected Integer compare(SqlValue<Boolean> target) {
+    public Integer compare(SqlValue<Boolean> target) {
         return Boolean.compare(this.getValue(), target.getValue());
     }
 }
