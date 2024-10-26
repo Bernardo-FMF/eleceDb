@@ -27,12 +27,19 @@ public abstract class SqlValue<T> {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) {
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null || getClass() != obj.getClass()) {
             return false;
         }
-        SqlValue<?> sqlValue = (SqlValue<?>) o;
+        SqlValue<?> sqlValue = (SqlValue<?>) obj;
         return Objects.equals(getValue(), sqlValue.getValue());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(value);
     }
 }

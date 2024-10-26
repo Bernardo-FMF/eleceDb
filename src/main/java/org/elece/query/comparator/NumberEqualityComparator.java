@@ -13,8 +13,13 @@ public class NumberEqualityComparator extends EqualityComparator<Integer> {
     @Override
     public Optional<ValueComparator<Integer>> intersect(ValueComparator<Integer> other) {
         if (other instanceof NumberEqualityComparator otherNumber) {
-            if (Objects.equals(this.boundary.getValue(), otherNumber.boundary.getValue())) {
-                return Optional.of(this);
+            Integer thisValue = this.boundary.getValue();
+            Integer otherValue = otherNumber.boundary.getValue();
+
+            if ((this.shouldBeEqual && otherNumber.shouldBeEqual) || (!this.shouldBeEqual && !otherNumber.shouldBeEqual)) {
+                if (Objects.equals(thisValue, otherValue)) {
+                    return Optional.of(this);
+                }
             }
         }
         if (other instanceof NumberRangeComparator otherNumber) {

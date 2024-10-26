@@ -29,4 +29,8 @@ public class SchemaSearcher {
     public static Optional<Column> findClusterColumn(Table table) {
         return table.getColumns().stream().filter(column -> CLUSTER_ID.equals(column.getName())).findFirst();
     }
+
+    public static boolean columnIsIndexed(Table table, String name) {
+        return table.getIndexes().stream().anyMatch(index -> index.getColumnName().equals(name));
+    }
 }

@@ -13,10 +13,16 @@ public class StringEqualityComparator extends EqualityComparator<String> {
     @Override
     public Optional<ValueComparator<String>> intersect(ValueComparator<String> other) {
         if (other instanceof StringEqualityComparator otherString) {
-            if (Objects.equals(this.boundary.getValue(), otherString.boundary.getValue())) {
-                return Optional.of(this);
+            String thisValue = this.boundary.getValue();
+            String otherValue = otherString.boundary.getValue();
+
+            if ((this.shouldBeEqual && otherString.shouldBeEqual) || (!this.shouldBeEqual && !otherString.shouldBeEqual)) {
+                if (Objects.equals(thisValue, otherValue)) {
+                    return Optional.of(this);
+                }
             }
         }
+
         return Optional.empty();
     }
 }
