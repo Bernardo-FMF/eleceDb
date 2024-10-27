@@ -171,12 +171,9 @@ public class IndexPathFinder implements QueryPlanVisitor {
         SqlNumberValue leftValue = valueIsLeftSide ? valueExpression.getValue() : null;
         SqlNumberValue rightValue = !valueIsLeftSide ? valueExpression.getValue() : null;
 
-        NumberRangeComparator.BoundaryType leftBoundaryType = valueIsLeftSide ? NumberRangeComparator.BoundaryType.Bounded : NumberRangeComparator.BoundaryType.Unbounded;
-        NumberRangeComparator.BoundaryType rightBoundaryType = !valueIsLeftSide ? NumberRangeComparator.BoundaryType.Bounded : NumberRangeComparator.BoundaryType.Unbounded;
-
         NumberRangeComparator.InclusionType inclusionType = inclusive ? NumberRangeComparator.InclusionType.Included : NumberRangeComparator.InclusionType.Excluded;
 
-        return new NumberRangeComparator(leftValue, rightValue, leftBoundaryType, rightBoundaryType, inclusionType, inclusionType);
+        return new NumberRangeComparator(leftValue, rightValue, inclusionType, inclusionType);
     }
 
     private static EqualityComparator<?> buildEqualityComparator(ValueExpression<?> valueExpression, boolean shouldBeEqual) {

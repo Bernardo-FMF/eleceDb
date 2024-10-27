@@ -9,24 +9,22 @@ import java.util.Optional;
 import java.util.Set;
 
 public class NumberRangeComparator implements ValueComparator<Integer> {
+    public static final SqlNumberValue MIN_VALUE = new SqlNumberValue(Integer.MIN_VALUE);
+    public static final SqlNumberValue MAX_VALUE = new SqlNumberValue(Integer.MAX_VALUE);
+
     private final Set<Integer> exclusions;
 
     private final SqlNumberValue leftBoundary;
     private final SqlNumberValue rightBoundary;
 
-    private final BoundaryType leftBoundaryType;
-    private final BoundaryType rightBoundaryType;
-
     private final InclusionType leftInclusion;
     private final InclusionType rightInclusion;
 
-    public NumberRangeComparator(SqlNumberValue leftBoundary, SqlNumberValue rightBoundary, BoundaryType leftBoundaryType, BoundaryType rightBoundaryType, InclusionType leftInclusion, InclusionType rightInclusion) {
-        this.leftBoundary = leftBoundary;
-        this.rightBoundary = rightBoundary;
-        this.leftBoundaryType = leftBoundaryType;
-        this.rightBoundaryType = rightBoundaryType;
-        this.leftInclusion = leftInclusion;
-        this.rightInclusion = rightInclusion;
+    public NumberRangeComparator(SqlNumberValue leftBoundary, SqlNumberValue rightBoundary, InclusionType leftInclusion, InclusionType rightInclusion) {
+        this.leftBoundary = Objects.isNull(leftBoundary) ? MIN_VALUE : leftBoundary;
+        this.rightBoundary = Objects.isNull(rightBoundary) ? MAX_VALUE : rightBoundary;
+        this.leftInclusion = Objects.isNull(leftBoundary) ? InclusionType.Included : leftInclusion;
+        this.rightInclusion = Objects.isNull(rightBoundary) ? InclusionType.Included : rightInclusion;
         this.exclusions = new HashSet<>();
     }
 
@@ -38,24 +36,20 @@ public class NumberRangeComparator implements ValueComparator<Integer> {
             return false;
         }
 
-        boolean leftCheck = true;
-        if (leftBoundaryType == BoundaryType.Bounded) {
-            int leftBoundaryValue = leftBoundary.getValue();
-            if (leftInclusion == InclusionType.Included) {
-                leftCheck = internalValue >= leftBoundaryValue;
-            } else {
-                leftCheck = internalValue > leftBoundaryValue;
-            }
+        boolean leftCheck;
+        int leftBoundaryValue = leftBoundary.getValue();
+        if (leftInclusion == InclusionType.Included) {
+            leftCheck = internalValue >= leftBoundaryValue;
+        } else {
+            leftCheck = internalValue > leftBoundaryValue;
         }
 
-        boolean rightCheck = true;
-        if (rightBoundaryType == BoundaryType.Bounded) {
-            int rightBoundaryValue = rightBoundary.getValue();
-            if (rightInclusion == InclusionType.Included) {
-                rightCheck = internalValue <= rightBoundaryValue;
-            } else {
-                rightCheck = internalValue < rightBoundaryValue;
-            }
+        boolean rightCheck;
+        int rightBoundaryValue = rightBoundary.getValue();
+        if (rightInclusion == InclusionType.Included) {
+            rightCheck = internalValue <= rightBoundaryValue;
+        } else {
+            rightCheck = internalValue < rightBoundaryValue;
         }
 
         return leftCheck && rightCheck;
@@ -73,65 +67,49 @@ public class NumberRangeComparator implements ValueComparator<Integer> {
 
     private Optional<ValueComparator<Integer>> intersectNumberRangeComparator(NumberRangeComparator otherRange) {
         SqlNumberValue newLeftBoundary;
-        BoundaryType newLeftBoundaryType;
         InclusionType newLeftInclusion;
-
-        // TODO: Should i handle the exclusions here?
-
-        if (this.leftBoundaryType == BoundaryType.Unbounded) {
-            newLeftBoundary = otherRange.leftBoundary;
-            newLeftBoundaryType = otherRange.leftBoundaryType;
-            newLeftInclusion = otherRange.leftInclusion;
-        } else if (otherRange.leftBoundaryType == BoundaryType.Unbounded) {
+        if (this.leftBoundary.getValue() > otherRange.leftBoundary.getValue()) {
             newLeftBoundary = this.leftBoundary;
-            newLeftBoundaryType = this.leftBoundaryType;
             newLeftInclusion = this.leftInclusion;
+        } else if (this.leftBoundary.getValue() < otherRange.leftBoundary.getValue()) {
+            newLeftBoundary = otherRange.leftBoundary;
+            newLeftInclusion = otherRange.leftInclusion;
         } else {
-            if (this.leftBoundary.getValue() > otherRange.leftBoundary.getValue()) {
-                newLeftBoundary = this.leftBoundary;
-                newLeftInclusion = this.leftInclusion;
-            } else if (this.leftBoundary.getValue() < otherRange.leftBoundary.getValue()) {
-                newLeftBoundary = otherRange.leftBoundary;
-                newLeftInclusion = otherRange.leftInclusion;
-            } else {
-                newLeftBoundary = this.leftBoundary;
-                newLeftInclusion = (this.leftInclusion == InclusionType.Excluded || otherRange.leftInclusion == InclusionType.Excluded)
-                        ? InclusionType.Excluded : InclusionType.Included;
-            }
-            newLeftBoundaryType = BoundaryType.Bounded;
+            newLeftBoundary = this.leftBoundary;
+            newLeftInclusion = this.leftInclusion == InclusionType.Excluded || otherRange.leftInclusion == InclusionType.Excluded
+                    ? InclusionType.Excluded : InclusionType.Included;
         }
 
         SqlNumberValue newRightBoundary;
-        BoundaryType newRightBoundaryType;
         InclusionType newRightInclusion;
-        if (this.rightBoundaryType == BoundaryType.Unbounded) {
-            newRightBoundary = otherRange.rightBoundary;
-            newRightBoundaryType = otherRange.rightBoundaryType;
-            newRightInclusion = otherRange.rightInclusion;
-        } else if (otherRange.rightBoundaryType == BoundaryType.Unbounded) {
+        if (this.rightBoundary.getValue() < otherRange.rightBoundary.getValue()) {
             newRightBoundary = this.rightBoundary;
-            newRightBoundaryType = this.rightBoundaryType;
             newRightInclusion = this.rightInclusion;
+        } else if (this.rightBoundary.getValue() > otherRange.rightBoundary.getValue()) {
+            newRightBoundary = otherRange.rightBoundary;
+            newRightInclusion = otherRange.rightInclusion;
         } else {
-            if (this.rightBoundary.getValue() < otherRange.rightBoundary.getValue()) {
-                newRightBoundary = this.rightBoundary;
-                newRightInclusion = this.rightInclusion;
-            } else if (this.rightBoundary.getValue() > otherRange.rightBoundary.getValue()) {
-                newRightBoundary = otherRange.rightBoundary;
-                newRightInclusion = otherRange.rightInclusion;
-            } else {
-                newRightBoundary = this.rightBoundary;
-                newRightInclusion = (this.rightInclusion == InclusionType.Excluded || otherRange.rightInclusion == InclusionType.Excluded)
-                        ? InclusionType.Excluded : InclusionType.Included;
-            }
-            newRightBoundaryType = BoundaryType.Bounded;
+            newRightBoundary = this.rightBoundary;
+            newRightInclusion = this.rightInclusion == InclusionType.Excluded || otherRange.rightInclusion == InclusionType.Excluded
+                    ? InclusionType.Excluded : InclusionType.Included;
         }
 
-        if (newLeftBoundaryType == BoundaryType.Bounded && newRightBoundaryType == BoundaryType.Bounded && newLeftBoundary.getValue() > newRightBoundary.getValue()) {
+        if (newLeftBoundary.getValue() > newRightBoundary.getValue() ||
+                (Objects.equals(newLeftBoundary.getValue(), newRightBoundary.getValue()) &&
+                        (newLeftInclusion == InclusionType.Excluded || newRightInclusion == InclusionType.Excluded))) {
             return Optional.empty();
         }
 
-        return Optional.of(new NumberRangeComparator(newLeftBoundary, newRightBoundary, newLeftBoundaryType, newRightBoundaryType, newLeftInclusion, newRightInclusion));
+        if (Objects.equals(newLeftBoundary.getValue(), newRightBoundary.getValue())) {
+            return Optional.of(new NumberEqualityComparator(newLeftBoundary, newLeftInclusion == InclusionType.Included));
+        }
+
+        NumberRangeComparator intersection = new NumberRangeComparator(newLeftBoundary, newRightBoundary, newLeftInclusion, newRightInclusion);
+
+        intersection.exclusions.addAll(this.exclusions);
+        intersection.exclusions.addAll(otherRange.exclusions);
+
+        return Optional.of(intersection);
     }
 
     private Optional<ValueComparator<Integer>> intersectNumberEqualityComparator(NumberEqualityComparator otherNumber) {
@@ -159,20 +137,13 @@ public class NumberRangeComparator implements ValueComparator<Integer> {
         return Objects.equals(exclusions, that.exclusions) &&
                 Objects.equals(leftBoundary, that.leftBoundary) &&
                 Objects.equals(rightBoundary, that.rightBoundary) &&
-                leftBoundaryType == that.leftBoundaryType &&
-                rightBoundaryType == that.rightBoundaryType &&
                 leftInclusion == that.leftInclusion &&
                 rightInclusion == that.rightInclusion;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(exclusions, leftBoundary, rightBoundary, leftBoundaryType, rightBoundaryType, leftInclusion, rightInclusion);
-    }
-
-    public enum BoundaryType {
-        Bounded,
-        Unbounded
+        return Objects.hash(exclusions, leftBoundary, rightBoundary, leftInclusion, rightInclusion);
     }
 
     public enum InclusionType {
