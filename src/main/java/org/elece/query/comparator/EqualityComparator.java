@@ -18,6 +18,10 @@ public abstract class EqualityComparator<V> implements ValueComparator<V> {
         return shouldBeEqual == (boundary.compare(value) == 0);
     }
 
+    public SqlValue<V> getBoundary() {
+        return boundary;
+    }
+
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {

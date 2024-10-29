@@ -6,12 +6,12 @@ import org.elece.query.comparator.ValueComparator;
 import java.util.Objects;
 
 public class DefaultPathNode {
-    private final String column;
+    private final String columnName;
     private final ValueComparator<?> valueComparator;
     private final IndexType indexType;
 
-    public DefaultPathNode(String column, ValueComparator<?> valueComparator, IndexType indexType) {
-        this.column = column;
+    public DefaultPathNode(String columnName, ValueComparator<?> valueComparator, IndexType indexType) {
+        this.columnName = columnName;
         this.valueComparator = valueComparator;
         this.indexType = indexType;
     }
@@ -20,16 +20,20 @@ public class DefaultPathNode {
         return valueComparator;
     }
 
-    public String getColumn() {
-        return column;
+    public String getColumnName() {
+        return columnName;
     }
 
+    public IndexType getIndexType() {
+        return indexType;
+    }
+
+    // TODO: fix priority calculation
     public int getPriority() {
-        // TODO
         int priority = 0x00;
-        priority = priority | (0x10 << indexType.getPriority());
+        priority |= (0x10 << Math.max(0, Math.min(indexType.getPriority(), 15)));
         if (valueComparator instanceof EqualityComparator<?>) {
-            priority = priority | 0x01;
+            priority |= 0x01;
         }
         return priority;
     }
@@ -43,12 +47,12 @@ public class DefaultPathNode {
             return false;
         }
         DefaultPathNode that = (DefaultPathNode) obj;
-        return Objects.equals(column, that.column) && Objects.equals(valueComparator, that.valueComparator) && indexType == that.indexType;
+        return Objects.equals(columnName, that.columnName) && Objects.equals(valueComparator, that.valueComparator) && indexType == that.indexType;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(column, valueComparator, indexType);
+        return Objects.hash(columnName, valueComparator, indexType);
     }
 
     public enum IndexType {

@@ -6,7 +6,8 @@ public class IndexPath {
     private final Set<DefaultPathNode> nodePaths;
 
     public IndexPath() {
-        this.nodePaths = new TreeSet<>(new IndexNodeComparator());
+        // TODO: fix and use priority to order the nodes, this should be a TreeSet
+        this.nodePaths = new HashSet<>();
     }
 
     public void addPath(DefaultPathNode node) {
@@ -31,12 +32,5 @@ public class IndexPath {
 
     public Queue<DefaultPathNode> buildNodePathsQueue() {
         return new PriorityQueue<>(nodePaths);
-    }
-
-    public static class IndexNodeComparator implements Comparator<DefaultPathNode> {
-        @Override
-        public int compare(DefaultPathNode pathNode1, DefaultPathNode pathNode2) {
-            return pathNode1.getPriority() - pathNode2.getPriority();
-        }
     }
 }

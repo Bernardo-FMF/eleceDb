@@ -164,7 +164,7 @@ public class JsonSchemaManager implements SchemaManager {
 
         int rowCount = 0;
 
-        IndexManager<K, Pointer> clusterIndexManager = (IndexManager<K, Pointer>) columnIndexManagerProvider.getClusterIndexManager(table);
+        IndexManager<K, Pointer> clusterIndexManager = columnIndexManagerProvider.getClusterIndexManager(table);
         LockableIterator<LeafTreeNode.KeyValue<K, Pointer>> sortedIterator = clusterIndexManager.getSortedIterator();
         try {
             sortedIterator.lock();

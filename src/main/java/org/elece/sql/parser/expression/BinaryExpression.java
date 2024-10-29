@@ -4,7 +4,7 @@ import org.elece.exception.query.QueryException;
 import org.elece.exception.sql.AnalyzerException;
 import org.elece.exception.sql.ParserException;
 import org.elece.query.QueryPlanVisitor;
-import org.elece.query.path.IndexPath;
+import org.elece.query.path.NodeCollection;
 import org.elece.sql.analyzer.command.ExpressionAnalyzerVisitor;
 import org.elece.sql.optimizer.command.ExpressionParserVisitor;
 import org.elece.sql.parser.expression.internal.SqlType;
@@ -52,7 +52,7 @@ public class BinaryExpression extends Expression {
     }
 
     @Override
-    public IndexPath accept(QueryPlanVisitor visitor) throws QueryException {
+    public NodeCollection accept(QueryPlanVisitor visitor) throws QueryException {
         return visitor.visit(this);
     }
 }

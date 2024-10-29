@@ -3,7 +3,6 @@ package org.elece.query.path;
 import org.elece.db.schema.SchemaSearcher;
 import org.elece.db.schema.model.Table;
 import org.elece.exception.query.QueryException;
-import org.elece.exception.sql.ParserException;
 import org.elece.query.QueryPlanVisitor;
 import org.elece.query.comparator.*;
 import org.elece.sql.parser.expression.BinaryExpression;
@@ -23,16 +22,14 @@ public class IndexPathFinder implements QueryPlanVisitor {
     private static final EnumSet<Symbol> rangeSymbols = EnumSet.of(Symbol.Eq, Symbol.Neq, Symbol.Lt, Symbol.LtEq, Symbol.Gt, Symbol.GtEq);
 
     private final Table table;
-    private final Set<String> canceledColumnPaths;
 
     public IndexPathFinder(Table table) {
         this.table = table;
-        this.canceledColumnPaths = new HashSet<>();
     }
 
     @Override
-    public IndexPath visit(BinaryExpression binaryExpression) throws QueryException {
-        IndexPath indexPath = new IndexPath();
+    public NodeCollection visit(BinaryExpression binaryExpression) throws QueryException {
+        NodeCollection nodeCollection = new NodeCollection();
 
         // TODO: what about cases where expressions are similar to "where id + 4 > 0" for example. This use case must be handled as well
 
@@ -45,9 +42,13 @@ public class IndexPathFinder implements QueryPlanVisitor {
 
                 ValueComparator<?> valueComparator = determineBounds((Symbol) binaryExpression.getOperator(), valueExpression, valueIsLeftSide);
 
-                indexPath.addPath(new DefaultPathNode(identifierExpression.getName(), valueComparator, DefaultPathNode.IndexType.fromBoolean(SchemaSearcher.columnIsIndexed(table, identifierExpression.getName()))));
+                DefaultPathNode defaultPathNode = new DefaultPathNode(identifierExpression.getName(), valueComparator, DefaultPathNode.IndexType.fromBoolean(SchemaSearcher.columnIsIndexed(table, identifierExpression.getName())));
+                IndexPath indexPath = new IndexPath();
+                indexPath.addPath(defaultPathNode);
 
-                return indexPath;
+                nodeCollection.addPath(indexPath);
+
+                return nodeCollection;
             }
         }
 
@@ -55,8 +56,8 @@ public class IndexPathFinder implements QueryPlanVisitor {
         boolean isOrOperator = binaryExpression.getOperator() instanceof Keyword keyword && keyword == Keyword.Or;
 
         if (isAndOperator || isOrOperator) {
-            IndexPath leftPaths = binaryExpression.getLeft().accept(this);
-            IndexPath rightPaths = binaryExpression.getRight().accept(this);
+            NodeCollection leftPaths = binaryExpression.getLeft().accept(this);
+            NodeCollection rightPaths = binaryExpression.getRight().accept(this);
 
             if (isAndOperator) {
                 return processAndOperator(leftPaths, rightPaths);
@@ -65,65 +66,78 @@ public class IndexPathFinder implements QueryPlanVisitor {
             }
         }
 
-        return indexPath;
+        return nodeCollection;
     }
 
     @Override
-    public IndexPath visit(NestedExpression nestedExpression) throws QueryException {
+    public NodeCollection visit(NestedExpression nestedExpression) throws QueryException {
         return nestedExpression.getExpression().accept(this);
     }
 
-    private IndexPath processAndOperator(IndexPath leftPaths, IndexPath rightPaths) {
+    private NodeCollection processAndOperator(NodeCollection leftPaths, NodeCollection rightPaths) {
         if (leftPaths.isEmpty() && rightPaths.isEmpty()) {
             return leftPaths;
         }
 
-        for (DefaultPathNode node : Set.of(leftPaths.getNodePaths(), rightPaths.getNodePaths()).stream().flatMap(Collection::stream).toList()) {
-            if (canceledColumnPaths.contains(node.getColumn())) {
-                return new IndexPath();
+        if (leftPaths.isEmpty()) {
+            return rightPaths;
+        } else if (rightPaths.isEmpty()) {
+            return leftPaths;
+        } else {
+            for (IndexPath rightPath : rightPaths.getIndexPaths()) {
+                leftPaths.mergePath(rightPath);
             }
         }
 
-        Map<String, List<DefaultPathNode>> nodesGroupedByColumn = new HashMap<>();
-        for (DefaultPathNode node : Set.of(leftPaths.getNodePaths(), rightPaths.getNodePaths()).stream().flatMap(Collection::stream).toList()) {
-            if (nodesGroupedByColumn.containsKey(node.getColumn())) {
-                nodesGroupedByColumn.get(node.getColumn()).add(node);
-            } else {
-                nodesGroupedByColumn.put(node.getColumn(), new ArrayList<>(List.of(node)));
-            }
-        }
+        Set<IndexPath> indexPaths = leftPaths.getIndexPaths();
+        Set<IndexPath> mergedIndexPaths = new HashSet<>();
 
-        IndexPath mergedPaths = new IndexPath();
-        for (Map.Entry<String, List<DefaultPathNode>> columnEntry : nodesGroupedByColumn.entrySet()) {
-            if (columnEntry.getValue().size() == 1) {
-                mergedPaths.addPath(columnEntry.getValue().getFirst());
-            } else {
-                Optional<DefaultPathNode> possibleMergedIntersection;
-                try {
-                    possibleMergedIntersection = mergeIntersection(columnEntry.getValue());
-                    possibleMergedIntersection.ifPresent(mergedPaths::addPath);
-                } catch (QueryException | ParserException e) {
-                    canceledColumnPaths.add(columnEntry.getKey());
-                    return new IndexPath();
+        for (IndexPath indexPath : indexPaths) {
+            Map<String, List<DefaultPathNode>> leftNodesGroupedByColumn = new HashMap<>();
+
+            for (DefaultPathNode node : indexPath.getNodePaths()) {
+                if (leftNodesGroupedByColumn.containsKey(node.getColumnName())) {
+                    leftNodesGroupedByColumn.get(node.getColumnName()).add(node);
+                } else {
+                    leftNodesGroupedByColumn.put(node.getColumnName(), new ArrayList<>(List.of(node)));
                 }
             }
+
+            IndexPath mergedIndexPath = new IndexPath();
+            for (Map.Entry<String, List<DefaultPathNode>> columnEntry : leftNodesGroupedByColumn.entrySet()) {
+                if (columnEntry.getValue().size() == 1) {
+                    mergedIndexPath.addPath(columnEntry.getValue().getFirst());
+                } else {
+                    Optional<DefaultPathNode> possibleMergedIntersection;
+                    possibleMergedIntersection = mergeIntersection(columnEntry.getValue());
+                    possibleMergedIntersection.ifPresentOrElse(mergedIndexPath::addPath, () -> {
+                        // TODO: handle canceled columns
+                    });
+                }
+            }
+
+            mergedIndexPaths.add(mergedIndexPath);
         }
 
-        return mergedPaths;
+        NodeCollection mergedNodes = new NodeCollection();
+        mergedIndexPaths.forEach(mergedNodes::addPath);
+
+        return mergedNodes;
     }
 
-    private IndexPath processOrOperator(IndexPath leftPaths, IndexPath rightPaths) {
+    private NodeCollection processOrOperator(NodeCollection leftPaths, NodeCollection rightPaths) {
         if (leftPaths.isEmpty() && rightPaths.isEmpty()) {
             return leftPaths;
         }
 
-        IndexPath mergedIndexPath = new IndexPath();
-        Set.of(leftPaths.getNodePaths(), rightPaths.getNodePaths()).stream().flatMap(Collection::stream).forEach(mergedIndexPath::addPath);
+        for (IndexPath rightPath : rightPaths.getIndexPaths()) {
+            leftPaths.addPath(rightPath);
+        }
 
-        return mergedIndexPath;
+        return leftPaths;
     }
 
-    private <V> Optional<DefaultPathNode> mergeIntersection(List<DefaultPathNode> nodes) throws QueryException, ParserException {
+    private <V> Optional<DefaultPathNode> mergeIntersection(List<DefaultPathNode> nodes) {
         if (nodes.isEmpty()) {
             return Optional.empty();
         }
@@ -145,7 +159,7 @@ public class IndexPathFinder implements QueryPlanVisitor {
             initialComparator = mergedComparator.get();
         }
 
-        DefaultPathNode newNode = new DefaultPathNode(nodes.getFirst().getColumn(), initialComparator, DefaultPathNode.IndexType.fromBoolean(SchemaSearcher.columnIsIndexed(table, nodes.getFirst().getColumn())));
+        DefaultPathNode newNode = new DefaultPathNode(nodes.getFirst().getColumnName(), initialComparator, DefaultPathNode.IndexType.fromBoolean(SchemaSearcher.columnIsIndexed(table, nodes.getFirst().getColumnName())));
         return Optional.of(newNode);
     }
 
