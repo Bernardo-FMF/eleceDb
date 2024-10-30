@@ -65,6 +65,22 @@ public class NumberRangeComparator implements ValueComparator<Integer> {
         return Optional.empty();
     }
 
+    public SqlNumberValue getLeftBoundary() {
+        return leftBoundary;
+    }
+
+    public SqlNumberValue getRightBoundary() {
+        return rightBoundary;
+    }
+
+    public InclusionType getLeftInclusion() {
+        return leftInclusion;
+    }
+
+    public InclusionType getRightInclusion() {
+        return rightInclusion;
+    }
+
     private Optional<ValueComparator<Integer>> intersectNumberRangeComparator(NumberRangeComparator otherRange) {
         SqlNumberValue newLeftBoundary;
         InclusionType newLeftInclusion;

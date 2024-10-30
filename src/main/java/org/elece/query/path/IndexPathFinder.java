@@ -17,6 +17,7 @@ import org.elece.sql.token.model.type.Keyword;
 import org.elece.sql.token.model.type.Symbol;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class IndexPathFinder implements QueryPlanVisitor {
     private static final EnumSet<Symbol> rangeSymbols = EnumSet.of(Symbol.Eq, Symbol.Neq, Symbol.Lt, Symbol.LtEq, Symbol.Gt, Symbol.GtEq);
@@ -92,6 +93,7 @@ public class IndexPathFinder implements QueryPlanVisitor {
         Set<IndexPath> indexPaths = leftPaths.getIndexPaths();
         Set<IndexPath> mergedIndexPaths = new HashSet<>();
 
+        AtomicBoolean isCanceled = new AtomicBoolean(false);
         for (IndexPath indexPath : indexPaths) {
             Map<String, List<DefaultPathNode>> leftNodesGroupedByColumn = new HashMap<>();
 
@@ -108,11 +110,8 @@ public class IndexPathFinder implements QueryPlanVisitor {
                 if (columnEntry.getValue().size() == 1) {
                     mergedIndexPath.addPath(columnEntry.getValue().getFirst());
                 } else {
-                    Optional<DefaultPathNode> possibleMergedIntersection;
-                    possibleMergedIntersection = mergeIntersection(columnEntry.getValue());
-                    possibleMergedIntersection.ifPresentOrElse(mergedIndexPath::addPath, () -> {
-                        // TODO: handle canceled columns
-                    });
+                    Optional<DefaultPathNode> possibleMergedIntersection = mergeIntersection(columnEntry.getValue());
+                    possibleMergedIntersection.ifPresentOrElse(mergedIndexPath::addPath, () -> isCanceled.set(true));
                 }
             }
 
@@ -120,8 +119,12 @@ public class IndexPathFinder implements QueryPlanVisitor {
         }
 
         NodeCollection mergedNodes = new NodeCollection();
-        mergedIndexPaths.forEach(mergedNodes::addPath);
 
+        if (isCanceled.get()) {
+            return mergedNodes;
+        }
+
+        mergedIndexPaths.forEach(mergedNodes::addPath);
         return mergedNodes;
     }
 
@@ -168,22 +171,18 @@ public class IndexPathFinder implements QueryPlanVisitor {
                 (binaryExpression.getRight() instanceof IdentifierExpression && binaryExpression.getLeft() instanceof ValueExpression<?>);
     }
 
-    private static ValueComparator<?> determineBounds(Symbol operator, ValueExpression<?> valueExpression, boolean valueIsLeftSide) throws QueryException {
-        return switch (operator) {
-            case Eq -> buildEqualityComparator(valueExpression, true);
-            case Neq -> buildEqualityComparator(valueExpression, false);
-            case Lt, Gt ->
-                    buildRangeComparator((ValueExpression<SqlNumberValue>) valueExpression, false, valueIsLeftSide);
-            case LtEq, GtEq ->
-                    buildRangeComparator((ValueExpression<SqlNumberValue>) valueExpression, true, valueIsLeftSide);
-            // TODO: fix throw
-            default -> throw new QueryException(null);
-        };
+    private static ValueComparator<?> determineBounds(Symbol operator, ValueExpression<?> valueExpression, boolean valueIsLeftSide) {
+        if (operator == Symbol.Eq || operator == Symbol.Neq) {
+            return buildEqualityComparator(valueExpression, operator == Symbol.Eq);
+        }
+
+        boolean isLeftBoundary = (valueIsLeftSide && (operator == Symbol.Lt || operator == Symbol.LtEq)) || (!valueIsLeftSide && (operator == Symbol.Gt || operator == Symbol.GtEq));
+        return buildRangeComparator((ValueExpression<SqlNumberValue>) valueExpression, operator == Symbol.LtEq || operator == Symbol.GtEq, isLeftBoundary);
     }
 
-    private static NumberRangeComparator buildRangeComparator(ValueExpression<SqlNumberValue> valueExpression, boolean inclusive, boolean valueIsLeftSide) {
-        SqlNumberValue leftValue = valueIsLeftSide ? valueExpression.getValue() : null;
-        SqlNumberValue rightValue = !valueIsLeftSide ? valueExpression.getValue() : null;
+    private static NumberRangeComparator buildRangeComparator(ValueExpression<SqlNumberValue> valueExpression, boolean inclusive, boolean valueIsLeftBoundary) {
+        SqlNumberValue leftValue = valueIsLeftBoundary ? valueExpression.getValue() : null;
+        SqlNumberValue rightValue = !valueIsLeftBoundary ? valueExpression.getValue() : null;
 
         NumberRangeComparator.InclusionType inclusionType = inclusive ? NumberRangeComparator.InclusionType.Included : NumberRangeComparator.InclusionType.Excluded;
 
