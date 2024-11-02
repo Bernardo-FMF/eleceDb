@@ -9,7 +9,7 @@ import java.io.IOException;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
-public interface IndexManager<K extends Comparable<K>, V> {
+public interface IndexManager<K extends Comparable<K>, V> extends IndexQueryScanner<K, V> {
     void addIndex(K identifier, V value) throws BTreeException, StorageException, SerializationException;
 
     void updateIndex(K identifier, V value) throws BTreeException, StorageException, SerializationException;

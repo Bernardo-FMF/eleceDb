@@ -19,8 +19,10 @@ import org.elece.storage.index.session.factory.IOSessionFactory;
 import org.elece.utils.BTreeUtils;
 
 import java.io.IOException;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
 public class TreeIndexManager<K extends Comparable<K>, V> extends AbstractTreeIndexManager<K, V> {
@@ -193,5 +195,35 @@ public class TreeIndexManager<K extends Comparable<K>, V> extends AbstractTreeIn
         }
 
         return (LeafTreeNode<K, V>) farRightChild;
+    }
+
+    @Override
+    public Iterator<V> getGreaterThan(K k, Set<K> kExclusions) throws BTreeException {
+        // TODO
+        return null;
+    }
+
+    @Override
+    public Iterator<V> getGreaterThanEqual(K k, Set<K> kExclusions) throws BTreeException {
+        // TODO
+        return null;
+    }
+
+    @Override
+    public Iterator<V> getLessThan(K k, Set<K> kExclusions) throws BTreeException {
+        // TODO
+        return null;
+    }
+
+    @Override
+    public Iterator<V> getLessThanEqual(K k, Set<K> kExclusions) throws BTreeException {
+        // TODO
+        return null;
+    }
+
+    @Override
+    public Iterator<V> getBetweenRange(K k1, K k2, Set<K> kExclusions) throws BTreeException {
+        // TODO
+        return null;
     }
 }

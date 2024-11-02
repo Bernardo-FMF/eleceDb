@@ -81,6 +81,10 @@ public class NumberRangeComparator implements ValueComparator<Integer> {
         return rightInclusion;
     }
 
+    public Set<Integer> getExclusions() {
+        return exclusions;
+    }
+
     private Optional<ValueComparator<Integer>> intersectNumberRangeComparator(NumberRangeComparator otherRange) {
         SqlNumberValue newLeftBoundary;
         InclusionType newLeftInclusion;
