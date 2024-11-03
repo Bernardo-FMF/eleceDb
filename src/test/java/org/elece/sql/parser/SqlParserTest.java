@@ -4,11 +4,9 @@ import org.elece.exception.sql.ParserException;
 import org.elece.exception.sql.TokenizerException;
 import org.elece.sql.parser.expression.BinaryExpression;
 import org.elece.sql.parser.expression.IdentifierExpression;
+import org.elece.sql.parser.expression.OrderIdentifierExpression;
 import org.elece.sql.parser.expression.ValueExpression;
-import org.elece.sql.parser.expression.internal.SqlConstraint;
-import org.elece.sql.parser.expression.internal.SqlNumberValue;
-import org.elece.sql.parser.expression.internal.SqlStringValue;
-import org.elece.sql.parser.expression.internal.SqlType;
+import org.elece.sql.parser.expression.internal.*;
 import org.elece.sql.parser.statement.*;
 import org.elece.sql.token.model.type.Symbol;
 import org.junit.jupiter.api.Assertions;
@@ -206,7 +204,8 @@ class SqlParserTest {
         Assertions.assertNull(selectStatement.getWhere());
         Assertions.assertNotNull(selectStatement.getOrderBy());
         Assertions.assertEquals(1, selectStatement.getOrderBy().size());
-        Assertions.assertEquals("id", ((IdentifierExpression) selectStatement.getOrderBy().get(0)).getName());
+        Assertions.assertEquals("id", ((OrderIdentifierExpression) selectStatement.getOrderBy().get(0)).getName());
+        Assertions.assertEquals(Order.DEFAULT_ORDER, ((OrderIdentifierExpression) selectStatement.getOrderBy().get(0)).getOrder());
     }
 
     @Test
@@ -225,7 +224,8 @@ class SqlParserTest {
         Assertions.assertEquals(5, ((ValueExpression<SqlNumberValue>) where.getRight()).getValue().getValue());
         Assertions.assertNotNull(selectStatement.getOrderBy());
         Assertions.assertEquals(1, selectStatement.getOrderBy().size());
-        Assertions.assertEquals("name", ((IdentifierExpression) selectStatement.getOrderBy().get(0)).getName());
+        Assertions.assertEquals("name", ((OrderIdentifierExpression) selectStatement.getOrderBy().get(0)).getName());
+        Assertions.assertEquals(Order.DEFAULT_ORDER, ((OrderIdentifierExpression) selectStatement.getOrderBy().get(0)).getOrder());
     }
 
     @Test

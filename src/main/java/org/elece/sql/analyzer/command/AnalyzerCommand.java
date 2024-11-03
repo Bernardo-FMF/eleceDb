@@ -99,6 +99,21 @@ public interface AnalyzerCommand<T extends Statement> extends ExpressionAnalyzer
     }
 
     @Override
+    default SqlType visit(ExpressionContext expressionContext, OrderIdentifierExpression expression) throws AnalyzerException {
+        Optional<Column> optionalColumn = SchemaSearcher.findColumn(expressionContext.table(), expression.getName());
+        if (optionalColumn.isEmpty()) {
+            throw new AnalyzerException(new ColumnNotPresentError(expression.getName(), expressionContext.table().getName()));
+        }
+
+        Column column = optionalColumn.get();
+        return switch (column.getSqlType().getType()) {
+            case Int -> SqlType.intType;
+            case Varchar -> SqlType.varcharType;
+            case Bool -> SqlType.boolType;
+        };
+    }
+
+    @Override
     default SqlType visit(ExpressionContext expressionContext, UnaryExpression expression) throws AnalyzerException {
         IOperator operator = expression.getOperator();
         Expression innerExpression = expression.getExpression();

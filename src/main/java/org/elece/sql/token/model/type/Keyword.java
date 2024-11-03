@@ -33,6 +33,8 @@ public enum Keyword implements IOperator {
     Rollback(true, false),
     Commit(true, false),
     Explain(true, false),
+    Desc(false, false),
+    Asc(false, false),
     None(false, false);
 
     public static final Keyword[] VALUES = values();

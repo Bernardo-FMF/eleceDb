@@ -51,6 +51,11 @@ public interface OptimizerCommand<T extends Statement> extends ExpressionParserV
     }
 
     @Override
+    default Expression visit(OrderIdentifierExpression orderIdentifierExpression) throws ParserException {
+        return orderIdentifierExpression;
+    }
+
+    @Override
     default Expression visit(UnaryExpression unaryExpression) throws ParserException {
         Expression optimizedExpression = optimize(unaryExpression.getExpression());
         if (optimizedExpression instanceof ValueExpression<?> valueExpression) {

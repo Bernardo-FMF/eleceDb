@@ -10,6 +10,8 @@ public interface ExpressionAnalyzerVisitor {
 
     SqlType visit(ExpressionContext expressionContext, IdentifierExpression expression) throws AnalyzerException;
 
+    SqlType visit(ExpressionContext expressionContext, OrderIdentifierExpression expression) throws AnalyzerException;
+
     SqlType visit(ExpressionContext expressionContext, UnaryExpression expression) throws AnalyzerException;
 
     SqlType visit(ExpressionContext expressionContext, BinaryExpression expression) throws AnalyzerException;

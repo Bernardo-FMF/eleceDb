@@ -8,6 +8,8 @@ public interface ExpressionParserVisitor<T> {
 
     T visit(IdentifierExpression identifierExpression) throws ParserException;
 
+    T visit(OrderIdentifierExpression orderIdentifierExpression) throws ParserException;
+
     T visit(UnaryExpression unaryExpression) throws ParserException;
 
     T visit(BinaryExpression binaryExpression) throws ParserException;

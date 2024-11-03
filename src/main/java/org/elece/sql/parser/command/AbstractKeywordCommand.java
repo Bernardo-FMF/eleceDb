@@ -68,7 +68,16 @@ public abstract class AbstractKeywordCommand implements KeywordCommand {
     protected List<Expression> parseOrderBy() throws TokenizerException, ParserException {
         if (expectOptionalKeywordToken(Keyword.Order)) {
             expectKeywordToken(Keyword.By);
-            return parseExpressionDefinitions(false);
+            List<Expression> expressions = parseExpressionDefinitions(false);
+            List<Expression> convertedExpressions = new ArrayList<>();
+            for (Expression expression : expressions) {
+                if (expression instanceof IdentifierExpression identifierExpression) {
+                    convertedExpressions.add(new OrderIdentifierExpression(identifierExpression.getName(), Order.DEFAULT_ORDER));
+                } else {
+                    convertedExpressions.add(expression);
+                }
+            }
+            return convertedExpressions;
         }
         return List.of();
     }
@@ -164,7 +173,16 @@ public abstract class AbstractKeywordCommand implements KeywordCommand {
     public Expression parsePrefix() throws ParserException, TokenizerException {
         Token nextToken = nextToken();
         return switch (nextToken.getTokenType()) {
-            case IdentifierToken -> new IdentifierExpression(((IdentifierToken) nextToken).getIdentifier());
+            case IdentifierToken -> {
+                Token possibleOrderByToken = peekToken();
+                boolean isOrderBy = possibleOrderByToken.getTokenType() == Token.TokenType.KeywordToken &&
+                        (((KeywordToken) possibleOrderByToken).getKeyword() == Keyword.Desc || ((KeywordToken) possibleOrderByToken).getKeyword() == Keyword.Asc);
+                if (isOrderBy) {
+                    Token order = nextToken();
+                    yield new OrderIdentifierExpression(((IdentifierToken) nextToken).getIdentifier(), Order.fromKeyword(((KeywordToken) order).getKeyword()));
+                }
+                yield new IdentifierExpression(((IdentifierToken) nextToken).getIdentifier());
+            }
             case StringToken -> new ValueExpression<>(new SqlStringValue(((StringToken) nextToken).getString()));
             case NumberToken -> {
                 String number = ((NumberToken) nextToken).getNumber();

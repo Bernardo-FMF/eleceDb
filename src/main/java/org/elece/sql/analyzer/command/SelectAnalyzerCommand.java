@@ -4,6 +4,7 @@ import org.elece.db.schema.SchemaManager;
 import org.elece.db.schema.SchemaSearcher;
 import org.elece.db.schema.model.Table;
 import org.elece.exception.sql.AnalyzerException;
+import org.elece.exception.sql.type.analyzer.MultipleOrderByExpressionsError;
 import org.elece.exception.sql.type.analyzer.TableNotPresentError;
 import org.elece.sql.parser.expression.Expression;
 import org.elece.sql.parser.expression.WildcardExpression;
@@ -29,6 +30,10 @@ public class SelectAnalyzerCommand implements AnalyzerCommand<SelectStatement> {
         }
 
         analyzeWhere(table, statement.getWhere());
+
+        if (statement.getOrderBy().size() > 1) {
+            throw new AnalyzerException(new MultipleOrderByExpressionsError());
+        }
 
         for (Expression orderBy : statement.getOrderBy()) {
             analyzeExpression(new ExpressionContext(table, null), orderBy);
