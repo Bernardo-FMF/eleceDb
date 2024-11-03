@@ -35,4 +35,12 @@ public class Index {
     public int hashCode() {
         return Objects.hash(name, columnName);
     }
+
+    @Override
+    public String toString() {
+        return "Index{" +
+                "name='" + name + '\'' +
+                ", columnName='" + columnName + '\'' +
+                '}';
+    }
 }

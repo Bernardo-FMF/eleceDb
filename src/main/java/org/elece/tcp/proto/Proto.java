@@ -3,12 +3,12 @@ package org.elece.tcp.proto;
 import org.elece.exception.proto.ProtoException;
 import org.elece.exception.proto.type.InputStreamError;
 import org.elece.exception.proto.type.InvalidHeaderSizeError;
+import org.elece.utils.BinaryUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.nio.charset.StandardCharsets;
 
 public class Proto {
     private Proto() {
@@ -38,6 +38,6 @@ public class Proto {
             throw new ProtoException(new InputStreamError());
         }
 
-        return new String(payloadBuf, StandardCharsets.UTF_8);
+        return BinaryUtils.bytesToString(payloadBuf, 0);
     }
 }

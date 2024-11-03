@@ -5,6 +5,7 @@ import org.elece.db.DbObject;
 import org.elece.db.schema.SchemaManager;
 import org.elece.exception.btree.BTreeException;
 import org.elece.exception.db.DbException;
+import org.elece.exception.proto.TcpException;
 import org.elece.exception.schema.SchemaException;
 import org.elece.exception.serialization.DeserializationException;
 import org.elece.exception.serialization.SerializationException;
@@ -14,6 +15,7 @@ import org.elece.index.ColumnIndexManagerProvider;
 import org.elece.query.plan.step.filter.FilterStep;
 import org.elece.query.plan.step.scan.ScanStep;
 import org.elece.query.plan.step.selector.SelectorStep;
+import org.elece.query.plan.step.stream.StreamStep;
 import org.elece.query.plan.step.tracer.TracerStep;
 import org.elece.query.result.ResultInfo;
 import org.elece.serializer.SerializerRegistry;
@@ -30,16 +32,19 @@ public class SelectQueryPlan implements QueryPlan {
 
     private final SelectorStep selectorStep;
 
-    // TODO: implement order by, stream to client, limit and offset
-    public SelectQueryPlan(Queue<ScanStep> scanSteps, Map<Long, List<FilterStep>> filterSteps, TracerStep tracerStep, SelectorStep selectorStep) {
+    private final StreamStep streamStep;
+
+    // TODO: implement order by, limit and offset
+    public SelectQueryPlan(Queue<ScanStep> scanSteps, Map<Long, List<FilterStep>> filterSteps, TracerStep tracerStep, SelectorStep selectorStep, StreamStep streamStep) {
         this.scanSteps = scanSteps;
         this.filterSteps = filterSteps;
         this.tracerStep = tracerStep;
         this.selectorStep = selectorStep;
+        this.streamStep = streamStep;
     }
 
     @Override
-    public void execute(SchemaManager schemaManager, DatabaseStorageManager databaseStorageManager, ColumnIndexManagerProvider columnIndexManagerProvider, SerializerRegistry serializerRegistry) throws ParserException, SerializationException, SchemaException, StorageException, IOException, ExecutionException, InterruptedException, DbException, BTreeException, DeserializationException {
+    public void execute(SchemaManager schemaManager, DatabaseStorageManager databaseStorageManager, ColumnIndexManagerProvider columnIndexManagerProvider, SerializerRegistry serializerRegistry) throws ParserException, SerializationException, SchemaException, StorageException, IOException, ExecutionException, InterruptedException, DbException, BTreeException, DeserializationException, TcpException {
         while (!scanSteps.isEmpty()) {
             ScanStep rowScanner = scanSteps.poll();
             List<FilterStep> rowFilters = filterSteps.get(rowScanner.getScanId());
@@ -68,12 +73,12 @@ public class SelectQueryPlan implements QueryPlan {
                 if (serializedData.isPresent()) {
                     tracerStep.trace(dbObject);
 
-                    // TODO send the data to the client
+                    streamStep.stream(serializedData.get());
                 }
             }
 
             ResultInfo resultInfo = tracerStep.buildResultInfo();
-            // TODO send the result info to the client
+            streamStep.stream(resultInfo);
         }
     }
 }

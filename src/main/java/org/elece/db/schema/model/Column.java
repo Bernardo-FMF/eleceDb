@@ -64,4 +64,14 @@ public final class Column {
     public int hashCode() {
         return Objects.hash(id, name, sqlType, constraints);
     }
+
+    @Override
+    public String toString() {
+        return "Column{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", sqlType=" + sqlType +
+                ", constraints=" + constraints +
+                '}';
+    }
 }

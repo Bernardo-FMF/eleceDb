@@ -12,6 +12,7 @@ import org.elece.index.ColumnIndexManagerProvider;
 import org.elece.index.IndexManager;
 import org.elece.memory.Pointer;
 import org.elece.query.comparator.NumberRangeComparator;
+import org.elece.sql.parser.expression.internal.Order;
 import org.elece.sql.parser.expression.internal.SqlNumberValue;
 
 import java.util.Iterator;
@@ -23,13 +24,15 @@ public class RangeRowScanStep extends ScanStep {
     private final IndexManager<Integer, Pointer> clusterIndexManager;
     private final IndexManager<Integer, Integer> indexManager;
 
+    private final Order order;
     private final Iterator<Integer> rangeIterator;
 
-    public RangeRowScanStep(Table table, Column column, NumberRangeComparator rangeComparator, ColumnIndexManagerProvider columnIndexManagerProvider, DatabaseStorageManager databaseStorageManager) throws SchemaException, StorageException, BTreeException {
+    public RangeRowScanStep(Table table, Column column, NumberRangeComparator rangeComparator, Order order, ColumnIndexManagerProvider columnIndexManagerProvider, DatabaseStorageManager databaseStorageManager) throws SchemaException, StorageException, BTreeException {
         this.databaseStorageManager = databaseStorageManager;
 
         this.clusterIndexManager = columnIndexManagerProvider.getClusterIndexManager(table);
         this.indexManager = columnIndexManagerProvider.getIndexManager(table, column);
+        this.order = order;
         this.rangeIterator = createIterator(rangeComparator);
     }
 
@@ -42,18 +45,21 @@ public class RangeRowScanStep extends ScanStep {
 
         if (leftIsUnbounded) {
             if (rangeComparator.getRightInclusion() == NumberRangeComparator.InclusionType.Included) {
-                return indexManager.getLessThanEqual(rightBoundary.getValue(), rangeComparator.getExclusions());
+                return indexManager.getLessThanEqual(rightBoundary.getValue(), rangeComparator.getExclusions(), order);
             } else {
-                return indexManager.getLessThan(rightBoundary.getValue(), rangeComparator.getExclusions());
+                return indexManager.getLessThan(rightBoundary.getValue(), rangeComparator.getExclusions(), order);
             }
         } else if (rightIsUnbounded) {
             if (rangeComparator.getLeftInclusion() == NumberRangeComparator.InclusionType.Included) {
-                return indexManager.getGreaterThanEqual(leftBoundary.getValue(), rangeComparator.getExclusions());
+                return indexManager.getGreaterThanEqual(leftBoundary.getValue(), rangeComparator.getExclusions(), order);
             } else {
-                return indexManager.getGreaterThan(leftBoundary.getValue(), rangeComparator.getExclusions());
+                return indexManager.getGreaterThan(leftBoundary.getValue(), rangeComparator.getExclusions(), order);
             }
         } else {
-            return indexManager.getBetweenRange(leftBoundary.getValue(), rightBoundary.getValue(), rangeComparator.getExclusions());
+            leftBoundary = rangeComparator.getLeftInclusion() == NumberRangeComparator.InclusionType.Included ? leftBoundary : new SqlNumberValue(leftBoundary.getValue() + 1);
+            rightBoundary = rangeComparator.getRightInclusion() == NumberRangeComparator.InclusionType.Included ? rightBoundary : new SqlNumberValue(rightBoundary.getValue() - 1);
+
+            return indexManager.getBetweenRange(leftBoundary.getValue(), rightBoundary.getValue(), rangeComparator.getExclusions(), order);
         }
     }
 

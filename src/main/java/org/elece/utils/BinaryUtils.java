@@ -48,4 +48,8 @@ public class BinaryUtils {
         }
         return true;
     }
+
+    public static void copyBytes(byte[] source, byte[] destination, int sourceOffset, int destinationOffset, int length) {
+        System.arraycopy(source, sourceOffset, destination, destinationOffset, length);
+    }
 }

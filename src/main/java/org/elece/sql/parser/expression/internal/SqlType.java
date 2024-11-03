@@ -62,4 +62,13 @@ public class SqlType {
     public int hashCode() {
         return Objects.hash(type, size, constraints);
     }
+
+    @Override
+    public String toString() {
+        return "SqlType{" +
+                "type=" + type +
+                ", size=" + size +
+                ", constraints=" + constraints +
+                '}';
+    }
 }

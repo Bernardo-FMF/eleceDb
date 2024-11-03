@@ -1,9 +1,10 @@
 package org.elece.query.plan.step.stream;
 
+import org.elece.exception.proto.TcpException;
 import org.elece.query.result.ResultInfo;
 
 public abstract class StreamStep {
-    abstract void stream(byte[] data);
+    public abstract void stream(byte[] data) throws TcpException;
 
-    abstract void stream(ResultInfo resultInfo);
+    public abstract void stream(ResultInfo resultInfo) throws TcpException;
 }

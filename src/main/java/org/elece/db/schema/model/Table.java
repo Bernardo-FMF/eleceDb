@@ -61,4 +61,14 @@ public class Table {
     public int hashCode() {
         return Objects.hash(id, name, columns, indexes);
     }
+
+    @Override
+    public String toString() {
+        return "Table{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", columns=" + columns.toString() +
+                ", indexes=" + indexes.toString() +
+                '}';
+    }
 }
