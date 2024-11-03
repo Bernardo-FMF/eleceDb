@@ -33,7 +33,7 @@ public class FieldFilterStep<V> extends FilterStep {
 
     @Override
     Optional<DbObject> next(DbObject dbObject) {
-        byte[] valueOfField = SerializationUtils.getValueOfField(table, column, dbObject.getData());
+        byte[] valueOfField = SerializationUtils.getValueOfField(table, column, dbObject);
 
         SqlType.Type sqlType = column.getSqlType().getType();
 

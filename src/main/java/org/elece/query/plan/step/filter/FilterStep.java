@@ -11,5 +11,9 @@ public abstract class FilterStep {
         this.scanId = scanId;
     }
 
+    public Long getScanId() {
+        return scanId;
+    }
+
     abstract Optional<DbObject> next(DbObject dbObject);
 }

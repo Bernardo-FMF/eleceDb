@@ -1,5 +1,6 @@
 package org.elece.utils;
 
+import org.elece.db.DbObject;
 import org.elece.db.schema.model.Column;
 import org.elece.db.schema.model.Table;
 import org.elece.exception.serialization.DeserializationException;
@@ -9,6 +10,12 @@ import org.elece.serializer.SerializerRegistry;
 import java.util.List;
 
 public class SerializationUtils {
+    public static byte[] getValueOfField(Table table, Column column, DbObject dbObject) {
+        int offset = getByteArrayOffsetTillFieldIndex(table.getColumns(), table.getColumns().indexOf(column));
+        int size = getByteArraySizeOfField(column);
+        return dbObject.readData(offset, size);
+    }
+
     public static byte[] getValueOfField(Table table, Column column, byte[] object) {
         int offset = getByteArrayOffsetTillFieldIndex(table.getColumns(), table.getColumns().indexOf(column));
         int size = getByteArraySizeOfField(column);

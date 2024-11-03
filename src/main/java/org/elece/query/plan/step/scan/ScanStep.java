@@ -9,11 +9,11 @@ public abstract class ScanStep {
     private static final AtomicLong idCounter = new AtomicLong(0);
 
     private boolean finished;
-    private final long id;
+    private final long scanId;
 
     public ScanStep() {
         this.finished = false;
-        this.id = idCounter.incrementAndGet();
+        this.scanId = idCounter.incrementAndGet();
     }
 
     public boolean isFinished() {
@@ -25,7 +25,7 @@ public abstract class ScanStep {
     }
 
     public Long getScanId() {
-        return id;
+        return scanId;
     }
 
     abstract Optional<DbObject> next();
