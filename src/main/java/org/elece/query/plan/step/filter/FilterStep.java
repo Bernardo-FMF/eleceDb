@@ -2,12 +2,10 @@ package org.elece.query.plan.step.filter;
 
 import org.elece.db.DbObject;
 
-import java.util.Optional;
-
 public abstract class FilterStep {
     private final Long scanId;
 
-    protected FilterStep(Long scanId) {
+    public FilterStep(Long scanId) {
         this.scanId = scanId;
     }
 
@@ -15,5 +13,5 @@ public abstract class FilterStep {
         return scanId;
     }
 
-    abstract Optional<DbObject> next(DbObject dbObject);
+    public abstract boolean next(DbObject dbObject);
 }

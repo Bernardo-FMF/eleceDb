@@ -58,7 +58,7 @@ public class RangeRowScanStep extends ScanStep {
     }
 
     @Override
-    Optional<DbObject> next() {
+    public Optional<DbObject> next() {
         if (isFinished()) {
             return Optional.empty();
         }

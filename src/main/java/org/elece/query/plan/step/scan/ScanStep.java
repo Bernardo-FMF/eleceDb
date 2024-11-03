@@ -28,5 +28,5 @@ public abstract class ScanStep {
         return scanId;
     }
 
-    abstract Optional<DbObject> next();
+    public abstract Optional<DbObject> next();
 }

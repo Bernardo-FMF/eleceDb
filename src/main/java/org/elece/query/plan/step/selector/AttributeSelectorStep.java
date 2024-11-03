@@ -23,7 +23,7 @@ public class AttributeSelectorStep extends SelectorStep {
     }
 
     @Override
-    Optional<byte[]> next(DbObject dbObject) {
+    public Optional<byte[]> next(DbObject dbObject) {
         if (Objects.isNull(newRowSize) || newRowSize <= 0) {
             return Optional.empty();
         }

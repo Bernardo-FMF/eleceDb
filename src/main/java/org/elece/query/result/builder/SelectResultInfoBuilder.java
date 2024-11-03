@@ -42,6 +42,6 @@ public class SelectResultInfoBuilder {
     }
 
     public SelectResultInfo build() {
-        return new SelectResultInfo(scanInfo, table, selectedColumns, rowCount);
+        return new SelectResultInfo(selectedColumns, table, scanInfo, rowCount);
     }
 }

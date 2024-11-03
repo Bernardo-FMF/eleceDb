@@ -13,8 +13,6 @@ import org.elece.sql.parser.expression.internal.SqlStringValue;
 import org.elece.sql.parser.expression.internal.SqlType;
 import org.elece.utils.SerializationUtils;
 
-import java.util.Optional;
-
 public class FieldFilterStep<V> extends FilterStep {
     private final SerializerRegistry serializerRegistry;
 
@@ -22,7 +20,7 @@ public class FieldFilterStep<V> extends FilterStep {
     private final Column column;
     private final ValueComparator<V> valueComparator;
 
-    protected FieldFilterStep(Table table, Column column, ValueComparator<V> valueComparator, SerializerRegistry serializerRegistry, Long scanId) {
+    public FieldFilterStep(Table table, Column column, ValueComparator<V> valueComparator, SerializerRegistry serializerRegistry, Long scanId) {
         super(scanId);
 
         this.serializerRegistry = serializerRegistry;
@@ -32,7 +30,7 @@ public class FieldFilterStep<V> extends FilterStep {
     }
 
     @Override
-    Optional<DbObject> next(DbObject dbObject) {
+    public boolean next(DbObject dbObject) {
         byte[] valueOfField = SerializationUtils.getValueOfField(table, column, dbObject);
 
         SqlType.Type sqlType = column.getSqlType().getType();
@@ -56,9 +54,9 @@ public class FieldFilterStep<V> extends FilterStep {
                 comparisonResult = ((ValueComparator<String>) valueComparator).compare(new SqlStringValue(deserializedValue));
             }
         } catch (DeserializationException exception) {
-            return Optional.empty();
+            return false;
         }
 
-        return comparisonResult ? Optional.of(dbObject) : Optional.empty();
+        return comparisonResult;
     }
 }
