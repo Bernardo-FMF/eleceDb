@@ -9,7 +9,7 @@ public abstract class ScanStep {
     private static final AtomicLong idCounter = new AtomicLong(0);
 
     private boolean finished;
-    private final long scanId;
+    private final Long scanId;
 
     public ScanStep() {
         this.finished = false;

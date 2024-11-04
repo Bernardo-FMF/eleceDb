@@ -17,6 +17,19 @@ import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 
 public interface QueryPlan {
-    void execute(SchemaManager schemaManager, DatabaseStorageManager databaseStorageManager,
-                 ColumnIndexManagerProvider columnIndexManagerProvider, SerializerRegistry serializerRegistry) throws ParserException, SerializationException, SchemaException, StorageException, IOException, ExecutionException, InterruptedException, DbException, BTreeException, DeserializationException, TcpException;
+    void execute(SchemaManager schemaManager,
+                 DatabaseStorageManager databaseStorageManager,
+                 ColumnIndexManagerProvider columnIndexManagerProvider,
+                 SerializerRegistry serializerRegistry) throws
+                                                        ParserException,
+                                                        SerializationException,
+                                                        SchemaException,
+                                                        StorageException,
+                                                        IOException,
+                                                        ExecutionException,
+                                                        InterruptedException,
+                                                        DbException,
+                                                        BTreeException,
+                                                        DeserializationException,
+                                                        TcpException;
 }

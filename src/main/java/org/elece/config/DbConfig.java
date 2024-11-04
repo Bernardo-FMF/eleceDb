@@ -43,6 +43,8 @@ public interface DbConfig {
 
     int getDbPageMaxFileSize();
 
+    int getDbQueryCacheSize();
+
     enum IOSessionStrategy {
         COMMITTABLE, IMMEDIATE
     }

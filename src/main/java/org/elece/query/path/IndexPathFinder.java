@@ -29,7 +29,8 @@ public class IndexPathFinder implements QueryPlanVisitor {
     }
 
     @Override
-    public NodeCollection visit(BinaryExpression binaryExpression) throws QueryException {
+    public NodeCollection visit(BinaryExpression binaryExpression) throws
+                                                                   QueryException {
         NodeCollection nodeCollection = new NodeCollection();
 
         // TODO: what about cases where expressions are similar to "where id + 4 > 0" for example. This use case must be handled as well
@@ -71,11 +72,13 @@ public class IndexPathFinder implements QueryPlanVisitor {
     }
 
     @Override
-    public NodeCollection visit(NestedExpression nestedExpression) throws QueryException {
+    public NodeCollection visit(NestedExpression nestedExpression) throws
+                                                                   QueryException {
         return nestedExpression.getExpression().accept(this);
     }
 
-    private NodeCollection processAndOperator(NodeCollection leftPaths, NodeCollection rightPaths) {
+    private NodeCollection processAndOperator(NodeCollection leftPaths,
+                                              NodeCollection rightPaths) {
         if (leftPaths.isEmpty() && rightPaths.isEmpty()) {
             return leftPaths;
         }
@@ -128,7 +131,8 @@ public class IndexPathFinder implements QueryPlanVisitor {
         return mergedNodes;
     }
 
-    private NodeCollection processOrOperator(NodeCollection leftPaths, NodeCollection rightPaths) {
+    private NodeCollection processOrOperator(NodeCollection leftPaths,
+                                             NodeCollection rightPaths) {
         if (leftPaths.isEmpty() && rightPaths.isEmpty()) {
             return leftPaths;
         }
@@ -171,7 +175,9 @@ public class IndexPathFinder implements QueryPlanVisitor {
                 (binaryExpression.getRight() instanceof IdentifierExpression && binaryExpression.getLeft() instanceof ValueExpression<?>);
     }
 
-    private static ValueComparator<?> determineBounds(Symbol operator, ValueExpression<?> valueExpression, boolean valueIsLeftSide) {
+    private static ValueComparator<?> determineBounds(Symbol operator,
+                                                      ValueExpression<?> valueExpression,
+                                                      boolean valueIsLeftSide) {
         if (operator == Symbol.Eq || operator == Symbol.Neq) {
             return buildEqualityComparator(valueExpression, operator == Symbol.Eq);
         }
@@ -180,7 +186,9 @@ public class IndexPathFinder implements QueryPlanVisitor {
         return buildRangeComparator((ValueExpression<SqlNumberValue>) valueExpression, operator == Symbol.LtEq || operator == Symbol.GtEq, isLeftBoundary);
     }
 
-    private static NumberRangeComparator buildRangeComparator(ValueExpression<SqlNumberValue> valueExpression, boolean inclusive, boolean valueIsLeftBoundary) {
+    private static NumberRangeComparator buildRangeComparator(ValueExpression<SqlNumberValue> valueExpression,
+                                                              boolean inclusive,
+                                                              boolean valueIsLeftBoundary) {
         SqlNumberValue leftValue = valueIsLeftBoundary ? valueExpression.getValue() : null;
         SqlNumberValue rightValue = !valueIsLeftBoundary ? valueExpression.getValue() : null;
 
@@ -189,7 +197,8 @@ public class IndexPathFinder implements QueryPlanVisitor {
         return new NumberRangeComparator(leftValue, rightValue, inclusionType, inclusionType);
     }
 
-    private static EqualityComparator<?> buildEqualityComparator(ValueExpression<?> valueExpression, boolean shouldBeEqual) {
+    private static EqualityComparator<?> buildEqualityComparator(ValueExpression<?> valueExpression,
+                                                                 boolean shouldBeEqual) {
         SqlValue<?> value = valueExpression.getValue();
         if (value instanceof SqlNumberValue numberValue) {
             return new NumberEqualityComparator(numberValue, shouldBeEqual);

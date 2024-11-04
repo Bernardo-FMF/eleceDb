@@ -20,7 +20,10 @@ public class NumberRangeComparator implements ValueComparator<Integer> {
     private final InclusionType leftInclusion;
     private final InclusionType rightInclusion;
 
-    public NumberRangeComparator(SqlNumberValue leftBoundary, SqlNumberValue rightBoundary, InclusionType leftInclusion, InclusionType rightInclusion) {
+    public NumberRangeComparator(SqlNumberValue leftBoundary,
+                                 SqlNumberValue rightBoundary,
+                                 InclusionType leftInclusion,
+                                 InclusionType rightInclusion) {
         this.leftBoundary = Objects.isNull(leftBoundary) ? MIN_VALUE : leftBoundary;
         this.rightBoundary = Objects.isNull(rightBoundary) ? MAX_VALUE : rightBoundary;
         this.leftInclusion = Objects.isNull(leftBoundary) ? InclusionType.Included : leftInclusion;

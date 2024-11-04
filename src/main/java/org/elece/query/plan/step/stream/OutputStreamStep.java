@@ -13,7 +13,8 @@ public class OutputStreamStep extends StreamStep {
     }
 
     @Override
-    public void stream(byte[] data) throws TcpException {
+    public void stream(byte[] data) throws
+                                    TcpException {
         byte[] concatenatedData = new byte[data.length + Integer.BYTES];
         byte[] sizeBytes = BinaryUtils.integerToBytes(data.length);
 
@@ -24,7 +25,8 @@ public class OutputStreamStep extends StreamStep {
     }
 
     @Override
-    public void stream(ResultInfo resultInfo) throws TcpException {
+    public void stream(ResultInfo resultInfo) throws
+                                              TcpException {
         clientBridge.send(BinaryUtils.stringToBytes(resultInfo.deserialize()));
     }
 }

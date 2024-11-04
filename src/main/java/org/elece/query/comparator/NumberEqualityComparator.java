@@ -6,7 +6,8 @@ import java.util.Objects;
 import java.util.Optional;
 
 public class NumberEqualityComparator extends EqualityComparator<Integer> {
-    public NumberEqualityComparator(SqlNumberValue value, boolean shouldBeEqual) {
+    public NumberEqualityComparator(SqlNumberValue value,
+                                    boolean shouldBeEqual) {
         super(value, shouldBeEqual);
     }
 

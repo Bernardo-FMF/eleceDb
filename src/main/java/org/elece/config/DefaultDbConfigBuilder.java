@@ -23,6 +23,7 @@ public class DefaultDbConfigBuilder {
     private Integer dbPageSize;
     private Integer dbPageBufferSize;
     private Integer dbPageMaxFileSize;
+    private Integer dbQueryCacheSize;
 
     private DefaultDbConfigBuilder() {
         // private constructor
@@ -203,11 +204,15 @@ public class DefaultDbConfigBuilder {
         return Objects.requireNonNullElse(dbPageMaxFileSize, DbConfig.UNLIMITED_FILE_SIZE);
     }
 
+    private int getDbQueryCacheSize() {
+        return Objects.requireNonNullElse(dbQueryCacheSize, 50);
+    }
+
     public DefaultDbConfig build() {
         return new DefaultDbConfig(getPort(), getPoolCoreSize(), getPoolMaxSize(), getKeepAliveTime(),
                 getFileDescriptorAcquisitionSize(), getCloseTimeoutTime(), getAcquisitionTimeoutTime(), getTimeoutUnit(),
                 getbTreeDegree(), getbTreeGrowthNodeAllocationCount(), getBaseDbPath(), getBTreeMaxFileSize(),
                 getIndexStorageManagerStrategy(), getFileHandlerStrategy(), getFileHandlerPoolThreads(), getIOSessionStrategy(),
-                getDbPageSize(), getDbPageBufferSize(), getDbPageMaxFileSize());
+                getDbPageSize(), getDbPageBufferSize(), getDbPageMaxFileSize(), getDbQueryCacheSize());
     }
 }

@@ -20,7 +20,11 @@ public class FieldFilterStep<V> extends FilterStep {
     private final Column column;
     private final ValueComparator<V> valueComparator;
 
-    public FieldFilterStep(Table table, Column column, ValueComparator<V> valueComparator, SerializerRegistry serializerRegistry, Long scanId) {
+    public FieldFilterStep(Table table,
+                           Column column,
+                           ValueComparator<V> valueComparator,
+                           SerializerRegistry serializerRegistry,
+                           Long scanId) {
         super(scanId);
 
         this.serializerRegistry = serializerRegistry;

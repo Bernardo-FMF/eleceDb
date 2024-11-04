@@ -10,7 +10,9 @@ public class DefaultPathNode {
     private final ValueComparator<?> valueComparator;
     private final IndexType indexType;
 
-    public DefaultPathNode(String columnName, ValueComparator<?> valueComparator, IndexType indexType) {
+    public DefaultPathNode(String columnName,
+                           ValueComparator<?> valueComparator,
+                           IndexType indexType) {
         this.columnName = columnName;
         this.valueComparator = valueComparator;
         this.indexType = indexType;

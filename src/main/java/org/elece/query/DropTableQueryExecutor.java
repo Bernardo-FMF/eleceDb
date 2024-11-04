@@ -20,7 +20,16 @@ public class DropTableQueryExecutor implements QueryExecutor {
     }
 
     @Override
-    public int execute(SchemaManager schemaManager) throws SchemaException, IOException, BTreeException, SerializationException, StorageException, DeserializationException, DbException, ExecutionException, InterruptedException {
+    public int execute(SchemaManager schemaManager) throws
+                                                    SchemaException,
+                                                    IOException,
+                                                    BTreeException,
+                                                    SerializationException,
+                                                    StorageException,
+                                                    DeserializationException,
+                                                    DbException,
+                                                    ExecutionException,
+                                                    InterruptedException {
         return schemaManager.deleteTable(tableName);
     }
 }

@@ -23,7 +23,13 @@ public class EqualityRowScanStep<V extends Comparable<V>> extends ScanStep {
 
     private final EqualityComparator<V> equalityComparator;
 
-    public EqualityRowScanStep(Table table, Column column, EqualityComparator<V> equalityComparator, ColumnIndexManagerProvider columnIndexManagerProvider, DatabaseStorageManager databaseStorageManager) throws SchemaException, StorageException {
+    public EqualityRowScanStep(Table table,
+                               Column column,
+                               EqualityComparator<V> equalityComparator,
+                               ColumnIndexManagerProvider columnIndexManagerProvider,
+                               DatabaseStorageManager databaseStorageManager) throws
+                                                                              SchemaException,
+                                                                              StorageException {
         this.databaseStorageManager = databaseStorageManager;
 
         this.clusterIndexManager = columnIndexManagerProvider.getClusterIndexManager(table);

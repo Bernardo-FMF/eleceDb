@@ -22,12 +22,14 @@ public class DefaultDbConfig implements DbConfig {
     private final int dbPageSize;
     private final int dbPageBufferSize;
     private final int dbPageMaxFileSize;
+    private final int dbQueryCacheSize;
 
     public DefaultDbConfig(int port, int poolCoreSize, int poolMaxSize, long keepAliveTime, int fileDescriptorAcquisitionSize,
                            long closeTimeoutTime, long acquisitionTimeoutTime, TimeUnit timeoutUnit, int bTreeDegree,
                            int bTreeGrowthNodeAllocationCount, String baseDbPath, long bTreeMaxFileSize,
                            IndexStorageManagerStrategy indexStorageManagerStrategy, FileHandlerStrategy fileHandlerStrategy,
-                           int fileHandlerPoolThreads, IOSessionStrategy iOSessionStrategy, int dbPageSize, int dbPageBufferSize, int dbPageMaxFileSize) {
+                           int fileHandlerPoolThreads, IOSessionStrategy iOSessionStrategy, int dbPageSize, int dbPageBufferSize,
+                           int dbPageMaxFileSize, int dbQueryCacheSize) {
         this.port = port;
         this.poolCoreSize = poolCoreSize;
         this.poolMaxSize = poolMaxSize;
@@ -47,6 +49,7 @@ public class DefaultDbConfig implements DbConfig {
         this.dbPageSize = dbPageSize;
         this.dbPageBufferSize = dbPageBufferSize;
         this.dbPageMaxFileSize = dbPageMaxFileSize;
+        this.dbQueryCacheSize = dbQueryCacheSize;
     }
 
     @Override
@@ -142,5 +145,10 @@ public class DefaultDbConfig implements DbConfig {
     @Override
     public int getDbPageMaxFileSize() {
         return dbPageMaxFileSize;
+    }
+
+    @Override
+    public int getDbQueryCacheSize() {
+        return dbQueryCacheSize;
     }
 }

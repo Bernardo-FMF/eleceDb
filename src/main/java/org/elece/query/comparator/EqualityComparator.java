@@ -8,7 +8,8 @@ public abstract class EqualityComparator<V> implements ValueComparator<V> {
     protected final SqlValue<V> boundary;
     protected final boolean shouldBeEqual;
 
-    public EqualityComparator(SqlValue<V> value, boolean shouldBeEqual) {
+    public EqualityComparator(SqlValue<V> value,
+                              boolean shouldBeEqual) {
         this.boundary = value;
         this.shouldBeEqual = shouldBeEqual;
     }

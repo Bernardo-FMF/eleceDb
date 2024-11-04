@@ -17,7 +17,11 @@ public class SerializationUtils {
     }
 
     public static byte[] getValueOfField(Table table, Column column, byte[] object) {
-        int offset = getByteArrayOffsetTillFieldIndex(table.getColumns(), table.getColumns().indexOf(column));
+        return getValueOfField(table.getColumns(), column, object);
+    }
+
+    public static byte[] getValueOfField(List<Column> columns, Column column, byte[] object) {
+        int offset = getByteArrayOffsetTillFieldIndex(columns, columns.indexOf(column));
         int size = getByteArraySizeOfField(column);
         byte[] output = new byte[size];
         System.arraycopy(object, offset, output, 0, size);

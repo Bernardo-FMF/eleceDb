@@ -14,7 +14,10 @@ public class SelectResultInfo extends ResultInfo {
     private final ScanInfo scanInfo;
     private final Integer rowCount;
 
-    public SelectResultInfo(List<Column> selectedColumns, Table table, ScanInfo scanInfo, Integer rowCount) {
+    public SelectResultInfo(List<Column> selectedColumns,
+                            Table table,
+                            ScanInfo scanInfo,
+                            Integer rowCount) {
         this.selectedColumns = selectedColumns;
         this.selectedColumnsSize = selectedColumns.stream().map(column -> column.getSqlType().getSize()).reduce(0, Integer::sum);
         this.table = table;

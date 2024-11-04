@@ -6,7 +6,8 @@ import java.util.Objects;
 import java.util.Optional;
 
 public class BooleanEqualityComparator extends EqualityComparator<Boolean> {
-    public BooleanEqualityComparator(SqlBoolValue value, boolean shouldBeEqual) {
+    public BooleanEqualityComparator(SqlBoolValue value,
+                                     boolean shouldBeEqual) {
         super(value, shouldBeEqual);
     }
 

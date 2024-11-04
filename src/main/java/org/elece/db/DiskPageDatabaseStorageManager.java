@@ -30,7 +30,7 @@ public class DiskPageDatabaseStorageManager implements DatabaseStorageManager {
         this.dbConfig = dbConfig;
         this.fileHandlerPool = fileHandlerPool;
         this.reservedSlotTracer = reservedSlotTracer;
-        this.pageBuffer = new PageBuffer(dbConfig, new DefaultPageFactory(dbConfig, fileHandlerPool, this::getDBFileName), fileHandlerPool, this::getDBFileName);
+        this.pageBuffer = new PageBuffer(dbConfig, new DefaultPageFactory(dbConfig, fileHandlerPool, this::getDbFileName), fileHandlerPool, this::getDbFileName);
     }
 
     @Override
@@ -163,12 +163,12 @@ public class DiskPageDatabaseStorageManager implements DatabaseStorageManager {
         return this.pageBuffer.acquire(pageTitle);
     }
 
-    private Path getDBFileName(int chunk) {
+    private Path getDbFileName(int chunk) {
         return Path.of(this.dbConfig.getBaseDbPath(), String.format("elece_%d.db.bin", chunk));
     }
 
     private void commitPage(Page page) throws IOException, InterruptedException {
-        Path path = getDBFileName(page.getChunk());
+        Path path = getDbFileName(page.getChunk());
         AsynchronousFileChannel fileChannel = this.fileHandlerPool.acquireFileHandler(path);
 
         try {
