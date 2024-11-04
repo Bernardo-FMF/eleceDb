@@ -5,10 +5,14 @@ import org.elece.db.schema.model.Column;
 import org.elece.db.schema.model.Table;
 import org.elece.exception.btree.BTreeException;
 import org.elece.exception.db.DbException;
+import org.elece.exception.proto.TcpException;
 import org.elece.exception.schema.SchemaException;
 import org.elece.exception.serialization.DeserializationException;
 import org.elece.exception.serialization.SerializationException;
 import org.elece.exception.storage.StorageException;
+import org.elece.query.plan.step.stream.StreamStep;
+import org.elece.query.result.GenericQueryResultInfo;
+import org.elece.query.result.builder.GenericQueryResultInfoBuilder;
 import org.elece.sql.parser.statement.CreateTableStatement;
 
 import java.io.IOException;
@@ -19,18 +23,23 @@ import java.util.concurrent.ExecutionException;
 public class CreateTableQueryExecutor implements QueryExecutor {
     private final String tableName;
     private final List<Column> columns;
+    private final StreamStep streamStep;
 
-    public CreateTableQueryExecutor(CreateTableStatement statement) {
+    public CreateTableQueryExecutor(CreateTableStatement statement, StreamStep streamStep) {
         this.tableName = statement.getName();
         this.columns = statement.getColumns();
+        this.streamStep = streamStep;
     }
 
     @Override
-    public int execute(SchemaManager schemaManager) throws SchemaException, IOException, BTreeException,
-                                                           SerializationException, StorageException,
-                                                           DeserializationException, DbException, ExecutionException,
-                                                           InterruptedException {
+    public void execute(SchemaManager schemaManager) throws SchemaException, IOException, BTreeException,
+                                                            SerializationException, StorageException,
+                                                            DeserializationException, DbException, ExecutionException,
+                                                            InterruptedException, TcpException {
         schemaManager.createTable(new Table(tableName, columns, new ArrayList<>()));
-        return 0;
+        streamStep.stream(GenericQueryResultInfoBuilder.builder()
+                .setQueryType(GenericQueryResultInfo.QueryType.CREATE_TABLE)
+                .setAffectedRowCount(0)
+                .build());
     }
 }

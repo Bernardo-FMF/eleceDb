@@ -38,12 +38,8 @@ public class SelectQueryPlan implements QueryPlan {
     private final StreamStep streamStep;
 
     // TODO: implement limit and offset
-    public SelectQueryPlan(Queue<ScanStep> scanSteps,
-                           Map<Long, List<FilterStep>> filterSteps,
-                           TracerStep tracerStep,
-                           SelectorStep selectorStep,
-                           OrderStep orderStep,
-                           StreamStep streamStep) {
+    public SelectQueryPlan(Queue<ScanStep> scanSteps, Map<Long, List<FilterStep>> filterSteps, TracerStep tracerStep,
+                           SelectorStep selectorStep, OrderStep orderStep, StreamStep streamStep) {
         this.scanSteps = scanSteps;
         this.filterSteps = filterSteps;
         this.tracerStep = tracerStep;
