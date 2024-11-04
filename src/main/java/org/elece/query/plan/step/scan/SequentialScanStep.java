@@ -19,11 +19,8 @@ public class SequentialScanStep extends ScanStep {
 
     private final LockableIterator<LeafTreeNode.KeyValue<Integer, Pointer>> sortedIterator;
 
-    public SequentialScanStep(Table table,
-                              ColumnIndexManagerProvider columnIndexManagerProvider,
-                              DatabaseStorageManager databaseStorageManager) throws
-                                                                             SchemaException,
-                                                                             StorageException {
+    public SequentialScanStep(Table table, ColumnIndexManagerProvider columnIndexManagerProvider,
+                              DatabaseStorageManager databaseStorageManager) throws SchemaException, StorageException {
         this.databaseStorageManager = databaseStorageManager;
 
         IndexManager<Integer, Pointer> clusterIndexManager = columnIndexManagerProvider.getClusterIndexManager(table);

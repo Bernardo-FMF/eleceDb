@@ -24,14 +24,9 @@ public class CreateIndexQueryExecutor implements QueryExecutor {
     }
 
     @Override
-    public int execute(SchemaManager schemaManager) throws
-                                                    SchemaException,
-                                                    IOException,
-                                                    BTreeException,
-                                                    SerializationException,
-                                                    StorageException,
-                                                    DeserializationException,
-                                                    DbException {
+    public int execute(SchemaManager schemaManager) throws SchemaException, IOException, BTreeException,
+                                                           SerializationException, StorageException,
+                                                           DeserializationException, DbException {
         return schemaManager.createIndex(table, new Index(name, column));
     }
 }

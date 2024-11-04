@@ -12,15 +12,7 @@ import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 
 public interface QueryExecutor {
-    int execute(SchemaManager schemaManager)
-            throws
-            SchemaException,
-            IOException,
-            BTreeException,
-            SerializationException,
-            StorageException,
-            DeserializationException,
-            DbException,
-            ExecutionException,
-            InterruptedException;
+    int execute(SchemaManager schemaManager) throws SchemaException, IOException, BTreeException,
+                                                    SerializationException, StorageException, DeserializationException,
+                                                    DbException, ExecutionException, InterruptedException;
 }

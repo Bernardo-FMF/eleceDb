@@ -53,21 +53,13 @@ public class SelectQueryPlan implements QueryPlan {
     }
 
     @Override
-    public void execute(SchemaManager schemaManager,
-                        DatabaseStorageManager databaseStorageManager,
+    public void execute(SchemaManager schemaManager, DatabaseStorageManager databaseStorageManager,
                         ColumnIndexManagerProvider columnIndexManagerProvider,
-                        SerializerRegistry serializerRegistry) throws
-                                                               ParserException,
-                                                               SerializationException,
-                                                               SchemaException,
-                                                               StorageException,
-                                                               IOException,
-                                                               ExecutionException,
-                                                               InterruptedException,
-                                                               DbException,
-                                                               BTreeException,
-                                                               DeserializationException,
-                                                               TcpException {
+                        SerializerRegistry serializerRegistry) throws ParserException, SerializationException,
+                                                                      SchemaException, StorageException, IOException,
+                                                                      ExecutionException, InterruptedException,
+                                                                      DbException, BTreeException,
+                                                                      DeserializationException, TcpException {
         while (!scanSteps.isEmpty()) {
             ScanStep rowScanner = scanSteps.poll();
             List<FilterStep> rowFilters = filterSteps.get(rowScanner.getScanId());

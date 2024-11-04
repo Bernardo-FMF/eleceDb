@@ -26,16 +26,10 @@ public class CreateTableQueryExecutor implements QueryExecutor {
     }
 
     @Override
-    public int execute(SchemaManager schemaManager) throws
-                                                    SchemaException,
-                                                    IOException,
-                                                    BTreeException,
-                                                    SerializationException,
-                                                    StorageException,
-                                                    DeserializationException,
-                                                    DbException,
-                                                    ExecutionException,
-                                                    InterruptedException {
+    public int execute(SchemaManager schemaManager) throws SchemaException, IOException, BTreeException,
+                                                           SerializationException, StorageException,
+                                                           DeserializationException, DbException, ExecutionException,
+                                                           InterruptedException {
         schemaManager.createTable(new Table(tableName, columns, new ArrayList<>()));
         return 0;
     }

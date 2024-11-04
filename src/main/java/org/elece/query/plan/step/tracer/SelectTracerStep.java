@@ -17,9 +17,7 @@ public class SelectTracerStep extends TracerStep {
 
     private final AtomicInteger rowCounter;
 
-    public SelectTracerStep(List<Column> selectedColumns,
-                            Table table,
-                            ScanInfo scanInfo) {
+    public SelectTracerStep(List<Column> selectedColumns, Table table, ScanInfo scanInfo) {
         this.selectedColumns = selectedColumns;
         this.table = table;
         this.scanInfo = scanInfo;

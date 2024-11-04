@@ -38,12 +38,8 @@ public class CacheableOrderStep<V extends Comparable<V>> extends OrderStep {
     private final List<TempFileWrapper> tempFiles;
     private final DbConfig dbConfig;
 
-    public CacheableOrderStep(Order order,
-                              List<Column> selectedColumns,
-                              Column orderByColumn,
-                              Long scanId,
-                              FileHandlerPool fileHandlerPool,
-                              SerializerRegistry serializerRegistry,
+    public CacheableOrderStep(Order order, List<Column> selectedColumns, Column orderByColumn, Long scanId,
+                              FileHandlerPool fileHandlerPool, SerializerRegistry serializerRegistry,
                               DbConfig dbConfig) {
         this.selectedColumns = selectedColumns;
         this.orderByColumn = orderByColumn;

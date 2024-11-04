@@ -27,15 +27,10 @@ public class RangeRowScanStep extends ScanStep {
     private final Order order;
     private final Iterator<Integer> rangeIterator;
 
-    public RangeRowScanStep(Table table,
-                            Column column,
-                            NumberRangeComparator rangeComparator,
-                            Order order,
+    public RangeRowScanStep(Table table, Column column, NumberRangeComparator rangeComparator, Order order,
                             ColumnIndexManagerProvider columnIndexManagerProvider,
-                            DatabaseStorageManager databaseStorageManager) throws
-                                                                           SchemaException,
-                                                                           StorageException,
-                                                                           BTreeException {
+                            DatabaseStorageManager databaseStorageManager) throws SchemaException, StorageException,
+                                                                                  BTreeException {
         this.databaseStorageManager = databaseStorageManager;
 
         this.clusterIndexManager = columnIndexManagerProvider.getClusterIndexManager(table);
@@ -44,8 +39,8 @@ public class RangeRowScanStep extends ScanStep {
         this.rangeIterator = createIterator(rangeComparator);
     }
 
-    private Iterator<Integer> createIterator(NumberRangeComparator rangeComparator) throws
-                                                                                    BTreeException {
+    private Iterator<Integer> createIterator(NumberRangeComparator rangeComparator) throws StorageException,
+                                                                                           BTreeException {
         SqlNumberValue leftBoundary = rangeComparator.getLeftBoundary();
         SqlNumberValue rightBoundary = rangeComparator.getRightBoundary();
 

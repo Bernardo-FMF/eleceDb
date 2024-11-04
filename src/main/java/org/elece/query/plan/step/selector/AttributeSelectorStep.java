@@ -15,8 +15,7 @@ public class AttributeSelectorStep extends SelectorStep {
 
     private final Integer newRowSize;
 
-    public AttributeSelectorStep(Table table,
-                                 List<Column> selectedColumns) {
+    public AttributeSelectorStep(Table table, List<Column> selectedColumns) {
         this.table = table;
         this.selectedColumns = selectedColumns;
 

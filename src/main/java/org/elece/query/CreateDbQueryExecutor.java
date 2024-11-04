@@ -14,9 +14,7 @@ public class CreateDbQueryExecutor implements QueryExecutor {
     }
 
     @Override
-    public int execute(SchemaManager schemaManager) throws
-                                                    SchemaException,
-                                                    IOException {
+    public int execute(SchemaManager schemaManager) throws SchemaException, IOException {
         schemaManager.createSchema(db);
         return 0;
     }
