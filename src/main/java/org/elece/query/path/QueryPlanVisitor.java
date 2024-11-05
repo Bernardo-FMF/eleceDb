@@ -1,7 +1,6 @@
-package org.elece.query;
+package org.elece.query.path;
 
 import org.elece.exception.query.QueryException;
-import org.elece.query.path.NodeCollection;
 import org.elece.sql.parser.expression.BinaryExpression;
 import org.elece.sql.parser.expression.NestedExpression;
 

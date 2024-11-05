@@ -20,7 +20,7 @@ import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 
-public class DeleteQueryPlan implements QueryPlan {
+public class UpdateQueryPlan implements QueryPlan {
     private final Queue<ScanStep> scanSteps;
     private final Map<Long, List<FilterStep>> filterSteps;
 
@@ -30,7 +30,7 @@ public class DeleteQueryPlan implements QueryPlan {
 
     private final StreamStep streamStep;
 
-    public DeleteQueryPlan(Queue<ScanStep> scanSteps, Map<Long, List<FilterStep>> filterSteps,
+    public UpdateQueryPlan(Queue<ScanStep> scanSteps, Map<Long, List<FilterStep>> filterSteps,
                            TracerStep<DbObject> tracerStep, OperationStep<DbObject> operationStep,
                            StreamStep streamStep) {
         this.scanSteps = scanSteps;

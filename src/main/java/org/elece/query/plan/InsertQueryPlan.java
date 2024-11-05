@@ -20,13 +20,13 @@ import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
 public class InsertQueryPlan implements QueryPlan {
-    private final TracerStep<byte[]> tracerStep;
-
     private final ValueStep valueStep;
 
     private final ValidatorStep<byte[]> validatorStep;
 
     private final OperationStep<byte[]> operationStep;
+
+    private final TracerStep<byte[]> tracerStep;
 
     private final StreamStep streamStep;
 

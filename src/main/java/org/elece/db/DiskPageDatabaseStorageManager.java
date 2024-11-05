@@ -18,7 +18,6 @@ import java.nio.channels.AsynchronousFileChannel;
 import java.nio.file.Path;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
-import java.util.function.Consumer;
 
 public class DiskPageDatabaseStorageManager implements DatabaseStorageManager {
     private final PageBuffer pageBuffer;
@@ -97,7 +96,8 @@ public class DiskPageDatabaseStorageManager implements DatabaseStorageManager {
     }
 
     @Override
-    public void update(Pointer pointer, Consumer<DbObject> dbObjectConsumer) throws DbException, StorageException, IOException, InterruptedException {
+    public void update(Pointer pointer, byte[] newData) throws DbException, StorageException, IOException,
+                                                               InterruptedException {
         PageTitle pageTitle = new PageTitle(pointer.getChunk(), (int) (pointer.getPosition() / this.dbConfig.getDbPageSize()));
         Page page = this.pageBuffer.acquire(pageTitle);
 
@@ -109,7 +109,7 @@ public class DiskPageDatabaseStorageManager implements DatabaseStorageManager {
             }
 
             DbObject dbObject = optionalDbObject.get();
-            dbObjectConsumer.accept(dbObject);
+            dbObject.modifyData(newData);
 
             this.commitPage(dbObject.getPage());
         } finally {

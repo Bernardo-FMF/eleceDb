@@ -3,7 +3,6 @@ package org.elece.query.path;
 import org.elece.db.schema.SchemaSearcher;
 import org.elece.db.schema.model.Table;
 import org.elece.exception.query.QueryException;
-import org.elece.query.QueryPlanVisitor;
 import org.elece.query.comparator.*;
 import org.elece.sql.parser.expression.BinaryExpression;
 import org.elece.sql.parser.expression.IdentifierExpression;
@@ -29,8 +28,7 @@ public class IndexPathFinder implements QueryPlanVisitor {
     }
 
     @Override
-    public NodeCollection visit(BinaryExpression binaryExpression) throws
-                                                                   QueryException {
+    public NodeCollection visit(BinaryExpression binaryExpression) throws QueryException {
         NodeCollection nodeCollection = new NodeCollection();
 
         // TODO: what about cases where expressions are similar to "where id + 4 > 0" for example. This use case must be handled as well
@@ -72,8 +70,7 @@ public class IndexPathFinder implements QueryPlanVisitor {
     }
 
     @Override
-    public NodeCollection visit(NestedExpression nestedExpression) throws
-                                                                   QueryException {
+    public NodeCollection visit(NestedExpression nestedExpression) throws QueryException {
         return nestedExpression.getExpression().accept(this);
     }
 
@@ -131,8 +128,7 @@ public class IndexPathFinder implements QueryPlanVisitor {
         return mergedNodes;
     }
 
-    private NodeCollection processOrOperator(NodeCollection leftPaths,
-                                             NodeCollection rightPaths) {
+    private NodeCollection processOrOperator(NodeCollection leftPaths, NodeCollection rightPaths) {
         if (leftPaths.isEmpty() && rightPaths.isEmpty()) {
             return leftPaths;
         }
@@ -175,8 +171,7 @@ public class IndexPathFinder implements QueryPlanVisitor {
                 (binaryExpression.getRight() instanceof IdentifierExpression && binaryExpression.getLeft() instanceof ValueExpression<?>);
     }
 
-    private static ValueComparator<?> determineBounds(Symbol operator,
-                                                      ValueExpression<?> valueExpression,
+    private static ValueComparator<?> determineBounds(Symbol operator, ValueExpression<?> valueExpression,
                                                       boolean valueIsLeftSide) {
         if (operator == Symbol.Eq || operator == Symbol.Neq) {
             return buildEqualityComparator(valueExpression, operator == Symbol.Eq);
