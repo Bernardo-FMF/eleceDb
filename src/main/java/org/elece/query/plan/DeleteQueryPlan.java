@@ -10,9 +10,8 @@ import org.elece.exception.serialization.SerializationException;
 import org.elece.exception.sql.ParserException;
 import org.elece.exception.storage.StorageException;
 import org.elece.query.plan.step.filter.FilterStep;
-import org.elece.query.plan.step.order.OrderStep;
+import org.elece.query.plan.step.operation.OperationStep;
 import org.elece.query.plan.step.scan.ScanStep;
-import org.elece.query.plan.step.selector.SelectorStep;
 import org.elece.query.plan.step.stream.StreamStep;
 import org.elece.query.plan.step.tracer.TracerStep;
 import org.elece.query.result.ResultInfo;
@@ -21,26 +20,23 @@ import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 
-public class SelectQueryPlan implements QueryPlan {
+public class DeleteQueryPlan implements QueryPlan {
     private final Queue<ScanStep> scanSteps;
     private final Map<Long, List<FilterStep>> filterSteps;
 
     private final TracerStep<DbObject> tracerStep;
 
-    private final SelectorStep selectorStep;
-
-    private final OrderStep orderStep;
+    private final OperationStep<DbObject> operationStep;
 
     private final StreamStep streamStep;
 
-    public SelectQueryPlan(Queue<ScanStep> scanSteps, Map<Long, List<FilterStep>> filterSteps,
-                           TracerStep<DbObject> tracerStep, SelectorStep selectorStep, OrderStep orderStep,
+    public DeleteQueryPlan(Queue<ScanStep> scanSteps, Map<Long, List<FilterStep>> filterSteps,
+                           TracerStep<DbObject> tracerStep, OperationStep<DbObject> operationStep,
                            StreamStep streamStep) {
         this.scanSteps = scanSteps;
         this.filterSteps = filterSteps;
         this.tracerStep = tracerStep;
-        this.selectorStep = selectorStep;
-        this.orderStep = orderStep;
+        this.operationStep = operationStep;
         this.streamStep = streamStep;
     }
 
@@ -71,29 +67,12 @@ public class SelectQueryPlan implements QueryPlan {
                     continue;
                 }
 
-                Optional<byte[]> serializedData = selectorStep.next(dbObject);
+                boolean executed = operationStep.execute(dbObject);
 
-                if (serializedData.isPresent()) {
+                if (executed) {
                     tracerStep.trace(dbObject);
-
-                    if (!Objects.isNull(orderStep)) {
-                        orderStep.addToBuffer(serializedData.get());
-                    } else {
-                        streamStep.stream(serializedData.get());
-                    }
                 }
             }
-        }
-
-        if (!Objects.isNull(orderStep)) {
-            orderStep.prepareBufferState();
-
-            Iterator<byte[]> orderedIterator = orderStep.getIterator();
-            while (orderedIterator.hasNext()) {
-                streamStep.stream(orderedIterator.next());
-            }
-
-            orderStep.clearBuffer();
         }
 
         ResultInfo resultInfo = tracerStep.buildResultInfo();

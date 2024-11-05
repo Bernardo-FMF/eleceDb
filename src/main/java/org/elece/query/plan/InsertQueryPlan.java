@@ -1,7 +1,5 @@
 package org.elece.query.plan;
 
-import org.elece.db.DatabaseStorageManager;
-import org.elece.db.schema.SchemaManager;
 import org.elece.exception.btree.BTreeException;
 import org.elece.exception.db.DbException;
 import org.elece.exception.proto.TcpException;
@@ -10,14 +8,12 @@ import org.elece.exception.serialization.DeserializationException;
 import org.elece.exception.serialization.SerializationException;
 import org.elece.exception.sql.ParserException;
 import org.elece.exception.storage.StorageException;
-import org.elece.index.ColumnIndexManagerProvider;
 import org.elece.query.plan.step.operation.OperationStep;
 import org.elece.query.plan.step.stream.StreamStep;
 import org.elece.query.plan.step.tracer.TracerStep;
 import org.elece.query.plan.step.validator.ValidatorStep;
 import org.elece.query.plan.step.value.ValueStep;
 import org.elece.query.result.ResultInfo;
-import org.elece.serializer.SerializerRegistry;
 
 import java.io.IOException;
 import java.util.Optional;
@@ -44,13 +40,9 @@ public class InsertQueryPlan implements QueryPlan {
     }
 
     @Override
-    public void execute(SchemaManager schemaManager, DatabaseStorageManager databaseStorageManager,
-                        ColumnIndexManagerProvider columnIndexManagerProvider,
-                        SerializerRegistry serializerRegistry) throws ParserException, SerializationException,
-                                                                      SchemaException, StorageException, IOException,
-                                                                      ExecutionException, InterruptedException,
-                                                                      DbException, BTreeException,
-                                                                      DeserializationException, TcpException {
+    public void execute() throws ParserException, SerializationException, SchemaException, StorageException,
+                                 IOException, ExecutionException, InterruptedException, DbException, BTreeException,
+                                 DeserializationException, TcpException {
         Optional<byte[]> values = valueStep.next();
         if (values.isEmpty()) {
             return;
@@ -58,9 +50,11 @@ public class InsertQueryPlan implements QueryPlan {
 
         validatorStep.validate(values.get());
 
-        operationStep.execute(values.get());
+        boolean executed = operationStep.execute(values.get());
 
-        tracerStep.trace(values.get());
+        if (executed) {
+            tracerStep.trace(values.get());
+        }
 
         ResultInfo resultInfo = tracerStep.buildResultInfo();
         streamStep.stream(resultInfo);
