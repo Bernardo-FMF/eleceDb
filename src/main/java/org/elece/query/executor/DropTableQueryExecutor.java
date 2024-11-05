@@ -1,8 +1,6 @@
-package org.elece.query;
+package org.elece.query.executor;
 
 import org.elece.db.schema.SchemaManager;
-import org.elece.db.schema.model.Column;
-import org.elece.db.schema.model.Table;
 import org.elece.exception.btree.BTreeException;
 import org.elece.exception.db.DbException;
 import org.elece.exception.proto.TcpException;
@@ -13,21 +11,17 @@ import org.elece.exception.storage.StorageException;
 import org.elece.query.plan.step.stream.StreamStep;
 import org.elece.query.result.GenericQueryResultInfo;
 import org.elece.query.result.builder.GenericQueryResultInfoBuilder;
-import org.elece.sql.parser.statement.CreateTableStatement;
+import org.elece.sql.parser.statement.DropTableStatement;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-public class CreateTableQueryExecutor implements QueryExecutor {
+public class DropTableQueryExecutor implements QueryExecutor {
     private final String tableName;
-    private final List<Column> columns;
     private final StreamStep streamStep;
 
-    public CreateTableQueryExecutor(CreateTableStatement statement, StreamStep streamStep) {
-        this.tableName = statement.getName();
-        this.columns = statement.getColumns();
+    public DropTableQueryExecutor(DropTableStatement statement, StreamStep streamStep) {
+        this.tableName = statement.getTable();
         this.streamStep = streamStep;
     }
 
@@ -36,10 +30,10 @@ public class CreateTableQueryExecutor implements QueryExecutor {
                                                             SerializationException, StorageException,
                                                             DeserializationException, DbException, ExecutionException,
                                                             InterruptedException, TcpException {
-        schemaManager.createTable(new Table(tableName, columns, new ArrayList<>()));
+        int rowCount = schemaManager.deleteTable(tableName);
         streamStep.stream(GenericQueryResultInfoBuilder.builder()
-                .setQueryType(GenericQueryResultInfo.QueryType.CREATE_TABLE)
-                .setAffectedRowCount(0)
+                .setQueryType(GenericQueryResultInfo.QueryType.DROP_TABLE)
+                .setAffectedRowCount(rowCount)
                 .build());
     }
 }
