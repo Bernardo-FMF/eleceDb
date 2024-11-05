@@ -25,8 +25,7 @@ public class SelectResultInfo extends ResultInfo {
     @Override
     public String deserialize() {
         StringBuilder innerData = new StringBuilder();
-        innerData.append(table.toString())
-                .append("\n")
+        innerData.append(table.toString()).append("\n")
                 .append("RowCount: ").append(rowCount).append("\n")
                 .append("RowSize: ").append(selectedColumnsSize).append("\n")
                 .append("SelectedColumns: ").append(selectedColumns.toString()).append("\n")

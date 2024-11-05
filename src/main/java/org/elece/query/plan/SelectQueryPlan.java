@@ -29,7 +29,7 @@ public class SelectQueryPlan implements QueryPlan {
     private final Queue<ScanStep> scanSteps;
     private final Map<Long, List<FilterStep>> filterSteps;
 
-    private final TracerStep tracerStep;
+    private final TracerStep<DbObject> tracerStep;
 
     private final SelectorStep selectorStep;
 
@@ -37,9 +37,9 @@ public class SelectQueryPlan implements QueryPlan {
 
     private final StreamStep streamStep;
 
-    // TODO: implement limit and offset
-    public SelectQueryPlan(Queue<ScanStep> scanSteps, Map<Long, List<FilterStep>> filterSteps, TracerStep tracerStep,
-                           SelectorStep selectorStep, OrderStep orderStep, StreamStep streamStep) {
+    public SelectQueryPlan(Queue<ScanStep> scanSteps, Map<Long, List<FilterStep>> filterSteps,
+                           TracerStep<DbObject> tracerStep, SelectorStep selectorStep, OrderStep orderStep,
+                           StreamStep streamStep) {
         this.scanSteps = scanSteps;
         this.filterSteps = filterSteps;
         this.tracerStep = tracerStep;
@@ -100,6 +100,8 @@ public class SelectQueryPlan implements QueryPlan {
             while (orderedIterator.hasNext()) {
                 streamStep.stream(orderedIterator.next());
             }
+
+            orderStep.clearBuffer();
         }
 
         ResultInfo resultInfo = tracerStep.buildResultInfo();

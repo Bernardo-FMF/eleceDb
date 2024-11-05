@@ -10,7 +10,7 @@ import org.elece.query.result.builder.SelectResultInfoBuilder;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class SelectTracerStep extends TracerStep {
+public class SelectTracerStep extends TracerStep<DbObject> {
     private final List<Column> selectedColumns;
     private final Table table;
     private final ScanInfo scanInfo;
@@ -25,7 +25,7 @@ public class SelectTracerStep extends TracerStep {
     }
 
     @Override
-    public void trace(DbObject dbObject) {
+    public void trace(DbObject value) {
         rowCounter.incrementAndGet();
     }
 
