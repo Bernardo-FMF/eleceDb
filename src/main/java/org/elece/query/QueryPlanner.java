@@ -10,9 +10,11 @@ import org.elece.exception.btree.BTreeException;
 import org.elece.exception.db.DbException;
 import org.elece.exception.proto.TcpException;
 import org.elece.exception.query.QueryException;
+import org.elece.exception.query.type.InvalidQueryError;
 import org.elece.exception.schema.SchemaException;
 import org.elece.exception.serialization.DeserializationException;
 import org.elece.exception.serialization.SerializationException;
+import org.elece.exception.sql.ParserException;
 import org.elece.exception.storage.StorageException;
 import org.elece.index.ColumnIndexManagerProvider;
 import org.elece.query.comparator.EqualityComparator;
@@ -23,10 +25,14 @@ import org.elece.query.path.DefaultPathNode;
 import org.elece.query.path.IndexPath;
 import org.elece.query.path.NodeCollection;
 import org.elece.query.plan.QueryPlan;
+import org.elece.query.plan.builder.DeleteQueryPlanBuilder;
 import org.elece.query.plan.builder.InsertQueryPlanBuilder;
 import org.elece.query.plan.builder.SelectQueryPlanBuilder;
+import org.elece.query.plan.builder.UpdateQueryPlanBuilder;
 import org.elece.query.plan.step.filter.FieldFilterStep;
+import org.elece.query.plan.step.operation.DeleteOperationStep;
 import org.elece.query.plan.step.operation.InsertOperationStep;
+import org.elece.query.plan.step.operation.UpdateOperationStep;
 import org.elece.query.plan.step.order.CacheableOrderStep;
 import org.elece.query.plan.step.scan.EqualityRowScanStep;
 import org.elece.query.plan.step.scan.RangeRowScanStep;
@@ -37,6 +43,7 @@ import org.elece.query.plan.step.stream.OutputStreamStep;
 import org.elece.query.plan.step.stream.StreamStep;
 import org.elece.query.plan.step.tracer.InsertTracerStep;
 import org.elece.query.plan.step.tracer.SelectTracerStep;
+import org.elece.query.plan.step.tracer.UpdateTracerStep;
 import org.elece.query.plan.step.validator.InsertValidatorStep;
 import org.elece.query.plan.step.value.InsertValueStep;
 import org.elece.query.result.ScanInfo;
@@ -77,7 +84,8 @@ public class QueryPlanner {
                                                                             ExecutionException, StorageException,
                                                                             InterruptedException,
                                                                             DeserializationException, DbException,
-                                                                            QueryException, TcpException {
+                                                                            QueryException, TcpException,
+                                                                            ParserException {
         final StreamStep streamStep = new OutputStreamStep(clientBridge);
         Optional<QueryExecutor> queryExecutor = switch (statement.getStatementType()) {
             case CreateDb -> Optional.of(new CreateDbQueryExecutor((CreateDbStatement) statement, streamStep));
@@ -93,20 +101,151 @@ public class QueryPlanner {
             return;
         }
 
-        // TODO: implement query builders
         Optional<QueryPlan> plan = switch (statement.getStatementType()) {
             case Select -> buildSelectQueryPlan((SelectStatement) statement, streamStep);
             case Insert -> buildInsertQueryPlan((InsertStatement) statement, streamStep);
-            case Update -> Optional.empty();
-            case Delete -> Optional.empty();
+            case Update -> buildUpdateQueryPlan((UpdateStatement) statement, streamStep);
+            case Delete -> buildDeleteQueryPlan((DeleteStatement) statement, streamStep);
             default -> Optional.empty();
         };
 
         if (plan.isEmpty()) {
-            // TODO: fix exception
-            throw new QueryException(null);
+            throw new QueryException(new InvalidQueryError());
         }
 
+        plan.get().execute();
+    }
+
+    private <V extends Comparable<V>> Optional<QueryPlan> buildDeleteQueryPlan(DeleteStatement statement,
+                                                                               StreamStep streamStep) throws
+                                                                                                      QueryException,
+                                                                                                      SchemaException,
+                                                                                                      StorageException,
+                                                                                                      BTreeException {
+        Optional<Table> possibleTable = SchemaSearcher.findTable(schemaManager.getSchema(), statement.getFrom());
+        if (possibleTable.isEmpty()) {
+            return Optional.empty();
+        }
+        Table table = possibleTable.get();
+
+        DeleteQueryPlanBuilder builder = DeleteQueryPlanBuilder.builder();
+        builder.setStreamStep(streamStep);
+
+        NodeCollection nodeCollection = ScanQueryPlanGenerator.buildNodeCollection(table, statement.getWhere());
+        if (nodeCollection.isEmpty()) {
+            return Optional.empty();
+        }
+
+        Long scanId = -1L;
+        List<Column> mainScans = new ArrayList<>();
+        List<Column> secondaryScans = new ArrayList<>();
+        for (IndexPath indexPath : nodeCollection.getIndexPaths()) {
+            Optional<DefaultPathNode> possibleMainPath = ScanQueryPlanGenerator.findMainPath(indexPath);
+            ScanStep scanStep;
+            if (possibleMainPath.isEmpty()) {
+                scanStep = new SequentialScanStep(table, columnIndexManagerProvider, databaseStorageManager);
+                mainScans.add(SchemaSearcher.findClusterColumn(table));
+            } else {
+                DefaultPathNode mainPath = possibleMainPath.get();
+
+                Optional<Column> column = SchemaSearcher.findColumn(table, mainPath.getColumnName());
+                if (column.isEmpty()) {
+                    return Optional.empty();
+                }
+
+                if (mainPath.getValueComparator() instanceof EqualityComparator<?> equalityComparator) {
+                    scanStep = new EqualityRowScanStep<>(table, column.get(), (EqualityComparator<V>) equalityComparator, columnIndexManagerProvider, databaseStorageManager);
+                } else {
+                    scanStep = new RangeRowScanStep(table, column.get(), (NumberRangeComparator) mainPath.getValueComparator(), Order.DEFAULT_ORDER, columnIndexManagerProvider, databaseStorageManager);
+                }
+                mainScans.add(column.get());
+            }
+            builder.addScanStep(scanStep);
+
+            if (scanId == -1L) {
+                scanId = scanStep.getScanId();
+            }
+
+            Set<DefaultPathNode> secondaryPaths = possibleMainPath
+                    .map(defaultPathNode -> indexPath.getNodePaths().stream().filter(pathNode -> !Objects.equals(pathNode, defaultPathNode)).collect(Collectors.toSet()))
+                    .orElseGet(indexPath::getNodePaths);
+
+            for (DefaultPathNode secondaryPath : secondaryPaths) {
+                Optional<Column> column = SchemaSearcher.findColumn(table, secondaryPath.getColumnName());
+                if (column.isPresent()) {
+                    builder = builder.addFilterStep(new FieldFilterStep<>(table, column.get(), (ValueComparator<V>) secondaryPath.getValueComparator(), serializerRegistry, scanStep.getScanId()));
+                    secondaryScans.add(column.get());
+                }
+            }
+        }
+
+        builder.setOperationStep(new DeleteOperationStep(table, columnIndexManagerProvider, databaseStorageManager))
+                .setTracerStep(new UpdateTracerStep(table, new ScanInfo(mainScans, secondaryScans)));
+
+        return Optional.of(builder.build());
+    }
+
+    private <V extends Comparable<V>> Optional<QueryPlan> buildUpdateQueryPlan(UpdateStatement statement,
+                                                                               StreamStep streamStep) throws
+                                                                                                      SchemaException,
+                                                                                                      StorageException,
+                                                                                                      QueryException,
+                                                                                                      BTreeException {
+        Optional<Table> possibleTable = SchemaSearcher.findTable(schemaManager.getSchema(), statement.getTable());
+        if (possibleTable.isEmpty()) {
+            return Optional.empty();
+        }
+        Table table = possibleTable.get();
+
+        UpdateQueryPlanBuilder builder = UpdateQueryPlanBuilder.builder();
+        builder.setStreamStep(streamStep);
+
+        NodeCollection nodeCollection = ScanQueryPlanGenerator.buildNodeCollection(table, statement.getWhere());
+        if (nodeCollection.isEmpty()) {
+            return Optional.empty();
+        }
+
+        Long scanId = -1L;
+        List<Column> mainScans = new ArrayList<>();
+        List<Column> secondaryScans = new ArrayList<>();
+        for (IndexPath indexPath : nodeCollection.getIndexPaths()) {
+            Optional<DefaultPathNode> possibleMainPath = ScanQueryPlanGenerator.findMainPath(indexPath);
+            ScanStep scanStep;
+            if (possibleMainPath.isEmpty()) {
+                scanStep = new SequentialScanStep(table, columnIndexManagerProvider, databaseStorageManager);
+                mainScans.add(SchemaSearcher.findClusterColumn(table));
+            } else {
+                DefaultPathNode mainPath = possibleMainPath.get();
+                if (mainPath.getValueComparator() instanceof EqualityComparator<?> equalityComparator) {
+                    scanStep = new EqualityRowScanStep<>(table, SchemaSearcher.findColumn(table, mainPath.getColumnName()).get(), (EqualityComparator<V>) equalityComparator, columnIndexManagerProvider, databaseStorageManager);
+                } else {
+                    scanStep = new RangeRowScanStep(table, SchemaSearcher.findColumn(table, mainPath.getColumnName()).get(), (NumberRangeComparator) mainPath.getValueComparator(), Order.DEFAULT_ORDER, columnIndexManagerProvider, databaseStorageManager);
+                }
+                mainScans.add(SchemaSearcher.findColumn(table, mainPath.getColumnName()).get());
+            }
+            builder.addScanStep(scanStep);
+
+            if (scanId == -1L) {
+                scanId = scanStep.getScanId();
+            }
+
+            Set<DefaultPathNode> secondaryPaths = possibleMainPath
+                    .map(defaultPathNode -> indexPath.getNodePaths().stream().filter(pathNode -> !Objects.equals(pathNode, defaultPathNode)).collect(Collectors.toSet()))
+                    .orElseGet(indexPath::getNodePaths);
+
+            for (DefaultPathNode secondaryPath : secondaryPaths) {
+                Optional<Column> column = SchemaSearcher.findColumn(table, secondaryPath.getColumnName());
+                if (column.isPresent()) {
+                    builder = builder.addFilterStep(new FieldFilterStep<>(table, column.get(), (ValueComparator<V>) secondaryPath.getValueComparator(), serializerRegistry, scanStep.getScanId()));
+                    secondaryScans.add(column.get());
+                }
+            }
+        }
+
+        builder.setOperationStep(new UpdateOperationStep(table, statement.getColumns(), databaseStorageManager, columnIndexManagerProvider, serializerRegistry))
+                .setTracerStep(new UpdateTracerStep(table, new ScanInfo(mainScans, secondaryScans)));
+
+        return Optional.of(builder.build());
     }
 
     private Optional<QueryPlan> buildInsertQueryPlan(InsertStatement statement, StreamStep streamStep) {
