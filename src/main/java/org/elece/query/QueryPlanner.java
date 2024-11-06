@@ -23,8 +23,10 @@ import org.elece.query.path.DefaultPathNode;
 import org.elece.query.path.IndexPath;
 import org.elece.query.path.NodeCollection;
 import org.elece.query.plan.QueryPlan;
+import org.elece.query.plan.builder.InsertQueryPlanBuilder;
 import org.elece.query.plan.builder.SelectQueryPlanBuilder;
 import org.elece.query.plan.step.filter.FieldFilterStep;
+import org.elece.query.plan.step.operation.InsertOperationStep;
 import org.elece.query.plan.step.order.CacheableOrderStep;
 import org.elece.query.plan.step.scan.EqualityRowScanStep;
 import org.elece.query.plan.step.scan.RangeRowScanStep;
@@ -33,7 +35,10 @@ import org.elece.query.plan.step.scan.SequentialScanStep;
 import org.elece.query.plan.step.selector.AttributeSelectorStep;
 import org.elece.query.plan.step.stream.OutputStreamStep;
 import org.elece.query.plan.step.stream.StreamStep;
+import org.elece.query.plan.step.tracer.InsertTracerStep;
 import org.elece.query.plan.step.tracer.SelectTracerStep;
+import org.elece.query.plan.step.validator.InsertValidatorStep;
+import org.elece.query.plan.step.value.InsertValueStep;
 import org.elece.query.result.ScanInfo;
 import org.elece.serializer.SerializerRegistry;
 import org.elece.sql.parser.expression.IdentifierExpression;
@@ -91,7 +96,7 @@ public class QueryPlanner {
         // TODO: implement query builders
         Optional<QueryPlan> plan = switch (statement.getStatementType()) {
             case Select -> buildSelectQueryPlan((SelectStatement) statement, streamStep);
-            case Insert -> Optional.empty();
+            case Insert -> buildInsertQueryPlan((InsertStatement) statement, streamStep);
             case Update -> Optional.empty();
             case Delete -> Optional.empty();
             default -> Optional.empty();
@@ -102,6 +107,23 @@ public class QueryPlanner {
             throw new QueryException(null);
         }
 
+    }
+
+    private Optional<QueryPlan> buildInsertQueryPlan(InsertStatement statement, StreamStep streamStep) {
+        Optional<Table> possibleTable = SchemaSearcher.findTable(schemaManager.getSchema(), statement.getTable());
+        if (possibleTable.isEmpty()) {
+            return Optional.empty();
+        }
+        Table table = possibleTable.get();
+
+        InsertQueryPlanBuilder builder = InsertQueryPlanBuilder.builder();
+        builder.setStreamStep(streamStep)
+                .setValueStep(new InsertValueStep(table, statement.getValues(), columnIndexManagerProvider, serializerRegistry))
+                .setValidatorStep(new InsertValidatorStep(table, columnIndexManagerProvider))
+                .setOperationStep(new InsertOperationStep(table, columnIndexManagerProvider, databaseStorageManager))
+                .setTracerStep(new InsertTracerStep(table));
+
+        return Optional.of(builder.build());
     }
 
     private <V extends Comparable<V>> Optional<QueryPlan> buildSelectQueryPlan(SelectStatement statement,
@@ -125,7 +147,7 @@ public class QueryPlanner {
                 .toList();
 
         SelectQueryPlanBuilder builder = SelectQueryPlanBuilder.builder();
-        builder = builder.setStreamStep(streamStep);
+        builder.setStreamStep(streamStep);
 
         NodeCollection nodeCollection = ScanQueryPlanGenerator.buildNodeCollection(table, statement.getWhere());
         if (nodeCollection.isEmpty()) {
@@ -150,7 +172,7 @@ public class QueryPlanner {
                 }
                 mainScans.add(SchemaSearcher.findColumn(table, mainPath.getColumnName()).get());
             }
-            builder = builder.addScanStep(scanStep);
+            builder.addScanStep(scanStep);
 
             if (scanId == -1L) {
                 scanId = scanStep.getScanId();
