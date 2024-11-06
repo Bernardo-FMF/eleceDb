@@ -39,7 +39,7 @@ public class DeleteOperationStep extends OperationStep<DbObject> {
                                                   ExecutionException, InterruptedException, DbException,
                                                   SerializationException {
         IndexManager<Integer, Pointer> clusterIndexManager = columnIndexManagerProvider.getClusterIndexManager(table);
-        byte[] clusterBytes = SerializationUtils.getValueOfField(table, SchemaSearcher.findClusterColumn(table).get(), value);
+        byte[] clusterBytes = SerializationUtils.getValueOfField(table, SchemaSearcher.findClusterColumn(table), value);
         int rowClusterId = BinaryUtils.bytesToInteger(clusterBytes, 0);
 
         Optional<Pointer> pointer = clusterIndexManager.getIndex(rowClusterId);

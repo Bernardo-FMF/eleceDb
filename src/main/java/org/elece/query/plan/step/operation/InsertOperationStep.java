@@ -39,7 +39,7 @@ public class InsertOperationStep extends OperationStep<byte[]> {
         Pointer rowPointer = databaseStorageManager.store(table.getId(), value);
 
         IndexManager<Integer, Pointer> clusterIndexManager = columnIndexManagerProvider.getClusterIndexManager(table);
-        byte[] clusterBytes = SerializationUtils.getValueOfField(table, SchemaSearcher.findClusterColumn(table).get(), value);
+        byte[] clusterBytes = SerializationUtils.getValueOfField(table, SchemaSearcher.findClusterColumn(table), value);
         int rowClusterId = BinaryUtils.bytesToInteger(clusterBytes, 0);
         clusterIndexManager.addIndex(rowClusterId, rowPointer);
 

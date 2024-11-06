@@ -5,11 +5,19 @@ import org.elece.db.schema.model.Column;
 import java.util.List;
 
 public class ScanInfo {
-    private final List<Column> indexedScanColumns;
-    private final List<Column> diskScanColumns;
+    private final List<Column> mainScans;
+    private final List<Column> secondaryFilterScans;
 
-    public ScanInfo(List<Column> indexedScanColumns, List<Column> diskScanColumns) {
-        this.indexedScanColumns = indexedScanColumns;
-        this.diskScanColumns = diskScanColumns;
+    public ScanInfo(List<Column> mainScans, List<Column> secondaryFilterScans) {
+        this.mainScans = mainScans;
+        this.secondaryFilterScans = secondaryFilterScans;
+    }
+
+    @Override
+    public String toString() {
+        return "ScanInfo{" +
+                "mainScans=" + mainScans +
+                ", secondaryFilterScans=" + secondaryFilterScans +
+                '}';
     }
 }

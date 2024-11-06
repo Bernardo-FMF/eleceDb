@@ -175,7 +175,7 @@ public class JsonSchemaManager implements SchemaManager {
             }
         } finally {
             sortedIterator.unlock();
-            columnIndexManagerProvider.clearIndexManager(table, SchemaSearcher.findClusterColumn(table).get());
+            columnIndexManagerProvider.clearIndexManager(table, SchemaSearcher.findClusterColumn(table));
         }
 
         for (Column column : table.getColumns()) {

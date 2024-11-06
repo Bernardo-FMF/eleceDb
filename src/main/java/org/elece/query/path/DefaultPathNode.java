@@ -30,14 +30,10 @@ public class DefaultPathNode {
         return indexType;
     }
 
-    // TODO: fix priority calculation
     public int getPriority() {
-        int priority = 0x00;
-        priority |= (0x10 << Math.max(0, Math.min(indexType.getPriority(), 15)));
-        if (valueComparator instanceof EqualityComparator<?>) {
-            priority |= 0x01;
-        }
-        return priority;
+        int indexTypePriority = indexType.getPriority() == 0 ? 0x00 : 0xF0;
+        int comparatorPriority = valueComparator instanceof EqualityComparator<?> ? 0x0F : 0x00;
+        return indexTypePriority | comparatorPriority;
     }
 
     @Override

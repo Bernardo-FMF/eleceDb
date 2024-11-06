@@ -5,8 +5,6 @@ import org.elece.db.schema.SchemaSearcher;
 import org.elece.db.schema.model.Column;
 import org.elece.db.schema.model.Table;
 import org.elece.exception.schema.SchemaException;
-import org.elece.exception.schema.type.TableWithNoPrimaryKeyError;
-import org.elece.exception.sql.type.analyzer.ColumnNotPresentError;
 import org.elece.exception.sql.type.analyzer.IncompatibleTypeForIndexError;
 import org.elece.exception.storage.StorageException;
 import org.elece.memory.data.BinaryObjectFactory;
@@ -18,7 +16,6 @@ import org.elece.storage.index.session.factory.AtomicIOSessionFactory;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 import static org.elece.db.schema.model.Column.CLUSTER_ID;
 
@@ -31,11 +28,8 @@ public class DefaultColumnIndexManagerProvider extends ColumnIndexManagerProvide
 
     @Override
     public IndexManager<?, ?> getClusterIndexManager(Table table) throws SchemaException, StorageException {
-        Optional<Column> clusterColumn = SchemaSearcher.findClusterColumn(table);
-        if (clusterColumn.isEmpty()) {
-            throw new SchemaException(new TableWithNoPrimaryKeyError(table.getName()));
-        }
-        return getIndexManager(table, clusterColumn.get());
+        Column clusterColumn = SchemaSearcher.findClusterColumn(table);
+        return getIndexManager(table, clusterColumn);
     }
 
     @Override
@@ -78,15 +72,12 @@ public class DefaultColumnIndexManagerProvider extends ColumnIndexManagerProvide
             throw new SchemaException(new IncompatibleTypeForIndexError(column.getName(), column.getSqlType().getType()));
         }
 
-        Optional<Column> optionalClusterColumn = SchemaSearcher.findClusterColumn(table);
-        if (optionalClusterColumn.isEmpty()) {
-            throw new SchemaException(new ColumnNotPresentError(CLUSTER_ID, table.getName()));
-        }
+        Column clusterColumn = SchemaSearcher.findClusterColumn(table);
 
-        Serializer<V> clusterSerializer = SerializerRegistry.getInstance().getSerializer(optionalClusterColumn.get().getSqlType().getType());
+        Serializer<V> clusterSerializer = SerializerRegistry.getInstance().getSerializer(clusterColumn.getSqlType().getType());
 
         BinaryObjectFactory<K> kBinaryObjectFactory = serializer.getBinaryObjectFactory(column);
-        BinaryObjectFactory<V> vBinaryObjectFactory = clusterSerializer.getBinaryObjectFactory(optionalClusterColumn.get());
+        BinaryObjectFactory<V> vBinaryObjectFactory = clusterSerializer.getBinaryObjectFactory(clusterColumn);
 
         return new TreeIndexManager<>(
                 indexId.asInt(),

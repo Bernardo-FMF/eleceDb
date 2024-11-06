@@ -6,7 +6,6 @@ public class IndexPath {
     private final Set<DefaultPathNode> nodePaths;
 
     public IndexPath() {
-        // TODO: fix and use priority to order the nodes, this should be a TreeSet
         this.nodePaths = new HashSet<>();
     }
 
@@ -18,10 +17,6 @@ public class IndexPath {
         return nodePaths;
     }
 
-    public Optional<DefaultPathNode> getFirst() {
-        return nodePaths.stream().findFirst();
-    }
-
     public int size() {
         return nodePaths.size();
     }
@@ -31,6 +26,6 @@ public class IndexPath {
     }
 
     public Queue<DefaultPathNode> buildNodePathsQueue() {
-        return new PriorityQueue<>(nodePaths);
+        return new PriorityQueue<>(Comparator.comparingInt(DefaultPathNode::getPriority));
     }
 }
