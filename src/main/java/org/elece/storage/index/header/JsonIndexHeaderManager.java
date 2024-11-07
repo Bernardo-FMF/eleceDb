@@ -15,17 +15,21 @@ public class JsonIndexHeaderManager implements IndexHeaderManager {
     private IndexHeader header;
     private final Gson gson;
 
-    public JsonIndexHeaderManager(Path path) throws IOException, StorageException {
+    public JsonIndexHeaderManager(Path path) throws StorageException {
         this.path = path;
         this.gson = new GsonBuilder().serializeNulls().create();
         File file = this.path.toFile();
 
         if (!file.exists()) {
-            boolean createdFile = file.createNewFile();
-            if (!createdFile) {
-                throw new StorageException(DbError.INTERNAL_STORAGE_ERROR, "Couldn't create index header file(s)");
-            } else {
-                this.header = new IndexHeader();
+            try {
+                boolean createdFile = file.createNewFile();
+                if (!createdFile) {
+                    throw new StorageException(DbError.INTERNAL_STORAGE_ERROR, "Couldn't create index header file(s)");
+                } else {
+                    this.header = new IndexHeader();
+                }
+            } catch (IOException exception) {
+                throw new StorageException(DbError.INTERNAL_STORAGE_ERROR, "Couldn't create index header file(s) due to I/O exception");
             }
             return;
         }

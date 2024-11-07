@@ -10,7 +10,8 @@ public class IndexHeader {
     public IndexHeader() {
     }
 
-    public IndexHeader(Map<Integer, IndexHeaderManager.Location> roots, Map<Integer, TreeSet<IndexOffset>> chunkIndexOffsets) {
+    public IndexHeader(Map<Integer, IndexHeaderManager.Location> roots,
+                       Map<Integer, TreeSet<IndexOffset>> chunkIndexOffsets) {
         this.roots = roots;
         this.chunkIndexOffsets = chunkIndexOffsets;
     }
@@ -32,7 +33,7 @@ public class IndexHeader {
     }
 
     public Optional<IndexOffset> getNextIndexOffset(int chunk, int indexId) {
-        TreeSet<IndexOffset> indexOffsets = this.getIndexOffsets(chunk);
+        SortedSet<IndexOffset> indexOffsets = this.getIndexOffsets(chunk);
 
         return indexOffsets.stream()
                 .dropWhile(offset -> offset.getIndexId() != indexId)
@@ -49,12 +50,14 @@ public class IndexHeader {
             this.offset = offset;
         }
 
-
         @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            IndexOffset that = (IndexOffset) o;
+        public boolean equals(Object obj) {
+            if (this == obj) {
+                return true;
+            }
+            if (!(obj instanceof IndexOffset that)) {
+                return false;
+            }
             return indexId == that.indexId && offset == that.offset;
         }
 
@@ -80,8 +83,8 @@ public class IndexHeader {
         }
 
         @Override
-        public int compareTo(IndexOffset o) {
-            return Long.compare(this.offset, o.offset);
+        public int compareTo(IndexOffset obj) {
+            return Long.compare(this.offset, obj.offset);
         }
     }
 }

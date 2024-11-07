@@ -30,11 +30,14 @@ public interface IndexHeaderManager {
         }
 
         @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            Location location = (Location) o;
-            return chunk() == location.chunk() && offset() == location.offset();
+        public boolean equals(Object obj) {
+            if (this == obj) {
+                return true;
+            }
+            if (obj instanceof Location(int thatChunk, long thatOffset)) {
+                return this.chunk == thatChunk && this.offset == thatOffset;
+            }
+            return false;
         }
 
         @Override
