@@ -1,8 +1,8 @@
 package org.elece.db.page;
 
 import org.elece.config.DbConfig;
-import org.elece.exception.db.DbException;
-import org.elece.exception.db.type.PageAcquisitionError;
+import org.elece.exception.DbError;
+import org.elece.exception.DbException;
 import org.elece.storage.file.FileHandlerPool;
 import org.elece.utils.FileUtils;
 
@@ -36,8 +36,8 @@ public class DefaultPageFactory implements PageFactory {
             fileHandlerPool.releaseFileHandler(path);
 
             return new Page(pageTitle.getPageNumber(), pageTitle.getChunk(), data);
-        } catch (InterruptedException | IOException | ExecutionException e) {
-            throw new DbException(new PageAcquisitionError(dbFileFunction.apply(pageTitle.getChunk()).toString()));
+        } catch (InterruptedException | IOException | ExecutionException exception) {
+            throw new DbException(DbError.PAGE_ACQUISITION_ERROR, String.format("Failed to acquire page %s", dbFileFunction.apply(pageTitle.getChunk()).toString()));
         }
     }
 }

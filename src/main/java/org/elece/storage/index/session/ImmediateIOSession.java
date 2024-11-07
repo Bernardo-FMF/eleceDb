@@ -1,7 +1,7 @@
 package org.elece.storage.index.session;
 
-import org.elece.exception.storage.StorageException;
-import org.elece.exception.storage.type.InternalStorageError;
+import org.elece.exception.DbError;
+import org.elece.exception.StorageException;
 import org.elece.memory.KeyValueSize;
 import org.elece.memory.Pointer;
 import org.elece.memory.tree.node.AbstractTreeNode;
@@ -28,7 +28,7 @@ public class ImmediateIOSession<K extends Comparable<K>> extends AbstractIOSessi
             Optional<NodeData> optional = indexStorageManager.getRoot(indexId, keyValueSize).get();
             return optional.map(nodeFactory::fromNodeData);
         } catch (ExecutionException | InterruptedException exception) {
-            throw new StorageException(new InternalStorageError(exception.getMessage()));
+            throw new StorageException(DbError.INTERNAL_STORAGE_ERROR, exception.getMessage());
         }
     }
 
@@ -37,7 +37,7 @@ public class ImmediateIOSession<K extends Comparable<K>> extends AbstractIOSessi
         try {
             return writeNode(node).get();
         } catch (IOException | ExecutionException | InterruptedException exception) {
-            throw new StorageException(new InternalStorageError(exception.getMessage()));
+            throw new StorageException(DbError.INTERNAL_STORAGE_ERROR, exception.getMessage());
         }
     }
 
@@ -46,7 +46,7 @@ public class ImmediateIOSession<K extends Comparable<K>> extends AbstractIOSessi
         try {
             return readNode(pointer);
         } catch (ExecutionException | InterruptedException | IOException exception) {
-            throw new StorageException(new InternalStorageError(exception.getMessage()));
+            throw new StorageException(DbError.INTERNAL_STORAGE_ERROR, exception.getMessage());
         }
     }
 
@@ -55,7 +55,7 @@ public class ImmediateIOSession<K extends Comparable<K>> extends AbstractIOSessi
         try {
             updateNode(node);
         } catch (InterruptedException | IOException | ExecutionException exception) {
-            throw new StorageException(new InternalStorageError(exception.getMessage()));
+            throw new StorageException(DbError.INTERNAL_STORAGE_ERROR, exception.getMessage());
         }
     }
 
@@ -64,7 +64,7 @@ public class ImmediateIOSession<K extends Comparable<K>> extends AbstractIOSessi
         try {
             removeNode(node.getPointer());
         } catch (ExecutionException | InterruptedException exception) {
-            throw new StorageException(new InternalStorageError(exception.getMessage()));
+            throw new StorageException(DbError.INTERNAL_STORAGE_ERROR, exception.getMessage());
         }
     }
 

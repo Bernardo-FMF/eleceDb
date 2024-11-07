@@ -1,13 +1,13 @@
 package org.elece.sql.parser.command;
 
-import org.elece.exception.sql.ParserException;
-import org.elece.exception.sql.TokenizerException;
-import org.elece.exception.sql.type.parser.UnspecifiedError;
+import org.elece.exception.DbError;
+import org.elece.exception.ParserException;
+import org.elece.exception.TokenizerException;
 import org.elece.sql.parser.statement.CreateDbStatement;
 import org.elece.sql.parser.statement.CreateIndexStatement;
 import org.elece.sql.parser.statement.CreateTableStatement;
 import org.elece.sql.parser.statement.Statement;
-import org.elece.sql.token.IPeekableIterator;
+import org.elece.sql.token.PeekableIterator;
 import org.elece.sql.token.TokenWrapper;
 import org.elece.sql.token.model.KeywordToken;
 import org.elece.sql.token.model.Token;
@@ -19,7 +19,7 @@ import java.util.Set;
 public class CreateKeywordCommand extends AbstractKeywordCommand {
     private static final Set<Keyword> supportedCreateKeywords = Set.of(Keyword.Database, Keyword.Table, Keyword.Index, Keyword.Unique);
 
-    public CreateKeywordCommand(IPeekableIterator<TokenWrapper> tokenizer) {
+    public CreateKeywordCommand(PeekableIterator<TokenWrapper> tokenizer) {
         super(tokenizer);
     }
 
@@ -47,7 +47,7 @@ public class CreateKeywordCommand extends AbstractKeywordCommand {
 
                 yield new CreateIndexStatement(name, table, column, isUnique);
             }
-            default -> throw new ParserException(new UnspecifiedError("Unknown create query"));
+            default -> throw new ParserException(DbError.UNSPECIFIED_ERROR, "Unknown create query");
         };
     }
 }

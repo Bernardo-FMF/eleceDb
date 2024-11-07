@@ -1,7 +1,7 @@
 package org.elece.memory.tree.node;
 
-import org.elece.exception.btree.BTreeException;
-import org.elece.exception.serialization.SerializationException;
+import org.elece.exception.BTreeException;
+import org.elece.exception.SerializationException;
 import org.elece.memory.KeyValueSize;
 import org.elece.memory.Pointer;
 import org.elece.memory.data.BinaryObject;

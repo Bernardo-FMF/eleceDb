@@ -4,8 +4,8 @@ import org.elece.db.schema.SchemaManager;
 import org.elece.db.schema.SchemaSearcher;
 import org.elece.db.schema.model.Column;
 import org.elece.db.schema.model.Table;
-import org.elece.exception.sql.AnalyzerException;
-import org.elece.exception.sql.type.analyzer.*;
+import org.elece.exception.AnalyzerException;
+import org.elece.exception.DbError;
 import org.elece.sql.parser.expression.internal.SqlConstraint;
 import org.elece.sql.parser.statement.CreateTableStatement;
 
@@ -20,7 +20,7 @@ public class CreateTableAnalyzerCommand implements AnalyzerCommand<CreateTableSt
     public void analyze(SchemaManager schemaManager, CreateTableStatement statement) throws AnalyzerException {
         Optional<Table> optionalTable = SchemaSearcher.findTable(schemaManager.getSchema(), statement.getName());
         if (optionalTable.isPresent()) {
-            throw new AnalyzerException(new TableAlreadyExistsError(statement.getName()));
+            throw new AnalyzerException(DbError.TABLE_ALREADY_EXISTS_ERROR, String.format("Table %s already exists", statement.getName()));
         }
 
         boolean hasPrimaryKey = false;
@@ -28,27 +28,27 @@ public class CreateTableAnalyzerCommand implements AnalyzerCommand<CreateTableSt
 
         for (Column column : statement.getColumns()) {
             if (columnNames.contains(column.getName())) {
-                throw new AnalyzerException(new DuplicateColumnError(column.getName()));
+                throw new AnalyzerException(DbError.DUPLICATE_COLUMN_ERROR, String.format("Column %s is duplicated", column.getName()));
             } else {
                 columnNames.add(column.getName());
             }
 
             if (CLUSTER_ID.equals(column.getName())) {
-                throw new AnalyzerException(new InvalidColumnError(CLUSTER_ID));
+                throw new AnalyzerException(DbError.INVALID_COLUMN_ERROR, String.format("Column %s is invalid", CLUSTER_ID));
             }
 
             if (column.getConstraints().contains(SqlConstraint.PrimaryKey)) {
                 if (hasPrimaryKey) {
-                    throw new AnalyzerException(new MultiplePrimaryKeysError());
+                    throw new AnalyzerException(DbError.MULTIPLE_PRIMARY_KEYS_ERROR, "Table definition contains multiple primary keys");
                 }
                 if (!column.getSqlType().getConstraints().contains(SqlConstraint.PrimaryKey)) {
-                    throw new AnalyzerException(new IncompatibleTypeForPrimaryKeyError(column.getName(), column.getSqlType().getType()));
+                    throw new AnalyzerException(DbError.INCOMPATIBLE_TYPE_FOR_PRIMARY_KEY_ERROR, String.format("Type %s used for column %s is not usable as primary key", column.getName(), column.getSqlType().getType()));
                 }
                 hasPrimaryKey = true;
             }
 
             if (column.getConstraints().contains(SqlConstraint.Unique) && !column.getSqlType().getConstraints().contains(SqlConstraint.Unique)) {
-                throw new AnalyzerException(new IncompatibleTypeForIndexError(column.getName(), column.getSqlType().getType()));
+                throw new AnalyzerException(DbError.INCOMPATIBLE_TYPE_FOR_INDEX_ERROR, String.format("Type %s used for column %s is not usable for index", column.getName(), column.getSqlType().getType()));
             }
         }
     }

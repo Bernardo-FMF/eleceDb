@@ -1,6 +1,6 @@
 package org.elece.sql.parser.expression.internal;
 
-import org.elece.exception.sql.ParserException;
+import org.elece.exception.ParserException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

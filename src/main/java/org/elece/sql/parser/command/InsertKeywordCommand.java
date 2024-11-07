@@ -1,11 +1,11 @@
 package org.elece.sql.parser.command;
 
-import org.elece.exception.sql.ParserException;
-import org.elece.exception.sql.TokenizerException;
+import org.elece.exception.ParserException;
+import org.elece.exception.TokenizerException;
 import org.elece.sql.parser.expression.Expression;
 import org.elece.sql.parser.statement.InsertStatement;
 import org.elece.sql.parser.statement.Statement;
-import org.elece.sql.token.IPeekableIterator;
+import org.elece.sql.token.PeekableIterator;
 import org.elece.sql.token.TokenWrapper;
 import org.elece.sql.token.model.SymbolToken;
 import org.elece.sql.token.model.Token;
@@ -16,7 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class InsertKeywordCommand extends AbstractKeywordCommand {
-    public InsertKeywordCommand(IPeekableIterator<TokenWrapper> tokenizer) {
+    public InsertKeywordCommand(PeekableIterator<TokenWrapper> tokenizer) {
         super(tokenizer);
     }
 

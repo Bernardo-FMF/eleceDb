@@ -2,10 +2,10 @@ package org.elece.query.plan.step.value;
 
 import org.elece.db.schema.model.Column;
 import org.elece.db.schema.model.Table;
-import org.elece.exception.schema.SchemaException;
-import org.elece.exception.serialization.SerializationException;
-import org.elece.exception.sql.ParserException;
-import org.elece.exception.storage.StorageException;
+import org.elece.exception.ParserException;
+import org.elece.exception.SchemaException;
+import org.elece.exception.SerializationException;
+import org.elece.exception.StorageException;
 import org.elece.index.ColumnIndexManagerProvider;
 import org.elece.index.IndexManager;
 import org.elece.memory.Pointer;

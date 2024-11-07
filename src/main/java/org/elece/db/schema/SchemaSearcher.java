@@ -3,8 +3,8 @@ package org.elece.db.schema;
 import org.elece.db.schema.model.Column;
 import org.elece.db.schema.model.Schema;
 import org.elece.db.schema.model.Table;
-import org.elece.exception.schema.SchemaException;
-import org.elece.exception.sql.type.analyzer.ColumnNotPresentError;
+import org.elece.exception.DbError;
+import org.elece.exception.SchemaException;
 
 import java.util.Optional;
 
@@ -31,7 +31,7 @@ public class SchemaSearcher {
     public static Column findClusterColumn(Table table) throws SchemaException {
         Optional<Column> first = table.getColumns().stream().filter(column -> CLUSTER_ID.equals(column.getName())).findFirst();
         if (first.isEmpty()) {
-            throw new SchemaException(new ColumnNotPresentError(CLUSTER_ID, table.getName()));
+            throw new SchemaException(DbError.COLUMN_NOT_FOUND_ERROR, String.format("Column %s is not present in the table %s", CLUSTER_ID, table.getName()));
         }
         return first.get();
     }

@@ -1,7 +1,7 @@
 package org.elece.sql.parser;
 
-import org.elece.exception.sql.ParserException;
-import org.elece.exception.sql.TokenizerException;
+import org.elece.exception.ParserException;
+import org.elece.exception.TokenizerException;
 import org.elece.sql.parser.expression.BinaryExpression;
 import org.elece.sql.parser.expression.IdentifierExpression;
 import org.elece.sql.parser.expression.OrderIdentifierExpression;

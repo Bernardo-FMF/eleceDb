@@ -1,14 +1,7 @@
 package org.elece.query.plan;
 
 import org.elece.db.DbObject;
-import org.elece.exception.btree.BTreeException;
-import org.elece.exception.db.DbException;
-import org.elece.exception.proto.TcpException;
-import org.elece.exception.schema.SchemaException;
-import org.elece.exception.serialization.DeserializationException;
-import org.elece.exception.serialization.SerializationException;
-import org.elece.exception.sql.ParserException;
-import org.elece.exception.storage.StorageException;
+import org.elece.exception.*;
 import org.elece.query.plan.step.filter.FilterStep;
 import org.elece.query.plan.step.operation.OperationStep;
 import org.elece.query.plan.step.scan.ScanStep;
@@ -43,7 +36,7 @@ public class UpdateQueryPlan implements QueryPlan {
     @Override
     public void execute() throws ParserException, SerializationException, SchemaException, StorageException,
                                  IOException, ExecutionException, InterruptedException, DbException, BTreeException,
-                                 DeserializationException, TcpException {
+                                 DeserializationException, ProtoException {
         while (!scanSteps.isEmpty()) {
             ScanStep rowScanner = scanSteps.poll();
             List<FilterStep> rowFilters = filterSteps.get(rowScanner.getScanId());

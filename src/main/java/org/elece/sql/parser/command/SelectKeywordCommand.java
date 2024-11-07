@@ -1,11 +1,11 @@
 package org.elece.sql.parser.command;
 
-import org.elece.exception.sql.ParserException;
-import org.elece.exception.sql.TokenizerException;
+import org.elece.exception.ParserException;
+import org.elece.exception.TokenizerException;
 import org.elece.sql.parser.expression.Expression;
 import org.elece.sql.parser.statement.SelectStatement;
 import org.elece.sql.parser.statement.Statement;
-import org.elece.sql.token.IPeekableIterator;
+import org.elece.sql.token.PeekableIterator;
 import org.elece.sql.token.TokenWrapper;
 import org.elece.sql.token.model.type.Keyword;
 import org.elece.sql.token.model.type.Symbol;
@@ -13,7 +13,7 @@ import org.elece.sql.token.model.type.Symbol;
 import java.util.List;
 
 public class SelectKeywordCommand extends AbstractKeywordCommand {
-    public SelectKeywordCommand(IPeekableIterator<TokenWrapper> tokenizer) {
+    public SelectKeywordCommand(PeekableIterator<TokenWrapper> tokenizer) {
         super(tokenizer);
     }
 

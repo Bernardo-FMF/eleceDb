@@ -4,8 +4,8 @@ import org.elece.db.schema.SchemaManager;
 import org.elece.db.schema.SchemaSearcher;
 import org.elece.db.schema.model.Column;
 import org.elece.db.schema.model.Table;
-import org.elece.exception.sql.ParserException;
-import org.elece.exception.sql.type.analyzer.TableNotPresentError;
+import org.elece.exception.DbError;
+import org.elece.exception.ParserException;
 import org.elece.sql.parser.expression.Expression;
 import org.elece.sql.parser.expression.IdentifierExpression;
 import org.elece.sql.parser.expression.WildcardExpression;
@@ -27,7 +27,7 @@ public class SelectOptimizerCommand implements OptimizerCommand<SelectStatement>
         if (statement.getColumns().stream().anyMatch(expression -> expression instanceof WildcardExpression)) {
             Optional<Table> optionalTable = SchemaSearcher.findTable(schemaManager.getSchema(), statement.getFrom());
             if (optionalTable.isEmpty()) {
-                throw new ParserException(new TableNotPresentError(statement.getFrom()));
+                throw new ParserException(DbError.TABLE_NOT_FOUND_ERROR, String.format("Table %s is not present in the database schema", statement.getFrom()));
             }
 
             Table table = optionalTable.get();

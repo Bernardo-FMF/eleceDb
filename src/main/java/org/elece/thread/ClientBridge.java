@@ -1,7 +1,7 @@
 package org.elece.thread;
 
-import org.elece.exception.proto.TcpException;
-import org.elece.exception.proto.type.OutputStreamError;
+import org.elece.exception.DbError;
+import org.elece.exception.ProtoException;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -13,11 +13,11 @@ public class ClientBridge {
         this.outputStream = outputStream;
     }
 
-    public void send(byte[] response) throws TcpException {
+    public void send(byte[] response) throws ProtoException {
         try {
             outputStream.write(response);
         } catch (IOException exception) {
-            throw new TcpException(new OutputStreamError(exception.getMessage()));
+            throw new ProtoException(DbError.OUTPUT_STREAM_ERROR, exception.getMessage());
         }
     }
 }

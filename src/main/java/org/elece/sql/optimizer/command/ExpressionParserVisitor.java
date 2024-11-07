@@ -1,6 +1,6 @@
 package org.elece.sql.optimizer.command;
 
-import org.elece.exception.sql.ParserException;
+import org.elece.exception.ParserException;
 import org.elece.sql.parser.expression.*;
 
 public interface ExpressionParserVisitor<T> {

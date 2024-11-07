@@ -2,8 +2,8 @@ package org.elece.db;
 
 import org.elece.config.DbConfig;
 import org.elece.config.DefaultDbConfigBuilder;
-import org.elece.exception.db.DbException;
-import org.elece.exception.storage.StorageException;
+import org.elece.exception.DbException;
+import org.elece.exception.StorageException;
 import org.elece.memory.Pointer;
 import org.elece.memory.tree.node.LeafTreeNode;
 import org.elece.storage.file.DefaultFileHandlerFactory;

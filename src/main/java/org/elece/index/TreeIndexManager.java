@@ -1,11 +1,7 @@
 package org.elece.index;
 
 import org.elece.config.DbConfig;
-import org.elece.exception.RuntimeDbException;
-import org.elece.exception.btree.BTreeException;
-import org.elece.exception.btree.type.IndexNotFoundError;
-import org.elece.exception.serialization.SerializationException;
-import org.elece.exception.storage.StorageException;
+import org.elece.exception.*;
 import org.elece.memory.KeyValueSize;
 import org.elece.memory.Pointer;
 import org.elece.memory.data.BinaryObjectFactory;
@@ -65,7 +61,7 @@ public class TreeIndexManager<K extends Comparable<K>, V> extends AbstractTreeIn
         LeafTreeNode<K, V> node = BTreeUtils.getResponsibleNode(indexStorageManager, getRoot(atomicIOSession), identifier, indexId, bTreeDegree, nodeFactory, vBinaryObjectFactory);
         List<K> keyList = node.getKeyList(bTreeDegree);
         if (!keyList.contains(identifier)) {
-            throw new BTreeException(new IndexNotFoundError());
+            throw new BTreeException(DbError.INDEX_NOT_FOUND_ERROR, "Failed to find indexed key");
         }
 
         node.setKeyValue(keyList.indexOf(identifier), new LeafTreeNode.KeyValue<>(identifier, value));
@@ -135,7 +131,7 @@ public class TreeIndexManager<K extends Comparable<K>, V> extends AbstractTreeIn
                     try {
                         currentLeaf = (LeafTreeNode<K, V>) atomicIOSession.read(currentLeaf.getNextSiblingPointer(dbConfig.getBTreeDegree()).get());
                     } catch (StorageException exception) {
-                        throw new RuntimeDbException(exception.getDbError());
+                        throw new RuntimeDbException(exception.getDbError(), exception.getMessage());
                     }
                     keyIndex = 0;
                     keyValueList = currentLeaf.getKeyValueList(dbConfig.getBTreeDegree());

@@ -1,8 +1,8 @@
 package org.elece.serializer;
 
 import org.elece.db.schema.model.Column;
-import org.elece.exception.serialization.DeserializationException;
-import org.elece.exception.serialization.SerializationException;
+import org.elece.exception.DeserializationException;
+import org.elece.exception.SerializationException;
 import org.elece.memory.data.BinaryObject;
 import org.elece.memory.data.BinaryObjectFactory;
 

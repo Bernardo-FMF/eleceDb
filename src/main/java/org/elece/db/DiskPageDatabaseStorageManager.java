@@ -5,10 +5,9 @@ import org.elece.db.page.DefaultPageFactory;
 import org.elece.db.page.Page;
 import org.elece.db.page.PageBuffer;
 import org.elece.db.page.PageTitle;
-import org.elece.exception.RuntimeDbException;
-import org.elece.exception.db.DbException;
-import org.elece.exception.db.type.InvalidDbObjectError;
-import org.elece.exception.storage.StorageException;
+import org.elece.exception.DbError;
+import org.elece.exception.DbException;
+import org.elece.exception.StorageException;
 import org.elece.memory.Pointer;
 import org.elece.storage.file.FileHandlerPool;
 import org.elece.utils.FileUtils;
@@ -25,7 +24,8 @@ public class DiskPageDatabaseStorageManager implements DatabaseStorageManager {
     private final FileHandlerPool fileHandlerPool;
     private final ReservedSlotTracer reservedSlotTracer;
 
-    public DiskPageDatabaseStorageManager(DbConfig dbConfig, FileHandlerPool fileHandlerPool, ReservedSlotTracer reservedSlotTracer) {
+    public DiskPageDatabaseStorageManager(DbConfig dbConfig, FileHandlerPool fileHandlerPool,
+                                          ReservedSlotTracer reservedSlotTracer) {
         this.dbConfig = dbConfig;
         this.fileHandlerPool = fileHandlerPool;
         this.reservedSlotTracer = reservedSlotTracer;
@@ -33,7 +33,8 @@ public class DiskPageDatabaseStorageManager implements DatabaseStorageManager {
     }
 
     @Override
-    public Pointer store(int tableId, byte[] data) throws DbException, StorageException, IOException, ExecutionException, InterruptedException {
+    public Pointer store(int tableId, byte[] data) throws DbException, StorageException, IOException,
+                                                          ExecutionException, InterruptedException {
         // Try to find a free slot that can fit the data.
         Optional<DbObjectSlotLocation> optionalDbObjectSlotLocation = this.reservedSlotTracer.getFreeDbObjectSlotLocation(data.length);
 
@@ -77,7 +78,7 @@ public class DiskPageDatabaseStorageManager implements DatabaseStorageManager {
             try {
                 Optional<DbObject> emptyDBObject = page.getEmptyDBObject(data.length);
                 if (emptyDBObject.isEmpty()) {
-                    throw new DbException(new InvalidDbObjectError("Not possible to create object in newly created page"));
+                    throw new DbException(DbError.INVALID_DATABASE_OBJECT_ERROR, "Not possible to create object in newly created page");
                 }
                 dbObject = emptyDBObject.get();
             } catch (DbException exception) {
@@ -105,7 +106,7 @@ public class DiskPageDatabaseStorageManager implements DatabaseStorageManager {
             Optional<DbObject> optionalDbObject = page.getDBObjectWrapper((int) (pointer.getPosition() % this.dbConfig.getDbPageSize()));
 
             if (optionalDbObject.isEmpty()) {
-                throw new DbException(new InvalidDbObjectError("No object found in the pointer location"));
+                throw new DbException(DbError.INVALID_DATABASE_OBJECT_ERROR, "No object found in the pointer location");
             }
 
             DbObject dbObject = optionalDbObject.get();
@@ -132,8 +133,6 @@ public class DiskPageDatabaseStorageManager implements DatabaseStorageManager {
 
         try {
             return page.getDBObjectWrapper((int) (pointer.getPosition() % this.dbConfig.getDbPageSize()));
-        } catch (DbException exception) {
-            throw new RuntimeDbException(exception.getDbError());
         } finally {
             this.pageBuffer.release(pageTitle);
         }
@@ -180,7 +179,8 @@ public class DiskPageDatabaseStorageManager implements DatabaseStorageManager {
         this.fileHandlerPool.releaseFileHandler(path);
     }
 
-    private void store(DbObject dbObject, int tableId, byte[] data) throws DbException, IOException, InterruptedException {
+    private void store(DbObject dbObject, int tableId, byte[] data) throws DbException, IOException,
+                                                                           InterruptedException {
         dbObject.activate();
         dbObject.modifyData(data);
         dbObject.setTableId(tableId);

@@ -1,7 +1,7 @@
 package org.elece.db.page;
 
 import org.elece.db.DbObject;
-import org.elece.exception.db.DbException;
+import org.elece.exception.DbException;
 import org.elece.utils.BinaryUtils;
 
 import java.util.HashMap;

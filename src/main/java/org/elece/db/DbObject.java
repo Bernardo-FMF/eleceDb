@@ -1,16 +1,16 @@
 package org.elece.db;
 
 import org.elece.db.page.Page;
-import org.elece.exception.db.DbException;
-import org.elece.exception.db.type.InvalidDbObjectError;
+import org.elece.exception.DbError;
+import org.elece.exception.DbException;
 import org.elece.utils.BinaryUtils;
 
 public class DbObject {
-    public static byte ALIVE_OBJ = 0x01;
-    public static int FLAG_BYTES = 1;
-    public static int META_BYTES = FLAG_BYTES + (2 * Integer.BYTES);
-    public static int META_COLLECTION_ID_OFFSET = FLAG_BYTES;
-    public static int META_SIZE_OFFSET = FLAG_BYTES + Integer.BYTES;
+    public static final byte ALIVE_OBJ = 0x01;
+    public static final int FLAG_BYTES = 1;
+    public static final int META_BYTES = FLAG_BYTES + (2 * Integer.BYTES);
+    public static final int META_COLLECTION_ID_OFFSET = FLAG_BYTES;
+    public static final int META_SIZE_OFFSET = FLAG_BYTES + Integer.BYTES;
 
     private final byte[] wrappedData;
     private final int begin;
@@ -42,12 +42,12 @@ public class DbObject {
 
     private void verify() throws DbException {
         if (end > this.wrappedData.length - 1) {
-            throw new DbException(new InvalidDbObjectError(String.format("Object end marker %d exceeds the data size of %d", end, wrappedData.length)));
+            throw new DbException(DbError.INVALID_DATABASE_OBJECT_ERROR, String.format("Object end marker %d exceeds the data size of %d", end, wrappedData.length));
         }
 
         int min = META_BYTES + 1;
         if (this.length < min) {
-            throw new DbException(new InvalidDbObjectError(String.format("Object length is less than the minimum size of %d", min)));
+            throw new DbException(DbError.INVALID_DATABASE_OBJECT_ERROR, String.format("Object length is less than the minimum size of %d", min));
         }
     }
 
@@ -79,7 +79,7 @@ public class DbObject {
 
     public void modifyData(byte[] value) throws DbException {
         if (value.length > this.length - META_BYTES) {
-            throw new DbException(new InvalidDbObjectError(String.format("Object length %d exceeds the maximum size of %d", value.length, this.length - META_BYTES)));
+            throw new DbException(DbError.INVALID_DATABASE_OBJECT_ERROR, String.format("Object length %d exceeds the maximum size of %d", value.length, this.length - META_BYTES));
         }
 
         System.arraycopy(value, 0, this.wrappedData, begin + META_BYTES, value.length);

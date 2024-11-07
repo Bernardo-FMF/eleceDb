@@ -1,6 +1,6 @@
 package org.elece.memory.data;
 
-import org.elece.exception.btree.BTreeException;
+import org.elece.exception.BTreeException;
 import org.elece.memory.Pointer;
 
 public class PointerBinaryObject extends AbstractBinaryObject<Pointer> {

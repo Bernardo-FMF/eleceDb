@@ -3,10 +3,8 @@ package org.elece.sql;
 import org.elece.db.schema.SchemaSearcher;
 import org.elece.db.schema.model.Column;
 import org.elece.db.schema.model.Table;
-import org.elece.exception.sql.ParserException;
-import org.elece.exception.sql.type.analyzer.ColumnNotPresentError;
-import org.elece.exception.sql.type.analyzer.TableNotPresentError;
-import org.elece.exception.sql.type.parser.*;
+import org.elece.exception.DbError;
+import org.elece.exception.ParserException;
 import org.elece.sql.parser.expression.*;
 import org.elece.sql.parser.expression.internal.SqlBoolValue;
 import org.elece.sql.parser.expression.internal.SqlNumberValue;
@@ -26,16 +24,17 @@ public class ExpressionUtils {
         return resolveExpression(Map.of(), null, expression);
     }
 
-    public static SqlValue<?> resolveExpression(Map<String, SqlValue<?>> valuesTuple, Table table, Expression expression) throws ParserException {
+    public static SqlValue<?> resolveExpression(Map<String, SqlValue<?>> valuesTuple, Table table,
+                                                Expression expression) throws ParserException {
         if (expression instanceof ValueExpression<?> valueExpression) {
             return valueExpression.getValue();
         } else if (expression instanceof IdentifierExpression identifierExpression) {
             if (Objects.isNull(table)) {
-                throw new ParserException(new TableNotPresentError(null));
+                throw new ParserException(DbError.TABLE_NOT_FOUND_ERROR, "Table not found");
             }
             Optional<Column> optionalColumn = SchemaSearcher.findColumn(table, identifierExpression.getName());
             if (optionalColumn.isEmpty()) {
-                throw new ParserException(new ColumnNotPresentError(identifierExpression.getName(), table.getName()));
+                throw new ParserException(DbError.COLUMN_NOT_FOUND_ERROR, String.format("Column %s is not present in the table %s", identifierExpression.getName(), table.getName()));
             }
 
             return valuesTuple.get(identifierExpression.getName());
@@ -47,14 +46,14 @@ public class ExpressionUtils {
                 }
                 return resolvedValue;
             } else {
-                throw new ParserException(new CannotApplyUnaryError(unaryExpression.getOperator(), resolvedValue));
+                throw new ParserException(DbError.CANNOT_APPLY_UNARY_OPERATOR_ERROR, String.format("Cannot apply unary operation %s %s", unaryExpression.getOperator(), resolvedValue));
             }
         } else if (expression instanceof BinaryExpression binaryExpression) {
             SqlValue<?> leftValue = resolveExpression(valuesTuple, table, binaryExpression.getLeft());
             SqlValue<?> rightValue = resolveExpression(valuesTuple, table, binaryExpression.getRight());
 
             if (Objects.isNull(leftValue) || Objects.isNull(rightValue)) {
-                throw new ParserException(new CannotApplyBinaryError(binaryExpression.getOperator(), binaryExpression.getLeft(), binaryExpression.getRight()));
+                throw new ParserException(DbError.CANNOT_APPLY_BINARY_OPERATOR_ERROR, String.format("Cannot apply binary operation %s %s %s", binaryExpression.getOperator(), binaryExpression.getLeft(), binaryExpression.getRight()));
             }
 
             // The comparison between values is irrelevant, but the class comparison is needed
@@ -80,7 +79,7 @@ public class ExpressionUtils {
                         leftValueExpression.getValue() instanceof SqlNumberValue leftNumber &&
                         rightValueExpression.getValue() instanceof SqlNumberValue rightNumber) {
                     if (binaryExpression.getOperator() == Symbol.Div && rightNumber.getValue() == 0) {
-                        throw new ParserException(new DivisionByZeroError(leftNumber.getValue(), rightNumber.getValue()));
+                        throw new ParserException(DbError.DIVISION_BY_ZERO_ERROR, String.format("Division by zero between %o and %o", leftNumber.getValue(), rightNumber.getValue()));
                     }
 
                     try {
@@ -89,19 +88,20 @@ public class ExpressionUtils {
                             case Minus -> leftNumber.getValue() - rightNumber.getValue();
                             case Mul -> leftNumber.getValue() * rightNumber.getValue();
                             case Div -> leftNumber.getValue() / rightNumber.getValue();
-                            default -> throw new ParserException(new UnhandledArithmeticOperatorError(symbol));
+                            default ->
+                                    throw new ParserException(DbError.UNHANDLED_ARITHMETIC_OPERATOR_ERROR, String.format("Arithmetic operator %s is unhandled", new String(symbol.getSymbolValue())));
                         };
                         return new SqlNumberValue(arithmeticResult);
                     } catch (NumberFormatException exception) {
-                        throw new ParserException(new ArithmeticResultOutOfBoundsError(leftNumber.getValue(), rightNumber.getValue(), symbol));
+                        throw new ParserException(DbError.ARITHMETIC_RESULT_OUT_OF_BOUNDS_ERROR, String.format("Integer result of arithmetic operation is out of bounds %s %c %s", leftNumber.getValue(), rightNumber.getValue(), symbol.getSymbolValue()[0]));
                     }
                 }
             }
         } else if (expression instanceof NestedExpression nestedExpression) {
             return resolveExpression(valuesTuple, table, nestedExpression.getExpression());
         } else if (expression instanceof WildcardExpression) {
-            throw new ParserException(new UnsolvedWildcardError());
+            throw new ParserException(DbError.UNSOLVED_WILDCARD_ERROR, "Wildcard expression could not be solved");
         }
-        throw new ParserException(new UnsolvedExpressionError());
+        throw new ParserException(DbError.UNSOLVED_EXPRESSION_ERROR, "Expression could not be solved");
     }
 }

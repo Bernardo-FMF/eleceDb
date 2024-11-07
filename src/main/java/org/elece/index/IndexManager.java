@@ -1,8 +1,8 @@
 package org.elece.index;
 
-import org.elece.exception.btree.BTreeException;
-import org.elece.exception.serialization.SerializationException;
-import org.elece.exception.storage.StorageException;
+import org.elece.exception.BTreeException;
+import org.elece.exception.SerializationException;
+import org.elece.exception.StorageException;
 import org.elece.memory.tree.node.LeafTreeNode;
 
 import java.io.IOException;

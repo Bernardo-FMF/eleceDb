@@ -1,7 +1,7 @@
 package org.elece.sql.parser.expression;
 
-import org.elece.exception.sql.AnalyzerException;
-import org.elece.exception.sql.ParserException;
+import org.elece.exception.AnalyzerException;
+import org.elece.exception.ParserException;
 import org.elece.sql.analyzer.command.ExpressionAnalyzerVisitor;
 import org.elece.sql.optimizer.command.ExpressionParserVisitor;
 import org.elece.sql.parser.expression.internal.SqlType;

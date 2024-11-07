@@ -3,8 +3,8 @@ package org.elece.storage.index.header;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.stream.JsonReader;
-import org.elece.exception.storage.StorageException;
-import org.elece.exception.storage.type.InternalStorageError;
+import org.elece.exception.DbError;
+import org.elece.exception.StorageException;
 
 import java.io.*;
 import java.nio.file.Path;
@@ -23,7 +23,7 @@ public class JsonIndexHeaderManager implements IndexHeaderManager {
         if (!file.exists()) {
             boolean createdFile = file.createNewFile();
             if (!createdFile) {
-                throw new StorageException(new InternalStorageError("Couldn't create index header file(s)"));
+                throw new StorageException(DbError.INTERNAL_STORAGE_ERROR, "Couldn't create index header file(s)");
             } else {
                 this.header = new IndexHeader();
             }
@@ -37,7 +37,7 @@ public class JsonIndexHeaderManager implements IndexHeaderManager {
         try (FileWriter writer = new FileWriter(this.path.toFile())) {
             gson.toJson(header, writer);
         } catch (IOException e) {
-            throw new StorageException(new InternalStorageError("Couldn't write index header file(s)"));
+            throw new StorageException(DbError.INTERNAL_STORAGE_ERROR, "Couldn't persist index header file(s)");
         }
     }
 
@@ -53,7 +53,7 @@ public class JsonIndexHeaderManager implements IndexHeaderManager {
                 this.header = newIndexHeader;
             }
         } catch (FileNotFoundException e) {
-            throw new StorageException(new InternalStorageError("Couldn't read index header file(s)"));
+            throw new StorageException(DbError.INTERNAL_STORAGE_ERROR, "Couldn't read index header file(s)");
         }
     }
 
@@ -116,9 +116,7 @@ public class JsonIndexHeaderManager implements IndexHeaderManager {
     public List<Integer> getChunksOfIndex(int indexId) {
         List<Integer> chunks = new ArrayList<>();
         Map<Integer, TreeSet<IndexHeader.IndexOffset>> chunkIndexOffset = this.header.getChunkIndexOffsets();
-        chunkIndexOffset.forEach((chunk, indexOffsets) -> {
-            indexOffsets.stream().filter(indexOffset -> indexOffset.getIndexId() == indexId).findAny().ifPresent(_ -> chunks.add(chunk));
-        });
+        chunkIndexOffset.forEach((chunk, indexOffsets) -> indexOffsets.stream().filter(indexOffset -> indexOffset.getIndexId() == indexId).findAny().ifPresent(_ -> chunks.add(chunk)));
         return chunks;
     }
 

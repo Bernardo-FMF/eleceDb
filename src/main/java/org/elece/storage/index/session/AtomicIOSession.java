@@ -1,6 +1,6 @@
 package org.elece.storage.index.session;
 
-import org.elece.exception.storage.StorageException;
+import org.elece.exception.StorageException;
 import org.elece.memory.Pointer;
 import org.elece.memory.tree.node.AbstractTreeNode;
 import org.elece.storage.index.IndexStorageManager;

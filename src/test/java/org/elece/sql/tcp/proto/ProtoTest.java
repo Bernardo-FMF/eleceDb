@@ -1,6 +1,6 @@
 package org.elece.sql.tcp.proto;
 
-import org.elece.exception.proto.ProtoException;
+import org.elece.exception.ProtoException;
 import org.elece.tcp.proto.Proto;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;

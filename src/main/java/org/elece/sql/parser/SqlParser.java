@@ -1,16 +1,15 @@
 package org.elece.sql.parser;
 
-import org.elece.exception.sql.ParserException;
-import org.elece.exception.sql.TokenizerException;
-import org.elece.exception.sql.type.parser.UnexpectedTokenError;
-import org.elece.exception.sql.type.parser.UnspecifiedError;
+import org.elece.exception.DbError;
+import org.elece.exception.ParserException;
+import org.elece.exception.TokenizerException;
 import org.elece.sql.parser.command.CommandFactory;
 import org.elece.sql.parser.command.KeywordCommand;
 import org.elece.sql.parser.statement.ExplainStatement;
 import org.elece.sql.parser.statement.Statement;
-import org.elece.sql.token.IPeekableIterator;
+import org.elece.sql.token.DefaultTokenizer;
+import org.elece.sql.token.PeekableIterator;
 import org.elece.sql.token.TokenWrapper;
-import org.elece.sql.token.Tokenizer;
 import org.elece.sql.token.model.KeywordToken;
 import org.elece.sql.token.model.Token;
 import org.elece.sql.token.model.type.Keyword;
@@ -19,10 +18,10 @@ import java.util.Iterator;
 import java.util.Objects;
 
 public class SqlParser {
-    private final IPeekableIterator<TokenWrapper> tokenizerStream;
+    private final PeekableIterator<TokenWrapper> tokenizerStream;
 
     public SqlParser(String input) {
-        this.tokenizerStream = new Tokenizer(input).tokenize();
+        this.tokenizerStream = new DefaultTokenizer(input).tokenize();
     }
 
     private static final CommandFactory commandFactory = new CommandFactory();
@@ -38,12 +37,12 @@ public class SqlParser {
             } else {
                 KeywordCommand keywordCommand = commandFactory.buildCommand(keywordToken.getKeyword(), tokenizerStream);
                 if (Objects.isNull(keywordCommand)) {
-                    throw new ParserException(new UnspecifiedError("Unresolved keyword command"));
+                    throw new ParserException(DbError.UNSPECIFIED_ERROR, "Unresolved keyword command");
                 } else {
                     return keywordCommand.parse();
                 }
             }
         }
-        throw new ParserException(new UnexpectedTokenError(nextToken, "Keyword is not a supported statement"));
+        throw new ParserException(DbError.UNEXPECTED_TOKEN_ERROR, String.format("Unexpected token %s - %s", nextToken, "Keyword is not a supported statement"));
     }
 }

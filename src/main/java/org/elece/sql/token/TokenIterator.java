@@ -3,7 +3,7 @@ package org.elece.sql.token;
 import java.util.Iterator;
 import java.util.function.Predicate;
 
-public class TokenIterator<T> implements IPeekableIterator<T> {
+public class TokenIterator<T> implements PeekableIterator<T> {
     private final Iterator<T> iterator;
 
     public TokenIterator(Iterator<T> iterator) {

@@ -4,9 +4,9 @@ public class CreateIndexStatement extends CreateStatement {
     private final String name;
     private final String table;
     private final String column;
-    private final Boolean unique;
+    private final boolean unique;
 
-    public CreateIndexStatement(String name, String table, String column, Boolean unique) {
+    public CreateIndexStatement(String name, String table, String column, boolean unique) {
         super(StatementType.CreateIndex);
         this.name = name;
         this.table = table;
@@ -26,7 +26,7 @@ public class CreateIndexStatement extends CreateStatement {
         return column;
     }
 
-    public Boolean getUnique() {
+    public boolean getUnique() {
         return unique;
     }
 }

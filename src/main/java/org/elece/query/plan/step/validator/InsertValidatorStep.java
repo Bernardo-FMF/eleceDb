@@ -2,9 +2,9 @@ package org.elece.query.plan.step.validator;
 
 import org.elece.db.schema.model.Column;
 import org.elece.db.schema.model.Table;
-import org.elece.exception.btree.BTreeException;
-import org.elece.exception.schema.SchemaException;
-import org.elece.exception.storage.StorageException;
+import org.elece.exception.BTreeException;
+import org.elece.exception.SchemaException;
+import org.elece.exception.StorageException;
 import org.elece.index.ColumnIndexManagerProvider;
 import org.elece.index.IndexManager;
 import org.elece.memory.Pointer;

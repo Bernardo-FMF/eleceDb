@@ -3,7 +3,7 @@ package org.elece.utils;
 import org.elece.db.DbObject;
 import org.elece.db.schema.model.Column;
 import org.elece.db.schema.model.Table;
-import org.elece.exception.serialization.DeserializationException;
+import org.elece.exception.DeserializationException;
 import org.elece.serializer.Serializer;
 import org.elece.serializer.SerializerRegistry;
 

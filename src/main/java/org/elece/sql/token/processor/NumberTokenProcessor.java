@@ -10,7 +10,7 @@ import java.util.stream.StreamSupport;
 /**
  * Only supports integer values.
  */
-public class NumberTokenProcessor implements ITokenProcessor<Character> {
+public class NumberTokenProcessor implements TokenProcessor<Character> {
     @Override
     public boolean matches(Character value) {
         return Character.isDigit(value);
@@ -22,7 +22,7 @@ public class NumberTokenProcessor implements ITokenProcessor<Character> {
 
         Iterable<Character> numberValue = stream.takeWhile(Character::isDigit);
 
-        tokenBuilder.token(new NumberToken(StreamSupport.stream(numberValue.spliterator(), true)
+        tokenBuilder.setToken(new NumberToken(StreamSupport.stream(numberValue.spliterator(), true)
                 .map(Object::toString)
                 .collect(Collectors.joining(""))));
 

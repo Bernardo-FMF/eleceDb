@@ -1,6 +1,6 @@
 package org.elece.storage.index;
 
-import org.elece.exception.storage.StorageException;
+import org.elece.exception.StorageException;
 import org.elece.memory.KeyValueSize;
 import org.elece.memory.Pointer;
 

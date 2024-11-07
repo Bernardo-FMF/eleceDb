@@ -1,8 +1,7 @@
 package org.elece.tcp.proto;
 
-import org.elece.exception.proto.ProtoException;
-import org.elece.exception.proto.type.InputStreamError;
-import org.elece.exception.proto.type.InvalidHeaderSizeError;
+import org.elece.exception.DbError;
+import org.elece.exception.ProtoException;
 import org.elece.utils.BinaryUtils;
 
 import java.io.IOException;
@@ -23,7 +22,7 @@ public class Proto {
         try {
             int payloadLenSize = inputStream.read(payloadLenBuf);
             if (payloadLenSize != Integer.BYTES) {
-                throw new ProtoException(new InvalidHeaderSizeError(payloadLenSize, Integer.BYTES));
+                throw new ProtoException(DbError.INVALID_HEADER_SIZE_ERROR, String.format("Size header is not valid, expected %o but read %o bytes", payloadLenSize, Integer.BYTES));
             }
 
             int payloadLen = ByteBuffer.wrap(payloadLenBuf).order(ByteOrder.LITTLE_ENDIAN).getInt();
@@ -32,10 +31,10 @@ public class Proto {
 
             int payloadSize = inputStream.read(payloadBuf);
             if (payloadSize != payloadLen) {
-                throw new ProtoException(new InvalidHeaderSizeError(payloadSize, payloadLen));
+                throw new ProtoException(DbError.INVALID_HEADER_SIZE_ERROR, String.format("Size header is not valid, expected %o but read %o bytes", payloadLenSize, Integer.BYTES));
             }
         } catch (IOException e) {
-            throw new ProtoException(new InputStreamError());
+            throw new ProtoException(DbError.INPUT_STREAM_ERROR, "Error while reading the input stream");
         }
 
         return BinaryUtils.bytesToString(payloadBuf, 0);

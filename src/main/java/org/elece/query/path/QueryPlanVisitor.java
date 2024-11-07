@@ -1,6 +1,6 @@
 package org.elece.query.path;
 
-import org.elece.exception.query.QueryException;
+import org.elece.exception.QueryException;
 import org.elece.sql.parser.expression.BinaryExpression;
 import org.elece.sql.parser.expression.NestedExpression;
 

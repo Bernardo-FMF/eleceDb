@@ -3,8 +3,8 @@ package org.elece.index;
 import org.elece.config.DbConfig;
 import org.elece.db.schema.model.Column;
 import org.elece.db.schema.model.Table;
-import org.elece.exception.schema.SchemaException;
-import org.elece.exception.storage.StorageException;
+import org.elece.exception.SchemaException;
+import org.elece.exception.StorageException;
 import org.elece.memory.Pointer;
 import org.elece.storage.index.IndexStorageManagerFactory;
 

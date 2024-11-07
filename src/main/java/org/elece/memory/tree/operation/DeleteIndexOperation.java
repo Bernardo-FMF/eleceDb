@@ -1,10 +1,10 @@
 package org.elece.memory.tree.operation;
 
 import org.elece.config.DbConfig;
-import org.elece.exception.btree.BTreeException;
-import org.elece.exception.btree.type.NodeMismatchError;
-import org.elece.exception.serialization.SerializationException;
-import org.elece.exception.storage.StorageException;
+import org.elece.exception.BTreeException;
+import org.elece.exception.DbError;
+import org.elece.exception.SerializationException;
+import org.elece.exception.StorageException;
 import org.elece.memory.Pointer;
 import org.elece.memory.data.BinaryObjectFactory;
 import org.elece.memory.tree.node.AbstractTreeNode;
@@ -512,7 +512,7 @@ public class DeleteIndexOperation<K extends Comparable<K>, V> {
         if (parent.getKeyList(bTreeDegree).isEmpty()) {
             if (!child.isLeaf()) {
                 if (!(child instanceof InternalTreeNode)) {
-                    throw new BTreeException(new NodeMismatchError("Node marked as leaf is not a leaf node."));
+                    throw new BTreeException(DbError.NODE_MISMATCH_ERROR, "Node marked as leaf is not a leaf node");
                 }
                 // Move the separating key down to the child.
                 ((InternalTreeNode<K>) child).addKey(parentKeyAtIndex, bTreeDegree);
@@ -538,7 +538,7 @@ public class DeleteIndexOperation<K extends Comparable<K>, V> {
         // to a node that no longer exists.
         if (toRemove.isLeaf()) {
             if (!(toRemove instanceof LeafTreeNode<?, ?>)) {
-                throw new BTreeException(new NodeMismatchError("Node marked as leaf is not a leaf node."));
+                throw new BTreeException(DbError.NODE_MISMATCH_ERROR, "Node marked as leaf is not a leaf node");
             }
             this.fixSiblingPointers((LeafTreeNode<K, V>) toRemove, bTreeDegree);
         }

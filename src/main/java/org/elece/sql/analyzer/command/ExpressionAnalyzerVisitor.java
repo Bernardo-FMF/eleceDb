@@ -1,7 +1,7 @@
 package org.elece.sql.analyzer.command;
 
 import org.elece.db.schema.model.Table;
-import org.elece.exception.sql.AnalyzerException;
+import org.elece.exception.AnalyzerException;
 import org.elece.sql.parser.expression.*;
 import org.elece.sql.parser.expression.internal.SqlType;
 

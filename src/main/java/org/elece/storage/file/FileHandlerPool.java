@@ -1,6 +1,6 @@
 package org.elece.storage.file;
 
-import org.elece.exception.storage.StorageException;
+import org.elece.exception.StorageException;
 
 import java.io.IOException;
 import java.nio.channels.AsynchronousFileChannel;

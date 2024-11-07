@@ -1,8 +1,8 @@
 package org.elece.query.executor;
 
 import org.elece.db.schema.SchemaManager;
-import org.elece.exception.proto.TcpException;
-import org.elece.exception.schema.SchemaException;
+import org.elece.exception.ProtoException;
+import org.elece.exception.SchemaException;
 import org.elece.query.plan.step.stream.StreamStep;
 import org.elece.query.result.GenericQueryResultInfo;
 import org.elece.query.result.builder.GenericQueryResultInfoBuilder;
@@ -20,7 +20,7 @@ public class CreateDbQueryExecutor implements QueryExecutor {
     }
 
     @Override
-    public void execute(SchemaManager schemaManager) throws SchemaException, IOException, TcpException {
+    public void execute(SchemaManager schemaManager) throws SchemaException, IOException, ProtoException {
         schemaManager.createSchema(db);
         streamStep.stream(GenericQueryResultInfoBuilder.builder()
                 .setQueryType(GenericQueryResultInfo.QueryType.CREATE_DB)

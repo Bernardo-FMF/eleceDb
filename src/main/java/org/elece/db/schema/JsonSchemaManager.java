@@ -11,17 +11,7 @@ import org.elece.db.schema.model.Index;
 import org.elece.db.schema.model.Schema;
 import org.elece.db.schema.model.Table;
 import org.elece.db.schema.model.builder.SchemaBuilder;
-import org.elece.exception.btree.BTreeException;
-import org.elece.exception.db.DbException;
-import org.elece.exception.schema.SchemaException;
-import org.elece.exception.schema.type.SchemaAlreadyExistsError;
-import org.elece.exception.schema.type.SchemaDoesNotExistError;
-import org.elece.exception.schema.type.SchemaPersistenceError;
-import org.elece.exception.serialization.DeserializationException;
-import org.elece.exception.serialization.SerializationException;
-import org.elece.exception.sql.type.analyzer.ColumnNotPresentError;
-import org.elece.exception.sql.type.analyzer.TableNotPresentError;
-import org.elece.exception.storage.StorageException;
+import org.elece.exception.*;
 import org.elece.index.ColumnIndexManagerProvider;
 import org.elece.index.IndexManager;
 import org.elece.index.LockableIterator;
@@ -51,7 +41,8 @@ public class JsonSchemaManager implements SchemaManager {
     private final Gson gson;
     private final AtomicInteger tableIndex;
 
-    public JsonSchemaManager(DbConfig dbConfig, ColumnIndexManagerProvider columnIndexManagerProvider, DatabaseStorageManager databaseStorageManager) throws SchemaException {
+    public JsonSchemaManager(DbConfig dbConfig, ColumnIndexManagerProvider columnIndexManagerProvider,
+                             DatabaseStorageManager databaseStorageManager) throws SchemaException {
         this.dbConfig = dbConfig;
         this.columnIndexManagerProvider = columnIndexManagerProvider;
         this.databaseStorageManager = databaseStorageManager;
@@ -73,7 +64,7 @@ public class JsonSchemaManager implements SchemaManager {
             this.schema = gson.fromJson(jsonReader, Schema.class);
             fileReader.close();
         } catch (IOException exception) {
-            throw new SchemaException(new SchemaPersistenceError(exception.getMessage()));
+            throw new SchemaException(DbError.SCHEMA_PERSISTENCE_ERROR, exception.getMessage());
         }
     }
 
@@ -87,7 +78,7 @@ public class JsonSchemaManager implements SchemaManager {
             gson.toJson(this.schema, fileWriter);
             fileWriter.close();
         } catch (IOException exception) {
-            throw new SchemaException(new SchemaPersistenceError(exception.getMessage()));
+            throw new SchemaException(DbError.SCHEMA_PERSISTENCE_ERROR, exception.getMessage());
         }
     }
 
@@ -99,7 +90,7 @@ public class JsonSchemaManager implements SchemaManager {
     @Override
     public synchronized void createSchema(String dbName) throws SchemaException {
         if (!Objects.isNull(schema)) {
-            throw new SchemaException(new SchemaAlreadyExistsError());
+            throw new SchemaException(DbError.SCHEMA_ALREADY_EXISTS_ERROR, "Database schema is already defined");
         }
 
         this.schema = SchemaBuilder.builder()
@@ -110,7 +101,8 @@ public class JsonSchemaManager implements SchemaManager {
     }
 
     @Override
-    public int deleteSchema() throws IOException, SchemaException, ExecutionException, InterruptedException, StorageException, DbException {
+    public int deleteSchema() throws IOException, SchemaException, ExecutionException, InterruptedException,
+                                     StorageException, DbException {
         validateSchemaExists();
 
         int totalRowCount = 0;
@@ -148,12 +140,17 @@ public class JsonSchemaManager implements SchemaManager {
     }
 
     @Override
-    public synchronized <K extends Number & Comparable<K>> int deleteTable(String tableName) throws SchemaException, IOException, ExecutionException, InterruptedException, StorageException, DbException {
+    public synchronized <K extends Number & Comparable<K>> int deleteTable(String tableName) throws SchemaException,
+                                                                                                    IOException,
+                                                                                                    ExecutionException,
+                                                                                                    InterruptedException,
+                                                                                                    StorageException,
+                                                                                                    DbException {
         validateSchemaExists();
 
         Optional<Table> optionalTable = SchemaSearcher.findTable(schema, tableName);
         if (optionalTable.isEmpty()) {
-            throw new SchemaException(new TableNotPresentError(tableName));
+            throw new SchemaException(DbError.TABLE_NOT_FOUND_ERROR, String.format("Table %s is not present in the database schema", tableName));
         }
 
         schema.removeTable(tableName);
@@ -191,12 +188,18 @@ public class JsonSchemaManager implements SchemaManager {
     }
 
     @Override
-    public synchronized <K extends Number & Comparable<K>> int createIndex(String tableName, Index index) throws SchemaException, StorageException, DbException, DeserializationException, BTreeException, SerializationException {
+    public synchronized <K extends Number & Comparable<K>> int createIndex(String tableName, Index index) throws
+                                                                                                          SchemaException,
+                                                                                                          StorageException,
+                                                                                                          DbException,
+                                                                                                          DeserializationException,
+                                                                                                          BTreeException,
+                                                                                                          SerializationException {
         validateSchemaExists();
 
         Optional<Table> optionalTable = SchemaSearcher.findTable(schema, tableName);
         if (optionalTable.isEmpty()) {
-            throw new SchemaException(new TableNotPresentError(tableName));
+            throw new SchemaException(DbError.TABLE_NOT_FOUND_ERROR, String.format("Table %s is not present in the database schema", tableName));
         }
 
         Table table = optionalTable.get();
@@ -204,7 +207,7 @@ public class JsonSchemaManager implements SchemaManager {
 
         Optional<Column> optionalColumn = SchemaSearcher.findColumn(table, index.getColumnName());
         if (optionalColumn.isEmpty()) {
-            throw new SchemaException(new ColumnNotPresentError(index.getColumnName(), tableName));
+            throw new SchemaException(DbError.COLUMN_NOT_FOUND_ERROR, String.format("Column %s is not present in the table %s", index.getColumnName(), tableName));
         }
 
         Column column = optionalColumn.get();
@@ -241,7 +244,7 @@ public class JsonSchemaManager implements SchemaManager {
 
     private void validateSchemaExists() throws SchemaException {
         if (Objects.isNull(schema)) {
-            throw new SchemaException(new SchemaDoesNotExistError());
+            throw new SchemaException(DbError.SCHEMA_NOT_FOUND_ERROR, "Database schema is not defined");
         }
     }
 }

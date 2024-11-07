@@ -4,9 +4,9 @@ import org.elece.config.DbConfig;
 import org.elece.db.schema.SchemaSearcher;
 import org.elece.db.schema.model.Column;
 import org.elece.db.schema.model.Table;
-import org.elece.exception.schema.SchemaException;
-import org.elece.exception.sql.type.analyzer.IncompatibleTypeForIndexError;
-import org.elece.exception.storage.StorageException;
+import org.elece.exception.DbError;
+import org.elece.exception.SchemaException;
+import org.elece.exception.StorageException;
 import org.elece.memory.data.BinaryObjectFactory;
 import org.elece.memory.tree.node.DefaultNodeFactory;
 import org.elece.serializer.Serializer;
@@ -51,7 +51,10 @@ public class DefaultColumnIndexManagerProvider extends ColumnIndexManagerProvide
         indexManagers.remove(indexId.asString());
     }
 
-    private <K extends Comparable<K>, V extends Comparable<V>> IndexManager<K, ?> buildIndexManager(Table table, Column column) throws StorageException, SchemaException {
+    private <K extends Comparable<K>, V extends Comparable<V>> IndexManager<K, ?> buildIndexManager(Table table,
+                                                                                                    Column column) throws
+                                                                                                                   StorageException,
+                                                                                                                   SchemaException {
         IndexId indexId = new IndexId(table.getId(), column.getId());
 
         Serializer<K> serializer = SerializerRegistry.getInstance().getSerializer(column.getSqlType().getType());
@@ -69,7 +72,7 @@ public class DefaultColumnIndexManagerProvider extends ColumnIndexManagerProvide
         }
 
         if (!column.isUnique()) {
-            throw new SchemaException(new IncompatibleTypeForIndexError(column.getName(), column.getSqlType().getType()));
+            throw new SchemaException(DbError.INCOMPATIBLE_TYPE_FOR_INDEX_ERROR, String.format("Type %s used for column %s is not usable for index", column.getName(), column.getSqlType().getType()));
         }
 
         Column clusterColumn = SchemaSearcher.findClusterColumn(table);

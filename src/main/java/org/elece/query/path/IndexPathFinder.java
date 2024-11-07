@@ -2,7 +2,7 @@ package org.elece.query.path;
 
 import org.elece.db.schema.SchemaSearcher;
 import org.elece.db.schema.model.Table;
-import org.elece.exception.query.QueryException;
+import org.elece.exception.QueryException;
 import org.elece.query.comparator.*;
 import org.elece.sql.parser.expression.BinaryExpression;
 import org.elece.sql.parser.expression.IdentifierExpression;

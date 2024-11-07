@@ -3,7 +3,7 @@ package org.elece.query.plan.step.filter;
 import org.elece.db.DbObject;
 import org.elece.db.schema.model.Column;
 import org.elece.db.schema.model.Table;
-import org.elece.exception.serialization.DeserializationException;
+import org.elece.exception.DeserializationException;
 import org.elece.query.comparator.ValueComparator;
 import org.elece.serializer.Serializer;
 import org.elece.serializer.SerializerRegistry;

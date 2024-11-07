@@ -3,12 +3,7 @@ package org.elece.db.schema;
 import org.elece.db.schema.model.Index;
 import org.elece.db.schema.model.Schema;
 import org.elece.db.schema.model.Table;
-import org.elece.exception.btree.BTreeException;
-import org.elece.exception.db.DbException;
-import org.elece.exception.schema.SchemaException;
-import org.elece.exception.serialization.DeserializationException;
-import org.elece.exception.serialization.SerializationException;
-import org.elece.exception.storage.StorageException;
+import org.elece.exception.*;
 
 import java.io.IOException;
 import java.util.concurrent.ExecutionException;

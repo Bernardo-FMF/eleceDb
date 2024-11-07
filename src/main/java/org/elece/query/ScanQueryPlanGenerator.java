@@ -1,7 +1,7 @@
 package org.elece.query;
 
 import org.elece.db.schema.model.Table;
-import org.elece.exception.query.QueryException;
+import org.elece.exception.QueryException;
 import org.elece.query.path.DefaultPathNode;
 import org.elece.query.path.IndexPath;
 import org.elece.query.path.IndexPathFinder;

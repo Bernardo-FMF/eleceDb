@@ -7,7 +7,7 @@ import org.elece.sql.token.model.type.Whitespace;
 
 import java.util.List;
 
-public class WhitespaceTokenProcessor implements ITokenProcessor<Character> {
+public class WhitespaceTokenProcessor implements TokenProcessor<Character> {
     @Override
     public boolean matches(Character value) {
         return Whitespace.canMatch(value);
@@ -22,14 +22,14 @@ public class WhitespaceTokenProcessor implements ITokenProcessor<Character> {
         if (Whitespace.CarriageNewLine.getWhitespaceValue()[0] == next) {
             Character nextWhitespace = stream.peek();
             if (Whitespace.CarriageNewLine.getWhitespaceValue()[1] == nextWhitespace) {
-                tokenBuilder.token(new WhitespaceToken(Whitespace.NewLine));
+                tokenBuilder.setToken(new WhitespaceToken(Whitespace.NewLine));
             }
         }
 
         if (!tokenBuilder.hasToken()) {
             List<Whitespace> whitespaces = Whitespace.matchableWhitespaces(next);
             if (whitespaces.size() == 1) {
-                tokenBuilder.token(new WhitespaceToken(whitespaces.get(0)));
+                tokenBuilder.setToken(new WhitespaceToken(whitespaces.get(0)));
             }
         }
 

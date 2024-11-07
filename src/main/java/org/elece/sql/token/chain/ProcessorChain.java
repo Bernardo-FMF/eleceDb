@@ -2,15 +2,15 @@ package org.elece.sql.token.chain;
 
 import org.elece.sql.token.CharStream;
 import org.elece.sql.token.TokenWrapper;
-import org.elece.sql.token.processor.ITokenProcessor;
+import org.elece.sql.token.processor.TokenProcessor;
 
 import java.util.Objects;
 
 public class ProcessorChain implements IProcessorChain {
     private IProcessorChain nextChain;
-    private final ITokenProcessor<Character> processor;
+    private final TokenProcessor<Character> processor;
 
-    public ProcessorChain(ITokenProcessor<Character> processor) {
+    public ProcessorChain(TokenProcessor<Character> processor) {
         this.processor = processor;
         this.nextChain = null;
     }

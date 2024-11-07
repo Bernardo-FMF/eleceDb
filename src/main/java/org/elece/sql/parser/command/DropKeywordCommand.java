@@ -1,18 +1,18 @@
 package org.elece.sql.parser.command;
 
-import org.elece.exception.sql.ParserException;
-import org.elece.exception.sql.TokenizerException;
+import org.elece.exception.ParserException;
+import org.elece.exception.TokenizerException;
 import org.elece.sql.parser.statement.DropDbStatement;
 import org.elece.sql.parser.statement.DropTableStatement;
 import org.elece.sql.parser.statement.Statement;
-import org.elece.sql.token.IPeekableIterator;
+import org.elece.sql.token.PeekableIterator;
 import org.elece.sql.token.TokenWrapper;
 import org.elece.sql.token.model.KeywordToken;
 import org.elece.sql.token.model.Token;
 import org.elece.sql.token.model.type.Keyword;
 
 public class DropKeywordCommand extends AbstractKeywordCommand {
-    public DropKeywordCommand(IPeekableIterator<TokenWrapper> tokenizer) {
+    public DropKeywordCommand(PeekableIterator<TokenWrapper> tokenizer) {
         super(tokenizer);
     }
 

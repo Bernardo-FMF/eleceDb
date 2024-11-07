@@ -1,8 +1,8 @@
 package org.elece.utils;
 
-import org.elece.exception.btree.BTreeException;
-import org.elece.exception.btree.type.FailedToFindIndexInNodeError;
-import org.elece.exception.serialization.SerializationException;
+import org.elece.exception.BTreeException;
+import org.elece.exception.DbError;
+import org.elece.exception.SerializationException;
 import org.elece.memory.Pointer;
 import org.elece.memory.data.BinaryObject;
 import org.elece.memory.data.BinaryObjectFactory;
@@ -19,7 +19,8 @@ public class TreeNodeUtils {
     private static final int OFFSET_LEAF_NODE_KEY_BEGIN = OFFSET_TREE_NODE_FLAGS_END;
     private static final int SIZE_LEAF_NODE_SIBLING_POINTERS = 2 * Pointer.BYTES;
 
-    public static <K> boolean hasKeyAtIndex(AbstractTreeNode<?> treeNode, int index, int degree, BinaryObjectFactory<K> kBinaryObjectFactory, int valueSize) {
+    public static <K> boolean hasKeyAtIndex(AbstractTreeNode<?> treeNode, int index, int degree,
+                                            BinaryObjectFactory<K> kBinaryObjectFactory, int valueSize) {
         // Ensures that the index is within the allowable range, since a node can have at modes degree - 1 keys.
         if (index >= degree - 1) {
             return false;
@@ -62,13 +63,15 @@ public class TreeNodeUtils {
         }
     }
 
-    public static <K extends Comparable<K>> void setKeyAtIndex(AbstractTreeNode<?> node, int index, BinaryObject<K> binaryObject, int valueSize) {
+    public static <K extends Comparable<K>> void setKeyAtIndex(AbstractTreeNode<?> node, int index,
+                                                               BinaryObject<K> binaryObject, int valueSize) {
         // Calculate the byte offset within the node's data array where the key should be stored.
         int keyStartIndex = getKeyStartOffset(node, index, binaryObject.size(), valueSize);
         System.arraycopy(binaryObject.getBytes(), 0, node.getData(), keyStartIndex, binaryObject.size());
     }
 
-    public static <K extends Comparable<K>, N extends Comparable<N>> BinaryObject<K> getKeyAtIndex(AbstractTreeNode<N> node, int index, BinaryObjectFactory<K> kBinaryObjectFactory, int valueSize) {
+    public static <K extends Comparable<K>, N extends Comparable<N>> BinaryObject<K> getKeyAtIndex(
+            AbstractTreeNode<N> node, int index, BinaryObjectFactory<K> kBinaryObjectFactory, int valueSize) {
         // Calculate the byte offset within the node's data array where the key is stored.
         int keyStartIndex = getKeyStartOffset(node, index, kBinaryObjectFactory.size(), valueSize);
 
@@ -92,7 +95,12 @@ public class TreeNodeUtils {
         return node.getData()[dataIndex] == Pointer.TYPE_NODE;
     }
 
-    public static <K extends Comparable<K>, V> int addKeyValueAndGetIndex(AbstractTreeNode<?> node, int degree, BinaryObjectFactory<K> kBinaryObjectFactory, K key, BinaryObjectFactory<V> vBinaryObjectFactory, V value) throws BTreeException, SerializationException {
+    public static <K extends Comparable<K>, V> int addKeyValueAndGetIndex(AbstractTreeNode<?> node, int degree,
+                                                                          BinaryObjectFactory<K> kBinaryObjectFactory,
+                                                                          K key,
+                                                                          BinaryObjectFactory<V> vBinaryObjectFactory,
+                                                                          V value) throws BTreeException,
+                                                                                          SerializationException {
         int indexToFill = -1;
         BinaryObject<K> keyAtIndex;
         int keySize = kBinaryObjectFactory.size();
@@ -121,7 +129,7 @@ public class TreeNodeUtils {
         }
 
         if (indexToFill == -1) {
-            throw new BTreeException(new FailedToFindIndexInNodeError());
+            throw new BTreeException(DbError.FAILED_TO_FIND_INDEX_IN_NODE_ERROR, "Failed to find index in node to insert key");
         }
 
         int bufferSize = ((maxNodeSize - indexToFill - 1) * (keySize + valueSize));
@@ -139,7 +147,9 @@ public class TreeNodeUtils {
         return indexToFill;
     }
 
-    public static <K extends Comparable<K>, V> Map.Entry<K, V> getKeyValueAtIndex(AbstractTreeNode<K> node, int index, BinaryObjectFactory<K> kBinaryObjectFactory, BinaryObjectFactory<V> vBinaryObjectFactory) {
+    public static <K extends Comparable<K>, V> Map.Entry<K, V> getKeyValueAtIndex(AbstractTreeNode<K> node, int index,
+                                                                                  BinaryObjectFactory<K> kBinaryObjectFactory,
+                                                                                  BinaryObjectFactory<V> vBinaryObjectFactory) {
         int keyStartIndex = getKeyStartOffset(node, index, kBinaryObjectFactory.size(), vBinaryObjectFactory.size());
         return new AbstractMap.SimpleImmutableEntry<>(
                 kBinaryObjectFactory.create(node.getData(), keyStartIndex).asObject(),
@@ -169,7 +179,9 @@ public class TreeNodeUtils {
         }
     }
 
-    public static <K extends Comparable<K>, V> void setKeyValueAtIndex(AbstractTreeNode<?> node, int index, BinaryObject<K> kBinaryObject, BinaryObject<V> vBinaryObject) {
+    public static <K extends Comparable<K>, V> void setKeyValueAtIndex(AbstractTreeNode<?> node, int index,
+                                                                       BinaryObject<K> kBinaryObject,
+                                                                       BinaryObject<V> vBinaryObject) {
         // Copy the serialized key bytes into the node's data array at the calculated offset.
         int keyOffset = OFFSET_LEAF_NODE_KEY_BEGIN + (index * (kBinaryObject.size() + vBinaryObject.size()));
         System.arraycopy(kBinaryObject.getBytes(), 0, node.getData(), keyOffset, kBinaryObject.size());
@@ -193,14 +205,16 @@ public class TreeNodeUtils {
         return Optional.of(Pointer.fromBytes(node.getData(), position));
     }
 
-    public static <K extends Comparable<K>, V> void setNextPointer(AbstractTreeNode<?> node, int degree, Pointer pointer, int keySize, int valueSize) {
+    public static <K extends Comparable<K>, V> void setNextPointer(AbstractTreeNode<?> node, int degree,
+                                                                   Pointer pointer, int keySize, int valueSize) {
         // Calculate the position in the data array where the next pointer should be stored.
         // This is after all key-value pairs and the previous pointer.
         int position = OFFSET_LEAF_NODE_KEY_BEGIN + ((degree - 1) * (keySize + valueSize)) + Pointer.BYTES;
         System.arraycopy(pointer.toBytes(), 0, node.getData(), position, Pointer.BYTES);
     }
 
-    public static <K extends Comparable<K>, V> void setPreviousPointer(AbstractTreeNode<?> node, int degree, Pointer pointer, int keySize, int valueSize) {
+    public static <K extends Comparable<K>, V> void setPreviousPointer(AbstractTreeNode<?> node, int degree,
+                                                                       Pointer pointer, int keySize, int valueSize) {
         // Calculate the position in the data array where the next pointer should be stored.
         // This is after all key-value pairs.
         int position = OFFSET_LEAF_NODE_KEY_BEGIN + ((degree - 1) * (keySize + valueSize));
@@ -225,7 +239,8 @@ public class TreeNodeUtils {
      * @param valueSize The size of the value in bytes.
      * @return An Optional containing the previous sibling pointer if it exists; otherwise, Optional.empty().
      */
-    public static Optional<Pointer> getPreviousPointer(AbstractTreeNode<?> node, int degree, int keySize, int valueSize) {
+    public static Optional<Pointer> getPreviousPointer(AbstractTreeNode<?> node, int degree, int keySize,
+                                                       int valueSize) {
         // Calculate the offset where the previous sibling pointer is stored.
         int offset = OFFSET_LEAF_NODE_KEY_BEGIN + ((degree - 1) * (keySize + valueSize));
 

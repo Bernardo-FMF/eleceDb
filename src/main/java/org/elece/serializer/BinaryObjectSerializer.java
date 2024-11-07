@@ -1,9 +1,9 @@
 package org.elece.serializer;
 
 import org.elece.db.schema.model.Column;
+import org.elece.exception.DeserializationException;
 import org.elece.exception.RuntimeDbException;
-import org.elece.exception.serialization.DeserializationException;
-import org.elece.exception.serialization.SerializationException;
+import org.elece.exception.SerializationException;
 import org.elece.memory.data.BinaryObject;
 
 public class BinaryObjectSerializer<T extends Comparable<T>> implements BinaryObject<T> {
@@ -44,7 +44,7 @@ public class BinaryObjectSerializer<T extends Comparable<T>> implements BinaryOb
         try {
             return serializer.deserialize(this.bytes, column);
         } catch (DeserializationException exception) {
-            throw new RuntimeDbException(exception.getDbError());
+            throw new RuntimeDbException(exception.getDbError(), exception.getMessage());
         }
     }
 

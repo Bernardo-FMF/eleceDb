@@ -6,16 +6,7 @@ import org.elece.db.schema.SchemaManager;
 import org.elece.db.schema.SchemaSearcher;
 import org.elece.db.schema.model.Column;
 import org.elece.db.schema.model.Table;
-import org.elece.exception.btree.BTreeException;
-import org.elece.exception.db.DbException;
-import org.elece.exception.proto.TcpException;
-import org.elece.exception.query.QueryException;
-import org.elece.exception.query.type.InvalidQueryError;
-import org.elece.exception.schema.SchemaException;
-import org.elece.exception.serialization.DeserializationException;
-import org.elece.exception.serialization.SerializationException;
-import org.elece.exception.sql.ParserException;
-import org.elece.exception.storage.StorageException;
+import org.elece.exception.*;
 import org.elece.index.ColumnIndexManagerProvider;
 import org.elece.query.comparator.EqualityComparator;
 import org.elece.query.comparator.NumberRangeComparator;
@@ -84,8 +75,8 @@ public class QueryPlanner {
                                                                             ExecutionException, StorageException,
                                                                             InterruptedException,
                                                                             DeserializationException, DbException,
-                                                                            QueryException, TcpException,
-                                                                            ParserException {
+                                                                            QueryException, ParserException,
+                                                                            ProtoException {
         final StreamStep streamStep = new OutputStreamStep(clientBridge);
         Optional<QueryExecutor> queryExecutor = switch (statement.getStatementType()) {
             case CreateDb -> Optional.of(new CreateDbQueryExecutor((CreateDbStatement) statement, streamStep));
@@ -110,7 +101,7 @@ public class QueryPlanner {
         };
 
         if (plan.isEmpty()) {
-            throw new QueryException(new InvalidQueryError());
+            throw new QueryException(DbError.INVALID_QUERY_ERROR, "Invalid query");
         }
 
         plan.get().execute();

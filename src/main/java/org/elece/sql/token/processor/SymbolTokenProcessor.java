@@ -1,7 +1,6 @@
 package org.elece.sql.token.processor;
 
-import org.elece.exception.sql.type.token.OperatorNotClosedError;
-import org.elece.exception.sql.type.token.UnexpectedCharInOperatorError;
+import org.elece.exception.DbError;
 import org.elece.sql.token.CharStream;
 import org.elece.sql.token.Location;
 import org.elece.sql.token.TokenWrapper;
@@ -11,7 +10,7 @@ import org.elece.sql.token.model.type.Symbol;
 import java.util.List;
 import java.util.Objects;
 
-public class SymbolTokenProcessor implements ITokenProcessor<Character> {
+public class SymbolTokenProcessor implements TokenProcessor<Character> {
     @Override
     public boolean matches(Character value) {
         return Symbol.canMatch(value);
@@ -31,11 +30,11 @@ public class SymbolTokenProcessor implements ITokenProcessor<Character> {
             if (symbol.getSymbolValue().length > 1) {
                 if (!Objects.isNull(nextSymbol) && symbol.getSymbolValue()[1] == nextSymbol) {
                     stream.next();
-                    tokenBuilder.token(new SymbolToken(symbol));
+                    tokenBuilder.setToken(new SymbolToken(symbol));
                     break;
                 }
             } else if (symbol.getSymbolValue().length == 1) {
-                tokenBuilder.token(new SymbolToken(symbol));
+                tokenBuilder.setToken(new SymbolToken(symbol));
                 break;
             }
         }
@@ -43,9 +42,9 @@ public class SymbolTokenProcessor implements ITokenProcessor<Character> {
         if (!tokenBuilder.hasToken()) {
             if (currentSymbol == '!') {
                 if (Objects.isNull(nextSymbol)) {
-                    tokenBuilder.error(new OperatorNotClosedError(initialLocation, Symbol.Neq));
+                    tokenBuilder.setError(DbError.OPERATOR_NOT_CLOSED_ERROR, String.format("Operator not closed, expected symbol %s on (%s, %s)", String.valueOf(Symbol.Neq.getSymbolValue()), initialLocation.getLine(), initialLocation.getColumn()));
                 } else {
-                    tokenBuilder.error(new UnexpectedCharInOperatorError(initialLocation, Symbol.Neq, nextSymbol));
+                    tokenBuilder.setError(DbError.UNEXPECTED_CHARACTER_IN_OPERATOR_ERROR, String.format("Expected symbol %s, but found %c on (%s, %s)", String.valueOf(Symbol.Neq.getSymbolValue()), nextSymbol, initialLocation.getLine(), initialLocation.getColumn()));
                 }
             }
         }

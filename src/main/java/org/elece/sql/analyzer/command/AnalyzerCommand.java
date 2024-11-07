@@ -4,13 +4,8 @@ import org.elece.db.schema.SchemaManager;
 import org.elece.db.schema.SchemaSearcher;
 import org.elece.db.schema.model.Column;
 import org.elece.db.schema.model.Table;
-import org.elece.exception.sql.AnalyzerException;
-import org.elece.exception.sql.type.analyzer.ColumnNotPresentError;
-import org.elece.exception.sql.type.analyzer.UnexpectedTypeError;
-import org.elece.exception.sql.type.analyzer.ValueSizeExceedsLimitError;
-import org.elece.exception.sql.type.parser.CannotApplyBinaryError;
-import org.elece.exception.sql.type.parser.UnsolvedExpressionError;
-import org.elece.exception.sql.type.parser.UnsolvedWildcardError;
+import org.elece.exception.AnalyzerException;
+import org.elece.exception.DbError;
 import org.elece.sql.parser.expression.*;
 import org.elece.sql.parser.expression.internal.*;
 import org.elece.sql.parser.statement.Statement;
@@ -24,7 +19,8 @@ import java.util.Optional;
 public interface AnalyzerCommand<T extends Statement> extends ExpressionAnalyzerVisitor {
     void analyze(SchemaManager schemaManager, T statement) throws AnalyzerException;
 
-    default SqlType analyzeExpression(ExpressionContext expressionContext, Expression expression) throws AnalyzerException {
+    default SqlType analyzeExpression(ExpressionContext expressionContext, Expression expression) throws
+                                                                                                  AnalyzerException {
         return expression.accept(expressionContext, this);
     }
 
@@ -37,13 +33,14 @@ public interface AnalyzerCommand<T extends Statement> extends ExpressionAnalyzer
             return;
         }
 
-        throw new AnalyzerException(new UnexpectedTypeError(SqlType.Type.Bool, expression));
+        throw new AnalyzerException(DbError.UNEXPECTED_TYPE_ERROR, String.format("Expected type %s but expression resolved to %s", SqlType.Type.Bool, expression));
     }
 
-    default void analyzeAssignment(Table table, Assignment assignment, Boolean allowIdentifiers) throws AnalyzerException {
+    default void analyzeAssignment(Table table, Assignment assignment, boolean allowIdentifiers) throws
+                                                                                                 AnalyzerException {
         Optional<Column> optionalColumn = SchemaSearcher.findColumn(table, assignment.getId());
         if (optionalColumn.isEmpty()) {
-            throw new AnalyzerException(new ColumnNotPresentError(assignment.getId(), table.getName()));
+            throw new AnalyzerException(DbError.COLUMN_NOT_FOUND_ERROR, String.format("Column %s is not present in the table %s", assignment.getId(), table.getName()));
         }
 
         Column column = optionalColumn.get();
@@ -52,20 +49,18 @@ public interface AnalyzerCommand<T extends Statement> extends ExpressionAnalyzer
         SqlType runtimeSqlType = analyzeExpression(new ExpressionContext(allowIdentifiers ? table : null, columnSqlType), assignment.getValue());
 
         if (columnSqlType.getType() != runtimeSqlType.getType()) {
-            throw new AnalyzerException(new UnexpectedTypeError(columnSqlType.getType(), assignment.getValue()));
+            throw new AnalyzerException(DbError.UNEXPECTED_TYPE_ERROR, String.format("Expected type %s but expression resolved to %s", columnSqlType.getType(), assignment.getValue()));
         }
 
         validateVarcharSize(columnSqlType, assignment);
     }
 
     private void validateVarcharSize(SqlType columnSqlType, Assignment assignment) throws AnalyzerException {
-        if (columnSqlType.getType() == SqlType.Type.Varchar) {
-            if (assignment.getValue() instanceof ValueExpression<?> expression &&
-                    expression.getValue() instanceof SqlStringValue sqlValue) {
-                if (sqlValue.getValue().length() > columnSqlType.getSize()) {
-                    throw new AnalyzerException(new ValueSizeExceedsLimitError(sqlValue.getValue(), columnSqlType.getSize()));
-                }
-            }
+        if (columnSqlType.getType() == SqlType.Type.Varchar &&
+                assignment.getValue() instanceof ValueExpression<?> expression &&
+                expression.getValue() instanceof SqlStringValue sqlValue &&
+                sqlValue.getValue().length() > columnSqlType.getSize()) {
+            throw new AnalyzerException(DbError.VALUE_SIZE_EXCEEDS_LIMIT_ERROR, String.format("Value '%s' exceeds size of %o", sqlValue.getValue(), columnSqlType.getSize()));
         }
     }
 
@@ -80,29 +75,25 @@ public interface AnalyzerCommand<T extends Statement> extends ExpressionAnalyzer
             return SqlType.varcharType;
         }
 
-        throw new AnalyzerException(new UnsolvedExpressionError());
+        throw new AnalyzerException(DbError.UNSOLVED_EXPRESSION_ERROR, "Expression could not be solved");
     }
 
     @Override
-    default SqlType visit(ExpressionContext expressionContext, IdentifierExpression expression) throws AnalyzerException {
-        Optional<Column> optionalColumn = SchemaSearcher.findColumn(expressionContext.table(), expression.getName());
-        if (optionalColumn.isEmpty()) {
-            throw new AnalyzerException(new ColumnNotPresentError(expression.getName(), expressionContext.table().getName()));
-        }
-
-        Column column = optionalColumn.get();
-        return switch (column.getSqlType().getType()) {
-            case Int -> SqlType.intType;
-            case Varchar -> SqlType.varcharType;
-            case Bool -> SqlType.boolType;
-        };
+    default SqlType visit(ExpressionContext expressionContext, IdentifierExpression expression) throws
+                                                                                                AnalyzerException {
+        return getSqlType(expressionContext, expression.getName());
     }
 
     @Override
-    default SqlType visit(ExpressionContext expressionContext, OrderIdentifierExpression expression) throws AnalyzerException {
-        Optional<Column> optionalColumn = SchemaSearcher.findColumn(expressionContext.table(), expression.getName());
+    default SqlType visit(ExpressionContext expressionContext, OrderIdentifierExpression expression) throws
+                                                                                                     AnalyzerException {
+        return getSqlType(expressionContext, expression.getName());
+    }
+
+    private SqlType getSqlType(ExpressionContext expressionContext, String name) throws AnalyzerException {
+        Optional<Column> optionalColumn = SchemaSearcher.findColumn(expressionContext.table(), name);
         if (optionalColumn.isEmpty()) {
-            throw new AnalyzerException(new ColumnNotPresentError(expression.getName(), expressionContext.table().getName()));
+            throw new AnalyzerException(DbError.COLUMN_NOT_FOUND_ERROR, String.format("Column %s is not present in the table %s", name, expressionContext.table().getName()));
         }
 
         Column column = optionalColumn.get();
@@ -117,16 +108,18 @@ public interface AnalyzerCommand<T extends Statement> extends ExpressionAnalyzer
     default SqlType visit(ExpressionContext expressionContext, UnaryExpression expression) throws AnalyzerException {
         IOperator operator = expression.getOperator();
         Expression innerExpression = expression.getExpression();
-        if (!Objects.isNull(expressionContext.type()) && operator == Symbol.Minus && innerExpression instanceof ValueExpression<?> valueExpression) {
-            if (valueExpression.getValue() instanceof SqlNumberValue) {
-                return SqlType.intType;
-            }
+        if (!Objects.isNull(expressionContext.type()) &&
+                operator == Symbol.Minus &&
+                innerExpression instanceof ValueExpression<?> valueExpression &&
+                valueExpression.getValue() instanceof SqlNumberValue) {
+            return SqlType.intType;
         }
+
         SqlType innerDataType = innerExpression.accept(expressionContext, this);
         if (innerDataType.getType() == SqlType.Type.Int) {
             return SqlType.intType;
         } else {
-            throw new AnalyzerException(new UnexpectedTypeError(SqlType.Type.Int, innerExpression));
+            throw new AnalyzerException(DbError.UNEXPECTED_TYPE_ERROR, String.format("Expected type %s but expression resolved to %s", SqlType.Type.Int, innerExpression));
         }
     }
 
@@ -136,7 +129,7 @@ public interface AnalyzerCommand<T extends Statement> extends ExpressionAnalyzer
         SqlType rightSqlType = expression.getRight().accept(expressionContext, this);
         IOperator operator = expression.getOperator();
         if (leftSqlType != rightSqlType) {
-            throw new AnalyzerException(new CannotApplyBinaryError(operator, expression.getLeft(), expression.getRight()));
+            throw new AnalyzerException(DbError.CANNOT_APPLY_BINARY_OPERATOR_ERROR, String.format("Cannot apply binary operation %s %s %s", operator, expression.getLeft(), expression.getRight()));
         }
         if (operator instanceof Keyword keyword && keyword.isBinaryOperator()) {
             return SqlType.boolType;
@@ -147,14 +140,14 @@ public interface AnalyzerCommand<T extends Statement> extends ExpressionAnalyzer
                     if (leftSqlType.getType() == SqlType.Type.Int) {
                         yield SqlType.intType;
                     }
-                    throw new AnalyzerException(new CannotApplyBinaryError(symbol, expression.getLeft(), expression.getRight()));
+                    throw new AnalyzerException(DbError.CANNOT_APPLY_BINARY_OPERATOR_ERROR, String.format("Cannot apply binary operation %s %s %s", symbol, expression.getLeft(), expression.getRight()));
                 }
                 default ->
-                        throw new AnalyzerException(new CannotApplyBinaryError(symbol, expression.getLeft(), expression.getRight()));
+                        throw new AnalyzerException(DbError.CANNOT_APPLY_BINARY_OPERATOR_ERROR, String.format("Cannot apply binary operation %s %s %s", symbol, expression.getLeft(), expression.getRight()));
             };
         }
 
-        throw new AnalyzerException(new UnsolvedExpressionError());
+        throw new AnalyzerException(DbError.UNSOLVED_EXPRESSION_ERROR, "Expression could not be solved");
     }
 
     @Override
@@ -164,6 +157,6 @@ public interface AnalyzerCommand<T extends Statement> extends ExpressionAnalyzer
 
     @Override
     default SqlType visit(ExpressionContext expressionContext, WildcardExpression expression) throws AnalyzerException {
-        throw new AnalyzerException(new UnsolvedWildcardError());
+        throw new AnalyzerException(DbError.UNSOLVED_WILDCARD_ERROR, "Wildcard expression could not be solved");
     }
 }

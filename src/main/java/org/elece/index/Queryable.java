@@ -1,7 +1,7 @@
 package org.elece.index;
 
-import org.elece.exception.btree.BTreeException;
-import org.elece.exception.storage.StorageException;
+import org.elece.exception.BTreeException;
+import org.elece.exception.StorageException;
 import org.elece.sql.parser.expression.internal.Order;
 
 import java.util.Iterator;

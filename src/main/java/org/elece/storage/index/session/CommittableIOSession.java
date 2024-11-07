@@ -1,7 +1,7 @@
 package org.elece.storage.index.session;
 
-import org.elece.exception.storage.StorageException;
-import org.elece.exception.storage.type.InternalStorageError;
+import org.elece.exception.DbError;
+import org.elece.exception.StorageException;
 import org.elece.memory.KeyValueSize;
 import org.elece.memory.Pointer;
 import org.elece.memory.tree.node.AbstractTreeNode;
@@ -29,7 +29,8 @@ public class CommittableIOSession<K extends Comparable<K>> extends AbstractIOSes
     private final Map<Pointer, AbstractTreeNode<K>> original;
     private AbstractTreeNode<K> root;
 
-    public CommittableIOSession(IndexStorageManager indexStorageManager, NodeFactory<K> nodeFactory, int indexId, KeyValueSize keyValueSize) {
+    public CommittableIOSession(IndexStorageManager indexStorageManager, NodeFactory<K> nodeFactory, int indexId,
+                                KeyValueSize keyValueSize) {
         super(indexStorageManager, nodeFactory, indexId, keyValueSize);
         updated = new HashSet<>();
         created = new LinkedList<>();
@@ -45,7 +46,7 @@ public class CommittableIOSession<K extends Comparable<K>> extends AbstractIOSes
             try {
                 optional = indexStorageManager.getRoot(indexId, keyValueSize).get();
             } catch (InterruptedException | ExecutionException exception) {
-                throw new StorageException(new InternalStorageError(exception.getMessage()));
+                throw new StorageException(DbError.INTERNAL_STORAGE_ERROR, exception.getMessage());
             }
             if (optional.isPresent()) {
                 AbstractTreeNode<K> baseClusterTreeNode = nodeFactory.fromNodeData(optional.get());
@@ -65,7 +66,7 @@ public class CommittableIOSession<K extends Comparable<K>> extends AbstractIOSes
         try {
             nodeData = writeNode(node).get();
         } catch (InterruptedException | ExecutionException | IOException exception) {
-            throw new StorageException(new InternalStorageError(exception.getMessage()));
+            throw new StorageException(DbError.INTERNAL_STORAGE_ERROR, exception.getMessage());
         }
         this.created.add(nodeData.pointer());
         this.snapshot.put(nodeData.pointer(), node);
@@ -93,7 +94,7 @@ public class CommittableIOSession<K extends Comparable<K>> extends AbstractIOSes
         try {
             baseClusterTreeNode = readNode(pointer);
         } catch (ExecutionException | InterruptedException | IOException exception) {
-            throw new StorageException(new InternalStorageError(exception.getMessage()));
+            throw new StorageException(DbError.INTERNAL_STORAGE_ERROR, exception.getMessage());
         }
 
         snapshot.put(pointer, baseClusterTreeNode);
@@ -127,11 +128,11 @@ public class CommittableIOSession<K extends Comparable<K>> extends AbstractIOSes
         for (Pointer pointer : deleted) {
             try {
                 removeNode(pointer);
-            } catch (ExecutionException | InterruptedException e) {
+            } catch (ExecutionException | InterruptedException exception) {
                 try {
                     rollback();
-                } catch (IOException | InterruptedException | ExecutionException exception) {
-                    throw new StorageException(new InternalStorageError(exception.getMessage()));
+                } catch (IOException | InterruptedException | ExecutionException nestedException) {
+                    throw new StorageException(DbError.ROLLBACK_FAILED, "Failed to rollback after exception");
                 }
             }
         }
@@ -141,14 +142,14 @@ public class CommittableIOSession<K extends Comparable<K>> extends AbstractIOSes
                 try {
                     updateNode(snapshot.get(pointer));
                 } catch (ExecutionException exception) {
-                    throw new StorageException(new InternalStorageError(exception.getMessage()));
+                    throw new StorageException(DbError.INTERNAL_STORAGE_ERROR, exception.getMessage());
                 }
             }
         } catch (InterruptedException | IOException exception) {
             try {
                 rollback();
             } catch (IOException | InterruptedException | ExecutionException nestedException) {
-                throw new StorageException(new InternalStorageError(nestedException.getMessage()));
+                throw new StorageException(DbError.INTERNAL_STORAGE_ERROR, exception.getMessage());
             }
         }
     }

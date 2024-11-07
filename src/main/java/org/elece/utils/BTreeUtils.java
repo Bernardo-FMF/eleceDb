@@ -1,8 +1,8 @@
 package org.elece.utils;
 
-import org.elece.exception.btree.BTreeException;
-import org.elece.exception.btree.type.TaskInterruptedError;
-import org.elece.exception.storage.StorageException;
+import org.elece.exception.BTreeException;
+import org.elece.exception.DbError;
+import org.elece.exception.StorageException;
 import org.elece.memory.Pointer;
 import org.elece.memory.data.BinaryObjectFactory;
 import org.elece.memory.tree.node.*;
@@ -91,7 +91,7 @@ public class BTreeUtils {
             }
             return getResponsibleNode(indexStorageManager, nextNode, identifier, index, degree, nodeFactory, vIndexBinaryObject);
         } catch (ExecutionException | InterruptedException | IOException exception) {
-            throw new BTreeException(new TaskInterruptedError(exception.getMessage()));
+            throw new BTreeException(DbError.TASK_INTERRUPTED_ERROR, exception.getMessage());
         }
 
     }

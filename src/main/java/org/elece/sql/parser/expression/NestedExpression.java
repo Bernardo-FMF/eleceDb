@@ -1,8 +1,8 @@
 package org.elece.sql.parser.expression;
 
-import org.elece.exception.query.QueryException;
-import org.elece.exception.sql.AnalyzerException;
-import org.elece.exception.sql.ParserException;
+import org.elece.exception.AnalyzerException;
+import org.elece.exception.ParserException;
+import org.elece.exception.QueryException;
 import org.elece.query.path.NodeCollection;
 import org.elece.query.path.QueryPlanVisitor;
 import org.elece.sql.analyzer.command.ExpressionAnalyzerVisitor;

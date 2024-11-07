@@ -1,11 +1,10 @@
 package org.elece.memory.tree.operation;
 
 import org.elece.config.DbConfig;
-import org.elece.exception.btree.BTreeException;
-import org.elece.exception.btree.type.DuplicateIndexInsertionError;
-import org.elece.exception.btree.type.FailedIndexCreationError;
-import org.elece.exception.serialization.SerializationException;
-import org.elece.exception.storage.StorageException;
+import org.elece.exception.BTreeException;
+import org.elece.exception.DbError;
+import org.elece.exception.SerializationException;
+import org.elece.exception.StorageException;
 import org.elece.memory.KeyValueSize;
 import org.elece.memory.Pointer;
 import org.elece.memory.data.BinaryObjectFactory;
@@ -32,7 +31,9 @@ public class CreateIndexOperation<K extends Comparable<K>, V> {
     private final BinaryObjectFactory<V> binaryObjectValueFactory;
     private final KeyValueSize keyValueSize;
 
-    public CreateIndexOperation(DbConfig dbConfig, AtomicIOSession<K> atomicIOSession, BinaryObjectFactory<K> binaryObjectKeyFactory, BinaryObjectFactory<V> binaryObjectValueFactory, KeyValueSize keyValueSize) {
+    public CreateIndexOperation(DbConfig dbConfig, AtomicIOSession<K> atomicIOSession,
+                                BinaryObjectFactory<K> binaryObjectKeyFactory,
+                                BinaryObjectFactory<V> binaryObjectValueFactory, KeyValueSize keyValueSize) {
         this.dbConfig = dbConfig;
         this.atomicIOSession = atomicIOSession;
         this.binaryObjectKeyFactory = binaryObjectKeyFactory;
@@ -40,7 +41,9 @@ public class CreateIndexOperation<K extends Comparable<K>, V> {
         this.keyValueSize = keyValueSize;
     }
 
-    public AbstractTreeNode<K> addIndex(AbstractTreeNode<K> root, K identifier, V value) throws BTreeException, StorageException, SerializationException {
+    public AbstractTreeNode<K> addIndex(AbstractTreeNode<K> root, K identifier, V value) throws BTreeException,
+                                                                                                StorageException,
+                                                                                                SerializationException {
         List<AbstractTreeNode<K>> path = new LinkedList<>();
         int bTreeDegree = dbConfig.getBTreeDegree();
 
@@ -63,7 +66,7 @@ public class CreateIndexOperation<K extends Comparable<K>, V> {
 
                 // Check if the key already exists to prevent duplicates.
                 if (currentNodeKeyList.contains(identifier)) {
-                    throw new BTreeException(new DuplicateIndexInsertionError<>(identifier));
+                    throw new BTreeException(DbError.DUPLICATE_INDEX_INSERTION_ERROR, String.format("Indexed key '%s' already exists", identifier));
                 }
 
                 // If there's space in the current node, insert the key-value pair.
@@ -166,10 +169,11 @@ public class CreateIndexOperation<K extends Comparable<K>, V> {
             }
         }
 
-        throw new BTreeException(new FailedIndexCreationError<>(identifier, value));
+        throw new BTreeException(DbError.FAILED_TO_INSERT_INDEX_ERROR, String.format("Failed to insert key '%s' into the tree", identifier));
     }
 
-    private void fixSiblingPointers(LeafTreeNode<K, V> currentNode, LeafTreeNode<K, V> newLeafTreeNode, int bTreeDegree) throws StorageException {
+    private void fixSiblingPointers(LeafTreeNode<K, V> currentNode, LeafTreeNode<K, V> newLeafTreeNode,
+                                    int bTreeDegree) throws StorageException {
         // Get the pointer to the next sibling of the current node.
         Optional<Pointer> currentNodeNextSiblingPointer = currentNode.getNextSiblingPointer(bTreeDegree);
 

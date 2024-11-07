@@ -1,7 +1,7 @@
 package org.elece.sql.token;
 
 import org.elece.exception.DbError;
-import org.elece.exception.sql.TokenizerException;
+import org.elece.exception.TokenizerException;
 import org.elece.sql.token.model.Token;
 
 import java.util.Objects;
@@ -9,10 +9,12 @@ import java.util.Objects;
 public class TokenWrapper {
     private final Token token;
     private final DbError error;
+    private final String message;
 
     private TokenWrapper(Builder builder) {
         this.token = builder.token;
         this.error = builder.error;
+        this.message = builder.message;
     }
 
     public static Builder builder() {
@@ -22,14 +24,16 @@ public class TokenWrapper {
     public static class Builder {
         private Token token;
         private DbError error;
+        private String message;
 
-        public Builder token(Token token) {
+        public Builder setToken(Token token) {
             this.token = token;
             return this;
         }
 
-        public Builder error(DbError error) {
-            this.error = error;
+        public Builder setError(DbError dbError, String message) {
+            this.error = dbError;
+            this.message = message;
             return this;
         }
 
@@ -50,6 +54,10 @@ public class TokenWrapper {
         return error;
     }
 
+    public String getMessage() {
+        return message;
+    }
+
     public boolean hasToken() {
         return !Objects.isNull(token) && Objects.isNull(error);
     }
@@ -60,7 +68,7 @@ public class TokenWrapper {
 
     public Token unwrap() throws TokenizerException {
         if (hasError()) {
-            throw new TokenizerException(getError());
+            throw new TokenizerException(getError(), getMessage());
         }
         return token;
     }

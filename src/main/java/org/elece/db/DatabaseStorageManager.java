@@ -1,7 +1,7 @@
 package org.elece.db;
 
-import org.elece.exception.db.DbException;
-import org.elece.exception.storage.StorageException;
+import org.elece.exception.DbException;
+import org.elece.exception.StorageException;
 import org.elece.memory.Pointer;
 
 import java.io.IOException;

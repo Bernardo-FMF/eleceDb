@@ -1,12 +1,7 @@
 package org.elece.serializer;
 
 import org.elece.db.schema.model.Column;
-import org.elece.exception.RuntimeDbException;
-import org.elece.exception.btree.BTreeException;
-import org.elece.exception.serialization.DeserializationException;
-import org.elece.exception.serialization.SerializationException;
-import org.elece.exception.serialization.type.ValueExceedsLimitForDeserialization;
-import org.elece.exception.serialization.type.ValueExceedsLimitForSerialization;
+import org.elece.exception.*;
 import org.elece.memory.data.BinaryObject;
 import org.elece.memory.data.BinaryObjectFactory;
 import org.elece.utils.BinaryUtils;
@@ -16,7 +11,7 @@ public class StringSerializer implements Serializer<String> {
     public byte[] serialize(String value, Column column) throws SerializationException {
         byte[] bytes = BinaryUtils.stringToBytes(value);
         if (bytes.length > size(column)) {
-            throw new SerializationException(new ValueExceedsLimitForSerialization(size(column), bytes.length));
+            throw new SerializationException(DbError.VALUE_EXCEEDS_LIMIT_FOR_SERIALIZATION_ERROR, String.format("Value exceeds size for serialization, maximum size is %d bytes but found %d", size(column), bytes.length));
         }
 
         return bytes;
@@ -25,7 +20,7 @@ public class StringSerializer implements Serializer<String> {
     @Override
     public String deserialize(byte[] bytes, Column column) throws DeserializationException {
         if (bytes.length > size(column)) {
-            throw new DeserializationException(new ValueExceedsLimitForDeserialization(size(column), bytes.length));
+            throw new DeserializationException(DbError.VALUE_EXCEEDS_LIMIT_FOR_DESERIALIZATION_ERROR, String.format("Value exceeds size for deserialization, maximum size is %d bytes but found %d", size(column), bytes.length));
         }
 
         return BinaryUtils.bytesToString(bytes, 0);
@@ -50,7 +45,7 @@ public class StringSerializer implements Serializer<String> {
             byte[] temp = BinaryUtils.stringToBytes(value);
             int size = size();
             if (temp.length > size) {
-                throw new RuntimeDbException(new ValueExceedsLimitForSerialization(size, temp.length));
+                throw new RuntimeDbException(DbError.VALUE_EXCEEDS_LIMIT_FOR_SERIALIZATION_ERROR, String.format("Value exceeds size for serialization, maximum size is %d bytes but found %d", size, temp.length));
             }
 
             byte[] result = new byte[size];

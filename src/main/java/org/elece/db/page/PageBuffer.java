@@ -4,11 +4,10 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.RemovalListener;
 import org.elece.config.DbConfig;
+import org.elece.exception.DbError;
+import org.elece.exception.DbException;
 import org.elece.exception.RuntimeDbException;
-import org.elece.exception.db.DbException;
-import org.elece.exception.db.type.InternalDbError;
-import org.elece.exception.storage.StorageException;
-import org.elece.exception.storage.type.InternalStorageError;
+import org.elece.exception.StorageException;
 import org.elece.storage.file.FileHandlerPool;
 import org.elece.utils.FileUtils;
 
@@ -39,7 +38,8 @@ public class PageBuffer {
 
     private volatile PageTitle lastPageTitle;
 
-    public PageBuffer(DbConfig dbConfig, PageFactory pageFactory, FileHandlerPool fileHandlerPool, Function<Integer, Path> dbFileFunction) {
+    public PageBuffer(DbConfig dbConfig, PageFactory pageFactory, FileHandlerPool fileHandlerPool,
+                      Function<Integer, Path> dbFileFunction) {
         this.pageFactory = pageFactory;
         this.fileHandlerPool = fileHandlerPool;
         this.dbConfig = dbConfig;
@@ -51,7 +51,7 @@ public class PageBuffer {
                 .initialCapacity(dbConfig.getDbPageBufferSize() / 2)
                 .removalListener((RemovalListener<PageTitle, PageWrapper>) notification -> {
                     if (notification.getValue() == null) {
-                        throw new RuntimeDbException(new InternalDbError("Page is null"));
+                        throw new RuntimeDbException(DbError.INTERNAL_DATABASE_ERROR, "Page is null");
                     }
                     if (notification.getValue().getRefCount() == 0) {
                         loadedPages.remove(notification.getKey());
@@ -131,8 +131,8 @@ public class PageBuffer {
             int pageNumber;
             try (AsynchronousFileChannel fileChannel = fileHandlerPool.acquireFileHandler(dbFileFunction.apply(lastChunk))) {
                 pageNumber = (int) fileChannel.size() / this.dbConfig.getDbPageSize();
-            } catch (IOException | InterruptedException e) {
-                throw new StorageException(new InternalStorageError("Internal file channel error"));
+            } catch (IOException | InterruptedException exception) {
+                throw new StorageException(DbError.INTERNAL_STORAGE_ERROR, "Internal file channel error");
             }
             fileHandlerPool.releaseFileHandler(dbFileFunction.apply(lastChunk));
 
@@ -153,14 +153,14 @@ public class PageBuffer {
      * @throws InterruptedException If the page generation or acquisition operation is interrupted.
      */
     public Page getBufferedNewPage() throws DbException, IOException, ExecutionException, InterruptedException {
-        PageTitle lastPageTitle = this.lastPageTitle;
+        PageTitle tempLastPageTitle = this.lastPageTitle;
 
         int chunk = 0;
         int pageNumber = 0;
 
-        if (lastPageTitle != null) {
-            chunk = lastPageTitle.getChunk();
-            pageNumber = lastPageTitle.getPageNumber() + 1;
+        if (tempLastPageTitle != null) {
+            chunk = tempLastPageTitle.getChunk();
+            pageNumber = tempLastPageTitle.getPageNumber() + 1;
         }
 
         if (this.dbConfig.getDbPageMaxFileSize() != DbConfig.UNLIMITED_FILE_SIZE && (long) pageNumber * this.dbConfig.getDbPageSize() > this.dbConfig.getDbPageMaxFileSize()) {

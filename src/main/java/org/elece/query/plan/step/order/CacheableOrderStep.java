@@ -4,8 +4,8 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import org.elece.config.DbConfig;
 import org.elece.db.schema.model.Column;
+import org.elece.exception.DeserializationException;
 import org.elece.exception.RuntimeDbException;
-import org.elece.exception.serialization.DeserializationException;
 import org.elece.serializer.Serializer;
 import org.elece.serializer.SerializerRegistry;
 import org.elece.sql.parser.expression.internal.*;
@@ -81,21 +81,21 @@ public class CacheableOrderStep<V extends Comparable<V>> extends OrderStep {
                 try {
                     return (SqlValue<V>) new SqlNumberValue((Integer) serializer.deserialize(data, orderByColumn));
                 } catch (DeserializationException exception) {
-                    throw new RuntimeDbException(exception.getDbError());
+                    throw new RuntimeDbException(exception.getDbError(), exception.getMessage());
                 }
             };
             case Bool -> (data) -> {
                 try {
                     return (SqlValue<V>) new SqlBoolValue((Boolean) serializer.deserialize(data, orderByColumn));
                 } catch (DeserializationException exception) {
-                    throw new RuntimeDbException(exception.getDbError());
+                    throw new RuntimeDbException(exception.getDbError(), exception.getMessage());
                 }
             };
             case Varchar -> (data) -> {
                 try {
                     return (SqlValue<V>) new SqlStringValue((String) serializer.deserialize(data, orderByColumn));
                 } catch (DeserializationException exception) {
-                    throw new RuntimeDbException(exception.getDbError());
+                    throw new RuntimeDbException(exception.getDbError(), exception.getMessage());
                 }
             };
         };

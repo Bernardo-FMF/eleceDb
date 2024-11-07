@@ -1,8 +1,9 @@
 package org.elece.storage.file;
 
 import org.elece.config.DbConfig;
-import org.elece.exception.storage.StorageException;
-import org.elece.exception.storage.type.InternalStorageError;
+import org.elece.exception.DbError;
+import org.elece.exception.RuntimeDbException;
+import org.elece.exception.StorageException;
 
 import java.io.IOException;
 import java.nio.channels.AsynchronousFileChannel;
@@ -59,8 +60,8 @@ public class RestrictedFileHandlerPool implements FileHandlerPool {
                     semaphore.release();
                     fileHandlers.remove(path.toString());
                     fileHandler.closeChannel(dbConfig.getCloseTimeoutTime(), dbConfig.getTimeoutUnit());
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
+                } catch (IOException exception) {
+                    throw new RuntimeDbException(DbError.INTERNAL_STORAGE_ERROR, "Error while releasing file handler channel");
                 }
             }
         }
@@ -73,7 +74,7 @@ public class RestrictedFileHandlerPool implements FileHandlerPool {
             try {
                 fileHandler.closeChannel(dbConfig.getCloseTimeoutTime(), dbConfig.getTimeoutUnit());
             } catch (IOException e) {
-                throw new StorageException(new InternalStorageError("Error while closing file handler channel"));
+                throw new StorageException(DbError.INTERNAL_STORAGE_ERROR, "Error while closing file handler channel");
             }
         }
     }

@@ -1,7 +1,7 @@
 package org.elece.sql.parser.command;
 
-import org.elece.exception.sql.ParserException;
-import org.elece.exception.sql.TokenizerException;
+import org.elece.exception.ParserException;
+import org.elece.exception.TokenizerException;
 import org.elece.sql.parser.expression.Expression;
 
 public interface TdopAlgorithm {
