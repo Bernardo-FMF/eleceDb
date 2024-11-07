@@ -23,10 +23,6 @@ public class DefaultIndexStorageManagerFactory extends IndexStorageManagerFactor
         this.storageManagers = new ConcurrentHashMap<>();
     }
 
-    private String getManagerId(int tableId, int columnId) {
-        return "%d_%d".formatted(tableId, columnId);
-    }
-
     private synchronized FileHandlerPool getFileHandlerPool() {
         if (fileHandlerPool != null) {
             return fileHandlerPool;
@@ -52,8 +48,9 @@ public class DefaultIndexStorageManagerFactory extends IndexStorageManagerFactor
                 } else {
                     return new CompactIndexStorageManager(managerId, indexHeaderManagerFactory, dbConfig, getFileHandlerPool());
                 }
-            } catch (StorageException | IOException e) {
-                throw new RuntimeException(e);
+            } catch (StorageException | IOException exception) {
+                // TODO fix exception
+                throw new RuntimeException(exception);
             }
         });
     }

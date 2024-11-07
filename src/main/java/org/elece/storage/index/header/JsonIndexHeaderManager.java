@@ -36,7 +36,7 @@ public class JsonIndexHeaderManager implements IndexHeaderManager {
     private void persistIndexHeader() throws StorageException {
         try (FileWriter writer = new FileWriter(this.path.toFile())) {
             gson.toJson(header, writer);
-        } catch (IOException e) {
+        } catch (IOException exception) {
             throw new StorageException(DbError.INTERNAL_STORAGE_ERROR, "Couldn't persist index header file(s)");
         }
     }
@@ -52,7 +52,7 @@ public class JsonIndexHeaderManager implements IndexHeaderManager {
             } else {
                 this.header = newIndexHeader;
             }
-        } catch (FileNotFoundException e) {
+        } catch (FileNotFoundException exception) {
             throw new StorageException(DbError.INTERNAL_STORAGE_ERROR, "Couldn't read index header file(s)");
         }
     }

@@ -40,8 +40,9 @@ public class OrganizedIndexStorageManager extends AbstractIndexStorageManager {
         } else {
             try (AsynchronousFileChannel asynchronousFileChannel = this.acquireFileChannel(indexId, chunk)) {
                 location = new IndexHeaderManager.Location(chunk, asynchronousFileChannel.size());
-            } catch (IOException e) {
-                throw new RuntimeException(e);
+            } catch (IOException exception) {
+                // TODO fix exception
+                throw new RuntimeException(exception);
             }
             this.releaseFileChannel(indexId, chunk);
         }

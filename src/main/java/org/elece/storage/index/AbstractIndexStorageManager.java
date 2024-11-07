@@ -55,8 +55,9 @@ public abstract class AbstractIndexStorageManager implements IndexStorageManager
         Path indexFilePath = getIndexFilePath(indexId, chunk);
         try {
             return this.fileHandlerPool.acquireFileHandler(indexFilePath);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+        } catch (IOException exception) {
+            // TODO fix exception
+            throw new RuntimeException(exception);
         }
     }
 

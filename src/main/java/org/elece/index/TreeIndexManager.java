@@ -326,7 +326,7 @@ public class TreeIndexManager<K extends Comparable<K>, V> extends AbstractTreeIn
 
                     try {
                         targetTreeNode = (LeafTreeNode<K, V>) atomicIOSession.read(previousSiblingPointer.get());
-                    } catch (StorageException e) {
+                    } catch (StorageException exception) {
                         return false;
                     }
                     nodeKeyValueList = targetTreeNode.getKeyValueList(dbConfig.getBTreeDegree());

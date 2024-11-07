@@ -33,7 +33,7 @@ public class Proto {
             if (payloadSize != payloadLen) {
                 throw new ProtoException(DbError.INVALID_HEADER_SIZE_ERROR, String.format("Size header is not valid, expected %o but read %o bytes", payloadLenSize, Integer.BYTES));
             }
-        } catch (IOException e) {
+        } catch (IOException exception) {
             throw new ProtoException(DbError.INPUT_STREAM_ERROR, "Error while reading the input stream");
         }
 

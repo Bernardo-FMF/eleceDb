@@ -1,6 +1,7 @@
 package org.elece.storage.file;
 
-import java.io.IOException;
+import org.elece.exception.StorageException;
+
 import java.nio.file.Path;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -8,7 +9,7 @@ import java.util.concurrent.Executors;
 public class DefaultFileHandlerFactory implements FileHandlerFactory {
     private ExecutorService executorService;
 
-    private static DefaultFileHandlerFactory FACTORY_INSTANCE;
+    private static DefaultFileHandlerFactory factoryInstance;
 
     private DefaultFileHandlerFactory() {
         // private constructor
@@ -23,17 +24,17 @@ public class DefaultFileHandlerFactory implements FileHandlerFactory {
     }
 
     public static synchronized DefaultFileHandlerFactory getInstance(ExecutorService executorService) {
-        if (FACTORY_INSTANCE == null) {
-            FACTORY_INSTANCE = new DefaultFileHandlerFactory();
+        if (factoryInstance == null) {
+            factoryInstance = new DefaultFileHandlerFactory();
             if (executorService != null) {
-                FACTORY_INSTANCE.executorService = executorService;
+                factoryInstance.executorService = executorService;
             }
         }
-        return FACTORY_INSTANCE;
+        return factoryInstance;
     }
 
     @Override
-    public synchronized FileHandler getFileHandler(Path path) throws IOException {
+    public synchronized FileHandler getFileHandler(Path path) throws StorageException {
         if (executorService == null) {
             return new FileHandler(path);
         }

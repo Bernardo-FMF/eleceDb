@@ -1,10 +1,9 @@
 package org.elece.storage.file;
 
 import org.elece.config.DbConfig;
-import org.elece.exception.DbError;
+import org.elece.exception.RuntimeDbException;
 import org.elece.exception.StorageException;
 
-import java.io.IOException;
 import java.nio.channels.AsynchronousFileChannel;
 import java.nio.file.Path;
 import java.util.Map;
@@ -32,8 +31,8 @@ public class UnrestrictedFileHandlerPool implements FileHandlerPool {
         FileHandler fileHandler = fileHandlers.computeIfAbsent(path.toString(), tempPath -> {
             try {
                 return fileHandlerFactory.getFileHandler(Path.of(tempPath));
-            } catch (IOException e) {
-                throw new RuntimeException(e);
+            } catch (StorageException exception) {
+                throw new RuntimeDbException(exception.getDbError(), exception.getMessage());
             }
         });
         fileHandler.incrementUsage();
@@ -52,11 +51,7 @@ public class UnrestrictedFileHandlerPool implements FileHandlerPool {
     public void closeAll() throws StorageException {
         for (Map.Entry<String, FileHandler> entry : fileHandlers.entrySet()) {
             FileHandler fileHandler = entry.getValue();
-            try {
-                fileHandler.closeChannel(dbConfig.getCloseTimeoutTime(), dbConfig.getTimeoutUnit());
-            } catch (IOException e) {
-                throw new StorageException(DbError.INTERNAL_STORAGE_ERROR, "Error while closing file handler channel");
-            }
+            fileHandler.closeChannel(dbConfig.getCloseTimeoutTime(), dbConfig.getTimeoutUnit());
         }
     }
 }

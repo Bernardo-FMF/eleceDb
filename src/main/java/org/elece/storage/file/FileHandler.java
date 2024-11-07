@@ -1,5 +1,8 @@
 package org.elece.storage.file;
 
+import org.elece.exception.DbError;
+import org.elece.exception.StorageException;
+
 import java.io.IOException;
 import java.nio.channels.AsynchronousFileChannel;
 import java.nio.file.Path;
@@ -17,14 +20,22 @@ public class FileHandler {
     private int usageCount = 0;
     private volatile boolean isClosed = false;
 
-    public FileHandler(Path path, ExecutorService executorService) throws IOException {
-        this.fileChannel = AsynchronousFileChannel.open(path,
-                Set.of(StandardOpenOption.READ, StandardOpenOption.WRITE, StandardOpenOption.CREATE),
-                executorService);
+    public FileHandler(Path path, ExecutorService executorService) throws StorageException {
+        try {
+            this.fileChannel = AsynchronousFileChannel.open(path,
+                    Set.of(StandardOpenOption.READ, StandardOpenOption.WRITE, StandardOpenOption.CREATE),
+                    executorService);
+        } catch (IOException exception) {
+            throw new StorageException(DbError.CHANNEL_OPENING_ERROR, exception.getMessage());
+        }
     }
 
-    public FileHandler(Path path) throws IOException {
-        this.fileChannel = AsynchronousFileChannel.open(path, StandardOpenOption.READ, StandardOpenOption.WRITE, StandardOpenOption.CREATE);
+    public FileHandler(Path path) throws StorageException {
+        try {
+            this.fileChannel = AsynchronousFileChannel.open(path, StandardOpenOption.READ, StandardOpenOption.WRITE, StandardOpenOption.CREATE);
+        } catch (IOException exception) {
+            throw new StorageException(DbError.CHANNEL_OPENING_ERROR, exception.getMessage());
+        }
     }
 
     public synchronized void incrementUsage() {
@@ -48,21 +59,23 @@ public class FileHandler {
         return usageCount;
     }
 
-    public void closeChannel(long timeout, TimeUnit timeUnit) throws IOException {
+    public void closeChannel(long timeout, TimeUnit timeUnit) throws StorageException {
         this.isClosed = true;
         synchronized (this) {
-            try {
-                while (usageCount > 0) {
-                    try {
-                        wait(timeUnit.toMillis(timeout));
-                    } catch (InterruptedException e) {
-                        Thread.currentThread().interrupt();
-                        throw new RuntimeException(e);
-                    }
+            while (usageCount > 0) {
+                try {
+                    wait(timeUnit.toMillis(timeout));
+                } catch (InterruptedException exception) {
+                    Thread.currentThread().interrupt();
+                    throw new StorageException(DbError.TASK_INTERRUPTED_ERROR, exception.getMessage());
                 }
-            } finally {
-                usageCount = 0;
+            }
+
+            usageCount = 0;
+            try {
                 fileChannel.close();
+            } catch (IOException exception) {
+                throw new StorageException(DbError.CHANNEL_CLOSING_ERROR, "Failed to close file channel");
             }
         }
     }

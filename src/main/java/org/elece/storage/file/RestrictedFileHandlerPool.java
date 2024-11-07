@@ -2,13 +2,12 @@ package org.elece.storage.file;
 
 import org.elece.config.DbConfig;
 import org.elece.exception.DbError;
-import org.elece.exception.RuntimeDbException;
 import org.elece.exception.StorageException;
 
-import java.io.IOException;
 import java.nio.channels.AsynchronousFileChannel;
 import java.nio.file.Path;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Semaphore;
 
@@ -32,14 +31,19 @@ public class RestrictedFileHandlerPool implements FileHandlerPool {
     }
 
     @Override
-    public AsynchronousFileChannel acquireFileHandler(Path path) throws InterruptedException, IOException {
+    public AsynchronousFileChannel acquireFileHandler(Path path) throws StorageException {
         FileHandler fileHandler;
 
         synchronized (fileHandlers) {
             fileHandler = fileHandlers.get(path.toString());
-            if (fileHandler == null) {
-                if (!semaphore.tryAcquire(dbConfig.getAcquisitionTimeoutTime(), dbConfig.getTimeoutUnit())) {
-                    throw new IllegalStateException("Timeout while waiting to acquire file handler for " + path);
+            if (Objects.isNull(fileHandler)) {
+                try {
+                    if (!semaphore.tryAcquire(dbConfig.getAcquisitionTimeoutTime(), dbConfig.getTimeoutUnit())) {
+                        throw new StorageException(DbError.TASK_INTERRUPTED_ERROR, String.format("Timeout while waiting to acquire file handler for %s", path));
+                    }
+                } catch (InterruptedException exception) {
+                    Thread.currentThread().interrupt();
+                    throw new StorageException(DbError.TASK_INTERRUPTED_ERROR, exception.getMessage());
                 }
                 fileHandler = fileHandlerFactory.getFileHandler(path);
                 fileHandlers.put(path.toString(), fileHandler);
@@ -51,18 +55,14 @@ public class RestrictedFileHandlerPool implements FileHandlerPool {
     }
 
     @Override
-    public void releaseFileHandler(Path path) {
+    public void releaseFileHandler(Path path) throws StorageException {
         FileHandler fileHandler = fileHandlers.get(path.toString());
         if (fileHandler != null) {
             fileHandler.decrementUsage();
             if (fileHandler.getUsageCount() <= 0) {
-                try {
-                    semaphore.release();
-                    fileHandlers.remove(path.toString());
-                    fileHandler.closeChannel(dbConfig.getCloseTimeoutTime(), dbConfig.getTimeoutUnit());
-                } catch (IOException exception) {
-                    throw new RuntimeDbException(DbError.INTERNAL_STORAGE_ERROR, "Error while releasing file handler channel");
-                }
+                semaphore.release();
+                fileHandlers.remove(path.toString());
+                fileHandler.closeChannel(dbConfig.getCloseTimeoutTime(), dbConfig.getTimeoutUnit());
             }
         }
     }
@@ -71,11 +71,7 @@ public class RestrictedFileHandlerPool implements FileHandlerPool {
     public void closeAll() throws StorageException {
         for (Map.Entry<String, FileHandler> entry : fileHandlers.entrySet()) {
             FileHandler fileHandler = entry.getValue();
-            try {
-                fileHandler.closeChannel(dbConfig.getCloseTimeoutTime(), dbConfig.getTimeoutUnit());
-            } catch (IOException e) {
-                throw new StorageException(DbError.INTERNAL_STORAGE_ERROR, "Error while closing file handler channel");
-            }
+            fileHandler.closeChannel(dbConfig.getCloseTimeoutTime(), dbConfig.getTimeoutUnit());
         }
     }
 }
