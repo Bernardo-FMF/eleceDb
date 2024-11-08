@@ -4,10 +4,7 @@ import org.elece.db.DatabaseStorageManager;
 import org.elece.db.DbObject;
 import org.elece.db.schema.model.Column;
 import org.elece.db.schema.model.Table;
-import org.elece.exception.BTreeException;
-import org.elece.exception.DbException;
-import org.elece.exception.SchemaException;
-import org.elece.exception.StorageException;
+import org.elece.exception.*;
 import org.elece.index.ColumnIndexManagerProvider;
 import org.elece.index.IndexManager;
 import org.elece.memory.Pointer;
@@ -49,7 +46,8 @@ public class EqualityRowScanStep<V extends Comparable<V>> extends ScanStep {
                 return databaseStorageManager.select(rowPointer.get());
             }
             return Optional.empty();
-        } catch (BTreeException | StorageException | DbException exception) {
+        } catch (BTreeException | StorageException | DbException | InterruptedTaskException |
+                 FileChannelException exception) {
             return Optional.empty();
         } finally {
             finish();

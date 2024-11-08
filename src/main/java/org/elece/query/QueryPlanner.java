@@ -46,9 +46,7 @@ import org.elece.sql.parser.statement.*;
 import org.elece.storage.file.FileHandlerPool;
 import org.elece.thread.ClientBridge;
 
-import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 public class QueryPlanner {
@@ -71,12 +69,11 @@ public class QueryPlanner {
     }
 
     public void plan(Statement statement, ClientBridge clientBridge) throws SchemaException, BTreeException,
-                                                                            SerializationException, IOException,
-                                                                            ExecutionException, StorageException,
-                                                                            InterruptedException,
+                                                                            SerializationException, StorageException,
                                                                             DeserializationException, DbException,
                                                                             QueryException, ParserException,
-                                                                            ProtoException {
+                                                                            ProtoException, InterruptedTaskException,
+                                                                            FileChannelException {
         final StreamStep streamStep = new OutputStreamStep(clientBridge);
         Optional<QueryExecutor> queryExecutor = switch (statement.getStatementType()) {
             case CreateDb -> Optional.of(new CreateDbQueryExecutor((CreateDbStatement) statement, streamStep));
@@ -112,7 +109,9 @@ public class QueryPlanner {
                                                                                                       QueryException,
                                                                                                       SchemaException,
                                                                                                       StorageException,
-                                                                                                      BTreeException {
+                                                                                                      BTreeException,
+                                                                                                      InterruptedTaskException,
+                                                                                                      FileChannelException {
         Optional<Table> possibleTable = SchemaSearcher.findTable(schemaManager.getSchema(), statement.getFrom());
         if (possibleTable.isEmpty()) {
             return Optional.empty();
@@ -181,7 +180,9 @@ public class QueryPlanner {
                                                                                                       SchemaException,
                                                                                                       StorageException,
                                                                                                       QueryException,
-                                                                                                      BTreeException {
+                                                                                                      BTreeException,
+                                                                                                      InterruptedTaskException,
+                                                                                                      FileChannelException {
         Optional<Table> possibleTable = SchemaSearcher.findTable(schemaManager.getSchema(), statement.getTable());
         if (possibleTable.isEmpty()) {
             return Optional.empty();
@@ -261,7 +262,9 @@ public class QueryPlanner {
                                                                                                       QueryException,
                                                                                                       SchemaException,
                                                                                                       StorageException,
-                                                                                                      BTreeException {
+                                                                                                      BTreeException,
+                                                                                                      InterruptedTaskException,
+                                                                                                      FileChannelException {
         Optional<Table> possibleTable = SchemaSearcher.findTable(schemaManager.getSchema(), statement.getFrom());
         if (possibleTable.isEmpty()) {
             return Optional.empty();

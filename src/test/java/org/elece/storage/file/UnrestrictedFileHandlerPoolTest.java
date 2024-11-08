@@ -2,7 +2,8 @@ package org.elece.storage.file;
 
 import org.elece.config.DbConfig;
 import org.elece.config.DefaultDbConfigBuilder;
-import org.elece.exception.StorageException;
+import org.elece.exception.FileChannelException;
+import org.elece.exception.InterruptedTaskException;
 import org.elece.utils.FileTestUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -38,7 +39,7 @@ class UnrestrictedFileHandlerPoolTest {
     }
 
     @Test
-    public void test_acquireFileHandler_newHandler() throws StorageException {
+    public void test_acquireFileHandler_newHandler() throws InterruptedTaskException, FileChannelException {
         String filename1 = "file1.bin";
 
         Path file1 = Path.of(dbPath.toString(), filename1);
@@ -51,7 +52,7 @@ class UnrestrictedFileHandlerPoolTest {
     }
 
     @Test
-    public void test_acquireFileHandler_existingHandler() throws StorageException {
+    public void test_acquireFileHandler_existingHandler() throws InterruptedTaskException, FileChannelException {
         String filename1 = "file1.bin";
 
         Path file1 = Path.of(dbPath.toString(), filename1);

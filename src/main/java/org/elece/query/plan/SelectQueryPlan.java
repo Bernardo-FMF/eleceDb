@@ -10,9 +10,7 @@ import org.elece.query.plan.step.stream.StreamStep;
 import org.elece.query.plan.step.tracer.TracerStep;
 import org.elece.query.result.ResultInfo;
 
-import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.ExecutionException;
 
 public class SelectQueryPlan implements QueryPlan {
     private final Queue<ScanStep> scanSteps;
@@ -39,8 +37,8 @@ public class SelectQueryPlan implements QueryPlan {
 
     @Override
     public void execute() throws ParserException, SerializationException, SchemaException, StorageException,
-                                 IOException, ExecutionException, InterruptedException, DbException, BTreeException,
-                                 DeserializationException, ProtoException {
+                                 DbException, BTreeException, DeserializationException, ProtoException,
+                                 InterruptedTaskException, FileChannelException {
         while (!scanSteps.isEmpty()) {
             ScanStep rowScanner = scanSteps.poll();
             List<FilterStep> rowFilters = filterSteps.get(rowScanner.getScanId());

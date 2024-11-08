@@ -54,8 +54,8 @@ public class DefaultPathNode {
     }
 
     public enum IndexType {
-        NonIndexed(0),
-        Indexed(1);
+        NON_INDEXED(0),
+        INDEXED(1);
 
         private final int priority;
 
@@ -64,7 +64,7 @@ public class DefaultPathNode {
         }
 
         public static IndexType fromBoolean(boolean isIndexed) {
-            return isIndexed ? Indexed : NonIndexed;
+            return isIndexed ? INDEXED : NON_INDEXED;
         }
 
         public int getPriority() {

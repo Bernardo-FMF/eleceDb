@@ -8,9 +8,7 @@ import org.elece.query.plan.step.validator.ValidatorStep;
 import org.elece.query.plan.step.value.ValueStep;
 import org.elece.query.result.ResultInfo;
 
-import java.io.IOException;
 import java.util.Optional;
-import java.util.concurrent.ExecutionException;
 
 public class InsertQueryPlan implements QueryPlan {
     private final ValueStep valueStep;
@@ -34,19 +32,18 @@ public class InsertQueryPlan implements QueryPlan {
 
     @Override
     public void execute() throws ParserException, SerializationException, SchemaException, StorageException,
-                                 IOException, ExecutionException, InterruptedException, DbException, BTreeException,
-                                 DeserializationException, ProtoException {
+                                 DbException, BTreeException, DeserializationException, ProtoException,
+                                 InterruptedTaskException, FileChannelException {
         Optional<byte[]> values = valueStep.next();
         if (values.isEmpty()) {
             return;
         }
 
-        validatorStep.validate(values.get());
-
-        boolean executed = operationStep.execute(values.get());
-
-        if (executed) {
-            tracerStep.trace(values.get());
+        if (validatorStep.validate(values.get())) {
+            boolean executed = operationStep.execute(values.get());
+            if (executed) {
+                tracerStep.trace(values.get());
+            }
         }
 
         ResultInfo resultInfo = tracerStep.buildResultInfo();

@@ -6,9 +6,6 @@ import org.elece.query.plan.step.stream.StreamStep;
 import org.elece.query.result.GenericQueryResultInfo;
 import org.elece.query.result.builder.GenericQueryResultInfoBuilder;
 
-import java.io.IOException;
-import java.util.concurrent.ExecutionException;
-
 public class DropDbQueryExecutor implements QueryExecutor {
     private final StreamStep streamStep;
 
@@ -17,10 +14,11 @@ public class DropDbQueryExecutor implements QueryExecutor {
     }
 
     @Override
-    public void execute(SchemaManager schemaManager) throws SchemaException, IOException, BTreeException,
+    public void execute(SchemaManager schemaManager) throws SchemaException, BTreeException,
                                                             SerializationException, StorageException,
-                                                            DeserializationException, DbException, ExecutionException,
-                                                            InterruptedException, ProtoException {
+                                                            DeserializationException, DbException,
+                                                            ProtoException, InterruptedTaskException,
+                                                            FileChannelException {
         int rowCount = schemaManager.deleteSchema();
         streamStep.stream(GenericQueryResultInfoBuilder.builder()
                 .setQueryType(GenericQueryResultInfo.QueryType.DROP_DB)

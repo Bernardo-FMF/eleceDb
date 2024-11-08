@@ -8,8 +8,6 @@ import org.elece.query.result.GenericQueryResultInfo;
 import org.elece.query.result.builder.GenericQueryResultInfoBuilder;
 import org.elece.sql.parser.statement.CreateIndexStatement;
 
-import java.io.IOException;
-
 public class CreateIndexQueryExecutor implements QueryExecutor {
     private final String name;
     private final String table;
@@ -24,9 +22,10 @@ public class CreateIndexQueryExecutor implements QueryExecutor {
     }
 
     @Override
-    public void execute(SchemaManager schemaManager) throws SchemaException, IOException, BTreeException,
+    public void execute(SchemaManager schemaManager) throws SchemaException, BTreeException,
                                                             SerializationException, StorageException,
-                                                            DeserializationException, DbException, ProtoException {
+                                                            DeserializationException, DbException, ProtoException,
+                                                            InterruptedTaskException, FileChannelException {
         int rowCount = schemaManager.createIndex(table, new Index(name, column));
         streamStep.stream(GenericQueryResultInfoBuilder.builder()
                 .setQueryType(GenericQueryResultInfo.QueryType.CREATE_INDEX)

@@ -4,21 +4,17 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import org.elece.config.DbConfig;
 import org.elece.db.schema.model.Column;
-import org.elece.exception.DeserializationException;
-import org.elece.exception.RuntimeDbException;
+import org.elece.exception.*;
 import org.elece.serializer.Serializer;
 import org.elece.serializer.SerializerRegistry;
 import org.elece.sql.parser.expression.internal.*;
+import org.elece.storage.file.FileChannel;
 import org.elece.storage.file.FileHandlerPool;
 import org.elece.utils.BinaryUtils;
 import org.elece.utils.SerializationUtils;
 
-import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.channels.AsynchronousFileChannel;
 import java.nio.file.Path;
 import java.util.*;
-import java.util.concurrent.ExecutionException;
 import java.util.function.Function;
 
 public class CacheableOrderStep<V extends Comparable<V>> extends OrderStep {
@@ -106,7 +102,7 @@ public class CacheableOrderStep<V extends Comparable<V>> extends OrderStep {
     }
 
     @Override
-    public void addToBuffer(byte[] data) {
+    public void addToBuffer(byte[] data) throws InterruptedTaskException, StorageException, FileChannelException {
         byte[] key = SerializationUtils.getValueOfField(selectedColumns, orderByColumn, data);
 
         orderedBuffer.add(key);
@@ -118,7 +114,7 @@ public class CacheableOrderStep<V extends Comparable<V>> extends OrderStep {
     }
 
     @Override
-    public void prepareBufferState() {
+    public void prepareBufferState() throws InterruptedTaskException, StorageException, FileChannelException {
         if (tempFiles.isEmpty()) {
             return;
         }
@@ -156,26 +152,25 @@ public class CacheableOrderStep<V extends Comparable<V>> extends OrderStep {
     }
 
     @Override
-    public void clearBuffer() {
+    public void clearBuffer() throws InterruptedTaskException, StorageException, FileChannelException {
         this.rowCache.invalidateAll();
         this.orderedBuffer.clear();
 
         if (!tempFiles.isEmpty()) {
             for (TempFileWrapper tempFile : tempFiles) {
-                tempFile.getTempFileName().toFile().delete();
-
                 fileHandlerPool.releaseFileHandler(tempFile.getTempFileName());
+                tempFile.getTempFileName().toFile().delete();
             }
         }
 
         tempFiles.clear();
     }
 
-    private void flush() {
+    private void flush() throws InterruptedTaskException, StorageException, FileChannelException {
         Path tempFileName = getTempFileName();
 
         try {
-            AsynchronousFileChannel tempChannel = fileHandlerPool.acquireFileHandler(tempFileName);
+            FileChannel tempChannel = fileHandlerPool.acquireFileHandler(tempFileName);
 
             Long position = 0L;
             while (!orderedBuffer.isEmpty()) {
@@ -186,14 +181,14 @@ public class CacheableOrderStep<V extends Comparable<V>> extends OrderStep {
                 BinaryUtils.copyBytes(nextRowId, concatenatedRow, 0, 0, nextRowId.length);
                 BinaryUtils.copyBytes(row, concatenatedRow, 0, nextRowId.length, rowSize);
 
-                tempChannel.write(ByteBuffer.wrap(concatenatedRow), position * rowSize).get();
+                tempChannel.write(position * rowSize, concatenatedRow);
 
                 position++;
             }
 
             Serializer<V> serializer = serializerRegistry.getSerializer(orderByColumn.getSqlType().getType());
             tempFiles.add(new TempFileWrapper(tempFileName, tempChannel, serializer.size(orderByColumn) + rowSize));
-        } catch (InterruptedException | IOException | ExecutionException exception) {
+        } catch (FileChannelException exception) {
             fileHandlerPool.releaseFileHandler(tempFileName);
             tempFiles.removeIf(tempFile -> tempFile.getTempFileName().equals(tempFileName));
         } finally {
@@ -267,15 +262,13 @@ public class CacheableOrderStep<V extends Comparable<V>> extends OrderStep {
 
     private static final class TempFileWrapper {
         private final Path tempFileName;
-        private final AsynchronousFileChannel tempFileChannel;
+        private final FileChannel tempFileChannel;
         private final Integer rowSize;
         private Long readPointer;
 
         private byte[] nextValue;
 
-        private TempFileWrapper(Path tempFileName,
-                                AsynchronousFileChannel tempFileChannel,
-                                Integer rowSize) {
+        private TempFileWrapper(Path tempFileName, FileChannel tempFileChannel, Integer rowSize) {
             this.tempFileName = tempFileName;
             this.tempFileChannel = tempFileChannel;
             this.rowSize = rowSize;
@@ -300,14 +293,13 @@ public class CacheableOrderStep<V extends Comparable<V>> extends OrderStep {
             if (Objects.isNull(nextValue)) {
                 byte[] newValue = new byte[rowSize];
                 try {
-                    ByteBuffer wrap = ByteBuffer.wrap(newValue);
-                    Integer bytesRead = tempFileChannel.read(wrap, readPointer * rowSize).get();
-                    if (!Objects.equals(bytesRead, rowSize)) {
+                    byte[] bytes = tempFileChannel.read(readPointer * rowSize, rowSize);
+                    if (!Objects.equals(bytes.length, rowSize)) {
                         return Optional.empty();
                     }
                     this.nextValue = newValue;
                     incrementReadPointer();
-                } catch (InterruptedException | ExecutionException exception) {
+                } catch (InterruptedTaskException | StorageException | FileChannelException e) {
                     return Optional.empty();
                 }
             }

@@ -2,8 +2,7 @@ package org.elece.db;
 
 import org.elece.config.DbConfig;
 import org.elece.config.DefaultDbConfigBuilder;
-import org.elece.exception.DbException;
-import org.elece.exception.StorageException;
+import org.elece.exception.*;
 import org.elece.memory.Pointer;
 import org.elece.memory.tree.node.LeafTreeNode;
 import org.elece.storage.file.DefaultFileHandlerFactory;
@@ -17,7 +16,10 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.*;
-import java.util.concurrent.*;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class DiskPageDatabaseStorageManagerTest {
     private DiskPageDatabaseStorageManager diskPageDatabaseStorageManager;
@@ -34,7 +36,8 @@ public class DiskPageDatabaseStorageManagerTest {
     }
 
     @Test
-    void test_storeDeleteAndReuseObjects() throws DbException, IOException, InterruptedException, ExecutionException, StorageException {
+    void test_storeDeleteAndReuseObjects() throws DbException, StorageException, InterruptedTaskException,
+                                                  FileChannelException {
         List<String> inputs = Arrays.asList("10", "100", "1000", "10000");
         List<Pointer> pointers = new ArrayList<>();
 
@@ -68,7 +71,8 @@ public class DiskPageDatabaseStorageManagerTest {
     }
 
     @Test
-    public void test_storeObjectsMultiThreaded() throws InterruptedException, DbException {
+    public void test_storeObjectsMultiThreaded() throws DbException, InterruptedException, InterruptedTaskException,
+                                                        StorageException, FileChannelException {
         int cases = 20;
 
         try (ExecutorService executorService = Executors.newFixedThreadPool(cases)) {
@@ -86,9 +90,9 @@ public class DiskPageDatabaseStorageManagerTest {
                         byte[] generatedStringBytes = BinaryUtils.stringToBytes(generatedString);
                         Pointer pointer = diskPageDatabaseStorageManager.store(1, generatedStringBytes);
                         keyValues.add(new LeafTreeNode.KeyValue<>(generatedString, pointer));
-                    } catch (IOException | InterruptedException | ExecutionException | StorageException |
-                             DbException exception) {
-                        throw new RuntimeException(exception);
+                    } catch (StorageException | DbException | InterruptedTaskException |
+                             FileChannelException exception) {
+                        throw new RuntimeDbException(exception.getDbError(), exception.getMessage());
                     } finally {
                         countDownLatch.countDown();
                     }

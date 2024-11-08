@@ -12,7 +12,7 @@ public abstract class ColumnIndexManagerProvider {
     protected final DbConfig dbConfig;
     protected final IndexStorageManagerFactory indexStorageManagerFactory;
 
-    public ColumnIndexManagerProvider(DbConfig dbConfig, IndexStorageManagerFactory indexStorageManagerFactory) {
+    protected ColumnIndexManagerProvider(DbConfig dbConfig, IndexStorageManagerFactory indexStorageManagerFactory) {
         this.dbConfig = dbConfig;
         this.indexStorageManagerFactory = indexStorageManagerFactory;
     }

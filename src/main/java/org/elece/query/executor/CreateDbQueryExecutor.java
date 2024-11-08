@@ -8,8 +8,6 @@ import org.elece.query.result.GenericQueryResultInfo;
 import org.elece.query.result.builder.GenericQueryResultInfoBuilder;
 import org.elece.sql.parser.statement.CreateDbStatement;
 
-import java.io.IOException;
-
 public class CreateDbQueryExecutor implements QueryExecutor {
     private final String db;
     private final StreamStep streamStep;
@@ -20,7 +18,7 @@ public class CreateDbQueryExecutor implements QueryExecutor {
     }
 
     @Override
-    public void execute(SchemaManager schemaManager) throws SchemaException, IOException, ProtoException {
+    public void execute(SchemaManager schemaManager) throws SchemaException, ProtoException {
         schemaManager.createSchema(db);
         streamStep.stream(GenericQueryResultInfoBuilder.builder()
                 .setQueryType(GenericQueryResultInfo.QueryType.CREATE_DB)

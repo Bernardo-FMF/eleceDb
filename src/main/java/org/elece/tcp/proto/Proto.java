@@ -14,7 +14,6 @@ public class Proto {
         // private constructor
     }
 
-    // TODO add comment to explain the logic
     public static String deserialize(InputStream inputStream) throws ProtoException {
         byte[] payloadLenBuf = new byte[Integer.BYTES];
         byte[] payloadBuf;

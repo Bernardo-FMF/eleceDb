@@ -1,10 +1,7 @@
 package org.elece.memory.tree.operation;
 
 import org.elece.config.DbConfig;
-import org.elece.exception.BTreeException;
-import org.elece.exception.DbError;
-import org.elece.exception.SerializationException;
-import org.elece.exception.StorageException;
+import org.elece.exception.*;
 import org.elece.memory.KeyValueSize;
 import org.elece.memory.Pointer;
 import org.elece.memory.data.BinaryObjectFactory;
@@ -43,7 +40,9 @@ public class CreateIndexOperation<K extends Comparable<K>, V> {
 
     public AbstractTreeNode<K> addIndex(AbstractTreeNode<K> root, K identifier, V value) throws BTreeException,
                                                                                                 StorageException,
-                                                                                                SerializationException {
+                                                                                                SerializationException,
+                                                                                                InterruptedTaskException,
+                                                                                                FileChannelException {
         List<AbstractTreeNode<K>> path = new LinkedList<>();
         int bTreeDegree = dbConfig.getBTreeDegree();
 
@@ -173,7 +172,8 @@ public class CreateIndexOperation<K extends Comparable<K>, V> {
     }
 
     private void fixSiblingPointers(LeafTreeNode<K, V> currentNode, LeafTreeNode<K, V> newLeafTreeNode,
-                                    int bTreeDegree) throws StorageException {
+                                    int bTreeDegree) throws StorageException, InterruptedTaskException,
+                                                            FileChannelException {
         // Get the pointer to the next sibling of the current node.
         Optional<Pointer> currentNodeNextSiblingPointer = currentNode.getNextSiblingPointer(bTreeDegree);
 

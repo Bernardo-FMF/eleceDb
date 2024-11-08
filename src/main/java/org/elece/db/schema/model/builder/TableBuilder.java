@@ -7,7 +7,6 @@ import org.elece.db.schema.model.Table;
 import java.util.List;
 
 public class TableBuilder {
-    private int id;
     private String name;
     private List<Column> columns;
     private List<Index> indexes;

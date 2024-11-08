@@ -3,9 +3,7 @@ package org.elece.query.plan.step.scan;
 import org.elece.db.DatabaseStorageManager;
 import org.elece.db.DbObject;
 import org.elece.db.schema.model.Table;
-import org.elece.exception.DbException;
-import org.elece.exception.SchemaException;
-import org.elece.exception.StorageException;
+import org.elece.exception.*;
 import org.elece.index.ColumnIndexManagerProvider;
 import org.elece.index.IndexManager;
 import org.elece.index.LockableIterator;
@@ -20,7 +18,9 @@ public class SequentialScanStep extends ScanStep {
     private final LockableIterator<LeafTreeNode.KeyValue<Integer, Pointer>> sortedIterator;
 
     public SequentialScanStep(Table table, ColumnIndexManagerProvider columnIndexManagerProvider,
-                              DatabaseStorageManager databaseStorageManager) throws SchemaException, StorageException {
+                              DatabaseStorageManager databaseStorageManager) throws SchemaException, StorageException,
+                                                                                    InterruptedTaskException,
+                                                                                    FileChannelException {
         this.databaseStorageManager = databaseStorageManager;
 
         IndexManager<Integer, Pointer> clusterIndexManager = columnIndexManagerProvider.getClusterIndexManager(table);
@@ -43,7 +43,7 @@ public class SequentialScanStep extends ScanStep {
             LeafTreeNode.KeyValue<Integer, Pointer> keyValue = sortedIterator.next();
 
             return databaseStorageManager.select(keyValue.value());
-        } catch (DbException e) {
+        } catch (DbException | InterruptedTaskException | StorageException | FileChannelException e) {
             finish();
             return Optional.empty();
         } finally {

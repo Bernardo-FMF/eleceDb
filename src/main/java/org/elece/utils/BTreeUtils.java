@@ -1,15 +1,12 @@
 package org.elece.utils;
 
-import org.elece.exception.BTreeException;
-import org.elece.exception.DbError;
-import org.elece.exception.StorageException;
+import org.elece.exception.*;
 import org.elece.memory.Pointer;
 import org.elece.memory.data.BinaryObjectFactory;
 import org.elece.memory.tree.node.*;
 import org.elece.storage.index.IndexStorageManager;
 import org.elece.storage.index.session.Session;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
@@ -38,8 +35,10 @@ public class BTreeUtils {
     public static <K extends Comparable<K>> void getPathToResponsibleNode(Session<K> session,
                                                                           List<AbstractTreeNode<K>> path,
                                                                           AbstractTreeNode<K> node, K identifier,
-                                                                          int degree) throws BTreeException,
-                                                                                             StorageException {
+                                                                          int degree) throws
+                                                                                      StorageException,
+                                                                                      InterruptedTaskException,
+                                                                                      FileChannelException {
         // Corresponds to the fast path, if the node being observed is a leaf then we reached the end of the search.
         if (node.getType() == NodeType.LEAF) {
             path.addFirst(node);
@@ -68,18 +67,24 @@ public class BTreeUtils {
         }
     }
 
-    public static <K extends Comparable<K>, V> LeafTreeNode<K, V> getResponsibleNode(IndexStorageManager indexStorageManager, AbstractTreeNode<K> node, K identifier, int index, int degree, NodeFactory<K> nodeFactory, BinaryObjectFactory<V> vIndexBinaryObject) throws BTreeException, StorageException {
+    public static <K extends Comparable<K>, V> LeafTreeNode<K, V> getResponsibleNode(
+            IndexStorageManager indexStorageManager, AbstractTreeNode<K> node, K identifier, int index, int degree,
+            NodeFactory<K> nodeFactory, BinaryObjectFactory<V> vIndexBinaryObject) throws
+                                                                                   BTreeException,
+                                                                                   StorageException,
+                                                                                   InterruptedTaskException,
+                                                                                   FileChannelException {
         if (node.isLeaf()) {
             return (LeafTreeNode<K, V>) node;
         }
 
         List<Pointer> childrenList = ((InternalTreeNode<K>) node).getChildrenList();
         List<K> keys = node.getKeyList(degree, vIndexBinaryObject.size());
-        int i;
+        int keyIndex;
         K keyAtIndex;
         boolean flag = false;
-        for (i = 0; i < keys.size(); i++) {
-            keyAtIndex = keys.get(i);
+        for (keyIndex = 0; keyIndex < keys.size(); keyIndex++) {
+            keyAtIndex = keys.get(keyIndex);
             if (identifier.compareTo(keyAtIndex) < 0) {
                 flag = true;
                 break;
@@ -89,12 +94,15 @@ public class BTreeUtils {
         try {
             AbstractTreeNode<K> nextNode;
             if (flag) {
-                nextNode = nodeFactory.fromNodeData(indexStorageManager.readNode(index, childrenList.get(i), node.getKeyValueSize()).get());
+                nextNode = nodeFactory.fromNodeData(indexStorageManager.readNode(index, childrenList.get(keyIndex), node.getKeyValueSize()).get());
             } else {
                 nextNode = nodeFactory.fromNodeData(indexStorageManager.readNode(index, childrenList.getLast(), node.getKeyValueSize()).get());
             }
             return getResponsibleNode(indexStorageManager, nextNode, identifier, index, degree, nodeFactory, vIndexBinaryObject);
-        } catch (ExecutionException | InterruptedException | IOException exception) {
+        } catch (InterruptedException exception) {
+            Thread.currentThread().interrupt();
+            throw new InterruptedTaskException(DbError.TASK_INTERRUPTED_ERROR, "File IO operation interrupted");
+        } catch (ExecutionException exception) {
             throw new BTreeException(DbError.TASK_INTERRUPTED_ERROR, exception.getMessage());
         }
 

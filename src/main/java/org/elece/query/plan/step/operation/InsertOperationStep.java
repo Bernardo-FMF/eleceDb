@@ -11,9 +11,6 @@ import org.elece.memory.Pointer;
 import org.elece.utils.BinaryUtils;
 import org.elece.utils.SerializationUtils;
 
-import java.io.IOException;
-import java.util.concurrent.ExecutionException;
-
 import static org.elece.db.schema.model.Column.CLUSTER_ID;
 
 public class InsertOperationStep extends OperationStep<byte[]> {
@@ -29,9 +26,8 @@ public class InsertOperationStep extends OperationStep<byte[]> {
     }
 
     @Override
-    public boolean execute(byte[] value) throws BTreeException, StorageException, SchemaException, IOException,
-                                                ExecutionException, InterruptedException, DbException,
-                                                SerializationException {
+    public boolean execute(byte[] value) throws BTreeException, StorageException, SchemaException, DbException,
+                                                SerializationException, InterruptedTaskException, FileChannelException {
         Pointer rowPointer = databaseStorageManager.store(table.getId(), value);
 
         IndexManager<Integer, Pointer> clusterIndexManager = columnIndexManagerProvider.getClusterIndexManager(table);

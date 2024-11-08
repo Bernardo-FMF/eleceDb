@@ -2,9 +2,7 @@ package org.elece.query.plan.step.validator;
 
 import org.elece.db.schema.model.Column;
 import org.elece.db.schema.model.Table;
-import org.elece.exception.BTreeException;
-import org.elece.exception.SchemaException;
-import org.elece.exception.StorageException;
+import org.elece.exception.*;
 import org.elece.index.ColumnIndexManagerProvider;
 import org.elece.index.IndexManager;
 import org.elece.memory.Pointer;
@@ -25,7 +23,8 @@ public class InsertValidatorStep extends ValidatorStep<byte[]> {
     }
 
     @Override
-    public boolean validate(byte[] value) throws SchemaException, StorageException, BTreeException {
+    public boolean validate(byte[] value) throws SchemaException, StorageException, BTreeException,
+                                                 InterruptedTaskException, FileChannelException {
         for (Column column : table.getColumns()) {
             if (CLUSTER_ID.equals(column.getName())) {
                 IndexManager<Integer, Pointer> clusterIndexManager = columnIndexManagerProvider.getClusterIndexManager(table);

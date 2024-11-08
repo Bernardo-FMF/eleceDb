@@ -19,9 +19,7 @@ import org.elece.sql.parser.expression.internal.SqlValue;
 import org.elece.utils.BinaryUtils;
 import org.elece.utils.SerializationUtils;
 
-import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.ExecutionException;
 
 import static org.elece.db.schema.model.Column.CLUSTER_ID;
 
@@ -43,9 +41,9 @@ public class UpdateOperationStep extends OperationStep<DbObject> {
     }
 
     @Override
-    public boolean execute(DbObject value) throws BTreeException, StorageException, SchemaException, IOException,
-                                                  ExecutionException, InterruptedException, DbException,
-                                                  SerializationException, DeserializationException {
+    public boolean execute(DbObject value) throws BTreeException, StorageException, SchemaException, DbException,
+                                                  SerializationException, DeserializationException,
+                                                  InterruptedTaskException, FileChannelException {
         IndexManager<Integer, Pointer> clusterIndexManager = columnIndexManagerProvider.getClusterIndexManager(table);
         byte[] clusterBytes = SerializationUtils.getValueOfField(table, SchemaSearcher.findClusterColumn(table), value);
         int rowClusterId = BinaryUtils.bytesToInteger(clusterBytes, 0);
@@ -101,7 +99,8 @@ public class UpdateOperationStep extends OperationStep<DbObject> {
 
     private void updateIndexes(Set<Column> updatedIndexedColumns, byte[] newData, Map<Column, byte[]> oldValues,
                                int rowClusterId) throws SchemaException, StorageException, DeserializationException,
-                                                        BTreeException, SerializationException {
+                                                        BTreeException, SerializationException,
+                                                        InterruptedTaskException, FileChannelException {
         for (Column column : updatedIndexedColumns) {
             if (column.getSqlType().getType() == SqlType.Type.Int) {
                 IndexManager<Integer, Integer> indexManager = columnIndexManagerProvider.getIndexManager(table, column);

@@ -4,7 +4,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class InMemoryReservedSlotTracer implements ReservedSlotTracer {
-    public Map<Integer, Queue<DbObjectSlotLocation>> freeDbObjectSlotLocations = new ConcurrentHashMap<>();
+    private final Map<Integer, Queue<DbObjectSlotLocation>> freeDbObjectSlotLocations = new ConcurrentHashMap<>();
 
     @Override
     public void add(DbObjectSlotLocation dbObjectSlotLocation) {
@@ -30,11 +30,9 @@ public class InMemoryReservedSlotTracer implements ReservedSlotTracer {
 
         for (Map.Entry<Integer, Queue<DbObjectSlotLocation>> entry : freeDbObjectSlotLocations.entrySet()) {
             int currentLength = entry.getKey();
-            if (currentLength >= length) {
-                if (smallestFittingLength == null || currentLength < smallestFittingLength) {
+            if (currentLength >= length && (smallestFittingLength == null || currentLength < smallestFittingLength)) {
                     smallestFittingLength = currentLength;
                 }
-            }
         }
 
         if (smallestFittingLength != null) {

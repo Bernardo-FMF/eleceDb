@@ -4,20 +4,16 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.RemovalListener;
 import org.elece.config.DbConfig;
-import org.elece.exception.DbError;
-import org.elece.exception.DbException;
-import org.elece.exception.RuntimeDbException;
-import org.elece.exception.StorageException;
+import org.elece.exception.*;
+import org.elece.storage.file.FileChannel;
 import org.elece.storage.file.FileHandlerPool;
 
 import java.io.IOException;
-import java.nio.channels.AsynchronousFileChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 
@@ -67,7 +63,8 @@ public class PageBuffer {
      * @return The Page object associated with the given PageTitle.
      * @throws DbException if there is an error while fetching the page.
      */
-    public synchronized Page acquire(PageTitle title) throws DbException {
+    public synchronized Page acquire(PageTitle title) throws DbException, InterruptedTaskException, StorageException,
+                                                             FileChannelException {
         PageWrapper pageWrapper = this.loadedPages.get(title);
         if (pageWrapper == null) {
             pageWrapper = this.buffer.getIfPresent(title);
@@ -111,7 +108,8 @@ public class PageBuffer {
      * @return An Optional containing the last buffered Page, or an empty Optional if no pages are available.
      * @throws IOException if an I/O error occurs.
      */
-    public Optional<Page> getBufferedLastPage() throws DbException, StorageException {
+    public Optional<Page> getBufferedLastPage() throws DbException, StorageException, InterruptedTaskException,
+                                                       FileChannelException {
         if (this.lastPageTitle != null) {
             return Optional.of(acquire(this.lastPageTitle));
         }
@@ -128,11 +126,9 @@ public class PageBuffer {
 
         synchronized (this) {
             int pageNumber;
-            try (AsynchronousFileChannel fileChannel = fileHandlerPool.acquireFileHandler(dbFileFunction.apply(lastChunk))) {
-                pageNumber = (int) fileChannel.size() / this.dbConfig.getDbPageSize();
-            } catch (IOException | InterruptedException exception) {
-                throw new StorageException(DbError.INTERNAL_STORAGE_ERROR, "Internal file channel error");
-            }
+            FileChannel fileChannel = fileHandlerPool.acquireFileHandler(dbFileFunction.apply(lastChunk));
+            pageNumber = (int) (fileChannel.size() / this.dbConfig.getDbPageSize());
+
             fileHandlerPool.releaseFileHandler(dbFileFunction.apply(lastChunk));
 
             this.lastPageTitle = new PageTitle(lastChunk, pageNumber);
@@ -147,11 +143,9 @@ public class PageBuffer {
      * A new empty page is generated and then acquired.
      *
      * @return The newly created and acquired Page object.
-     * @throws IOException          If an I/O error occurs during page generation or acquisition.
-     * @throws ExecutionException   If the page generation or acquisition encounters an execution error.
-     * @throws InterruptedException If the page generation or acquisition operation is interrupted.
      */
-    public Page getBufferedNewPage() throws DbException, IOException, ExecutionException, InterruptedException {
+    public Page getBufferedNewPage() throws DbException, InterruptedTaskException, StorageException,
+                                            FileChannelException {
         PageTitle tempLastPageTitle = this.lastPageTitle;
 
         int chunk = 0;
@@ -177,16 +171,14 @@ public class PageBuffer {
      * Allocates space for the new page using the configured database page size.
      *
      * @param chunk The chunk number for which a new empty page will be generated.
-     * @throws IOException          If an I/O error occurs while allocating space for the new page.
-     * @throws InterruptedException If the current thread is interrupted while acquiring or releasing the file handler.
-     * @throws ExecutionException   If an error occurs during the asynchronous page allocation.
      */
-    private void generateNewEmptyPage(int chunk) throws IOException, InterruptedException, ExecutionException {
+    private void generateNewEmptyPage(int chunk) throws InterruptedTaskException, StorageException,
+                                                        FileChannelException {
         int size = this.dbConfig.getDbPageSize();
         Path path = dbFileFunction.apply(chunk);
-        AsynchronousFileChannel fileChannel = this.fileHandlerPool.acquireFileHandler(path);
+        FileChannel fileChannel = this.fileHandlerPool.acquireFileHandler(path);
         try {
-            FileUtils.allocateAsync(fileChannel, size).get();
+            fileChannel.allocate(size);
         } finally {
             this.fileHandlerPool.releaseFileHandler(path);
         }

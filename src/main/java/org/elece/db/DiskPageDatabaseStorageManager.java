@@ -5,17 +5,13 @@ import org.elece.db.page.DefaultPageFactory;
 import org.elece.db.page.Page;
 import org.elece.db.page.PageBuffer;
 import org.elece.db.page.PageTitle;
-import org.elece.exception.DbError;
-import org.elece.exception.DbException;
-import org.elece.exception.StorageException;
+import org.elece.exception.*;
 import org.elece.memory.Pointer;
+import org.elece.storage.file.FileChannel;
 import org.elece.storage.file.FileHandlerPool;
 
-import java.io.IOException;
-import java.nio.channels.AsynchronousFileChannel;
 import java.nio.file.Path;
 import java.util.Optional;
-import java.util.concurrent.ExecutionException;
 
 public class DiskPageDatabaseStorageManager implements DatabaseStorageManager {
     private final PageBuffer pageBuffer;
@@ -32,8 +28,8 @@ public class DiskPageDatabaseStorageManager implements DatabaseStorageManager {
     }
 
     @Override
-    public Pointer store(int tableId, byte[] data) throws DbException, StorageException, IOException,
-                                                          ExecutionException, InterruptedException {
+    public Pointer store(int tableId, byte[] data) throws DbException, StorageException, InterruptedTaskException,
+                                                          FileChannelException {
         // Try to find a free slot that can fit the data.
         Optional<DbObjectSlotLocation> optionalDbObjectSlotLocation = this.reservedSlotTracer.getFreeDbObjectSlotLocation(data.length);
 
@@ -96,8 +92,8 @@ public class DiskPageDatabaseStorageManager implements DatabaseStorageManager {
     }
 
     @Override
-    public void update(Pointer pointer, byte[] newData) throws DbException, StorageException, IOException,
-                                                               InterruptedException {
+    public void update(Pointer pointer, byte[] newData) throws DbException, StorageException, InterruptedTaskException,
+                                                               FileChannelException {
         PageTitle pageTitle = new PageTitle(pointer.getChunk(), (int) (pointer.getPosition() / this.dbConfig.getDbPageSize()));
         Page page = this.pageBuffer.acquire(pageTitle);
 
@@ -126,7 +122,8 @@ public class DiskPageDatabaseStorageManager implements DatabaseStorageManager {
      * @return An Optional containing the selected DbObject if found, or an empty Optional if not found.
      */
     @Override
-    public Optional<DbObject> select(Pointer pointer) throws DbException {
+    public Optional<DbObject> select(Pointer pointer) throws DbException, InterruptedTaskException, StorageException,
+                                                             FileChannelException {
         PageTitle pageTitle = new PageTitle(pointer.getChunk(), (int) (pointer.getPosition() / this.dbConfig.getDbPageSize()));
         Page page = this.pageBuffer.acquire(pageTitle);
 
@@ -138,7 +135,8 @@ public class DiskPageDatabaseStorageManager implements DatabaseStorageManager {
     }
 
     @Override
-    public void remove(Pointer pointer) throws DbException, StorageException, IOException, InterruptedException {
+    public void remove(Pointer pointer) throws DbException, StorageException, InterruptedTaskException,
+                                               FileChannelException {
         PageTitle pageTitle = new PageTitle(pointer.getChunk(), (int) (pointer.getPosition() / this.dbConfig.getDbPageSize()));
         Page page = this.pageBuffer.acquire(pageTitle);
 
@@ -155,7 +153,8 @@ public class DiskPageDatabaseStorageManager implements DatabaseStorageManager {
         }
     }
 
-    private Page getBufferedPage(int chunk, long offset) throws DbException {
+    private Page getBufferedPage(int chunk, long offset) throws DbException, InterruptedTaskException,
+                                                                FileChannelException, StorageException {
         int pageNumber = (int) (offset / this.dbConfig.getDbPageSize());
         PageTitle pageTitle = new PageTitle(chunk, pageNumber);
         return this.pageBuffer.acquire(pageTitle);
@@ -165,21 +164,18 @@ public class DiskPageDatabaseStorageManager implements DatabaseStorageManager {
         return Path.of(this.dbConfig.getBaseDbPath(), String.format("elece_%d.db.bin", chunk));
     }
 
-    private void commitPage(Page page) throws IOException, InterruptedException {
+    private void commitPage(Page page) throws InterruptedTaskException,
+                                              StorageException, FileChannelException {
         Path path = getDbFileName(page.getChunk());
-        AsynchronousFileChannel fileChannel = this.fileHandlerPool.acquireFileHandler(path);
+        FileChannel fileChannel = this.fileHandlerPool.acquireFileHandler(path);
 
-        try {
-            FileUtils.writeAsync(fileChannel, (long) page.getPageNumber() * this.dbConfig.getDbPageSize(), page.getData()).get();
-        } catch (InterruptedException | ExecutionException exception) {
-            throw new RuntimeException(exception);
-        }
+        fileChannel.write((long) page.getPageNumber() * this.dbConfig.getDbPageSize(), page.getData());
 
         this.fileHandlerPool.releaseFileHandler(path);
     }
 
-    private void store(DbObject dbObject, int tableId, byte[] data) throws DbException, IOException,
-                                                                           InterruptedException {
+    private void store(DbObject dbObject, int tableId, byte[] data) throws DbException, InterruptedTaskException,
+                                                                           StorageException, FileChannelException {
         dbObject.activate();
         dbObject.modifyData(data);
         dbObject.setTableId(tableId);

@@ -4,10 +4,7 @@ import org.elece.db.DatabaseStorageManager;
 import org.elece.db.DbObject;
 import org.elece.db.schema.model.Column;
 import org.elece.db.schema.model.Table;
-import org.elece.exception.BTreeException;
-import org.elece.exception.DbException;
-import org.elece.exception.SchemaException;
-import org.elece.exception.StorageException;
+import org.elece.exception.*;
 import org.elece.index.ColumnIndexManagerProvider;
 import org.elece.index.IndexManager;
 import org.elece.memory.Pointer;
@@ -30,7 +27,9 @@ public class RangeRowScanStep extends ScanStep {
     public RangeRowScanStep(Table table, Column column, NumberRangeComparator rangeComparator, Order order,
                             ColumnIndexManagerProvider columnIndexManagerProvider,
                             DatabaseStorageManager databaseStorageManager) throws SchemaException, StorageException,
-                                                                                  BTreeException {
+                                                                                  BTreeException,
+                                                                                  InterruptedTaskException,
+                                                                                  FileChannelException {
         this.databaseStorageManager = databaseStorageManager;
 
         this.clusterIndexManager = columnIndexManagerProvider.getClusterIndexManager(table);
@@ -40,7 +39,9 @@ public class RangeRowScanStep extends ScanStep {
     }
 
     private Iterator<Integer> createIterator(NumberRangeComparator rangeComparator) throws StorageException,
-                                                                                           BTreeException {
+                                                                                           BTreeException,
+                                                                                           InterruptedTaskException,
+                                                                                           FileChannelException {
         SqlNumberValue leftBoundary = rangeComparator.getLeftBoundary();
         SqlNumberValue rightBoundary = rangeComparator.getRightBoundary();
 
@@ -85,7 +86,8 @@ public class RangeRowScanStep extends ScanStep {
             }
 
             return databaseStorageManager.select(index.get());
-        } catch (BTreeException | StorageException | DbException exception) {
+        } catch (BTreeException | StorageException | DbException | InterruptedTaskException |
+                 FileChannelException exception) {
             finish();
             return Optional.empty();
         }

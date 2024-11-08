@@ -12,9 +12,7 @@ import org.elece.memory.Pointer;
 import org.elece.utils.BinaryUtils;
 import org.elece.utils.SerializationUtils;
 
-import java.io.IOException;
 import java.util.Optional;
-import java.util.concurrent.ExecutionException;
 
 import static org.elece.db.schema.model.Column.CLUSTER_ID;
 
@@ -31,9 +29,9 @@ public class DeleteOperationStep extends OperationStep<DbObject> {
     }
 
     @Override
-    public boolean execute(DbObject value) throws BTreeException, StorageException, SchemaException, IOException,
-                                                  ExecutionException, InterruptedException, DbException,
-                                                  SerializationException {
+    public boolean execute(DbObject value) throws BTreeException, StorageException, SchemaException, DbException,
+                                                  SerializationException, InterruptedTaskException,
+                                                  FileChannelException {
         IndexManager<Integer, Pointer> clusterIndexManager = columnIndexManagerProvider.getClusterIndexManager(table);
         byte[] clusterBytes = SerializationUtils.getValueOfField(table, SchemaSearcher.findClusterColumn(table), value);
         int rowClusterId = BinaryUtils.bytesToInteger(clusterBytes, 0);

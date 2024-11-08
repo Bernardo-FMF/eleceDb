@@ -2,10 +2,7 @@ package org.elece.query.plan.step.value;
 
 import org.elece.db.schema.model.Column;
 import org.elece.db.schema.model.Table;
-import org.elece.exception.ParserException;
-import org.elece.exception.SchemaException;
-import org.elece.exception.SerializationException;
-import org.elece.exception.StorageException;
+import org.elece.exception.*;
 import org.elece.index.ColumnIndexManagerProvider;
 import org.elece.index.IndexManager;
 import org.elece.memory.Pointer;
@@ -39,7 +36,8 @@ public class InsertValueStep extends ValueStep {
     }
 
     @Override
-    public Optional<byte[]> next() throws SchemaException, StorageException, ParserException, SerializationException {
+    public Optional<byte[]> next() throws SchemaException, StorageException, ParserException, SerializationException,
+                                          InterruptedTaskException, FileChannelException {
         int rowSize = table.getRowSize();
         byte[] rowData = new byte[rowSize];
 

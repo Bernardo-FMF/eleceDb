@@ -2,6 +2,8 @@ package org.elece.storage.file;
 
 import org.elece.config.DbConfig;
 import org.elece.config.DefaultDbConfigBuilder;
+import org.elece.exception.FileChannelException;
+import org.elece.exception.InterruptedTaskException;
 import org.elece.exception.StorageException;
 import org.elece.utils.FileTestUtils;
 import org.junit.jupiter.api.AfterEach;
@@ -39,7 +41,8 @@ class RestrictedFileHandlerPoolTest {
     }
 
     @Test
-    public void test_acquireFileHandler_newHandler() throws IOException, InterruptedException, StorageException {
+    public void test_acquireFileHandler_newHandler() throws StorageException, InterruptedTaskException,
+                                                            FileChannelException {
         String filename1 = "file1.bin";
 
         Path file1 = Path.of(dbPath.toString(), filename1);
@@ -52,7 +55,8 @@ class RestrictedFileHandlerPoolTest {
     }
 
     @Test
-    public void test_acquireFileHandler_existingHandler() throws IOException, InterruptedException, StorageException {
+    public void test_acquireFileHandler_existingHandler() throws StorageException, InterruptedTaskException,
+                                                                 FileChannelException {
         String filename1 = "file1.bin";
 
         Path file1 = Path.of(dbPath.toString(), filename1);
@@ -67,7 +71,8 @@ class RestrictedFileHandlerPoolTest {
     }
 
     @Test
-    public void test_acquireFileHandler_timeout() throws IOException, InterruptedException, StorageException {
+    public void test_acquireFileHandler_timeout() throws StorageException, InterruptedTaskException,
+                                                         FileChannelException {
         String filename1 = "file1.bin";
         String filename2 = "file2.bin";
 
@@ -75,7 +80,7 @@ class RestrictedFileHandlerPoolTest {
         Path file2 = Path.of(dbPath.toString(), filename2);
 
         fileHandlerPool.acquireFileHandler(file1);
-        Assertions.assertThrows(IllegalStateException.class, () -> fileHandlerPool.acquireFileHandler(file2));
+        Assertions.assertThrows(StorageException.class, () -> fileHandlerPool.acquireFileHandler(file2));
 
         fileHandlerPool.releaseFileHandler(file1);
 

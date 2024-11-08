@@ -28,7 +28,6 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.elece.db.schema.model.Column.CLUSTER_ID;
@@ -101,8 +100,8 @@ public class JsonSchemaManager implements SchemaManager {
     }
 
     @Override
-    public int deleteSchema() throws IOException, SchemaException, ExecutionException, InterruptedException,
-                                     StorageException, DbException {
+    public int deleteSchema() throws SchemaException, StorageException, DbException, InterruptedTaskException,
+                                     FileChannelException {
         validateSchemaExists();
 
         int totalRowCount = 0;
@@ -141,11 +140,10 @@ public class JsonSchemaManager implements SchemaManager {
 
     @Override
     public synchronized <K extends Number & Comparable<K>> int deleteTable(String tableName) throws SchemaException,
-                                                                                                    IOException,
-                                                                                                    ExecutionException,
-                                                                                                    InterruptedException,
                                                                                                     StorageException,
-                                                                                                    DbException {
+                                                                                                    DbException,
+                                                                                                    InterruptedTaskException,
+                                                                                                    FileChannelException {
         validateSchemaExists();
 
         Optional<Table> optionalTable = SchemaSearcher.findTable(schema, tableName);
@@ -194,7 +192,9 @@ public class JsonSchemaManager implements SchemaManager {
                                                                                                           DbException,
                                                                                                           DeserializationException,
                                                                                                           BTreeException,
-                                                                                                          SerializationException {
+                                                                                                          SerializationException,
+                                                                                                          InterruptedTaskException,
+                                                                                                          FileChannelException {
         validateSchemaExists();
 
         Optional<Table> optionalTable = SchemaSearcher.findTable(schema, tableName);

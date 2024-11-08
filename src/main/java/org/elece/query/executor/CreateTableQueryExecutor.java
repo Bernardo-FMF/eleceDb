@@ -9,10 +9,8 @@ import org.elece.query.result.GenericQueryResultInfo;
 import org.elece.query.result.builder.GenericQueryResultInfoBuilder;
 import org.elece.sql.parser.statement.CreateTableStatement;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 public class CreateTableQueryExecutor implements QueryExecutor {
     private final String tableName;
@@ -26,10 +24,10 @@ public class CreateTableQueryExecutor implements QueryExecutor {
     }
 
     @Override
-    public void execute(SchemaManager schemaManager) throws SchemaException, IOException, BTreeException,
+    public void execute(SchemaManager schemaManager) throws SchemaException, BTreeException,
                                                             SerializationException, StorageException,
-                                                            DeserializationException, DbException, ExecutionException,
-                                                            InterruptedException, ProtoException {
+                                                            DeserializationException, DbException,
+                                                            ProtoException {
         schemaManager.createTable(new Table(tableName, columns, new ArrayList<>()));
         streamStep.stream(GenericQueryResultInfoBuilder.builder()
                 .setQueryType(GenericQueryResultInfo.QueryType.CREATE_TABLE)
