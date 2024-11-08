@@ -9,7 +9,6 @@ import org.elece.exception.DbException;
 import org.elece.exception.RuntimeDbException;
 import org.elece.exception.StorageException;
 import org.elece.storage.file.FileHandlerPool;
-import org.elece.utils.FileUtils;
 
 import java.io.IOException;
 import java.nio.channels.AsynchronousFileChannel;

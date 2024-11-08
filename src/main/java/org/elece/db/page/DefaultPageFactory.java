@@ -4,7 +4,6 @@ import org.elece.config.DbConfig;
 import org.elece.exception.DbError;
 import org.elece.exception.DbException;
 import org.elece.storage.file.FileHandlerPool;
-import org.elece.utils.FileUtils;
 
 import java.io.IOException;
 import java.nio.channels.AsynchronousFileChannel;

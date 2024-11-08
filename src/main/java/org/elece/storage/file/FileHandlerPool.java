@@ -1,14 +1,15 @@
 package org.elece.storage.file;
 
+import org.elece.exception.FileChannelException;
+import org.elece.exception.InterruptedTaskException;
 import org.elece.exception.StorageException;
 
-import java.nio.channels.AsynchronousFileChannel;
 import java.nio.file.Path;
 
 public interface FileHandlerPool {
-    AsynchronousFileChannel acquireFileHandler(Path path) throws StorageException;
+    FileChannel acquireFileHandler(Path path) throws StorageException, InterruptedTaskException;
 
-    void releaseFileHandler(Path path) throws StorageException;
+    void releaseFileHandler(Path path) throws StorageException, InterruptedTaskException, FileChannelException;
 
-    void closeAll() throws StorageException;
+    void closeAll() throws StorageException, InterruptedTaskException, FileChannelException;
 }

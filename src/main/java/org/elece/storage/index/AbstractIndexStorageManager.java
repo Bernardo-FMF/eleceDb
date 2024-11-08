@@ -1,18 +1,15 @@
 package org.elece.storage.index;
 
 import org.elece.config.DbConfig;
-import org.elece.exception.DbError;
-import org.elece.exception.RuntimeDbException;
-import org.elece.exception.StorageException;
+import org.elece.exception.*;
 import org.elece.memory.KeyValueSize;
 import org.elece.memory.Pointer;
+import org.elece.storage.file.FileChannel;
 import org.elece.storage.file.FileHandlerPool;
 import org.elece.storage.index.header.IndexHeaderManager;
 import org.elece.storage.index.header.IndexHeaderManagerFactory;
 import org.elece.utils.BTreeUtils;
-import org.elece.utils.FileUtils;
 
-import java.nio.channels.AsynchronousFileChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Optional;
@@ -52,11 +49,13 @@ public abstract class AbstractIndexStorageManager implements IndexStorageManager
     }
 
 
-    protected AsynchronousFileChannel acquireFileChannel(int indexId, int chunk) {
+    protected FileChannel acquireFileChannel(int indexId, int chunk) {
         try {
             Path indexFilePath = getIndexFilePath(indexId, chunk);
             return this.fileHandlerPool.acquireFileHandler(indexFilePath);
         } catch (StorageException exception) {
+            throw new RuntimeDbException(exception.getDbError(), exception.getMessage());
+        } catch (InterruptedTaskException exception) {
             throw new RuntimeDbException(exception.getDbError(), exception.getMessage());
         }
     }
@@ -65,7 +64,9 @@ public abstract class AbstractIndexStorageManager implements IndexStorageManager
         try {
             Path indexFilePath = getIndexFilePath(indexId, chunk);
             this.fileHandlerPool.releaseFileHandler(indexFilePath);
-        } catch (StorageException exception) {
+        } catch (StorageException | FileChannelException exception) {
+            throw new RuntimeDbException(exception.getDbError(), exception.getMessage());
+        } catch (InterruptedTaskException exception) {
             throw new RuntimeDbException(exception.getDbError(), exception.getMessage());
         }
     }
@@ -73,14 +74,17 @@ public abstract class AbstractIndexStorageManager implements IndexStorageManager
     protected abstract Path getIndexFilePath(int indexId, int chunk);
 
     protected abstract Pointer getAllocatedSpaceForNewNode(int indexId, int chunk, KeyValueSize keyValueSize) throws
-                                                                                                              StorageException;
+                                                                                                              StorageException,
+                                                                                                              InterruptedTaskException,
+                                                                                                              FileChannelException;
 
     protected abstract IndexHeaderManager.Location getIndexBeginningInChunk(int indexId, int chunk) throws
                                                                                                     StorageException;
 
     @Override
     public CompletableFuture<Optional<NodeData>> getRoot(int indexId, KeyValueSize keyValueSize) throws
-                                                                                                 StorageException {
+                                                                                                 StorageException,
+                                                                                                 FileChannelException {
         CompletableFuture<Optional<NodeData>> output = new CompletableFuture<>();
 
         Optional<IndexHeaderManager.Location> optionalRootOfIndex = indexHeaderManager.getRootOfIndex(indexId);
@@ -92,7 +96,8 @@ public abstract class AbstractIndexStorageManager implements IndexStorageManager
         IndexHeaderManager.Location rootLocation = optionalRootOfIndex.get();
         IndexHeaderManager.Location beginningInChunk = getIndexBeginningInChunk(indexId, rootLocation.chunk());
 
-        FileUtils.readBytesAsync(acquireFileChannel(indexId, rootLocation.chunk()), beginningInChunk.offset() + rootLocation.offset(), this.getBinarySpace(keyValueSize))
+        FileChannel fileChannel = acquireFileChannel(indexId, rootLocation.chunk());
+        fileChannel.readAsync(beginningInChunk.offset() + rootLocation.offset(), this.getBinarySpace(keyValueSize))
                 .whenComplete((bytes, throwable) -> {
                     releaseFileChannel(indexId, rootLocation.chunk());
                     if (throwable != null) {
@@ -118,20 +123,21 @@ public abstract class AbstractIndexStorageManager implements IndexStorageManager
 
     @Override
     public CompletableFuture<NodeData> readNode(int indexId, long position, int chunk, KeyValueSize keyValueSize) throws
-                                                                                                                  StorageException {
+                                                                                                                  StorageException,
+                                                                                                                  FileChannelException {
         CompletableFuture<NodeData> output = new CompletableFuture<>();
 
         IndexHeaderManager.Location beginningInChunk = getIndexBeginningInChunk(indexId, chunk);
 
         long filePosition = beginningInChunk.offset() + position;
 
-        AsynchronousFileChannel asynchronousFileChannel = acquireFileChannel(indexId, chunk);
-        if (FileUtils.getFileSize(asynchronousFileChannel) == 0) {
+        FileChannel fileChannel = acquireFileChannel(indexId, chunk);
+        if (fileChannel.size() == 0) {
             releaseFileChannel(indexId, chunk);
             throw new StorageException(DbError.EMPTY_HEADER_FILE, "Empty header file");
         }
 
-        FileUtils.readBytesAsync(asynchronousFileChannel, filePosition, this.getBinarySpace(keyValueSize))
+        fileChannel.readAsync(filePosition, this.getBinarySpace(keyValueSize))
                 .whenComplete((bytes, throwable) -> {
                     releaseFileChannel(indexId, chunk);
                     if (throwable != null) {
@@ -146,7 +152,9 @@ public abstract class AbstractIndexStorageManager implements IndexStorageManager
 
     @Override
     public CompletableFuture<NodeData> writeNewNode(int indexId, byte[] data, boolean isRoot,
-                                                    KeyValueSize keyValueSize) throws StorageException {
+                                                    KeyValueSize keyValueSize) throws StorageException,
+                                                                                      FileChannelException,
+                                                                                      InterruptedTaskException {
         CompletableFuture<NodeData> output = new CompletableFuture<>();
         Pointer pointer = this.getAllocatedSpaceForNewNode(indexId, 0, keyValueSize);
         int binarySpace = this.getBinarySpace(keyValueSize);
@@ -163,7 +171,8 @@ public abstract class AbstractIndexStorageManager implements IndexStorageManager
 
         pointer.setPosition(offset - indexBeginningInChunk.offset());
 
-        FileUtils.writeAsync(acquireFileChannel(indexId, pointer.getChunk()), offset, data).whenComplete((_, throwable) -> {
+        FileChannel fileChannel = acquireFileChannel(indexId, pointer.getChunk());
+        fileChannel.writeAsync(offset, data).whenComplete((_, throwable) -> {
             releaseFileChannel(indexId, pointer.getChunk());
 
             if (throwable != null) {
@@ -182,6 +191,7 @@ public abstract class AbstractIndexStorageManager implements IndexStorageManager
 
             output.complete(new NodeData(pointer, finalData1));
         });
+
         return output;
     }
 
@@ -198,14 +208,15 @@ public abstract class AbstractIndexStorageManager implements IndexStorageManager
 
     @Override
     public CompletableFuture<Integer> updateNode(int indexId, byte[] data, Pointer pointer, boolean isRoot) throws
-                                                                                                            StorageException {
+                                                                                                            StorageException,
+                                                                                                            FileChannelException {
         CompletableFuture<Integer> output = new CompletableFuture<>();
 
         long offset = getIndexBeginningInChunk(indexId, pointer.getChunk()).offset() + pointer.getPosition();
 
-        AsynchronousFileChannel asynchronousFileChannel = acquireFileChannel(indexId, pointer.getChunk());
+        FileChannel fileChannel = acquireFileChannel(indexId, pointer.getChunk());
 
-        FileUtils.writeAsync(asynchronousFileChannel, offset, data).whenComplete((integer, _) -> {
+        fileChannel.writeAsync(offset, data).whenComplete((updatedBytes, _) -> {
             releaseFileChannel(indexId, pointer.getChunk());
             if (isRoot) {
                 try {
@@ -215,7 +226,7 @@ public abstract class AbstractIndexStorageManager implements IndexStorageManager
                 }
             }
 
-            output.complete(integer);
+            output.complete(updatedBytes);
         });
 
         return output;
@@ -226,17 +237,20 @@ public abstract class AbstractIndexStorageManager implements IndexStorageManager
     }
 
     @Override
-    public void close() throws StorageException {
+    public void close() throws StorageException, InterruptedTaskException, FileChannelException {
         this.fileHandlerPool.closeAll();
     }
 
     @Override
-    public CompletableFuture<Integer> removeNode(int indexId, Pointer pointer, KeyValueSize keyValueSize) {
+    public CompletableFuture<Integer> removeNode(int indexId, Pointer pointer, KeyValueSize keyValueSize) throws
+                                                                                                          StorageException,
+                                                                                                          FileChannelException {
         Optional<IndexHeaderManager.Location> indexBeginningInChunk = indexHeaderManager.getIndexBeginningInChunk(indexId, pointer.getChunk());
         assert indexBeginningInChunk.isPresent();
 
         long offset = indexBeginningInChunk.get().offset() + pointer.getPosition();
-        return FileUtils.writeAsync(acquireFileChannel(indexId, pointer.getChunk()), offset, new byte[this.getBinarySpace(keyValueSize)])
+        FileChannel fileChannel = acquireFileChannel(indexId, pointer.getChunk());
+        return fileChannel.writeAsync(offset, new byte[this.getBinarySpace(keyValueSize)])
                 .whenComplete((_, _) -> releaseFileChannel(indexId, pointer.getChunk()));
     }
 

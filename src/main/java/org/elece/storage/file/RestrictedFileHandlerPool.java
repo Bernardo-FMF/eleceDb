@@ -2,9 +2,10 @@ package org.elece.storage.file;
 
 import org.elece.config.DbConfig;
 import org.elece.exception.DbError;
+import org.elece.exception.FileChannelException;
+import org.elece.exception.InterruptedTaskException;
 import org.elece.exception.StorageException;
 
-import java.nio.channels.AsynchronousFileChannel;
 import java.nio.file.Path;
 import java.util.Map;
 import java.util.Objects;
@@ -31,7 +32,7 @@ public class RestrictedFileHandlerPool implements FileHandlerPool {
     }
 
     @Override
-    public AsynchronousFileChannel acquireFileHandler(Path path) throws StorageException {
+    public FileChannel acquireFileHandler(Path path) throws StorageException, InterruptedTaskException {
         FileHandler fileHandler;
 
         synchronized (fileHandlers) {
@@ -39,10 +40,11 @@ public class RestrictedFileHandlerPool implements FileHandlerPool {
             if (Objects.isNull(fileHandler)) {
                 try {
                     if (!semaphore.tryAcquire(dbConfig.getAcquisitionTimeoutTime(), dbConfig.getTimeoutUnit())) {
-                        throw new StorageException(DbError.TASK_INTERRUPTED_ERROR, String.format("Timeout while waiting to acquire file handler for %s", path));
+                        throw new StorageException(DbError.TASK_INTERRUPTED_ERROR, String.format("Timeout while waiting to acquire file channel for %s", path));
                     }
                 } catch (InterruptedException exception) {
-                    throw new StorageException(DbError.TASK_INTERRUPTED_ERROR, exception.getMessage());
+                    Thread.currentThread().interrupt();
+                    throw new InterruptedTaskException(DbError.TASK_INTERRUPTED_ERROR, exception.getMessage());
                 }
                 fileHandler = fileHandlerFactory.getFileHandler(path);
                 fileHandlers.put(path.toString(), fileHandler);
@@ -54,7 +56,7 @@ public class RestrictedFileHandlerPool implements FileHandlerPool {
     }
 
     @Override
-    public void releaseFileHandler(Path path) throws StorageException {
+    public void releaseFileHandler(Path path) throws StorageException, InterruptedTaskException, FileChannelException {
         FileHandler fileHandler = fileHandlers.get(path.toString());
         if (fileHandler != null) {
             fileHandler.decrementUsage();
@@ -67,7 +69,7 @@ public class RestrictedFileHandlerPool implements FileHandlerPool {
     }
 
     @Override
-    public void closeAll() throws StorageException {
+    public void closeAll() throws InterruptedTaskException, FileChannelException {
         for (Map.Entry<String, FileHandler> entry : fileHandlers.entrySet()) {
             FileHandler fileHandler = entry.getValue();
             fileHandler.closeChannel(dbConfig.getCloseTimeoutTime(), dbConfig.getTimeoutUnit());

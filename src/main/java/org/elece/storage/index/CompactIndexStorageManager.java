@@ -1,15 +1,16 @@
 package org.elece.storage.index;
 
 import org.elece.config.DbConfig;
+import org.elece.exception.FileChannelException;
+import org.elece.exception.InterruptedTaskException;
 import org.elece.exception.StorageException;
 import org.elece.memory.KeyValueSize;
 import org.elece.memory.Pointer;
+import org.elece.storage.file.FileChannel;
 import org.elece.storage.file.FileHandlerPool;
 import org.elece.storage.index.header.IndexHeaderManager;
 import org.elece.storage.index.header.IndexHeaderManagerFactory;
-import org.elece.utils.FileUtils;
 
-import java.nio.channels.AsynchronousFileChannel;
 import java.nio.file.Path;
 import java.util.Optional;
 
@@ -26,16 +27,18 @@ public class CompactIndexStorageManager extends AbstractIndexStorageManager {
 
     @Override
     protected Pointer getAllocatedSpaceForNewNode(int indexId, int chunk, KeyValueSize keyValueSize) throws
-                                                                                                     StorageException {
+                                                                                                     StorageException,
+                                                                                                     InterruptedTaskException,
+                                                                                                     FileChannelException {
         Path indexFilePath = getIndexFilePath(indexId, 0);
-        AsynchronousFileChannel asynchronousFileChannel = this.fileHandlerPool.acquireFileHandler(indexFilePath);
+        FileChannel fileChannel = this.fileHandlerPool.acquireFileHandler(indexFilePath);
 
         synchronized (this) {
-            long fileSize = FileUtils.getFileSize(asynchronousFileChannel);
+            long fileSize = fileChannel.size();
             if (fileSize >= this.getIndexGrowthAllocationSize(keyValueSize)) {
                 long positionToCheck = fileSize - this.getIndexGrowthAllocationSize(keyValueSize);
 
-                byte[] bytes = FileUtils.readBytes(asynchronousFileChannel, positionToCheck, this.getIndexGrowthAllocationSize(keyValueSize));
+                byte[] bytes = fileChannel.read(positionToCheck, this.getIndexGrowthAllocationSize(keyValueSize));
                 Optional<Integer> optionalAdditionalPosition = getPossibleAllocationLocation(bytes, keyValueSize);
                 if (optionalAdditionalPosition.isPresent()) {
                     long finalPosition = positionToCheck + optionalAdditionalPosition.get();
@@ -44,7 +47,7 @@ public class CompactIndexStorageManager extends AbstractIndexStorageManager {
                 }
             }
 
-            Long position = FileUtils.allocate(asynchronousFileChannel, this.getIndexGrowthAllocationSize(keyValueSize));
+            Long position = fileChannel.allocate(this.getIndexGrowthAllocationSize(keyValueSize));
             fileHandlerPool.releaseFileHandler(indexFilePath);
             return new Pointer(Pointer.TYPE_NODE, position, chunk);
         }
