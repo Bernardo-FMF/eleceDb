@@ -1,6 +1,8 @@
 package org.elece.storage.index.session;
 
 import org.elece.exception.DbError;
+import org.elece.exception.FileChannelException;
+import org.elece.exception.InterruptedTaskException;
 import org.elece.exception.StorageException;
 import org.elece.memory.KeyValueSize;
 import org.elece.memory.Pointer;
@@ -10,7 +12,6 @@ import org.elece.storage.index.IndexStorageManager;
 import org.elece.storage.index.NodeData;
 
 import java.util.*;
-import java.util.concurrent.ExecutionException;
 
 /**
  * This implementation follows an in-memory snapshot approach, where the writes are done immediately on disk, but the updates and removals are stored in-memory,
@@ -39,14 +40,11 @@ public class CommittableSession<K extends Comparable<K>> extends AbstractSession
     }
 
     @Override
-    public Optional<AbstractTreeNode<K>> getRoot() throws StorageException {
+    public Optional<AbstractTreeNode<K>> getRoot() throws StorageException, FileChannelException,
+                                                          InterruptedTaskException {
         if (root == null) {
             Optional<NodeData> optional;
-            try {
-                optional = indexStorageManager.getRoot(indexId, keyValueSize).get();
-            } catch (InterruptedException | ExecutionException exception) {
-                throw new StorageException(DbError.INTERNAL_STORAGE_ERROR, exception.getMessage());
-            }
+            optional = handleFuture(indexStorageManager.getRoot(indexId, keyValueSize));
             if (optional.isPresent()) {
                 AbstractTreeNode<K> baseClusterTreeNode = nodeFactory.fromNodeData(optional.get());
                 this.root = baseClusterTreeNode;
@@ -60,7 +58,8 @@ public class CommittableSession<K extends Comparable<K>> extends AbstractSession
     }
 
     @Override
-    public NodeData write(AbstractTreeNode<K> node) throws StorageException {
+    public NodeData write(AbstractTreeNode<K> node) throws StorageException, InterruptedTaskException,
+                                                           FileChannelException {
         NodeData nodeData = writeNode(node);
         this.created.add(nodeData.pointer());
         this.snapshot.put(nodeData.pointer(), node);
@@ -71,7 +70,8 @@ public class CommittableSession<K extends Comparable<K>> extends AbstractSession
     }
 
     @Override
-    public AbstractTreeNode<K> read(Pointer pointer) throws StorageException {
+    public AbstractTreeNode<K> read(Pointer pointer) throws StorageException, InterruptedTaskException,
+                                                            FileChannelException {
         if (deleted.contains(pointer)) {
             return null;
         }
@@ -113,14 +113,14 @@ public class CommittableSession<K extends Comparable<K>> extends AbstractSession
     }
 
     @Override
-    public void commit() throws StorageException {
+    public void commit() throws StorageException, FileChannelException, InterruptedTaskException {
         for (Pointer pointer : deleted) {
             try {
                 removeNode(pointer);
-            } catch (StorageException exception) {
+            } catch (StorageException | FileChannelException | InterruptedTaskException exception) {
                 try {
                     rollback();
-                } catch (StorageException nestedException) {
+                } catch (StorageException | InterruptedTaskException | FileChannelException nestedException) {
                     throw new StorageException(DbError.ROLLBACK_FAILED, "Failed to rollback after exception");
                 }
             }
@@ -130,13 +130,13 @@ public class CommittableSession<K extends Comparable<K>> extends AbstractSession
             for (Pointer pointer : updated) {
                 updateNode(snapshot.get(pointer));
             }
-        } catch (StorageException exception) {
+        } catch (StorageException | FileChannelException | InterruptedTaskException exception) {
             rollback();
         }
     }
 
     @Override
-    public void rollback() throws StorageException {
+    public void rollback() throws StorageException, InterruptedTaskException, FileChannelException {
         for (Pointer pointer : deleted) {
             this.updateNode(original.get(pointer));
         }

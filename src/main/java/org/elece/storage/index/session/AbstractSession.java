@@ -1,5 +1,8 @@
 package org.elece.storage.index.session;
 
+import org.elece.exception.DbError;
+import org.elece.exception.FileChannelException;
+import org.elece.exception.InterruptedTaskException;
 import org.elece.exception.StorageException;
 import org.elece.memory.KeyValueSize;
 import org.elece.memory.Pointer;
@@ -25,15 +28,14 @@ public abstract class AbstractSession<K extends Comparable<K>> implements Sessio
         this.keyValueSize = keyValueSize;
     }
 
-    public NodeData writeNode(AbstractTreeNode<?> node) throws StorageException {
-        try {
-            return writeNodeAsync(node).get();
-        } catch (InterruptedException | ExecutionException e) {
-            throw new RuntimeException(e);
-        }
+    public NodeData writeNode(AbstractTreeNode<?> node) throws StorageException, FileChannelException,
+                                                               InterruptedTaskException {
+        return handleFuture(writeNodeAsync(node));
     }
 
-    public CompletableFuture<NodeData> writeNodeAsync(AbstractTreeNode<?> node) throws StorageException {
+    public CompletableFuture<NodeData> writeNodeAsync(AbstractTreeNode<?> node) throws StorageException,
+                                                                                       InterruptedTaskException,
+                                                                                       FileChannelException {
         NodeData nodeData = new NodeData(node.getPointer(), node.getData());
         if (!node.isModified() && node.getPointer() != null) {
             return CompletableFuture.completedFuture(nodeData);
@@ -61,20 +63,33 @@ public abstract class AbstractSession<K extends Comparable<K>> implements Sessio
         return output;
     }
 
-    public AbstractTreeNode<K> readNode(Pointer pointer) throws StorageException {
-        return nodeFactory.fromNodeData(indexStorageManager.readNode(indexId, pointer, keyValueSize).get());
+    public AbstractTreeNode<K> readNode(Pointer pointer) throws StorageException, FileChannelException,
+                                                                InterruptedTaskException {
+        return nodeFactory.fromNodeData(handleFuture(indexStorageManager.readNode(indexId, pointer, keyValueSize)));
     }
 
-    public void updateNode(AbstractTreeNode<K> node) throws StorageException {
-        indexStorageManager.updateNode(indexId, node.getData(), node.getPointer(), node.isRoot()).get();
+    public void updateNode(AbstractTreeNode<K> node) throws StorageException, FileChannelException,
+                                                            InterruptedTaskException {
+        handleFuture(indexStorageManager.updateNode(indexId, node.getData(), node.getPointer(), node.isRoot()));
     }
 
-    public void removeNode(Pointer pointer) throws StorageException {
-        indexStorageManager.removeNode(indexId, pointer, keyValueSize).get();
+    public void removeNode(Pointer pointer) throws StorageException, FileChannelException, InterruptedTaskException {
+        handleFuture(indexStorageManager.removeNode(indexId, pointer, keyValueSize));
     }
 
     @Override
     public IndexStorageManager getIndexStorageManager() {
         return indexStorageManager;
+    }
+
+    protected <V> V handleFuture(CompletableFuture<V> future) throws InterruptedTaskException {
+        try {
+            return future.get();
+        } catch (InterruptedException exception) {
+            Thread.currentThread().interrupt();
+            throw new InterruptedTaskException(DbError.TASK_INTERRUPTED_ERROR, "File IO operation interrupted");
+        } catch (ExecutionException e) {
+            throw new InterruptedTaskException(DbError.TASK_ENDED_IN_FAILURE_ERROR, "File IO operation failed");
+        }
     }
 }

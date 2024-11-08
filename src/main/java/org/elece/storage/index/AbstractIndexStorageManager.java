@@ -53,9 +53,7 @@ public abstract class AbstractIndexStorageManager implements IndexStorageManager
         try {
             Path indexFilePath = getIndexFilePath(indexId, chunk);
             return this.fileHandlerPool.acquireFileHandler(indexFilePath);
-        } catch (StorageException exception) {
-            throw new RuntimeDbException(exception.getDbError(), exception.getMessage());
-        } catch (InterruptedTaskException exception) {
+        } catch (StorageException | InterruptedTaskException exception) {
             throw new RuntimeDbException(exception.getDbError(), exception.getMessage());
         }
     }
@@ -64,9 +62,7 @@ public abstract class AbstractIndexStorageManager implements IndexStorageManager
         try {
             Path indexFilePath = getIndexFilePath(indexId, chunk);
             this.fileHandlerPool.releaseFileHandler(indexFilePath);
-        } catch (StorageException | FileChannelException exception) {
-            throw new RuntimeDbException(exception.getDbError(), exception.getMessage());
-        } catch (InterruptedTaskException exception) {
+        } catch (StorageException | FileChannelException | InterruptedTaskException exception) {
             throw new RuntimeDbException(exception.getDbError(), exception.getMessage());
         }
     }

@@ -1,6 +1,8 @@
 package org.elece.storage.index.session;
 
 import org.elece.exception.DbError;
+import org.elece.exception.FileChannelException;
+import org.elece.exception.InterruptedTaskException;
 import org.elece.exception.StorageException;
 import org.elece.memory.KeyValueSize;
 import org.elece.memory.Pointer;
@@ -9,7 +11,6 @@ import org.elece.memory.tree.node.NodeFactory;
 import org.elece.storage.index.IndexStorageManager;
 import org.elece.storage.index.NodeData;
 
-import java.io.IOException;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
@@ -24,49 +25,41 @@ public class ImmediateSession<K extends Comparable<K>> extends AbstractSession<K
     }
 
     @Override
-    public Optional<AbstractTreeNode<K>> getRoot() throws StorageException {
-        try {
-            Optional<NodeData> optional = indexStorageManager.getRoot(indexId, keyValueSize).get();
-            return optional.map(nodeFactory::fromNodeData);
-        } catch (ExecutionException | InterruptedException exception) {
-            throw new StorageException(DbError.INTERNAL_STORAGE_ERROR, exception.getMessage());
-        }
+    public Optional<AbstractTreeNode<K>> getRoot() throws StorageException, FileChannelException,
+                                                          InterruptedTaskException {
+        Optional<NodeData> optional = handleFuture(indexStorageManager.getRoot(indexId, keyValueSize));
+        return optional.map(nodeFactory::fromNodeData);
     }
 
     @Override
-    public NodeData write(AbstractTreeNode<K> node) throws StorageException {
+    public NodeData write(AbstractTreeNode<K> node) throws StorageException, InterruptedTaskException,
+                                                           FileChannelException {
         try {
             return writeNodeAsync(node).get();
-        } catch (IOException | ExecutionException | InterruptedException exception) {
+        } catch (InterruptedException exception) {
+            Thread.currentThread().interrupt();
+            throw new InterruptedTaskException(DbError.TASK_INTERRUPTED_ERROR, exception.getMessage());
+        } catch (ExecutionException exception) {
             throw new StorageException(DbError.INTERNAL_STORAGE_ERROR, exception.getMessage());
         }
     }
 
     @Override
-    public AbstractTreeNode<K> read(Pointer pointer) throws StorageException {
-        try {
-            return readNode(pointer);
-        } catch (ExecutionException | InterruptedException | IOException exception) {
-            throw new StorageException(DbError.INTERNAL_STORAGE_ERROR, exception.getMessage());
-        }
+    public AbstractTreeNode<K> read(Pointer pointer) throws StorageException, InterruptedTaskException,
+                                                            FileChannelException {
+        return readNode(pointer);
     }
 
     @Override
-    public void update(AbstractTreeNode<K> node) throws StorageException {
-        try {
-            updateNode(node);
-        } catch (InterruptedException | IOException | ExecutionException exception) {
-            throw new StorageException(DbError.INTERNAL_STORAGE_ERROR, exception.getMessage());
-        }
+    public void update(AbstractTreeNode<K> node) throws StorageException, InterruptedTaskException,
+                                                        FileChannelException {
+        updateNode(node);
     }
 
     @Override
-    public void remove(AbstractTreeNode<K> node) throws StorageException {
-        try {
-            removeNode(node.getPointer());
-        } catch (ExecutionException | InterruptedException exception) {
-            throw new StorageException(DbError.INTERNAL_STORAGE_ERROR, exception.getMessage());
-        }
+    public void remove(AbstractTreeNode<K> node) throws StorageException, InterruptedTaskException,
+                                                        FileChannelException {
+        removeNode(node.getPointer());
     }
 
     @Override
