@@ -14,6 +14,7 @@ import org.elece.query.comparator.ValueComparator;
 import org.elece.query.executor.*;
 import org.elece.query.path.DefaultPathNode;
 import org.elece.query.path.IndexPath;
+import org.elece.query.path.IndexPathFinder;
 import org.elece.query.path.NodeCollection;
 import org.elece.query.plan.QueryPlan;
 import org.elece.query.plan.builder.DeleteQueryPlanBuilder;
@@ -21,6 +22,7 @@ import org.elece.query.plan.builder.InsertQueryPlanBuilder;
 import org.elece.query.plan.builder.SelectQueryPlanBuilder;
 import org.elece.query.plan.builder.UpdateQueryPlanBuilder;
 import org.elece.query.plan.step.filter.FieldFilterStep;
+import org.elece.query.plan.step.filter.FilterStep;
 import org.elece.query.plan.step.operation.DeleteOperationStep;
 import org.elece.query.plan.step.operation.InsertOperationStep;
 import org.elece.query.plan.step.operation.UpdateOperationStep;
@@ -37,8 +39,8 @@ import org.elece.query.plan.step.tracer.SelectTracerStep;
 import org.elece.query.plan.step.tracer.UpdateTracerStep;
 import org.elece.query.plan.step.validator.InsertValidatorStep;
 import org.elece.query.plan.step.value.InsertValueStep;
-import org.elece.query.result.ScanInfo;
 import org.elece.serializer.SerializerRegistry;
+import org.elece.sql.parser.expression.Expression;
 import org.elece.sql.parser.expression.IdentifierExpression;
 import org.elece.sql.parser.expression.OrderIdentifierExpression;
 import org.elece.sql.parser.expression.internal.Order;
@@ -98,7 +100,7 @@ public class QueryPlanner {
         };
 
         if (plan.isEmpty()) {
-            throw new QueryException(DbError.INVALID_QUERY_ERROR, "Invalid query");
+            throw new QueryException(DbError.INVALID_QUERY_ERROR, "Failed to build an executable query plan");
         }
 
         plan.get().execute();
@@ -118,59 +120,24 @@ public class QueryPlanner {
         }
         Table table = possibleTable.get();
 
-        DeleteQueryPlanBuilder builder = DeleteQueryPlanBuilder.builder();
-        builder.setStreamStep(streamStep);
-
-        NodeCollection nodeCollection = ScanQueryPlanGenerator.buildNodeCollection(table, statement.getWhere());
+        NodeCollection nodeCollection = buildNodeCollection(table, statement.getWhere());
         if (nodeCollection.isEmpty()) {
             return Optional.empty();
         }
 
-        Long scanId = -1L;
-        List<Column> mainScans = new ArrayList<>();
-        List<Column> secondaryScans = new ArrayList<>();
-        for (IndexPath indexPath : nodeCollection.getIndexPaths()) {
-            Optional<DefaultPathNode> possibleMainPath = ScanQueryPlanGenerator.findMainPath(indexPath);
-            ScanStep scanStep;
-            if (possibleMainPath.isEmpty()) {
-                scanStep = new SequentialScanStep(table, columnIndexManagerProvider, databaseStorageManager);
-                mainScans.add(SchemaSearcher.findClusterColumn(table));
-            } else {
-                DefaultPathNode mainPath = possibleMainPath.get();
+        QueryContext queryContext = new QueryContext();
+        findScanPaths(queryContext, table, nodeCollection, Order.DEFAULT_ORDER);
 
-                Optional<Column> column = SchemaSearcher.findColumn(table, mainPath.getColumnName());
-                if (column.isEmpty()) {
-                    return Optional.empty();
-                }
-
-                if (mainPath.getValueComparator() instanceof EqualityComparator<?> equalityComparator) {
-                    scanStep = new EqualityRowScanStep<>(table, column.get(), (EqualityComparator<V>) equalityComparator, columnIndexManagerProvider, databaseStorageManager);
-                } else {
-                    scanStep = new RangeRowScanStep(table, column.get(), (NumberRangeComparator) mainPath.getValueComparator(), Order.DEFAULT_ORDER, columnIndexManagerProvider, databaseStorageManager);
-                }
-                mainScans.add(column.get());
-            }
+        DeleteQueryPlanBuilder builder = DeleteQueryPlanBuilder.builder();
+        for (ScanStep scanStep : queryContext.getScanSteps()) {
             builder.addScanStep(scanStep);
-
-            if (scanId == -1L) {
-                scanId = scanStep.getScanId();
-            }
-
-            Set<DefaultPathNode> secondaryPaths = possibleMainPath
-                    .map(defaultPathNode -> indexPath.getNodePaths().stream().filter(pathNode -> !Objects.equals(pathNode, defaultPathNode)).collect(Collectors.toSet()))
-                    .orElseGet(indexPath::getNodePaths);
-
-            for (DefaultPathNode secondaryPath : secondaryPaths) {
-                Optional<Column> column = SchemaSearcher.findColumn(table, secondaryPath.getColumnName());
-                if (column.isPresent()) {
-                    builder = builder.addFilterStep(new FieldFilterStep<>(table, column.get(), (ValueComparator<V>) secondaryPath.getValueComparator(), serializerRegistry, scanStep.getScanId()));
-                    secondaryScans.add(column.get());
-                }
-            }
         }
-
+        for (FilterStep filterStep : queryContext.getFilterSteps()) {
+            builder.addFilterStep(filterStep);
+        }
         builder.setOperationStep(new DeleteOperationStep(table, columnIndexManagerProvider, databaseStorageManager))
-                .setTracerStep(new UpdateTracerStep(table, new ScanInfo(mainScans, secondaryScans)));
+                .setTracerStep(new UpdateTracerStep(table, queryContext.getScanInfo()))
+                .setStreamStep(streamStep);
 
         return Optional.of(builder.build());
     }
@@ -189,53 +156,24 @@ public class QueryPlanner {
         }
         Table table = possibleTable.get();
 
-        UpdateQueryPlanBuilder builder = UpdateQueryPlanBuilder.builder();
-        builder.setStreamStep(streamStep);
-
-        NodeCollection nodeCollection = ScanQueryPlanGenerator.buildNodeCollection(table, statement.getWhere());
+        NodeCollection nodeCollection = buildNodeCollection(table, statement.getWhere());
         if (nodeCollection.isEmpty()) {
             return Optional.empty();
         }
 
-        Long scanId = -1L;
-        List<Column> mainScans = new ArrayList<>();
-        List<Column> secondaryScans = new ArrayList<>();
-        for (IndexPath indexPath : nodeCollection.getIndexPaths()) {
-            Optional<DefaultPathNode> possibleMainPath = ScanQueryPlanGenerator.findMainPath(indexPath);
-            ScanStep scanStep;
-            if (possibleMainPath.isEmpty()) {
-                scanStep = new SequentialScanStep(table, columnIndexManagerProvider, databaseStorageManager);
-                mainScans.add(SchemaSearcher.findClusterColumn(table));
-            } else {
-                DefaultPathNode mainPath = possibleMainPath.get();
-                if (mainPath.getValueComparator() instanceof EqualityComparator<?> equalityComparator) {
-                    scanStep = new EqualityRowScanStep<>(table, SchemaSearcher.findColumn(table, mainPath.getColumnName()).get(), (EqualityComparator<V>) equalityComparator, columnIndexManagerProvider, databaseStorageManager);
-                } else {
-                    scanStep = new RangeRowScanStep(table, SchemaSearcher.findColumn(table, mainPath.getColumnName()).get(), (NumberRangeComparator) mainPath.getValueComparator(), Order.DEFAULT_ORDER, columnIndexManagerProvider, databaseStorageManager);
-                }
-                mainScans.add(SchemaSearcher.findColumn(table, mainPath.getColumnName()).get());
-            }
+        QueryContext queryContext = new QueryContext();
+        findScanPaths(queryContext, table, nodeCollection, Order.DEFAULT_ORDER);
+
+        UpdateQueryPlanBuilder builder = UpdateQueryPlanBuilder.builder();
+        for (ScanStep scanStep : queryContext.getScanSteps()) {
             builder.addScanStep(scanStep);
-
-            if (scanId == -1L) {
-                scanId = scanStep.getScanId();
-            }
-
-            Set<DefaultPathNode> secondaryPaths = possibleMainPath
-                    .map(defaultPathNode -> indexPath.getNodePaths().stream().filter(pathNode -> !Objects.equals(pathNode, defaultPathNode)).collect(Collectors.toSet()))
-                    .orElseGet(indexPath::getNodePaths);
-
-            for (DefaultPathNode secondaryPath : secondaryPaths) {
-                Optional<Column> column = SchemaSearcher.findColumn(table, secondaryPath.getColumnName());
-                if (column.isPresent()) {
-                    builder = builder.addFilterStep(new FieldFilterStep<>(table, column.get(), (ValueComparator<V>) secondaryPath.getValueComparator(), serializerRegistry, scanStep.getScanId()));
-                    secondaryScans.add(column.get());
-                }
-            }
         }
-
+        for (FilterStep filterStep : queryContext.getFilterSteps()) {
+            builder.addFilterStep(filterStep);
+        }
         builder.setOperationStep(new UpdateOperationStep(table, statement.getColumns(), databaseStorageManager, columnIndexManagerProvider, serializerRegistry))
-                .setTracerStep(new UpdateTracerStep(table, new ScanInfo(mainScans, secondaryScans)));
+                .setTracerStep(new UpdateTracerStep(table, queryContext.getScanInfo()))
+                .setStreamStep(streamStep);
 
         return Optional.of(builder.build());
     }
@@ -279,62 +217,93 @@ public class QueryPlanner {
                 .map(Optional::get)
                 .toList();
 
-        SelectQueryPlanBuilder builder = SelectQueryPlanBuilder.builder();
-        builder.setStreamStep(streamStep);
-
-        NodeCollection nodeCollection = ScanQueryPlanGenerator.buildNodeCollection(table, statement.getWhere());
+        NodeCollection nodeCollection = buildNodeCollection(table, statement.getWhere());
         if (nodeCollection.isEmpty()) {
             return Optional.empty();
         }
 
-        Long scanId = -1L;
-        List<Column> mainScans = new ArrayList<>();
-        List<Column> secondaryScans = new ArrayList<>();
-        for (IndexPath indexPath : nodeCollection.getIndexPaths()) {
-            Optional<DefaultPathNode> possibleMainPath = ScanQueryPlanGenerator.findMainPath(indexPath);
-            ScanStep scanStep;
-            if (possibleMainPath.isEmpty()) {
-                scanStep = new SequentialScanStep(table, columnIndexManagerProvider, databaseStorageManager);
-                mainScans.add(SchemaSearcher.findClusterColumn(table));
-            } else {
-                DefaultPathNode mainPath = possibleMainPath.get();
-                if (mainPath.getValueComparator() instanceof EqualityComparator<?> equalityComparator) {
-                    scanStep = new EqualityRowScanStep<>(table, SchemaSearcher.findColumn(table, mainPath.getColumnName()).get(), (EqualityComparator<V>) equalityComparator, columnIndexManagerProvider, databaseStorageManager);
-                } else {
-                    scanStep = new RangeRowScanStep(table, SchemaSearcher.findColumn(table, mainPath.getColumnName()).get(), (NumberRangeComparator) mainPath.getValueComparator(), order, columnIndexManagerProvider, databaseStorageManager);
-                }
-                mainScans.add(SchemaSearcher.findColumn(table, mainPath.getColumnName()).get());
-            }
+        QueryContext queryContext = new QueryContext();
+        findScanPaths(queryContext, table, nodeCollection, order);
+
+        SelectQueryPlanBuilder builder = SelectQueryPlanBuilder.builder();
+        for (ScanStep scanStep : queryContext.getScanSteps()) {
             builder.addScanStep(scanStep);
-
-            if (scanId == -1L) {
-                scanId = scanStep.getScanId();
-            }
-
-            Set<DefaultPathNode> secondaryPaths = possibleMainPath
-                    .map(defaultPathNode -> indexPath.getNodePaths().stream().filter(pathNode -> !Objects.equals(pathNode, defaultPathNode)).collect(Collectors.toSet()))
-                    .orElseGet(indexPath::getNodePaths);
-
-            for (DefaultPathNode secondaryPath : secondaryPaths) {
-                Optional<Column> column = SchemaSearcher.findColumn(table, secondaryPath.getColumnName());
-                if (column.isPresent()) {
-                    builder = builder.addFilterStep(new FieldFilterStep<>(table, column.get(), (ValueComparator<V>) secondaryPath.getValueComparator(), serializerRegistry, scanStep.getScanId()));
-                    secondaryScans.add(column.get());
-                }
-            }
         }
-
+        for (FilterStep filterStep : queryContext.getFilterSteps()) {
+            builder.addFilterStep(filterStep);
+        }
         builder.setSelectorStep(new AttributeSelectorStep(table, selectedColumns))
-                .setTracerStep(new SelectTracerStep(selectedColumns, table, new ScanInfo(mainScans, secondaryScans)));
+                .setTracerStep(new SelectTracerStep(selectedColumns, table, queryContext.getScanInfo()))
+                .setStreamStep(streamStep);
 
         if (!Objects.isNull(statement.getOrderBy())) {
             OrderIdentifierExpression orderBy = (OrderIdentifierExpression) statement.getOrderBy().getFirst();
             Optional<Column> column = SchemaSearcher.findColumn(table, orderBy.getName());
-            if (column.isPresent()) {
-                builder.setOrderStep(new CacheableOrderStep<>(order, selectedColumns, column.get(), scanId, fileHandlerPool, serializerRegistry, dbConfig));
-            }
+            column.ifPresent(value -> builder.setOrderStep(new CacheableOrderStep<>(order, selectedColumns, value, queryContext.getScanSteps().getFirst().getScanId(), fileHandlerPool, serializerRegistry, dbConfig)));
         }
 
         return Optional.of(builder.build());
+    }
+
+    private <V extends Comparable<V>> void findScanPaths(QueryContext queryContext, Table table,
+                                                         NodeCollection nodeCollection, Order order) throws
+                                                                                                     SchemaException,
+                                                                                                     InterruptedTaskException,
+                                                                                                     StorageException,
+                                                                                                     FileChannelException,
+                                                                                                     BTreeException {
+        for (IndexPath indexPath : nodeCollection.getIndexPaths()) {
+            Optional<DefaultPathNode> possibleMainPath = findMainPath(indexPath);
+            ScanStep scanStep;
+            if (possibleMainPath.isEmpty()) {
+                scanStep = new SequentialScanStep(table, columnIndexManagerProvider, databaseStorageManager);
+                queryContext.getScanInfo().addMainScan(SchemaSearcher.findClusterColumn(table));
+            } else {
+                DefaultPathNode mainPath = possibleMainPath.get();
+                Optional<Column> column = SchemaSearcher.findColumn(table, mainPath.getColumnName());
+                if (column.isEmpty()) {
+                    continue;
+                }
+
+                if (mainPath.getValueComparator() instanceof EqualityComparator<?> equalityComparator) {
+                    scanStep = new EqualityRowScanStep<>(table, column.get(), (EqualityComparator<V>) equalityComparator, columnIndexManagerProvider, databaseStorageManager);
+                } else {
+                    scanStep = new RangeRowScanStep(table, column.get(), (NumberRangeComparator) mainPath.getValueComparator(), order, columnIndexManagerProvider, databaseStorageManager);
+                }
+                queryContext.getScanInfo().addMainScan(column.get());
+            }
+            queryContext.addScanStep(scanStep);
+
+            findSecondaryScanPaths(queryContext, table, indexPath, possibleMainPath, scanStep);
+        }
+    }
+
+    private <V extends Comparable<V>> void findSecondaryScanPaths(QueryContext queryContext, Table table,
+                                                                  IndexPath indexPath,
+                                                                  Optional<DefaultPathNode> possibleMainPath,
+                                                                  ScanStep scanStep) {
+        Set<DefaultPathNode> secondaryPaths = possibleMainPath
+                .map(defaultPathNode -> indexPath.getNodePaths().stream().filter(pathNode -> !Objects.equals(pathNode, defaultPathNode)).collect(Collectors.toSet()))
+                .orElseGet(indexPath::getNodePaths);
+
+        for (DefaultPathNode secondaryPath : secondaryPaths) {
+            Optional<Column> column = SchemaSearcher.findColumn(table, secondaryPath.getColumnName());
+            if (column.isPresent()) {
+                queryContext.addFilterStep(new FieldFilterStep<>(table, column.get(), (ValueComparator<V>) secondaryPath.getValueComparator(), serializerRegistry, scanStep.getScanId()));
+                queryContext.getScanInfo().addSecondaryFilterScan(column.get());
+            }
+        }
+    }
+
+    private NodeCollection buildNodeCollection(Table table, Expression filter) throws QueryException {
+        return filter.accept(new IndexPathFinder(table));
+    }
+
+    private Optional<DefaultPathNode> findMainPath(IndexPath indexPath) {
+        Queue<DefaultPathNode> nodePaths = indexPath.buildNodePathsQueue();
+        if (nodePaths.isEmpty()) {
+            return Optional.empty();
+        }
+        return Optional.of(nodePaths.poll());
     }
 }

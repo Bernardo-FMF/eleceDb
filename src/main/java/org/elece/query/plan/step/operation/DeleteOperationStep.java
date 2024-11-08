@@ -68,6 +68,9 @@ public class DeleteOperationStep extends OperationStep<DbObject> {
                         String indexValue = BinaryUtils.bytesToString(indexValueAsBytes, 0);
                         indexManager.removeIndex(indexValue);
                     }
+                    default -> {
+                        return false;
+                    }
                 }
             }
         }
