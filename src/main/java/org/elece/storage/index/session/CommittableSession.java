@@ -9,7 +9,6 @@ import org.elece.memory.tree.node.NodeFactory;
 import org.elece.storage.index.IndexStorageManager;
 import org.elece.storage.index.NodeData;
 
-import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 
@@ -21,7 +20,7 @@ import java.util.concurrent.ExecutionException;
  * In terms of read operations, first we check the snapshot to see if pointer is stored in-memory, if so we deal we can use that stored value to
  * determine the return value, otherwise, the pointer needs to be read from disk.
  */
-public class CommittableIOSession<K extends Comparable<K>> extends AbstractIOSession<K> {
+public class CommittableSession<K extends Comparable<K>> extends AbstractSession<K> {
     private final Set<Pointer> updated;
     private final List<Pointer> created;
     private final List<Pointer> deleted;
@@ -29,8 +28,8 @@ public class CommittableIOSession<K extends Comparable<K>> extends AbstractIOSes
     private final Map<Pointer, AbstractTreeNode<K>> original;
     private AbstractTreeNode<K> root;
 
-    public CommittableIOSession(IndexStorageManager indexStorageManager, NodeFactory<K> nodeFactory, int indexId,
-                                KeyValueSize keyValueSize) {
+    public CommittableSession(IndexStorageManager indexStorageManager, NodeFactory<K> nodeFactory, int indexId,
+                              KeyValueSize keyValueSize) {
         super(indexStorageManager, nodeFactory, indexId, keyValueSize);
         updated = new HashSet<>();
         created = new LinkedList<>();
@@ -62,12 +61,7 @@ public class CommittableIOSession<K extends Comparable<K>> extends AbstractIOSes
 
     @Override
     public NodeData write(AbstractTreeNode<K> node) throws StorageException {
-        NodeData nodeData;
-        try {
-            nodeData = writeNode(node).get();
-        } catch (InterruptedException | ExecutionException | IOException exception) {
-            throw new StorageException(DbError.INTERNAL_STORAGE_ERROR, exception.getMessage());
-        }
+        NodeData nodeData = writeNode(node);
         this.created.add(nodeData.pointer());
         this.snapshot.put(nodeData.pointer(), node);
         if (node.isRoot()) {
@@ -90,12 +84,7 @@ public class CommittableIOSession<K extends Comparable<K>> extends AbstractIOSes
             return snapshot.get(pointer);
         }
 
-        AbstractTreeNode<K> baseClusterTreeNode;
-        try {
-            baseClusterTreeNode = readNode(pointer);
-        } catch (ExecutionException | InterruptedException | IOException exception) {
-            throw new StorageException(DbError.INTERNAL_STORAGE_ERROR, exception.getMessage());
-        }
+        AbstractTreeNode<K> baseClusterTreeNode = readNode(pointer);
 
         snapshot.put(pointer, baseClusterTreeNode);
 
@@ -128,10 +117,10 @@ public class CommittableIOSession<K extends Comparable<K>> extends AbstractIOSes
         for (Pointer pointer : deleted) {
             try {
                 removeNode(pointer);
-            } catch (ExecutionException | InterruptedException exception) {
+            } catch (StorageException exception) {
                 try {
                     rollback();
-                } catch (IOException | InterruptedException | ExecutionException nestedException) {
+                } catch (StorageException nestedException) {
                     throw new StorageException(DbError.ROLLBACK_FAILED, "Failed to rollback after exception");
                 }
             }
@@ -139,23 +128,15 @@ public class CommittableIOSession<K extends Comparable<K>> extends AbstractIOSes
 
         try {
             for (Pointer pointer : updated) {
-                try {
-                    updateNode(snapshot.get(pointer));
-                } catch (ExecutionException exception) {
-                    throw new StorageException(DbError.INTERNAL_STORAGE_ERROR, exception.getMessage());
-                }
+                updateNode(snapshot.get(pointer));
             }
-        } catch (InterruptedException | IOException exception) {
-            try {
-                rollback();
-            } catch (IOException | InterruptedException | ExecutionException nestedException) {
-                throw new StorageException(DbError.INTERNAL_STORAGE_ERROR, exception.getMessage());
-            }
+        } catch (StorageException exception) {
+            rollback();
         }
     }
 
     @Override
-    public void rollback() throws IOException, InterruptedException, ExecutionException, StorageException {
+    public void rollback() throws StorageException {
         for (Pointer pointer : deleted) {
             this.updateNode(original.get(pointer));
         }

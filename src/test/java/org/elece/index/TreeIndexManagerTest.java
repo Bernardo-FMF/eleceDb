@@ -18,7 +18,7 @@ import org.elece.storage.file.UnrestrictedFileHandlerPool;
 import org.elece.storage.index.IndexStorageManager;
 import org.elece.storage.index.OrganizedIndexStorageManager;
 import org.elece.storage.index.header.DefaultIndexHeaderManagerFactory;
-import org.elece.storage.index.session.factory.AtomicIOSessionFactory;
+import org.elece.storage.index.session.factory.DefaultSessionFactory;
 import org.elece.utils.BTreeUtils;
 import org.elece.utils.BinaryUtils;
 import org.elece.utils.FileTestUtils;
@@ -84,7 +84,7 @@ class TreeIndexManagerTest {
 
     @Test
     public void test_tryToAddZero() {
-        IndexManager<Integer, Pointer> indexManager = new TreeIndexManager<>(1, indexStorageManager, AtomicIOSessionFactory.getInstance(integerDbConfig), integerDbConfig,
+        IndexManager<Integer, Pointer> indexManager = new TreeIndexManager<>(1, indexStorageManager, DefaultSessionFactory.getInstance(integerDbConfig), integerDbConfig,
                 integerKBinaryObjectFactory, pointerVBinaryObjectFactory, new DefaultNodeFactory<>(integerKBinaryObjectFactory, pointerVBinaryObjectFactory));
 
         Assertions.assertThrows(SerializationException.class, () -> indexManager.addIndex(0, Pointer.empty()));
@@ -92,7 +92,7 @@ class TreeIndexManagerTest {
 
     @Test
     public void test_addIntegerIndexes() throws BTreeException, StorageException, SerializationException {
-        IndexManager<Integer, Pointer> indexManager = new TreeIndexManager<>(1, indexStorageManager, AtomicIOSessionFactory.getInstance(integerDbConfig), integerDbConfig,
+        IndexManager<Integer, Pointer> indexManager = new TreeIndexManager<>(1, indexStorageManager, DefaultSessionFactory.getInstance(integerDbConfig), integerDbConfig,
                 integerKBinaryObjectFactory, pointerVBinaryObjectFactory, new DefaultNodeFactory<>(integerKBinaryObjectFactory, pointerVBinaryObjectFactory));
 
         for (int index = 1; index <= 3; index++) {
@@ -111,7 +111,7 @@ class TreeIndexManagerTest {
 
     @Test
     public void test_addStringIndexes() throws BTreeException, StorageException, SerializationException {
-        IndexManager<String, Pointer> stringIndexManager = new TreeIndexManager<>(1, indexStorageManager, AtomicIOSessionFactory.getInstance(stringDbConfig), stringDbConfig,
+        IndexManager<String, Pointer> stringIndexManager = new TreeIndexManager<>(1, indexStorageManager, DefaultSessionFactory.getInstance(stringDbConfig), stringDbConfig,
                 stringKBinaryObjectFactory, pointerVBinaryObjectFactory, new DefaultNodeFactory<>(stringKBinaryObjectFactory, pointerVBinaryObjectFactory));
 
         for (int index = 1; index <= 3; index++) {
@@ -138,7 +138,7 @@ class TreeIndexManagerTest {
 
     @Test
     public void test_updateIntegerIndexes() throws BTreeException, StorageException, SerializationException {
-        IndexManager<Integer, Pointer> indexManager = new TreeIndexManager<>(1, indexStorageManager, AtomicIOSessionFactory.getInstance(stringDbConfig), integerDbConfig,
+        IndexManager<Integer, Pointer> indexManager = new TreeIndexManager<>(1, indexStorageManager, DefaultSessionFactory.getInstance(stringDbConfig), integerDbConfig,
                 integerKBinaryObjectFactory, pointerVBinaryObjectFactory, new DefaultNodeFactory<>(integerKBinaryObjectFactory, pointerVBinaryObjectFactory));
 
         for (int index = 1; index <= 3; index++) {
@@ -160,7 +160,7 @@ class TreeIndexManagerTest {
 
     @Test
     public void test_purgeIndex() throws StorageException, IOException, InterruptedException, ExecutionException, BTreeException, SerializationException {
-        IndexManager<String, Pointer> stringIndexManager = new TreeIndexManager<>(1, indexStorageManager, AtomicIOSessionFactory.getInstance(stringDbConfig), stringDbConfig,
+        IndexManager<String, Pointer> stringIndexManager = new TreeIndexManager<>(1, indexStorageManager, DefaultSessionFactory.getInstance(stringDbConfig), stringDbConfig,
                 stringKBinaryObjectFactory, pointerVBinaryObjectFactory, new DefaultNodeFactory<>(stringKBinaryObjectFactory, pointerVBinaryObjectFactory));
 
         for (int index = 1; index <= 3; index++) {

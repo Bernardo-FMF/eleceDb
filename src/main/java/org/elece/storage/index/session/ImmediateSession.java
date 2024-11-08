@@ -17,8 +17,9 @@ import java.util.concurrent.ExecutionException;
  * This implementation follows an immediate commit-to-disk approach, where the tree nodes are immediately persisted on disk.
  * This means that a rollback of operations is not possible.
  */
-public class ImmediateIOSession<K extends Comparable<K>> extends AbstractIOSession<K> {
-    public ImmediateIOSession(IndexStorageManager indexStorageManager, NodeFactory<K> nodeFactory, int indexId, KeyValueSize keyValueSize) {
+public class ImmediateSession<K extends Comparable<K>> extends AbstractSession<K> {
+    public ImmediateSession(IndexStorageManager indexStorageManager, NodeFactory<K> nodeFactory, int indexId,
+                            KeyValueSize keyValueSize) {
         super(indexStorageManager, nodeFactory, indexId, keyValueSize);
     }
 
@@ -35,7 +36,7 @@ public class ImmediateIOSession<K extends Comparable<K>> extends AbstractIOSessi
     @Override
     public NodeData write(AbstractTreeNode<K> node) throws StorageException {
         try {
-            return writeNode(node).get();
+            return writeNodeAsync(node).get();
         } catch (IOException | ExecutionException | InterruptedException exception) {
             throw new StorageException(DbError.INTERNAL_STORAGE_ERROR, exception.getMessage());
         }
@@ -69,12 +70,12 @@ public class ImmediateIOSession<K extends Comparable<K>> extends AbstractIOSessi
     }
 
     @Override
-    public void commit() throws StorageException {
+    public void commit() {
         // Commit is already implied in the crud operations
     }
 
     @Override
-    public void rollback() throws IOException, InterruptedException, ExecutionException {
+    public void rollback() {
         // Rollback is not supported in this implementation, since the commit is not reversible
     }
 }

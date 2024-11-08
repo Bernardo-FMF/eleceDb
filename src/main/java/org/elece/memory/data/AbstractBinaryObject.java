@@ -3,7 +3,7 @@ package org.elece.memory.data;
 public abstract class AbstractBinaryObject<E> implements BinaryObject<E> {
     protected byte[] bytes;
 
-    public AbstractBinaryObject() {
+    protected AbstractBinaryObject() {
     }
 
     protected AbstractBinaryObject(byte[] bytes) {

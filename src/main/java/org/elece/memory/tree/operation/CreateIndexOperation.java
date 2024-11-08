@@ -11,7 +11,7 @@ import org.elece.memory.data.BinaryObjectFactory;
 import org.elece.memory.tree.node.AbstractTreeNode;
 import org.elece.memory.tree.node.InternalTreeNode;
 import org.elece.memory.tree.node.LeafTreeNode;
-import org.elece.storage.index.session.AtomicIOSession;
+import org.elece.storage.index.session.Session;
 import org.elece.utils.BTreeUtils;
 
 import java.util.LinkedList;
@@ -26,16 +26,16 @@ import java.util.Optional;
  */
 public class CreateIndexOperation<K extends Comparable<K>, V> {
     private final DbConfig dbConfig;
-    private final AtomicIOSession<K> atomicIOSession;
+    private final Session<K> session;
     private final BinaryObjectFactory<K> binaryObjectKeyFactory;
     private final BinaryObjectFactory<V> binaryObjectValueFactory;
     private final KeyValueSize keyValueSize;
 
-    public CreateIndexOperation(DbConfig dbConfig, AtomicIOSession<K> atomicIOSession,
+    public CreateIndexOperation(DbConfig dbConfig, Session<K> session,
                                 BinaryObjectFactory<K> binaryObjectKeyFactory,
                                 BinaryObjectFactory<V> binaryObjectValueFactory, KeyValueSize keyValueSize) {
         this.dbConfig = dbConfig;
-        this.atomicIOSession = atomicIOSession;
+        this.session = session;
         this.binaryObjectKeyFactory = binaryObjectKeyFactory;
         this.binaryObjectValueFactory = binaryObjectValueFactory;
         this.keyValueSize = keyValueSize;
@@ -48,7 +48,7 @@ public class CreateIndexOperation<K extends Comparable<K>, V> {
         int bTreeDegree = dbConfig.getBTreeDegree();
 
         // Find the path to the leaf node responsible for the key.
-        BTreeUtils.getPathToResponsibleNode(atomicIOSession, path, root, identifier, bTreeDegree);
+        BTreeUtils.getPathToResponsibleNode(session, path, root, identifier, bTreeDegree);
 
         // Variables to keep track of the key and child node to be passed up to parent nodes if splits occur.
         K idForParentToStore = identifier;
@@ -72,26 +72,26 @@ public class CreateIndexOperation<K extends Comparable<K>, V> {
                 // If there's space in the current node, insert the key-value pair.
                 if (currentNodeKeyList.size() < (bTreeDegree - 1)) {
                     ((LeafTreeNode<K, V>) currentNode).addKeyValue(identifier, value, bTreeDegree);
-                    atomicIOSession.write(currentNode);
-                    atomicIOSession.commit();
+                    session.write(currentNode);
+                    session.commit();
                     return currentNode;
                 }
 
                 // If the node is full, split the node.
                 // Create a new sibling leaf node to accommodate the split.
-                LeafTreeNode<K, V> newSiblingLeafNode = new LeafTreeNode<>(atomicIOSession.getIndexStorageManager().getEmptyNode(this.keyValueSize), binaryObjectKeyFactory, binaryObjectValueFactory);
+                LeafTreeNode<K, V> newSiblingLeafNode = new LeafTreeNode<>(session.getIndexStorageManager().getEmptyNode(this.keyValueSize), binaryObjectKeyFactory, binaryObjectValueFactory);
 
                 // Add the key-value pair and split the node, obtaining the key-values to pass to the new node.
                 List<LeafTreeNode.KeyValue<K, V>> passingKeyValues = ((LeafTreeNode<K, V>) currentNode).addAndSplit(identifier, value, bTreeDegree);
 
                 // Set the key-values in the new sibling node, and persist this change.
                 newSiblingLeafNode.setKeyValues(passingKeyValues, bTreeDegree);
-                atomicIOSession.write(newSiblingLeafNode);
+                session.write(newSiblingLeafNode);
 
                 // Fix the sibling pointers between the current node and the new sibling.
                 fixSiblingPointers((LeafTreeNode<K, V>) currentNode, newSiblingLeafNode, bTreeDegree);
-                atomicIOSession.write(newSiblingLeafNode);
-                atomicIOSession.write(currentNode);
+                session.write(newSiblingLeafNode);
+                session.write(currentNode);
 
                 // Determine which node now contains the key-value pair.
                 newNode = currentNodeKeyList.contains(identifier) ? currentNode : newSiblingLeafNode;
@@ -99,14 +99,14 @@ public class CreateIndexOperation<K extends Comparable<K>, V> {
                 // If the current node was the root (no parent), create a new root node.
                 if (path.size() == 1) {
                     currentNode.unsetAsRoot();
-                    InternalTreeNode<K> newRoot = new InternalTreeNode<>(atomicIOSession.getIndexStorageManager().getEmptyNode(this.keyValueSize), binaryObjectKeyFactory);
+                    InternalTreeNode<K> newRoot = new InternalTreeNode<>(session.getIndexStorageManager().getEmptyNode(this.keyValueSize), binaryObjectKeyFactory);
                     newRoot.setAsRoot();
 
                     // Add child pointers to the new root node.
                     newRoot.addChildPointers(passingKeyValues.getFirst().key(), currentNode.getPointer(), newSiblingLeafNode.getPointer(), bTreeDegree, false);
-                    atomicIOSession.write(newRoot);
-                    atomicIOSession.write(currentNode);
-                    atomicIOSession.commit();
+                    session.write(newRoot);
+                    session.write(currentNode);
+                    session.commit();
                     return newNode;
                 }
 
@@ -130,8 +130,8 @@ public class CreateIndexOperation<K extends Comparable<K>, V> {
                         // Insert the child pointer after the index of the added key.
                         currentInternalTreeNode.addChildAtIndex(indexOfAddedKey + 1, newChildForParent.getPointer());
                     }
-                    atomicIOSession.write(currentInternalTreeNode);
-                    atomicIOSession.commit();
+                    session.write(currentInternalTreeNode);
+                    session.commit();
                     return newNode;
                 }
 
@@ -145,26 +145,26 @@ public class CreateIndexOperation<K extends Comparable<K>, V> {
                 // Remove the key being passed up from the list.
                 passingChildPointers.removeFirst();
 
-                InternalTreeNode<K> newInternalSibling = new InternalTreeNode<>(atomicIOSession.getIndexStorageManager().getEmptyNode(this.keyValueSize), binaryObjectKeyFactory);
+                InternalTreeNode<K> newInternalSibling = new InternalTreeNode<>(session.getIndexStorageManager().getEmptyNode(this.keyValueSize), binaryObjectKeyFactory);
 
                 // Set the child pointers in the new sibling node.
                 newInternalSibling.setChildPointers(passingChildPointers, bTreeDegree, true);
-                atomicIOSession.write(newInternalSibling);
+                session.write(newInternalSibling);
 
                 // If the current internal node was the root, create a new root node.
                 if (currentInternalTreeNode.isRoot()) {
                     currentInternalTreeNode.unsetAsRoot();
-                    InternalTreeNode<K> newRoot = new InternalTreeNode<>(atomicIOSession.getIndexStorageManager().getEmptyNode(this.keyValueSize), binaryObjectKeyFactory);
+                    InternalTreeNode<K> newRoot = new InternalTreeNode<>(session.getIndexStorageManager().getEmptyNode(this.keyValueSize), binaryObjectKeyFactory);
                     newRoot.setAsRoot();
 
                     // Add child pointers to the new root node.
                     newRoot.addChildPointers(idForParentToStore, currentNode.getPointer(), newInternalSibling.getPointer(), bTreeDegree, false);
-                    atomicIOSession.write(newRoot);
-                    atomicIOSession.write(currentInternalTreeNode);
-                    atomicIOSession.commit();
+                    session.write(newRoot);
+                    session.write(currentInternalTreeNode);
+                    session.commit();
                     return newNode;
                 } else {
-                    atomicIOSession.write(currentInternalTreeNode);
+                    session.write(currentInternalTreeNode);
                 }
             }
         }
@@ -188,11 +188,11 @@ public class CreateIndexOperation<K extends Comparable<K>, V> {
             // Set the new sibling's next sibling pointer to the current node's next sibling.
             newLeafTreeNode.setNextSiblingPointer(currentNodeNextSiblingPointer.get(), bTreeDegree);
 
-            LeafTreeNode<K, V> currentNextSibling = (LeafTreeNode<K, V>) atomicIOSession.read(currentNodeNextSiblingPointer.get());
+            LeafTreeNode<K, V> currentNextSibling = (LeafTreeNode<K, V>) session.read(currentNodeNextSiblingPointer.get());
 
             // Update the next sibling's previous sibling pointer to point to the new sibling.
             currentNextSibling.setPreviousSiblingPointer(newLeafTreeNode.getPointer(), bTreeDegree);
-            atomicIOSession.write(currentNextSibling);
+            session.write(currentNextSibling);
         }
     }
 }

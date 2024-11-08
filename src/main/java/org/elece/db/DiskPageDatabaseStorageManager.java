@@ -171,7 +171,7 @@ public class DiskPageDatabaseStorageManager implements DatabaseStorageManager {
         AsynchronousFileChannel fileChannel = this.fileHandlerPool.acquireFileHandler(path);
 
         try {
-            FileUtils.write(fileChannel, (long) page.getPageNumber() * this.dbConfig.getDbPageSize(), page.getData()).get();
+            FileUtils.writeAsync(fileChannel, (long) page.getPageNumber() * this.dbConfig.getDbPageSize(), page.getData()).get();
         } catch (InterruptedException | ExecutionException exception) {
             throw new RuntimeException(exception);
         }

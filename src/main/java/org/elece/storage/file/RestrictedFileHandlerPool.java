@@ -42,7 +42,6 @@ public class RestrictedFileHandlerPool implements FileHandlerPool {
                         throw new StorageException(DbError.TASK_INTERRUPTED_ERROR, String.format("Timeout while waiting to acquire file handler for %s", path));
                     }
                 } catch (InterruptedException exception) {
-                    Thread.currentThread().interrupt();
                     throw new StorageException(DbError.TASK_INTERRUPTED_ERROR, exception.getMessage());
                 }
                 fileHandler = fileHandlerFactory.getFileHandler(path);

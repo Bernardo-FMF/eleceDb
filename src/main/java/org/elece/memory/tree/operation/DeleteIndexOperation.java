@@ -11,7 +11,7 @@ import org.elece.memory.tree.node.AbstractTreeNode;
 import org.elece.memory.tree.node.InternalTreeNode;
 import org.elece.memory.tree.node.LeafTreeNode;
 import org.elece.memory.tree.node.NodeFactory;
-import org.elece.storage.index.session.AtomicIOSession;
+import org.elece.storage.index.session.Session;
 import org.elece.utils.BTreeUtils;
 
 import java.util.*;
@@ -24,7 +24,7 @@ import java.util.*;
  */
 public class DeleteIndexOperation<K extends Comparable<K>, V> {
     private final DbConfig dbConfig;
-    private final AtomicIOSession<K> atomicIOSession;
+    private final Session<K> session;
     private final BinaryObjectFactory<V> vBinaryObjectFactory;
     private final NodeFactory<K> nodeFactory;
     private final int indexId;
@@ -34,15 +34,16 @@ public class DeleteIndexOperation<K extends Comparable<K>, V> {
      * Constructor for DeleteIndexOperation.
      *
      * @param dbConfig             The database configuration.
-     * @param atomicIOSession      The atomic IO session for storage operations.
+     * @param session      The atomic IO session for storage operations.
      * @param vBinaryObjectFactory Factory to create binary objects for values.
      * @param nodeFactory          Factory to create tree nodes.
      * @param indexId              The identifier for the index.
      */
-    public DeleteIndexOperation(DbConfig dbConfig, AtomicIOSession<K> atomicIOSession, BinaryObjectFactory<V> vBinaryObjectFactory, NodeFactory<K> nodeFactory, int indexId) {
+    public DeleteIndexOperation(DbConfig dbConfig, Session<K> session, BinaryObjectFactory<V> vBinaryObjectFactory,
+                                NodeFactory<K> nodeFactory, int indexId) {
         this.dbConfig = dbConfig;
         this.indexId = indexId;
-        this.atomicIOSession = atomicIOSession;
+        this.session = session;
         this.minKeys = (dbConfig.getBTreeDegree() - 1) / 2;
         this.vBinaryObjectFactory = vBinaryObjectFactory;
         this.nodeFactory = nodeFactory;
@@ -68,7 +69,7 @@ public class DeleteIndexOperation<K extends Comparable<K>, V> {
         List<AbstractTreeNode<K>> path = new LinkedList<>();
 
         // Find the path to the node responsible for the key.
-        BTreeUtils.getPathToResponsibleNode(atomicIOSession, path, root, identifier, bTreeDegree);
+        BTreeUtils.getPathToResponsibleNode(session, path, root, identifier, bTreeDegree);
 
         boolean removalResult = false;
 
@@ -83,7 +84,7 @@ public class DeleteIndexOperation<K extends Comparable<K>, V> {
                 // Attempt to remove the key-value pair.
                 removalResult = leafNode.removeKeyValue(identifier, bTreeDegree);
 
-                atomicIOSession.update(leafNode);
+                session.update(leafNode);
 
                 // Check if under filled and balance the tree if necessary.
                 if (removalResult && !leafNode.isRoot() && leafNode.getKeyList(bTreeDegree).size() < minKeys) {
@@ -97,7 +98,7 @@ public class DeleteIndexOperation<K extends Comparable<K>, V> {
                 this.checkInternalNode((InternalTreeNode<K>) path.get(index), path, index, identifier, bTreeDegree);
             }
         }
-        atomicIOSession.commit();
+        session.commit();
 
         return removalResult;
     }
@@ -116,19 +117,19 @@ public class DeleteIndexOperation<K extends Comparable<K>, V> {
         List<Pointer> childrenList = node.getChildrenList();
         if (index != 0) {
             // Try to replace the key with its predecessor.
-            AbstractTreeNode<K> leftIndexNode = atomicIOSession.read(childrenList.get(index - 1));
+            AbstractTreeNode<K> leftIndexNode = session.read(childrenList.get(index - 1));
             if (leftIndexNode.getKeyList(bTreeDegree, vBinaryObjectFactory.size()).size() >= minKeys) {
                 K predecessor = this.getPredecessor(node, index, bTreeDegree);
                 node.setKey(index, predecessor);
-                atomicIOSession.update(node);
+                session.update(node);
             }
         } else {
             // Try to replace the key with its successor.
-            AbstractTreeNode<K> rightIDXChild = atomicIOSession.read(childrenList.get(index + 1));
+            AbstractTreeNode<K> rightIDXChild = session.read(childrenList.get(index + 1));
             if (rightIDXChild.getKeyList(bTreeDegree, vBinaryObjectFactory.size()).size() >= minKeys) {
                 K successor = getSuccessor(node, index, bTreeDegree);
                 node.setKey(index, successor);
-                atomicIOSession.update(node);
+                session.update(node);
             } else {
                 // Merge nodes if replacement isn't possible.
                 merge(parent, node, index, bTreeDegree);
@@ -147,11 +148,11 @@ public class DeleteIndexOperation<K extends Comparable<K>, V> {
      */
     private K getPredecessor(InternalTreeNode<K> node, int index, int bTreeDegree) throws StorageException {
         // Obtain the current children node.
-        AbstractTreeNode<K> current = atomicIOSession.read(node.getChildrenList().get(index));
+        AbstractTreeNode<K> current = session.read(node.getChildrenList().get(index));
 
         // Traverse to the rightmost leaf node.
         while (!current.isLeaf()) {
-            current = atomicIOSession.read(node.getChildrenList().get(current.getKeyList(bTreeDegree, vBinaryObjectFactory.size()).size()));
+            current = session.read(node.getChildrenList().get(current.getKeyList(bTreeDegree, vBinaryObjectFactory.size()).size()));
         }
 
         // Return the last key in the leaf node.
@@ -169,11 +170,11 @@ public class DeleteIndexOperation<K extends Comparable<K>, V> {
      */
     private K getSuccessor(InternalTreeNode<K> node, int index, int bTreeDegree) throws StorageException {
         // Obtain the next children node.
-        AbstractTreeNode<K> current = atomicIOSession.read(node.getChildrenList().get(index + 1));
+        AbstractTreeNode<K> current = session.read(node.getChildrenList().get(index + 1));
 
         // Traverse to the leftmost leaf node.
         while (!current.isLeaf()) {
-            current = atomicIOSession.read(((InternalTreeNode<K>) current).getChildrenList().getFirst());
+            current = session.read(((InternalTreeNode<K>) current).getChildrenList().getFirst());
         }
 
         // Return the first key in the leaf node.
@@ -231,11 +232,11 @@ public class DeleteIndexOperation<K extends Comparable<K>, V> {
      */
     private void fillRootAtIndex(InternalTreeNode<K> internalTreeNode, int indexOfKey, K identifier, int bTreeDegree) throws StorageException, BTreeException, SerializationException {
         // Get the child node where the replacement key can be found.
-        LeafTreeNode<K, ?> leafTreeNode = BTreeUtils.getResponsibleNode(atomicIOSession.getIndexStorageManager(), atomicIOSession.read(internalTreeNode.getChildAtIndex(indexOfKey + 1)), identifier, indexId, bTreeDegree, nodeFactory, vBinaryObjectFactory);
+        LeafTreeNode<K, ?> leafTreeNode = BTreeUtils.getResponsibleNode(session.getIndexStorageManager(), session.read(internalTreeNode.getChildAtIndex(indexOfKey + 1)), identifier, indexId, bTreeDegree, nodeFactory, vBinaryObjectFactory);
 
         // Replace the key in the root node.
         internalTreeNode.setKey(indexOfKey, leafTreeNode.getKeyList(bTreeDegree).getLast());
-        atomicIOSession.update(internalTreeNode);
+        session.update(internalTreeNode);
     }
 
     /**
@@ -286,7 +287,7 @@ public class DeleteIndexOperation<K extends Comparable<K>, V> {
      */
     private boolean tryBorrowRight(InternalTreeNode<K> parentNode, int idx, AbstractTreeNode<K> child, int bTreeDegree) throws StorageException, BTreeException, SerializationException {
         // Get the right sibling.
-        AbstractTreeNode<K> sibling = atomicIOSession.read(parentNode.getChildrenList().get(idx + 1));
+        AbstractTreeNode<K> sibling = session.read(parentNode.getChildrenList().get(idx + 1));
 
         // Check if the sibling has enough keys to lend.
         if (sibling.getKeyList(bTreeDegree, vBinaryObjectFactory.size()).size() > minKeys) {
@@ -309,7 +310,7 @@ public class DeleteIndexOperation<K extends Comparable<K>, V> {
      */
     private boolean tryBorrowLeft(InternalTreeNode<K> parentNode, int idx, AbstractTreeNode<K> child, int bTreeDegree) throws StorageException, BTreeException, SerializationException {
         // Get the left sibling.
-        AbstractTreeNode<K> sibling = atomicIOSession.read(parentNode.getChildrenList().get(idx - 1));
+        AbstractTreeNode<K> sibling = session.read(parentNode.getChildrenList().get(idx - 1));
 
         // Check if the sibling has enough keys to lend.
         if (sibling.getKeyList(bTreeDegree, vBinaryObjectFactory.size()).size() > minKeys) {
@@ -330,8 +331,8 @@ public class DeleteIndexOperation<K extends Comparable<K>, V> {
      * @throws BTreeException   If an error occurs during balancing.
      */
     private void borrowFromPrev(InternalTreeNode<K> parent, int index, AbstractTreeNode<K> optionalChild, int bTreeDegree) throws StorageException, BTreeException, SerializationException {
-        AbstractTreeNode<K> child = optionalChild != null ? optionalChild : atomicIOSession.read(parent.getChildrenList().get(index));
-        AbstractTreeNode<K> sibling = atomicIOSession.read(parent.getChildrenList().get(index - 1));
+        AbstractTreeNode<K> child = optionalChild != null ? optionalChild : session.read(parent.getChildrenList().get(index));
+        AbstractTreeNode<K> sibling = session.read(parent.getChildrenList().get(index - 1));
 
         // If the child is an internal node, we remove the last pointer of its sibling, this is to maintain order because that pointer has the largest keys in the sibling node.
         if (!child.isLeaf()) {
@@ -374,9 +375,9 @@ public class DeleteIndexOperation<K extends Comparable<K>, V> {
             parent.setKey(index - 1, keyValue.key());
             childLeafNode.addKeyValue(keyValue, bTreeDegree);
         }
-        atomicIOSession.update(parent);
-        atomicIOSession.update(child);
-        atomicIOSession.update(sibling);
+        session.update(parent);
+        session.update(child);
+        session.update(sibling);
     }
 
     /**
@@ -390,8 +391,8 @@ public class DeleteIndexOperation<K extends Comparable<K>, V> {
      * @throws BTreeException   If an error occurs during balancing.
      */
     private void borrowFromNext(InternalTreeNode<K> parent, int index, AbstractTreeNode<K> optionalChild, int bTreeDegree) throws StorageException, BTreeException, SerializationException {
-        AbstractTreeNode<K> child = optionalChild != null ? optionalChild : atomicIOSession.read(parent.getChildrenList().get(index));
-        AbstractTreeNode<K> sibling = atomicIOSession.read(parent.getChildrenList().get(index + 1));
+        AbstractTreeNode<K> child = optionalChild != null ? optionalChild : session.read(parent.getChildrenList().get(index));
+        AbstractTreeNode<K> sibling = session.read(parent.getChildrenList().get(index + 1));
 
         // If the child is an internal node, we remove the first pointer of its sibling, this is to maintain order because that pointer has the smallest keys in the sibling node.
         if (!child.isLeaf()) {
@@ -435,9 +436,9 @@ public class DeleteIndexOperation<K extends Comparable<K>, V> {
             childLeafNode.addKeyValue(keyValue, bTreeDegree);
         }
 
-        atomicIOSession.update(parent);
-        atomicIOSession.update(child);
-        atomicIOSession.update(sibling);
+        session.update(parent);
+        session.update(child);
+        session.update(sibling);
     }
 
     /**
@@ -458,7 +459,7 @@ public class DeleteIndexOperation<K extends Comparable<K>, V> {
             siblingIndex = index - 1;
         }
 
-        AbstractTreeNode<K> sibling = atomicIOSession.read(parent.getChildrenList().get(siblingIndex));
+        AbstractTreeNode<K> sibling = session.read(parent.getChildrenList().get(siblingIndex));
         // Hold a reference to the node that needs to be deleted after merging.
         AbstractTreeNode<K> toRemove = sibling;
 
@@ -522,9 +523,9 @@ public class DeleteIndexOperation<K extends Comparable<K>, V> {
                 child.setAsRoot();
                 parent.unsetAsRoot();
             }
-            atomicIOSession.remove(parent);
+            session.remove(parent);
         } else {
-            atomicIOSession.update(parent);
+            session.update(parent);
         }
 
         if (child.isLeaf()) {
@@ -532,7 +533,7 @@ public class DeleteIndexOperation<K extends Comparable<K>, V> {
         } else {
             ((InternalTreeNode<K>) child).setChildren(childPointersToMove);
         }
-        atomicIOSession.update(child);
+        session.update(child);
 
         // If the node being removed is a leaf node, we need to maintain consistency by fixing the sibling pointers, so that the siblings don't point
         // to a node that no longer exists.
@@ -542,7 +543,7 @@ public class DeleteIndexOperation<K extends Comparable<K>, V> {
             }
             this.fixSiblingPointers((LeafTreeNode<K, V>) toRemove, bTreeDegree);
         }
-        atomicIOSession.remove(toRemove);
+        session.remove(toRemove);
     }
 
     /**
@@ -558,16 +559,16 @@ public class DeleteIndexOperation<K extends Comparable<K>, V> {
         Optional<Pointer> optionalPreviousSiblingPointer = node.getPreviousSiblingPointer(bTreeDegree);
         if (optionalNextSiblingPointer.isPresent()) {
             // Update the previous pointer of the next sibling.
-            LeafTreeNode<K, V> nextNode = (LeafTreeNode<K, V>) atomicIOSession.read(optionalNextSiblingPointer.get());
+            LeafTreeNode<K, V> nextNode = (LeafTreeNode<K, V>) session.read(optionalNextSiblingPointer.get());
             nextNode.setPreviousSiblingPointer(optionalPreviousSiblingPointer.orElseGet(Pointer::empty), bTreeDegree);
-            atomicIOSession.update(nextNode);
+            session.update(nextNode);
         }
 
         if (optionalPreviousSiblingPointer.isPresent()) {
             // Update the next pointer of the previous sibling.
-            LeafTreeNode<K, ?> previousNode = (LeafTreeNode<K, ?>) atomicIOSession.read(optionalPreviousSiblingPointer.get());
+            LeafTreeNode<K, ?> previousNode = (LeafTreeNode<K, ?>) session.read(optionalPreviousSiblingPointer.get());
             previousNode.setNextSiblingPointer(optionalNextSiblingPointer.orElseGet(Pointer::empty), bTreeDegree);
-            atomicIOSession.update(previousNode);
+            session.update(previousNode);
         }
     }
 }

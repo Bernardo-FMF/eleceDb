@@ -7,7 +7,7 @@ import org.elece.memory.Pointer;
 import org.elece.memory.data.BinaryObjectFactory;
 import org.elece.memory.tree.node.*;
 import org.elece.storage.index.IndexStorageManager;
-import org.elece.storage.index.session.AtomicIOSession;
+import org.elece.storage.index.session.Session;
 
 import java.io.IOException;
 import java.util.List;
@@ -35,7 +35,11 @@ public class BTreeUtils {
      * @param identifier The new key being added.
      * @param degree     The degree of the btree.
      */
-    public static <K extends Comparable<K>> void getPathToResponsibleNode(AtomicIOSession<K> atomicIOSession, List<AbstractTreeNode<K>> path, AbstractTreeNode<K> node, K identifier, int degree) throws BTreeException, StorageException {
+    public static <K extends Comparable<K>> void getPathToResponsibleNode(Session<K> session,
+                                                                          List<AbstractTreeNode<K>> path,
+                                                                          AbstractTreeNode<K> node, K identifier,
+                                                                          int degree) throws BTreeException,
+                                                                                             StorageException {
         // Corresponds to the fast path, if the node being observed is a leaf then we reached the end of the search.
         if (node.getType() == NodeType.LEAF) {
             path.addFirst(node);
@@ -51,14 +55,14 @@ public class BTreeUtils {
             // If the current key in the child pointers is greater than the identifier, traverse the left child
             if (childPointers.getKey().compareTo(identifier) > 0 && childPointers.getLeft() != null) {
                 path.addFirst(node);
-                getPathToResponsibleNode(atomicIOSession, path, atomicIOSession.read(childPointers.getLeft()), identifier, degree);
+                getPathToResponsibleNode(session, path, session.read(childPointers.getLeft()), identifier, degree);
                 return;
             }
 
             // If this is the last child pointer and no match is found, traverse the right child
             if (childrenIndex == childPointersList.size() - 1 && childPointers.getRight() != null) {
                 path.addFirst(node);
-                getPathToResponsibleNode(atomicIOSession, path, atomicIOSession.read(childPointers.getRight()), identifier, degree);
+                getPathToResponsibleNode(session, path, session.read(childPointers.getRight()), identifier, degree);
                 return;
             }
         }

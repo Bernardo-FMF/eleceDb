@@ -26,11 +26,13 @@ public interface IndexStorageManager {
 
     void close() throws IOException, StorageException;
 
-    CompletableFuture<Integer> removeNode(int indexId, Pointer pointer, KeyValueSize keyValueSize) throws InterruptedException;
+    CompletableFuture<Integer> removeNode(int indexId, Pointer pointer, KeyValueSize keyValueSize) throws
+                                                                                                   InterruptedException,
+                                                                                                   StorageException;
 
     boolean exists(int indexId);
 
     boolean supportsPurge();
 
-    void purgeIndex(int indexId) throws IOException, InterruptedException, ExecutionException;
+    void purgeIndex(int indexId) throws IOException, InterruptedException, ExecutionException, StorageException;
 }

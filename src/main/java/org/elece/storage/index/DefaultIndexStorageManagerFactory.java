@@ -1,6 +1,7 @@
 package org.elece.storage.index;
 
 import org.elece.config.DbConfig;
+import org.elece.exception.DbError;
 import org.elece.exception.StorageException;
 import org.elece.index.IndexId;
 import org.elece.storage.file.DefaultFileHandlerFactory;
@@ -38,9 +39,11 @@ public class DefaultIndexStorageManagerFactory extends IndexStorageManagerFactor
     }
 
     @Override
-    public IndexStorageManager create(IndexId indexId) {
+    public IndexStorageManager create(IndexId indexId) throws StorageException {
         String managerId = indexId.asString();
-        return this.storageManagers.computeIfAbsent(managerId, _ -> {
+        if (this.storageManagers.containsKey(managerId)) {
+            return this.storageManagers.get(managerId);
+        } else {
             DbConfig.IndexStorageManagerStrategy indexStorageManagerStrategy = dbConfig.getIndexStorageManagerStrategy();
             try {
                 if (indexStorageManagerStrategy == DbConfig.IndexStorageManagerStrategy.ORGANIZED) {
@@ -48,10 +51,9 @@ public class DefaultIndexStorageManagerFactory extends IndexStorageManagerFactor
                 } else {
                     return new CompactIndexStorageManager(managerId, indexHeaderManagerFactory, dbConfig, getFileHandlerPool());
                 }
-            } catch (StorageException | IOException exception) {
-                // TODO fix exception
-                throw new RuntimeException(exception);
+            } catch (IOException exception) {
+                throw new StorageException(DbError.INDEX_STORAGE_MANAGER_CREATION_ERROR, "Failed to create index storage manager");
             }
-        });
+        }
     }
 }

@@ -12,8 +12,8 @@ import org.elece.sql.parser.expression.internal.Order;
 import org.elece.sql.token.model.type.Symbol;
 import org.elece.storage.index.IndexStorageManager;
 import org.elece.storage.index.NodeData;
-import org.elece.storage.index.session.AtomicIOSession;
-import org.elece.storage.index.session.factory.IOSessionFactory;
+import org.elece.storage.index.session.Session;
+import org.elece.storage.index.session.factory.SessionFactory;
 import org.elece.utils.BTreeUtils;
 
 import java.io.IOException;
@@ -26,19 +26,19 @@ import java.util.function.Function;
 
 public class TreeIndexManager<K extends Comparable<K>, V> extends AbstractTreeIndexManager<K, V> {
     private final IndexStorageManager indexStorageManager;
-    private final IOSessionFactory IOSessionFactory;
+    private final SessionFactory SessionFactory;
     private final DbConfig dbConfig;
     private final BinaryObjectFactory<K> kBinaryObjectFactory;
     private final BinaryObjectFactory<V> vBinaryObjectFactory;
     private final NodeFactory<K> nodeFactory;
     protected final KeyValueSize keyValueSize;
 
-    public TreeIndexManager(int indexId, IndexStorageManager indexStorageManager, IOSessionFactory iOSessionFactory,
+    public TreeIndexManager(int indexId, IndexStorageManager indexStorageManager, SessionFactory iOSessionFactory,
                             DbConfig dbConfig, BinaryObjectFactory<K> kBinaryObjectFactory,
                             BinaryObjectFactory<V> vBinaryObjectFactory, NodeFactory<K> nodeFactory) {
         super(indexId);
         this.indexStorageManager = indexStorageManager;
-        this.IOSessionFactory = iOSessionFactory;
+        this.SessionFactory = iOSessionFactory;
         this.dbConfig = dbConfig;
         this.kBinaryObjectFactory = kBinaryObjectFactory;
         this.vBinaryObjectFactory = vBinaryObjectFactory;
@@ -48,33 +48,33 @@ public class TreeIndexManager<K extends Comparable<K>, V> extends AbstractTreeIn
 
     @Override
     public void addIndex(K identifier, V value) throws BTreeException, StorageException, SerializationException {
-        AtomicIOSession<K> atomicIOSession = this.IOSessionFactory.create(indexStorageManager, indexId, nodeFactory, keyValueSize);
-        AbstractTreeNode<K> root = getRoot(atomicIOSession);
-        new CreateIndexOperation<>(dbConfig, atomicIOSession, kBinaryObjectFactory, vBinaryObjectFactory, keyValueSize).addIndex(root, identifier, value);
+        Session<K> session = this.SessionFactory.create(indexStorageManager, indexId, nodeFactory, keyValueSize);
+        AbstractTreeNode<K> root = getRoot(session);
+        new CreateIndexOperation<>(dbConfig, session, kBinaryObjectFactory, vBinaryObjectFactory, keyValueSize).addIndex(root, identifier, value);
     }
 
     @Override
     public void updateIndex(K identifier, V value) throws BTreeException, StorageException, SerializationException {
-        AtomicIOSession<K> atomicIOSession = this.IOSessionFactory.create(indexStorageManager, indexId, nodeFactory, keyValueSize);
+        Session<K> session = this.SessionFactory.create(indexStorageManager, indexId, nodeFactory, keyValueSize);
 
         int bTreeDegree = dbConfig.getBTreeDegree();
-        LeafTreeNode<K, V> node = BTreeUtils.getResponsibleNode(indexStorageManager, getRoot(atomicIOSession), identifier, indexId, bTreeDegree, nodeFactory, vBinaryObjectFactory);
+        LeafTreeNode<K, V> node = BTreeUtils.getResponsibleNode(indexStorageManager, getRoot(session), identifier, indexId, bTreeDegree, nodeFactory, vBinaryObjectFactory);
         List<K> keyList = node.getKeyList(bTreeDegree);
         if (!keyList.contains(identifier)) {
             throw new BTreeException(DbError.INDEX_NOT_FOUND_ERROR, "Failed to find indexed key");
         }
 
         node.setKeyValue(keyList.indexOf(identifier), new LeafTreeNode.KeyValue<>(identifier, value));
-        atomicIOSession.update(node);
-        atomicIOSession.commit();
+        session.update(node);
+        session.commit();
     }
 
     @Override
     public Optional<V> getIndex(K identifier) throws BTreeException, StorageException {
-        AtomicIOSession<K> atomicIOSession = this.IOSessionFactory.create(indexStorageManager, indexId, nodeFactory, keyValueSize);
+        Session<K> session = this.SessionFactory.create(indexStorageManager, indexId, nodeFactory, keyValueSize);
 
         int bTreeDegree = dbConfig.getBTreeDegree();
-        LeafTreeNode<K, V> baseTreeNode = BTreeUtils.getResponsibleNode(indexStorageManager, getRoot(atomicIOSession), identifier, indexId, bTreeDegree, nodeFactory, vBinaryObjectFactory);
+        LeafTreeNode<K, V> baseTreeNode = BTreeUtils.getResponsibleNode(indexStorageManager, getRoot(session), identifier, indexId, bTreeDegree, nodeFactory, vBinaryObjectFactory);
         for (LeafTreeNode.KeyValue<K, V> entry : baseTreeNode.getKeyValueList(bTreeDegree)) {
             if (entry.key().compareTo(identifier) == 0) {
                 return Optional.of(entry.value());
@@ -86,9 +86,9 @@ public class TreeIndexManager<K extends Comparable<K>, V> extends AbstractTreeIn
 
     @Override
     public boolean removeIndex(K identifier) throws BTreeException, StorageException, SerializationException {
-        AtomicIOSession<K> atomicIOSession = this.IOSessionFactory.create(indexStorageManager, indexId, nodeFactory, keyValueSize);
-        AbstractTreeNode<K> root = getRoot(atomicIOSession);
-        return new DeleteIndexOperation<>(dbConfig, atomicIOSession, vBinaryObjectFactory, nodeFactory, indexId).removeIndex(root, identifier);
+        Session<K> session = this.SessionFactory.create(indexStorageManager, indexId, nodeFactory, keyValueSize);
+        AbstractTreeNode<K> root = getRoot(session);
+        return new DeleteIndexOperation<>(dbConfig, session, vBinaryObjectFactory, nodeFactory, indexId).removeIndex(root, identifier);
     }
 
     @Override
@@ -100,11 +100,11 @@ public class TreeIndexManager<K extends Comparable<K>, V> extends AbstractTreeIn
 
     @Override
     public LockableIterator<LeafTreeNode.KeyValue<K, V>> getSortedIterator() throws StorageException {
-        AtomicIOSession<K> atomicIOSession = this.IOSessionFactory.create(indexStorageManager, indexId, nodeFactory, keyValueSize);
+        Session<K> session = this.SessionFactory.create(indexStorageManager, indexId, nodeFactory, keyValueSize);
 
         return new LockableIterator<>() {
             private int keyIndex = 0;
-            LeafTreeNode<K, V> currentLeaf = getFarLeftLeaf(atomicIOSession, getRoot(atomicIOSession));
+            LeafTreeNode<K, V> currentLeaf = getFarLeftLeaf(session, getRoot(session));
 
             @Override
             public void lock() {
@@ -129,7 +129,7 @@ public class TreeIndexManager<K extends Comparable<K>, V> extends AbstractTreeIn
 
                 if (keyIndex == keyValueList.size()) {
                     try {
-                        currentLeaf = (LeafTreeNode<K, V>) atomicIOSession.read(currentLeaf.getNextSiblingPointer(dbConfig.getBTreeDegree()).get());
+                        currentLeaf = (LeafTreeNode<K, V>) session.read(currentLeaf.getNextSiblingPointer(dbConfig.getBTreeDegree()).get());
                     } catch (StorageException exception) {
                         throw new RuntimeDbException(exception.getDbError(), exception.getMessage());
                     }
@@ -146,14 +146,14 @@ public class TreeIndexManager<K extends Comparable<K>, V> extends AbstractTreeIn
 
     @Override
     public K getLastIndex() throws StorageException {
-        AtomicIOSession<K> atomicIOSession = this.IOSessionFactory.create(indexStorageManager, indexId, nodeFactory, keyValueSize);
-        AbstractTreeNode<K> root = getRoot(atomicIOSession);
-        LeafTreeNode<K, V> farRightLeaf = getFarRightLeaf(atomicIOSession, root);
+        Session<K> session = this.SessionFactory.create(indexStorageManager, indexId, nodeFactory, keyValueSize);
+        AbstractTreeNode<K> root = getRoot(session);
+        LeafTreeNode<K, V> farRightLeaf = getFarRightLeaf(session, root);
         return farRightLeaf.getKeyList(dbConfig.getBTreeDegree()).getLast();
     }
 
-    private AbstractTreeNode<K> getRoot(AtomicIOSession<K> atomicIOSession) throws StorageException {
-        Optional<AbstractTreeNode<K>> optionalRoot = atomicIOSession.getRoot();
+    private AbstractTreeNode<K> getRoot(Session<K> session) throws StorageException {
+        Optional<AbstractTreeNode<K>> optionalRoot = session.getRoot();
         if (optionalRoot.isPresent()) {
             return optionalRoot.get();
         }
@@ -162,12 +162,12 @@ public class TreeIndexManager<K extends Comparable<K>, V> extends AbstractTreeIn
         LeafTreeNode<K, ?> leafTreeNode = (LeafTreeNode<K, ?>) nodeFactory.fromBytes(emptyNode, NodeType.LEAF);
         leafTreeNode.setAsRoot();
 
-        NodeData nodeData = atomicIOSession.write(leafTreeNode);
+        NodeData nodeData = session.write(leafTreeNode);
         leafTreeNode.setPointer(nodeData.pointer());
         return leafTreeNode;
     }
 
-    protected LeafTreeNode<K, V> getFarLeftLeaf(AtomicIOSession<K> atomicIOSession, AbstractTreeNode<K> root) throws
+    protected LeafTreeNode<K, V> getFarLeftLeaf(Session<K> session, AbstractTreeNode<K> root) throws
                                                                                                               StorageException {
         if (root.isLeaf()) {
             return (LeafTreeNode<K, V>) root;
@@ -176,13 +176,13 @@ public class TreeIndexManager<K extends Comparable<K>, V> extends AbstractTreeIn
         AbstractTreeNode<K> farLeftChild = root;
 
         while (!farLeftChild.isLeaf()) {
-            farLeftChild = atomicIOSession.read(((InternalTreeNode<K>) farLeftChild).getChildAtIndex(0));
+            farLeftChild = session.read(((InternalTreeNode<K>) farLeftChild).getChildAtIndex(0));
         }
 
         return (LeafTreeNode<K, V>) farLeftChild;
     }
 
-    protected LeafTreeNode<K, V> getFarRightLeaf(AtomicIOSession<K> atomicIOSession, AbstractTreeNode<K> root) throws
+    protected LeafTreeNode<K, V> getFarRightLeaf(Session<K> session, AbstractTreeNode<K> root) throws
                                                                                                                StorageException {
         if (root.isLeaf()) {
             return (LeafTreeNode<K, V>) root;
@@ -192,7 +192,7 @@ public class TreeIndexManager<K extends Comparable<K>, V> extends AbstractTreeIn
 
         while (!farRightChild.isLeaf()) {
             List<Pointer> childrenList = ((InternalTreeNode<K>) farRightChild).getChildrenList();
-            farRightChild = atomicIOSession.read(childrenList.getLast());
+            farRightChild = session.read(childrenList.getLast());
         }
 
         return (LeafTreeNode<K, V>) farRightChild;
@@ -227,7 +227,7 @@ public class TreeIndexManager<K extends Comparable<K>, V> extends AbstractTreeIn
 
     private class QueryIterator implements Iterator<V> {
         private final Order order;
-        private final AtomicIOSession<K> atomicIOSession;
+        private final Session<K> session;
         private final Function<K, Boolean> comparisonFunction;
 
         private final K key;
@@ -245,7 +245,7 @@ public class TreeIndexManager<K extends Comparable<K>, V> extends AbstractTreeIn
             this.key = key;
             this.operation = operation;
             this.kExclusions = kExclusions;
-            this.atomicIOSession = IOSessionFactory.create(indexStorageManager, indexId, nodeFactory, keyValueSize);
+            this.session = SessionFactory.create(indexStorageManager, indexId, nodeFactory, keyValueSize);
             this.keyValueIndex = -1;
 
             locateInitialTargetNode();
@@ -255,14 +255,14 @@ public class TreeIndexManager<K extends Comparable<K>, V> extends AbstractTreeIn
                                                StorageException, BTreeException {
             if (order == Order.Asc) {
                 if (operation == Symbol.Lt || operation == Symbol.LtEq) {
-                    targetTreeNode = getFarLeftLeaf(atomicIOSession, getRoot(atomicIOSession));
+                    targetTreeNode = getFarLeftLeaf(session, getRoot(session));
                     nodeKeyValueList = targetTreeNode.getKeyValueList(dbConfig.getBTreeDegree());
                 } else {
-                    targetTreeNode = BTreeUtils.getResponsibleNode(indexStorageManager, getRoot(atomicIOSession), key, indexId, dbConfig.getBTreeDegree(), nodeFactory, vBinaryObjectFactory);
+                    targetTreeNode = BTreeUtils.getResponsibleNode(indexStorageManager, getRoot(session), key, indexId, dbConfig.getBTreeDegree(), nodeFactory, vBinaryObjectFactory);
                     nodeKeyValueList = targetTreeNode.getKeyValueList(dbConfig.getBTreeDegree());
 
                     if (operation == Symbol.Gt && nodeKeyValueList.getLast().key().compareTo(key) <= 0 && targetTreeNode.getNextSiblingPointer(dbConfig.getBTreeDegree()).isPresent()) {
-                        targetTreeNode = (LeafTreeNode<K, V>) atomicIOSession.read(targetTreeNode.getNextSiblingPointer(dbConfig.getBTreeDegree()).get());
+                        targetTreeNode = (LeafTreeNode<K, V>) session.read(targetTreeNode.getNextSiblingPointer(dbConfig.getBTreeDegree()).get());
                         nodeKeyValueList = targetTreeNode.getKeyValueList(dbConfig.getBTreeDegree());
                     }
                 }
@@ -275,14 +275,14 @@ public class TreeIndexManager<K extends Comparable<K>, V> extends AbstractTreeIn
                 }
             } else {
                 if (operation == Symbol.Gt || operation == Symbol.GtEq) {
-                    targetTreeNode = getFarRightLeaf(atomicIOSession, getRoot(atomicIOSession));
+                    targetTreeNode = getFarRightLeaf(session, getRoot(session));
                     nodeKeyValueList = targetTreeNode.getKeyValueList(dbConfig.getBTreeDegree());
                 } else {
-                    targetTreeNode = BTreeUtils.getResponsibleNode(indexStorageManager, getRoot(atomicIOSession), key, indexId, dbConfig.getBTreeDegree(), nodeFactory, vBinaryObjectFactory);
+                    targetTreeNode = BTreeUtils.getResponsibleNode(indexStorageManager, getRoot(session), key, indexId, dbConfig.getBTreeDegree(), nodeFactory, vBinaryObjectFactory);
                     nodeKeyValueList = targetTreeNode.getKeyValueList(dbConfig.getBTreeDegree());
 
                     if (operation == Symbol.Lt && nodeKeyValueList.getFirst().key().compareTo(key) >= 0 && targetTreeNode.getPreviousSiblingPointer(dbConfig.getBTreeDegree()).isPresent()) {
-                        targetTreeNode = (LeafTreeNode<K, V>) atomicIOSession.read(targetTreeNode.getPreviousSiblingPointer(dbConfig.getBTreeDegree()).get());
+                        targetTreeNode = (LeafTreeNode<K, V>) session.read(targetTreeNode.getPreviousSiblingPointer(dbConfig.getBTreeDegree()).get());
                         nodeKeyValueList = targetTreeNode.getKeyValueList(dbConfig.getBTreeDegree());
                     }
                 }
@@ -310,7 +310,7 @@ public class TreeIndexManager<K extends Comparable<K>, V> extends AbstractTreeIn
                     }
 
                     try {
-                        targetTreeNode = (LeafTreeNode<K, V>) atomicIOSession.read(nextSiblingPointer.get());
+                        targetTreeNode = (LeafTreeNode<K, V>) session.read(nextSiblingPointer.get());
                     } catch (StorageException exception) {
                         return false;
                     }
@@ -325,7 +325,7 @@ public class TreeIndexManager<K extends Comparable<K>, V> extends AbstractTreeIn
                     }
 
                     try {
-                        targetTreeNode = (LeafTreeNode<K, V>) atomicIOSession.read(previousSiblingPointer.get());
+                        targetTreeNode = (LeafTreeNode<K, V>) session.read(previousSiblingPointer.get());
                     } catch (StorageException exception) {
                         return false;
                     }

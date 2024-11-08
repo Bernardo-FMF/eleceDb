@@ -32,7 +32,7 @@ public class DefaultPageFactory implements PageFactory {
             int size = this.dbConfig.getDbPageSize();
             int offset = pageTitle.getPageNumber() * size;
 
-            byte[] data = FileUtils.readBytes(fileChannel, offset, size).get();
+            byte[] data = FileUtils.readBytesAsync(fileChannel, offset, size).get();
             fileHandlerPool.releaseFileHandler(path);
 
             return new Page(pageTitle.getPageNumber(), pageTitle.getChunk(), data);

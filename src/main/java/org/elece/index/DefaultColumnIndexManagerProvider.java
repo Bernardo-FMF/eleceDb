@@ -12,7 +12,7 @@ import org.elece.memory.tree.node.DefaultNodeFactory;
 import org.elece.serializer.Serializer;
 import org.elece.serializer.SerializerRegistry;
 import org.elece.storage.index.IndexStorageManagerFactory;
-import org.elece.storage.index.session.factory.AtomicIOSessionFactory;
+import org.elece.storage.index.session.factory.DefaultSessionFactory;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -65,7 +65,7 @@ public class DefaultColumnIndexManagerProvider extends ColumnIndexManagerProvide
             return new ClusterTreeIndexManager<>(
                     indexId.asInt(),
                     indexStorageManagerFactory.create(indexId),
-                    AtomicIOSessionFactory.getInstance(dbConfig),
+                    DefaultSessionFactory.getInstance(dbConfig),
                     dbConfig,
                     kBinaryObjectFactory
             );
@@ -85,7 +85,7 @@ public class DefaultColumnIndexManagerProvider extends ColumnIndexManagerProvide
         return new TreeIndexManager<>(
                 indexId.asInt(),
                 indexStorageManagerFactory.create(indexId),
-                AtomicIOSessionFactory.getInstance(dbConfig),
+                DefaultSessionFactory.getInstance(dbConfig),
                 dbConfig,
                 kBinaryObjectFactory,
                 vBinaryObjectFactory,

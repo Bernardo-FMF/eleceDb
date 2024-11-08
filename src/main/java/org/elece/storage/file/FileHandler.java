@@ -40,7 +40,7 @@ public class FileHandler {
 
     public synchronized void incrementUsage() {
         if (this.isClosed) {
-            throw new IllegalStateException("FileHandler has been closed or is closing.");
+            throw new IllegalStateException("File handler has been closed or is closing.");
         }
         usageCount++;
     }
@@ -66,7 +66,6 @@ public class FileHandler {
                 try {
                     wait(timeUnit.toMillis(timeout));
                 } catch (InterruptedException exception) {
-                    Thread.currentThread().interrupt();
                     throw new StorageException(DbError.TASK_INTERRUPTED_ERROR, exception.getMessage());
                 }
             }

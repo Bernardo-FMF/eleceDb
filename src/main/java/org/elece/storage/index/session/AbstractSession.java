@@ -8,24 +8,32 @@ import org.elece.memory.tree.node.NodeFactory;
 import org.elece.storage.index.IndexStorageManager;
 import org.elece.storage.index.NodeData;
 
-import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
-public abstract class AbstractIOSession<K extends Comparable<K>> implements AtomicIOSession<K> {
+public abstract class AbstractSession<K extends Comparable<K>> implements Session<K> {
     protected final IndexStorageManager indexStorageManager;
     protected final NodeFactory<K> nodeFactory;
     protected final int indexId;
     protected final KeyValueSize keyValueSize;
 
-    public AbstractIOSession(IndexStorageManager indexStorageManager, NodeFactory<K> nodeFactory, int indexId, KeyValueSize keyValueSize) {
+    protected AbstractSession(IndexStorageManager indexStorageManager, NodeFactory<K> nodeFactory, int indexId,
+                              KeyValueSize keyValueSize) {
         this.indexStorageManager = indexStorageManager;
         this.nodeFactory = nodeFactory;
         this.indexId = indexId;
         this.keyValueSize = keyValueSize;
     }
 
-    public CompletableFuture<NodeData> writeNode(AbstractTreeNode<?> node) throws IOException, ExecutionException, InterruptedException, StorageException {
+    public NodeData writeNode(AbstractTreeNode<?> node) throws StorageException {
+        try {
+            return writeNodeAsync(node).get();
+        } catch (InterruptedException | ExecutionException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public CompletableFuture<NodeData> writeNodeAsync(AbstractTreeNode<?> node) throws StorageException {
         NodeData nodeData = new NodeData(node.getPointer(), node.getData());
         if (!node.isModified() && node.getPointer() != null) {
             return CompletableFuture.completedFuture(nodeData);
@@ -53,15 +61,15 @@ public abstract class AbstractIOSession<K extends Comparable<K>> implements Atom
         return output;
     }
 
-    public AbstractTreeNode<K> readNode(Pointer pointer) throws ExecutionException, InterruptedException, IOException, StorageException {
+    public AbstractTreeNode<K> readNode(Pointer pointer) throws StorageException {
         return nodeFactory.fromNodeData(indexStorageManager.readNode(indexId, pointer, keyValueSize).get());
     }
 
-    public void updateNode(AbstractTreeNode<K> node) throws InterruptedException, IOException, ExecutionException, StorageException {
+    public void updateNode(AbstractTreeNode<K> node) throws StorageException {
         indexStorageManager.updateNode(indexId, node.getData(), node.getPointer(), node.isRoot()).get();
     }
 
-    public void removeNode(Pointer pointer) throws ExecutionException, InterruptedException {
+    public void removeNode(Pointer pointer) throws StorageException {
         indexStorageManager.removeNode(indexId, pointer, keyValueSize).get();
     }
 

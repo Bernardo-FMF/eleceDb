@@ -187,7 +187,7 @@ public class PageBuffer {
         Path path = dbFileFunction.apply(chunk);
         AsynchronousFileChannel fileChannel = this.fileHandlerPool.acquireFileHandler(path);
         try {
-            FileUtils.allocate(fileChannel, size).get();
+            FileUtils.allocateAsync(fileChannel, size).get();
         } finally {
             this.fileHandlerPool.releaseFileHandler(path);
         }

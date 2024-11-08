@@ -6,11 +6,9 @@ import org.elece.memory.tree.node.AbstractTreeNode;
 import org.elece.storage.index.IndexStorageManager;
 import org.elece.storage.index.NodeData;
 
-import java.io.IOException;
 import java.util.Optional;
-import java.util.concurrent.ExecutionException;
 
-public interface AtomicIOSession<K extends Comparable<K>> {
+public interface Session<K extends Comparable<K>> {
     Optional<AbstractTreeNode<K>> getRoot() throws StorageException;
 
     NodeData write(AbstractTreeNode<K> node) throws StorageException;
@@ -23,7 +21,7 @@ public interface AtomicIOSession<K extends Comparable<K>> {
 
     void commit() throws StorageException;
 
-    void rollback() throws IOException, InterruptedException, ExecutionException, StorageException;
+    void rollback() throws StorageException;
 
     IndexStorageManager getIndexStorageManager();
 }
