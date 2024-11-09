@@ -1,6 +1,8 @@
 package org.elece;
 
 import com.google.common.base.Strings;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.elece.config.DbConfig;
 import org.elece.config.DefaultDbConfigBuilder;
 import org.elece.exception.FileChannelException;
@@ -17,6 +19,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
 public class EleceDb {
+    private static final Logger logger = LogManager.getLogger(EleceDb.class);
+
     private static final Map<Class<?>, Function<String, ?>> clazzHandlers;
 
     static {
@@ -39,6 +43,7 @@ public class EleceDb {
         DbConfig dbConfig = buildDbConfig();
         Server server = new DefaultServer(dbConfig);
 
+        logger.info("Starting server with config: {}", dbConfig);
         server.start();
     }
 
