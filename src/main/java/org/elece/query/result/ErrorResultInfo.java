@@ -3,7 +3,7 @@ package org.elece.query.result;
 import org.elece.exception.DbError;
 
 public class ErrorResultInfo extends ResultInfo {
-    private static final String PREFIX = "Response::ErrorResult::";
+    private static final String PREFIX = "Response::ErrorResult";
 
     private final DbError dbError;
     private final String message;

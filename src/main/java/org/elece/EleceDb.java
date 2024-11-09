@@ -39,12 +39,16 @@ public class EleceDb {
 
     public static void main(String[] args) throws ServerException, InterruptedTaskException, StorageException,
                                                   FileChannelException {
-
         DbConfig dbConfig = buildDbConfig();
         Server server = new DefaultServer(dbConfig);
 
         logger.info("Starting server with config: {}", dbConfig);
-        server.start();
+        try {
+            server.start();
+        } catch (ServerException | InterruptedTaskException | StorageException | FileChannelException exception) {
+            logger.error("Encountered error, closing server", exception);
+            throw exception;
+        }
     }
 
     private static DbConfig buildDbConfig() {

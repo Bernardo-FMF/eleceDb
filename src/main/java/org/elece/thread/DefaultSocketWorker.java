@@ -31,14 +31,16 @@ public class DefaultSocketWorker implements SocketWorker {
     @Override
     public void run() {
         ClientBridge clientBridge;
+        InputStream inputStream;
         try {
             clientBridge = new ClientBridge(socket.getOutputStream());
+            inputStream = socket.getInputStream();
         } catch (IOException exception) {
             throw new RuntimeDbException(DbError.IO_ERROR, exception.getMessage());
         }
 
-        try (InputStream inputStream = socket.getInputStream()) {
-            while (inputStream.available() != 0) {
+        while (socket.isConnected()) {
+            try {
                 String statement = Proto.deserialize(inputStream);
 
                 SqlParser sqlParser = new SqlParser(statement);
@@ -49,19 +51,17 @@ public class DefaultSocketWorker implements SocketWorker {
 
                 QueryPlanner queryPlanner = dependencyContainer.getQueryPlanner();
                 queryPlanner.plan(parsedStatement, clientBridge);
+            } catch (ProtoException | ParserException | TokenizerException | SchemaException |
+                     AnalyzerException | BTreeException | QueryException | SerializationException |
+                     InterruptedTaskException | StorageException | DeserializationException | FileChannelException |
+                     DbException exception) {
+                ErrorResultInfo errorResultInfo = new ErrorResultInfo(exception.getDbError(), exception.getMessage());
+                try {
+                    clientBridge.send(BinaryUtils.stringToBytes(errorResultInfo.deserialize()));
+                } catch (ProtoException nestedException) {
+                    throw new RuntimeDbException(nestedException.getDbError(), nestedException.getMessage());
+                }
             }
-        } catch (ProtoException | ParserException | TokenizerException | SchemaException |
-                 AnalyzerException | BTreeException | QueryException | SerializationException |
-                 InterruptedTaskException | StorageException | DeserializationException | FileChannelException |
-                 DbException exception) {
-            ErrorResultInfo errorResultInfo = new ErrorResultInfo(exception.getDbError(), exception.getMessage());
-            try {
-                clientBridge.send(BinaryUtils.stringToBytes(errorResultInfo.deserialize()));
-            } catch (ProtoException nestedException) {
-                throw new RuntimeDbException(nestedException.getDbError(), nestedException.getMessage());
-            }
-        } catch (IOException exception) {
-            throw new RuntimeDbException(DbError.IO_ERROR, exception.getMessage());
         }
     }
 }
