@@ -35,7 +35,7 @@ public interface DbConfig {
 
     int getFileHandlerPoolThreads();
 
-    IOSessionStrategy getIOSessionStrategy();
+    SessionStrategy getIOSessionStrategy();
 
     int getDbPageSize();
 
@@ -45,7 +45,7 @@ public interface DbConfig {
 
     int getDbQueryCacheSize();
 
-    enum IOSessionStrategy {
+    enum SessionStrategy {
         COMMITTABLE, IMMEDIATE
     }
 

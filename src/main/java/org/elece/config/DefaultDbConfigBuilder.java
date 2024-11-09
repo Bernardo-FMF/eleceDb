@@ -19,7 +19,7 @@ public class DefaultDbConfigBuilder {
     private DbConfig.IndexStorageManagerStrategy indexStorageManagerStrategy;
     private DbConfig.FileHandlerStrategy fileHandlerStrategy;
     private Integer fileHandlerPoolThreads;
-    private DbConfig.IOSessionStrategy iOSessionStrategy;
+    private DbConfig.SessionStrategy sessionStrategy;
     private Integer dbPageSize;
     private Integer dbPageBufferSize;
     private Integer dbPageMaxFileSize;
@@ -73,12 +73,12 @@ public class DefaultDbConfigBuilder {
         return this;
     }
 
-    public DefaultDbConfigBuilder setbTreeDegree(int bTreeDegree) {
+    public DefaultDbConfigBuilder setBTreeDegree(int bTreeDegree) {
         this.bTreeDegree = bTreeDegree;
         return this;
     }
 
-    public DefaultDbConfigBuilder setbTreeGrowthNodeAllocationCount(int bTreeGrowthNodeAllocationCount) {
+    public DefaultDbConfigBuilder setBTreeGrowthNodeAllocationCount(int bTreeGrowthNodeAllocationCount) {
         this.bTreeGrowthNodeAllocationCount = bTreeGrowthNodeAllocationCount;
         return this;
     }
@@ -88,7 +88,7 @@ public class DefaultDbConfigBuilder {
         return this;
     }
 
-    public DefaultDbConfigBuilder setbTreeMaxFileSize(long bTreeMaxFileSize) {
+    public DefaultDbConfigBuilder setBTreeMaxFileSize(long bTreeMaxFileSize) {
         this.bTreeMaxFileSize = bTreeMaxFileSize;
         return this;
     }
@@ -108,8 +108,8 @@ public class DefaultDbConfigBuilder {
         return this;
     }
 
-    public DefaultDbConfigBuilder setIOSessionStrategy(DbConfig.IOSessionStrategy iOSessionStrategy) {
-        this.iOSessionStrategy = iOSessionStrategy;
+    public DefaultDbConfigBuilder setSessionStrategy(DbConfig.SessionStrategy sessionStrategy) {
+        this.sessionStrategy = sessionStrategy;
         return this;
     }
 
@@ -125,6 +125,11 @@ public class DefaultDbConfigBuilder {
 
     public DefaultDbConfigBuilder setDbPageBufferSize(Integer dbPageBufferSize) {
         this.dbPageBufferSize = dbPageBufferSize;
+        return this;
+    }
+
+    public DefaultDbConfigBuilder setDbQueryCacheSize(Integer dbQueryCacheSize) {
+        this.dbQueryCacheSize = dbQueryCacheSize;
         return this;
     }
 
@@ -188,8 +193,8 @@ public class DefaultDbConfigBuilder {
         return Objects.requireNonNullElse(fileHandlerPoolThreads, 10);
     }
 
-    private DbConfig.IOSessionStrategy getIOSessionStrategy() {
-        return Objects.requireNonNullElse(iOSessionStrategy, DbConfig.IOSessionStrategy.IMMEDIATE);
+    private DbConfig.SessionStrategy getIOSessionStrategy() {
+        return Objects.requireNonNullElse(sessionStrategy, DbConfig.SessionStrategy.IMMEDIATE);
     }
 
     private int getDbPageSize() {

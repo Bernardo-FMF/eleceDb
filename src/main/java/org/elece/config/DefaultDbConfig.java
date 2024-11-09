@@ -18,7 +18,7 @@ public class DefaultDbConfig implements DbConfig {
     private final IndexStorageManagerStrategy indexStorageManagerStrategy;
     private final FileHandlerStrategy fileHandlerStrategy;
     private final int fileHandlerPoolThreads;
-    private final IOSessionStrategy iOSessionStrategy;
+    private final SessionStrategy iOSessionStrategy;
     private final int dbPageSize;
     private final int dbPageBufferSize;
     private final int dbPageMaxFileSize;
@@ -28,7 +28,8 @@ public class DefaultDbConfig implements DbConfig {
                            long closeTimeoutTime, long acquisitionTimeoutTime, TimeUnit timeoutUnit, int bTreeDegree,
                            int bTreeGrowthNodeAllocationCount, String baseDbPath, long bTreeMaxFileSize,
                            IndexStorageManagerStrategy indexStorageManagerStrategy, FileHandlerStrategy fileHandlerStrategy,
-                           int fileHandlerPoolThreads, IOSessionStrategy iOSessionStrategy, int dbPageSize, int dbPageBufferSize,
+                           int fileHandlerPoolThreads, SessionStrategy iOSessionStrategy, int dbPageSize,
+                           int dbPageBufferSize,
                            int dbPageMaxFileSize, int dbQueryCacheSize) {
         this.port = port;
         this.poolCoreSize = poolCoreSize;
@@ -128,7 +129,7 @@ public class DefaultDbConfig implements DbConfig {
     }
 
     @Override
-    public IOSessionStrategy getIOSessionStrategy() {
+    public SessionStrategy getIOSessionStrategy() {
         return iOSessionStrategy;
     }
 
@@ -150,5 +151,31 @@ public class DefaultDbConfig implements DbConfig {
     @Override
     public int getDbQueryCacheSize() {
         return dbQueryCacheSize;
+    }
+
+    @Override
+    public String toString() {
+        return "DefaultDbConfig{" +
+                "port=" + port +
+                ", poolCoreSize=" + poolCoreSize +
+                ", poolMaxSize=" + poolMaxSize +
+                ", keepAliveTime=" + keepAliveTime +
+                ", fileDescriptorAcquisitionSize=" + fileDescriptorAcquisitionSize +
+                ", closeTimeoutTime=" + closeTimeoutTime +
+                ", acquisitionTimeoutTime=" + acquisitionTimeoutTime +
+                ", timeoutUnit=" + timeoutUnit +
+                ", bTreeDegree=" + bTreeDegree +
+                ", bTreeGrowthNodeAllocationCount=" + bTreeGrowthNodeAllocationCount +
+                ", baseDbPath='" + baseDbPath + '\'' +
+                ", bTreeMaxFileSize=" + bTreeMaxFileSize +
+                ", indexStorageManagerStrategy=" + indexStorageManagerStrategy +
+                ", fileHandlerStrategy=" + fileHandlerStrategy +
+                ", fileHandlerPoolThreads=" + fileHandlerPoolThreads +
+                ", iOSessionStrategy=" + iOSessionStrategy +
+                ", dbPageSize=" + dbPageSize +
+                ", dbPageBufferSize=" + dbPageBufferSize +
+                ", dbPageMaxFileSize=" + dbPageMaxFileSize +
+                ", dbQueryCacheSize=" + dbQueryCacheSize +
+                '}';
     }
 }

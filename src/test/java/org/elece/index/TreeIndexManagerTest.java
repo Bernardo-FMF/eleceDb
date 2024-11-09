@@ -53,17 +53,17 @@ class TreeIndexManagerTest {
 
         integerDbConfig = DefaultDbConfigBuilder.builder()
                 .setBaseDbPath(dbPath.toString())
-                .setbTreeDegree(4)
-                .setbTreeGrowthNodeAllocationCount(2)
-                .setbTreeMaxFileSize(4L * BTreeUtils.calculateBPlusTreeSize(4, integerKBinaryObjectFactory.size(), PointerBinaryObject.BYTES))
-                .setIOSessionStrategy(DbConfig.IOSessionStrategy.IMMEDIATE)
+                .setBTreeDegree(4)
+                .setBTreeGrowthNodeAllocationCount(2)
+                .setBTreeMaxFileSize(4L * BTreeUtils.calculateBPlusTreeSize(4, integerKBinaryObjectFactory.size(), PointerBinaryObject.BYTES))
+                .setSessionStrategy(DbConfig.SessionStrategy.IMMEDIATE)
                 .build();
 
         stringDbConfig = DefaultDbConfigBuilder.builder()
                 .setBaseDbPath(dbPath.toString())
-                .setbTreeDegree(4)
-                .setbTreeGrowthNodeAllocationCount(2)
-                .setbTreeMaxFileSize(4L * BTreeUtils.calculateBPlusTreeSize(4, stringKBinaryObjectFactory.size(), PointerBinaryObject.BYTES))
+                .setBTreeDegree(4)
+                .setBTreeGrowthNodeAllocationCount(2)
+                .setBTreeMaxFileSize(4L * BTreeUtils.calculateBPlusTreeSize(4, stringKBinaryObjectFactory.size(), PointerBinaryObject.BYTES))
                 .build();
 
         byte[] writingBytes = new byte[]{};
