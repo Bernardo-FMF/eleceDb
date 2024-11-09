@@ -107,4 +107,8 @@ public class DbObject {
         System.arraycopy(this.wrappedData, begin + META_BYTES + offset, output, 0, size);
         return output;
     }
+
+    public int getTableId() {
+        return BinaryUtils.bytesToInteger(this.wrappedData, begin + META_COLLECTION_ID_OFFSET);
+    }
 }

@@ -6,6 +6,7 @@ import org.elece.exception.*;
 import org.elece.index.ColumnIndexManagerProvider;
 import org.elece.index.IndexManager;
 import org.elece.memory.Pointer;
+import org.elece.sql.parser.expression.internal.SqlType;
 import org.elece.utils.BinaryUtils;
 import org.elece.utils.SerializationUtils;
 
@@ -40,25 +41,24 @@ public class InsertValidatorStep extends ValidatorStep<byte[]> {
             if (column.isUnique()) {
                 byte[] indexValueAsBytes = SerializationUtils.getValueOfField(table, column, value);
 
-                switch (column.getSqlType().getType()) {
-                    case Int -> {
-                        IndexManager<Integer, Number> indexManager = columnIndexManagerProvider.getIndexManager(table, column);
+                if (column.getSqlType().getType() == SqlType.Type.Int) {
+                    IndexManager<Integer, Integer> indexManager = columnIndexManagerProvider.getIndexManager(table, column);
 
-                        int indexValue = BinaryUtils.bytesToInteger(indexValueAsBytes, 0);
-                        Optional<Number> index = indexManager.getIndex(indexValue);
-                        if (index.isPresent()) {
-                            return false;
-                        }
+                    int indexValue = BinaryUtils.bytesToInteger(indexValueAsBytes, 0);
+                    Optional<Integer> index = indexManager.getIndex(indexValue);
+                    if (index.isPresent()) {
+                        return false;
                     }
-                    case Varchar -> {
-                        IndexManager<String, Number> indexManager = columnIndexManagerProvider.getIndexManager(table, column);
+                } else if (column.getSqlType().getType() == SqlType.Type.Varchar) {
+                    IndexManager<String, Integer> indexManager = columnIndexManagerProvider.getIndexManager(table, column);
 
-                        String indexValue = BinaryUtils.bytesToString(indexValueAsBytes, 0);
-                        Optional<Number> index = indexManager.getIndex(indexValue);
-                        if (index.isPresent()) {
-                            return false;
-                        }
+                    String indexValue = BinaryUtils.bytesToString(indexValueAsBytes, 0);
+                    Optional<Integer> index = indexManager.getIndex(indexValue);
+                    if (index.isPresent()) {
+                        return false;
                     }
+                } else {
+                    return false;
                 }
             }
         }

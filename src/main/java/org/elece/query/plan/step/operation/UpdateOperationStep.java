@@ -9,7 +9,6 @@ import org.elece.exception.*;
 import org.elece.index.ColumnIndexManagerProvider;
 import org.elece.index.IndexManager;
 import org.elece.memory.Pointer;
-import org.elece.serializer.Serializer;
 import org.elece.serializer.SerializerRegistry;
 import org.elece.sql.parser.expression.Expression;
 import org.elece.sql.parser.expression.ValueExpression;
@@ -17,6 +16,7 @@ import org.elece.sql.parser.expression.internal.Assignment;
 import org.elece.sql.parser.expression.internal.SqlType;
 import org.elece.sql.parser.expression.internal.SqlValue;
 import org.elece.utils.BinaryUtils;
+import org.elece.utils.QueryUtils;
 import org.elece.utils.SerializationUtils;
 
 import java.util.*;
@@ -44,10 +44,7 @@ public class UpdateOperationStep extends OperationStep<DbObject> {
     public boolean execute(DbObject value) throws BTreeException, StorageException, SchemaException, DbException,
                                                   SerializationException, DeserializationException,
                                                   InterruptedTaskException, FileChannelException {
-        IndexManager<Integer, Pointer> clusterIndexManager = columnIndexManagerProvider.getClusterIndexManager(table);
-        byte[] clusterBytes = SerializationUtils.getValueOfField(table, SchemaSearcher.findClusterColumn(table), value);
-        int rowClusterId = BinaryUtils.bytesToInteger(clusterBytes, 0);
-        Optional<Pointer> pointer = clusterIndexManager.getIndex(rowClusterId);
+        Optional<Pointer> pointer = getClusterIdPointer(columnIndexManagerProvider, table, value);
         if (pointer.isEmpty()) {
             return false;
         }
@@ -57,6 +54,7 @@ public class UpdateOperationStep extends OperationStep<DbObject> {
 
         Set<Column> updatedIndexedColumns = new HashSet<>();
         Map<Column, byte[]> oldValues = new HashMap<>();
+        Map<Column, byte[]> newValues = new HashMap<>();
         for (Assignment assignment : assignments) {
             String columnName = assignment.getId();
             Optional<Column> possibleColumn = SchemaSearcher.findColumn(table, columnName);
@@ -71,28 +69,34 @@ public class UpdateOperationStep extends OperationStep<DbObject> {
                 return false;
             }
 
-            if (!column.getName().equals(CLUSTER_ID) && column.isUnique()) {
-                if (column.getSqlType().getType() == SqlType.Type.Int) {
-                    IndexManager<Integer, Integer> indexManager = columnIndexManagerProvider.getIndexManager(table, column);
-                    Integer newValue = (Integer) serializerRegistry.getSerializer(column.getSqlType().getType()).deserialize(newValueBytes.get(), column);
-                    byte[] oldValue = SerializationUtils.getValueOfField(table, column, value);
+            if (!column.getName().equals(CLUSTER_ID) && column.isUnique() && column.getSqlType().getType() == SqlType.Type.Int) {
+                IndexManager<Integer, Integer> indexManager = columnIndexManagerProvider.getIndexManager(table, column);
+                Integer newValue = (Integer) serializerRegistry.getSerializer(column.getSqlType().getType()).deserialize(newValueBytes.get(), column);
+                byte[] oldValue = SerializationUtils.getValueOfField(table, column, value);
 
-                    Optional<Integer> possibleExistingValue = indexManager.getIndex(newValue);
-                    if (possibleExistingValue.isPresent()) {
-                        return false;
-                    }
-
-                    updatedIndexedColumns.add(column);
-                    oldValues.put(column, oldValue);
+                Optional<Integer> possibleExistingValue = indexManager.getIndex(newValue);
+                if (possibleExistingValue.isPresent()) {
+                    return false;
                 }
+
+                updatedIndexedColumns.add(column);
+                oldValues.put(column, oldValue);
+                newValues.put(column, newValueBytes.get());
             }
 
             SerializationUtils.setValueOfField(table, column, newValueBytes.get(), newData);
         }
 
-        updateIndexes(updatedIndexedColumns, newData, oldValues, rowClusterId);
+        try {
+            updateIndexes(updatedIndexedColumns, newData, oldValues, getRowClusterId(table, value));
 
-        databaseStorageManager.update(pointer.get(), newData);
+            databaseStorageManager.update(pointer.get(), newData);
+        } catch (SchemaException | StorageException | DeserializationException | BTreeException |
+                 SerializationException | InterruptedTaskException | FileChannelException exception) {
+            databaseStorageManager.update(pointer.get(), value.getData());
+            updateIndexes(updatedIndexedColumns, value.getData(), newValues, getRowClusterId(table, value));
+            throw exception;
+        }
 
         return true;
     }
@@ -128,28 +132,6 @@ public class UpdateOperationStep extends OperationStep<DbObject> {
         }
         SqlValue<?> value = valueExpression.getValue();
 
-        SqlType.Type type = column.getSqlType().getType();
-        byte[] serializedValue = new byte[0];
-
-        if (type == SqlType.Type.Int) {
-            Serializer<Integer> serializer = serializerRegistry.getSerializer(type);
-            serializedValue = serializer.serialize((Integer) value.getValue(), column);
-        } else if (type == SqlType.Type.Bool) {
-            Serializer<Boolean> serializer = serializerRegistry.getSerializer(type);
-            serializedValue = serializer.serialize((Boolean) value.getValue(), column);
-        } else if (type == SqlType.Type.Varchar) {
-            serializedValue = new byte[column.getSqlType().getSize()];
-            Serializer<String> serializer = serializerRegistry.getSerializer(type);
-            byte[] shortenedValue = serializer.serialize((String) value.getValue(), column);
-            System.arraycopy(shortenedValue, 0, serializedValue, 0, shortenedValue.length);
-
-            BinaryUtils.fillPadding(shortenedValue.length, serializedValue.length, serializedValue);
-        }
-
-        if (serializedValue.length == 0) {
-            return Optional.empty();
-        }
-
-        return Optional.of(serializedValue);
+        return QueryUtils.serializeValue(serializerRegistry, column, value);
     }
 }

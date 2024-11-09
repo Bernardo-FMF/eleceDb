@@ -6,14 +6,12 @@ import org.elece.exception.*;
 import org.elece.index.ColumnIndexManagerProvider;
 import org.elece.index.IndexManager;
 import org.elece.memory.Pointer;
-import org.elece.serializer.Serializer;
 import org.elece.serializer.SerializerRegistry;
 import org.elece.sql.ExpressionUtils;
 import org.elece.sql.parser.expression.Expression;
 import org.elece.sql.parser.expression.internal.SqlNumberValue;
-import org.elece.sql.parser.expression.internal.SqlType;
 import org.elece.sql.parser.expression.internal.SqlValue;
-import org.elece.utils.BinaryUtils;
+import org.elece.utils.QueryUtils;
 import org.elece.utils.SerializationUtils;
 
 import java.util.ArrayList;
@@ -59,29 +57,12 @@ public class InsertValueStep extends ValueStep {
             SqlValue<?> value = literalValues.get(columnId);
             Column column = columns.get(columnId);
 
-            SqlType.Type type = column.getSqlType().getType();
-            byte[] serializedValue = new byte[0];
-
-            if (type == SqlType.Type.Int) {
-                Serializer<Integer> serializer = serializerRegistry.getSerializer(type);
-                serializedValue = serializer.serialize((Integer) value.getValue(), column);
-            } else if (type == SqlType.Type.Bool) {
-                Serializer<Boolean> serializer = serializerRegistry.getSerializer(type);
-                serializedValue = serializer.serialize((Boolean) value.getValue(), column);
-            } else if (type == SqlType.Type.Varchar) {
-                serializedValue = new byte[column.getSqlType().getSize()];
-                Serializer<String> serializer = serializerRegistry.getSerializer(type);
-                byte[] shortenedValue = serializer.serialize((String) value.getValue(), column);
-                System.arraycopy(shortenedValue, 0, serializedValue, 0, shortenedValue.length);
-
-                BinaryUtils.fillPadding(shortenedValue.length, serializedValue.length, serializedValue);
-            }
-
-            if (serializedValue.length == 0) {
+            Optional<byte[]> serializedValue = QueryUtils.serializeValue(serializerRegistry, column, value);
+            if (serializedValue.isEmpty()) {
                 return Optional.empty();
             }
 
-            SerializationUtils.setValueOfField(table, column, serializedValue, rowData);
+            SerializationUtils.setValueOfField(table, column, serializedValue.get(), rowData);
         }
 
         return Optional.of(rowData);

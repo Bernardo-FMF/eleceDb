@@ -13,6 +13,8 @@ import org.elece.storage.file.FileHandlerPool;
 import org.elece.utils.BinaryUtils;
 import org.elece.utils.SerializationUtils;
 
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.function.Function;
@@ -73,21 +75,21 @@ public class CacheableOrderStep<V extends Comparable<V>> extends OrderStep {
     private Function<byte[], SqlValue<V>> buildValueDeserializerFunction() {
         Serializer<V> serializer = serializerRegistry.getSerializer(orderByColumn.getSqlType().getType());
         return switch (orderByColumn.getSqlType().getType()) {
-            case Int -> (data) -> {
+            case Int -> data -> {
                 try {
                     return (SqlValue<V>) new SqlNumberValue((Integer) serializer.deserialize(data, orderByColumn));
                 } catch (DeserializationException exception) {
                     throw new RuntimeDbException(exception.getDbError(), exception.getMessage());
                 }
             };
-            case Bool -> (data) -> {
+            case Bool -> data -> {
                 try {
                     return (SqlValue<V>) new SqlBoolValue((Boolean) serializer.deserialize(data, orderByColumn));
                 } catch (DeserializationException exception) {
                     throw new RuntimeDbException(exception.getDbError(), exception.getMessage());
                 }
             };
-            case Varchar -> (data) -> {
+            case Varchar -> data -> {
                 try {
                     return (SqlValue<V>) new SqlStringValue((String) serializer.deserialize(data, orderByColumn));
                 } catch (DeserializationException exception) {
@@ -159,7 +161,11 @@ public class CacheableOrderStep<V extends Comparable<V>> extends OrderStep {
         if (!tempFiles.isEmpty()) {
             for (TempFileWrapper tempFile : tempFiles) {
                 fileHandlerPool.releaseFileHandler(tempFile.getTempFileName());
-                tempFile.getTempFileName().toFile().delete();
+                try {
+                    Files.delete(tempFile.getTempFileName());
+                } catch (IOException e) {
+                    throw new StorageException(DbError.FAILED_TO_REMOVE_TEMPORARY_FILE_ERROR, "Failed to remove temporary file");
+                }
             }
         }
 

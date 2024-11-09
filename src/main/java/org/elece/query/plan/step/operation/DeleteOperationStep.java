@@ -2,7 +2,6 @@ package org.elece.query.plan.step.operation;
 
 import org.elece.db.DatabaseStorageManager;
 import org.elece.db.DbObject;
-import org.elece.db.schema.SchemaSearcher;
 import org.elece.db.schema.model.Column;
 import org.elece.db.schema.model.Table;
 import org.elece.exception.*;
@@ -33,13 +32,12 @@ public class DeleteOperationStep extends OperationStep<DbObject> {
                                                   SerializationException, InterruptedTaskException,
                                                   FileChannelException {
         IndexManager<Integer, Pointer> clusterIndexManager = columnIndexManagerProvider.getClusterIndexManager(table);
-        byte[] clusterBytes = SerializationUtils.getValueOfField(table, SchemaSearcher.findClusterColumn(table), value);
-        int rowClusterId = BinaryUtils.bytesToInteger(clusterBytes, 0);
-
-        Optional<Pointer> pointer = clusterIndexManager.getIndex(rowClusterId);
+        Optional<Pointer> pointer = getClusterIdPointer(columnIndexManagerProvider, table, value);
         if (pointer.isEmpty()) {
             return false;
         }
+
+        int rowClusterId = getRowClusterId(table, value);
         boolean removedIndex = clusterIndexManager.removeIndex(rowClusterId);
         if (!removedIndex) {
             return false;
@@ -47,32 +45,39 @@ public class DeleteOperationStep extends OperationStep<DbObject> {
 
         databaseStorageManager.remove(pointer.get());
 
-        for (Column column : table.getColumns()) {
-            if (CLUSTER_ID.equals(column.getName())) {
-                continue;
-            }
+        try {
+            for (Column column : table.getColumns()) {
+                if (CLUSTER_ID.equals(column.getName())) {
+                    continue;
+                }
 
-            if (column.isUnique()) {
-                byte[] indexValueAsBytes = SerializationUtils.getValueOfField(table, column, value);
+                if (column.isUnique()) {
+                    byte[] indexValueAsBytes = SerializationUtils.getValueOfField(table, column, value);
 
-                switch (column.getSqlType().getType()) {
-                    case Int -> {
-                        IndexManager<Integer, Number> indexManager = columnIndexManagerProvider.getIndexManager(table, column);
+                    switch (column.getSqlType().getType()) {
+                        case Int -> {
+                            IndexManager<Integer, Number> indexManager = columnIndexManagerProvider.getIndexManager(table, column);
 
-                        int indexValue = BinaryUtils.bytesToInteger(indexValueAsBytes, 0);
-                        indexManager.removeIndex(indexValue);
-                    }
-                    case Varchar -> {
-                        IndexManager<String, Number> indexManager = columnIndexManagerProvider.getIndexManager(table, column);
+                            int indexValue = BinaryUtils.bytesToInteger(indexValueAsBytes, 0);
+                            indexManager.removeIndex(indexValue);
+                        }
+                        case Varchar -> {
+                            IndexManager<String, Number> indexManager = columnIndexManagerProvider.getIndexManager(table, column);
 
-                        String indexValue = BinaryUtils.bytesToString(indexValueAsBytes, 0);
-                        indexManager.removeIndex(indexValue);
-                    }
-                    default -> {
-                        return false;
+                            String indexValue = BinaryUtils.bytesToString(indexValueAsBytes, 0);
+                            indexManager.removeIndex(indexValue);
+                        }
+                        default -> {
+                            return false;
+                        }
                     }
                 }
             }
+        } catch (SchemaException | BTreeException | SerializationException | InterruptedTaskException |
+                 StorageException | FileChannelException exception) {
+            databaseStorageManager.store(value.getTableId(), value.getData());
+            rollbackIndexes(columnIndexManagerProvider, table, rowClusterId, pointer.get(), value.getData(), true);
+            throw exception;
         }
 
         return true;

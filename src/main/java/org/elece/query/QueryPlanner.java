@@ -34,6 +34,7 @@ import org.elece.query.plan.step.scan.SequentialScanStep;
 import org.elece.query.plan.step.selector.AttributeSelectorStep;
 import org.elece.query.plan.step.stream.OutputStreamStep;
 import org.elece.query.plan.step.stream.StreamStep;
+import org.elece.query.plan.step.tracer.DeleteTracerStep;
 import org.elece.query.plan.step.tracer.InsertTracerStep;
 import org.elece.query.plan.step.tracer.SelectTracerStep;
 import org.elece.query.plan.step.tracer.UpdateTracerStep;
@@ -106,14 +107,11 @@ public class QueryPlanner {
         plan.get().execute();
     }
 
-    private <V extends Comparable<V>> Optional<QueryPlan> buildDeleteQueryPlan(DeleteStatement statement,
-                                                                               StreamStep streamStep) throws
-                                                                                                      QueryException,
-                                                                                                      SchemaException,
-                                                                                                      StorageException,
-                                                                                                      BTreeException,
-                                                                                                      InterruptedTaskException,
-                                                                                                      FileChannelException {
+    private Optional<QueryPlan> buildDeleteQueryPlan(DeleteStatement statement,
+                                                     StreamStep streamStep) throws QueryException, SchemaException,
+                                                                                   StorageException, BTreeException,
+                                                                                   InterruptedTaskException,
+                                                                                   FileChannelException {
         Optional<Table> possibleTable = SchemaSearcher.findTable(schemaManager.getSchema(), statement.getFrom());
         if (possibleTable.isEmpty()) {
             return Optional.empty();
@@ -136,20 +134,17 @@ public class QueryPlanner {
             builder.addFilterStep(filterStep);
         }
         builder.setOperationStep(new DeleteOperationStep(table, columnIndexManagerProvider, databaseStorageManager))
-                .setTracerStep(new UpdateTracerStep(table, queryContext.getScanInfo()))
+                .setTracerStep(new DeleteTracerStep(table, queryContext.getScanInfo()))
                 .setStreamStep(streamStep);
 
         return Optional.of(builder.build());
     }
 
-    private <V extends Comparable<V>> Optional<QueryPlan> buildUpdateQueryPlan(UpdateStatement statement,
-                                                                               StreamStep streamStep) throws
-                                                                                                      SchemaException,
-                                                                                                      StorageException,
-                                                                                                      QueryException,
-                                                                                                      BTreeException,
-                                                                                                      InterruptedTaskException,
-                                                                                                      FileChannelException {
+    private Optional<QueryPlan> buildUpdateQueryPlan(UpdateStatement statement,
+                                                     StreamStep streamStep) throws SchemaException, StorageException,
+                                                                                   QueryException, BTreeException,
+                                                                                   InterruptedTaskException,
+                                                                                   FileChannelException {
         Optional<Table> possibleTable = SchemaSearcher.findTable(schemaManager.getSchema(), statement.getTable());
         if (possibleTable.isEmpty()) {
             return Optional.empty();
@@ -195,14 +190,11 @@ public class QueryPlanner {
         return Optional.of(builder.build());
     }
 
-    private <V extends Comparable<V>> Optional<QueryPlan> buildSelectQueryPlan(SelectStatement statement,
-                                                                               StreamStep streamStep) throws
-                                                                                                      QueryException,
-                                                                                                      SchemaException,
-                                                                                                      StorageException,
-                                                                                                      BTreeException,
-                                                                                                      InterruptedTaskException,
-                                                                                                      FileChannelException {
+    private Optional<QueryPlan> buildSelectQueryPlan(SelectStatement statement,
+                                                     StreamStep streamStep) throws QueryException, SchemaException,
+                                                                                   StorageException, BTreeException,
+                                                                                   InterruptedTaskException,
+                                                                                   FileChannelException {
         Optional<Table> possibleTable = SchemaSearcher.findTable(schemaManager.getSchema(), statement.getFrom());
         if (possibleTable.isEmpty()) {
             return Optional.empty();

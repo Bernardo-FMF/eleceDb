@@ -11,7 +11,7 @@ public abstract class ScanStep {
     private boolean finished;
     private final Long scanId;
 
-    public ScanStep() {
+    protected ScanStep() {
         this.finished = false;
         this.scanId = idCounter.incrementAndGet();
     }

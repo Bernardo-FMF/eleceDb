@@ -4,10 +4,7 @@ import org.elece.config.DbConfig;
 import org.elece.exception.DbError;
 import org.elece.exception.StorageException;
 import org.elece.index.IndexId;
-import org.elece.storage.file.DefaultFileHandlerFactory;
-import org.elece.storage.file.FileHandlerPool;
-import org.elece.storage.file.RestrictedFileHandlerPool;
-import org.elece.storage.file.UnrestrictedFileHandlerPool;
+import org.elece.storage.file.FileHandlerPoolFactory;
 import org.elece.storage.index.header.IndexHeaderManagerFactory;
 
 import java.io.IOException;
@@ -15,27 +12,15 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class DefaultIndexStorageManagerFactory extends IndexStorageManagerFactory {
+    private final FileHandlerPoolFactory fileHandlerPoolFactory;
     private final Map<String, IndexStorageManager> storageManagers;
-    private FileHandlerPool fileHandlerPool;
 
-    public DefaultIndexStorageManagerFactory(DbConfig dbConfig, IndexHeaderManagerFactory indexHeaderManagerFactory) {
+    public DefaultIndexStorageManagerFactory(DbConfig dbConfig, FileHandlerPoolFactory fileHandlerPoolFactory,
+                                             IndexHeaderManagerFactory indexHeaderManagerFactory) {
         super(dbConfig, indexHeaderManagerFactory);
 
         this.storageManagers = new ConcurrentHashMap<>();
-    }
-
-    private synchronized FileHandlerPool getFileHandlerPool() {
-        if (fileHandlerPool != null) {
-            return fileHandlerPool;
-        }
-
-        if (dbConfig.getFileHandlerStrategy() == DbConfig.FileHandlerStrategy.UNLIMITED) {
-            fileHandlerPool = new UnrestrictedFileHandlerPool(DefaultFileHandlerFactory.getInstance(this.dbConfig.getFileHandlerPoolThreads()), dbConfig);
-        } else {
-            fileHandlerPool = new RestrictedFileHandlerPool(DefaultFileHandlerFactory.getInstance(this.dbConfig.getFileHandlerPoolThreads()), this.dbConfig);
-        }
-
-        return fileHandlerPool;
+        this.fileHandlerPoolFactory = fileHandlerPoolFactory;
     }
 
     @Override
@@ -46,11 +31,14 @@ public class DefaultIndexStorageManagerFactory extends IndexStorageManagerFactor
         } else {
             DbConfig.IndexStorageManagerStrategy indexStorageManagerStrategy = dbConfig.getIndexStorageManagerStrategy();
             try {
+                IndexStorageManager indexStorageManager;
                 if (indexStorageManagerStrategy == DbConfig.IndexStorageManagerStrategy.ORGANIZED) {
-                    return new OrganizedIndexStorageManager(managerId, indexHeaderManagerFactory, dbConfig, getFileHandlerPool());
+                    indexStorageManager = new OrganizedIndexStorageManager(managerId, indexHeaderManagerFactory, dbConfig, fileHandlerPoolFactory.getFileHandlerPool());
                 } else {
-                    return new CompactIndexStorageManager(managerId, indexHeaderManagerFactory, dbConfig, getFileHandlerPool());
+                    indexStorageManager = new CompactIndexStorageManager(managerId, indexHeaderManagerFactory, dbConfig, fileHandlerPoolFactory.getFileHandlerPool());
                 }
+                this.storageManagers.put(managerId, indexStorageManager);
+                return indexStorageManager;
             } catch (IOException exception) {
                 throw new StorageException(DbError.INDEX_STORAGE_MANAGER_CREATION_ERROR, "Failed to create index storage manager");
             }

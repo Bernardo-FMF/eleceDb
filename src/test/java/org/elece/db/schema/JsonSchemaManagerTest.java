@@ -18,6 +18,7 @@ import org.elece.memory.Pointer;
 import org.elece.sql.parser.expression.internal.SqlConstraint;
 import org.elece.sql.parser.expression.internal.SqlType;
 import org.elece.storage.file.DefaultFileHandlerFactory;
+import org.elece.storage.file.DefaultFileHandlerPoolFactory;
 import org.elece.storage.file.UnrestrictedFileHandlerPool;
 import org.elece.storage.index.DefaultIndexStorageManagerFactory;
 import org.elece.storage.index.header.DefaultIndexHeaderManagerFactory;
@@ -63,7 +64,7 @@ public class JsonSchemaManagerTest {
     @Test
     public void test_createSchema() throws SchemaException {
         DatabaseStorageManager databaseStorageManager = new DiskPageDatabaseStorageManager(dbConfig, new UnrestrictedFileHandlerPool(DefaultFileHandlerFactory.getInstance(), dbConfig), new InMemoryReservedSlotTracer());
-        ColumnIndexManagerProvider columnIndexManagerProvider = new DefaultColumnIndexManagerProvider(dbConfig, new DefaultIndexStorageManagerFactory(dbConfig, new DefaultIndexHeaderManagerFactory()));
+        ColumnIndexManagerProvider columnIndexManagerProvider = new DefaultColumnIndexManagerProvider(dbConfig, new DefaultIndexStorageManagerFactory(dbConfig, new DefaultFileHandlerPoolFactory(dbConfig), new DefaultIndexHeaderManagerFactory()));
 
         SchemaManager schemaManager = new JsonSchemaManager(dbConfig, columnIndexManagerProvider, databaseStorageManager);
         schemaManager.createSchema("new_db");
@@ -75,7 +76,7 @@ public class JsonSchemaManagerTest {
     @Test
     public void test_createTable() throws SchemaException, StorageException {
         DatabaseStorageManager databaseStorageManager = new DiskPageDatabaseStorageManager(dbConfig, new UnrestrictedFileHandlerPool(DefaultFileHandlerFactory.getInstance(), dbConfig), new InMemoryReservedSlotTracer());
-        ColumnIndexManagerProvider columnIndexManagerProvider = new DefaultColumnIndexManagerProvider(dbConfig, new DefaultIndexStorageManagerFactory(dbConfig, new DefaultIndexHeaderManagerFactory()));
+        ColumnIndexManagerProvider columnIndexManagerProvider = new DefaultColumnIndexManagerProvider(dbConfig, new DefaultIndexStorageManagerFactory(dbConfig, new DefaultFileHandlerPoolFactory(dbConfig), new DefaultIndexHeaderManagerFactory()));
 
         SchemaManager schemaManager = new JsonSchemaManager(dbConfig, columnIndexManagerProvider, databaseStorageManager);
         schemaManager.createSchema("new_db");
@@ -100,7 +101,7 @@ public class JsonSchemaManagerTest {
                                           DeserializationException, DbException, InterruptedTaskException,
                                           FileChannelException {
         DatabaseStorageManager databaseStorageManager = new DiskPageDatabaseStorageManager(dbConfig, new UnrestrictedFileHandlerPool(DefaultFileHandlerFactory.getInstance(), dbConfig), new InMemoryReservedSlotTracer());
-        ColumnIndexManagerProvider columnIndexManagerProvider = new DefaultColumnIndexManagerProvider(dbConfig, new DefaultIndexStorageManagerFactory(dbConfig, new DefaultIndexHeaderManagerFactory()));
+        ColumnIndexManagerProvider columnIndexManagerProvider = new DefaultColumnIndexManagerProvider(dbConfig, new DefaultIndexStorageManagerFactory(dbConfig, new DefaultFileHandlerPoolFactory(dbConfig), new DefaultIndexHeaderManagerFactory()));
 
         Index index = new Index("name_index", COLUMN_NAME_NORMAL);
 
@@ -126,7 +127,7 @@ public class JsonSchemaManagerTest {
                                                           FileChannelException {
         // create schema and table
         DatabaseStorageManager databaseStorageManager = new DiskPageDatabaseStorageManager(dbConfig, new UnrestrictedFileHandlerPool(DefaultFileHandlerFactory.getInstance(), dbConfig), new InMemoryReservedSlotTracer());
-        ColumnIndexManagerProvider columnIndexManagerProvider = new DefaultColumnIndexManagerProvider(dbConfig, new DefaultIndexStorageManagerFactory(dbConfig, new DefaultIndexHeaderManagerFactory()));
+        ColumnIndexManagerProvider columnIndexManagerProvider = new DefaultColumnIndexManagerProvider(dbConfig, new DefaultIndexStorageManagerFactory(dbConfig, new DefaultFileHandlerPoolFactory(dbConfig), new DefaultIndexHeaderManagerFactory()));
 
         SchemaManager schemaManager = new JsonSchemaManager(dbConfig, columnIndexManagerProvider, databaseStorageManager);
         schemaManager.createSchema("new_db");
@@ -168,7 +169,7 @@ public class JsonSchemaManagerTest {
     public void test_deleteTable() throws SchemaException, StorageException, DbException, InterruptedTaskException,
                                           FileChannelException {
         DatabaseStorageManager databaseStorageManager = new DiskPageDatabaseStorageManager(dbConfig, new UnrestrictedFileHandlerPool(DefaultFileHandlerFactory.getInstance(), dbConfig), new InMemoryReservedSlotTracer());
-        ColumnIndexManagerProvider columnIndexManagerProvider = new DefaultColumnIndexManagerProvider(dbConfig, new DefaultIndexStorageManagerFactory(dbConfig, new DefaultIndexHeaderManagerFactory()));
+        ColumnIndexManagerProvider columnIndexManagerProvider = new DefaultColumnIndexManagerProvider(dbConfig, new DefaultIndexStorageManagerFactory(dbConfig, new DefaultFileHandlerPoolFactory(dbConfig), new DefaultIndexHeaderManagerFactory()));
 
         SchemaManager schemaManager = new JsonSchemaManager(dbConfig, columnIndexManagerProvider, databaseStorageManager);
         schemaManager.createSchema("new_db");
@@ -188,7 +189,7 @@ public class JsonSchemaManagerTest {
                                                           BTreeException, SerializationException,
                                                           InterruptedTaskException, FileChannelException {
         DatabaseStorageManager databaseStorageManager = new DiskPageDatabaseStorageManager(dbConfig, new UnrestrictedFileHandlerPool(DefaultFileHandlerFactory.getInstance(), dbConfig), new InMemoryReservedSlotTracer());
-        ColumnIndexManagerProvider columnIndexManagerProvider = new DefaultColumnIndexManagerProvider(dbConfig, new DefaultIndexStorageManagerFactory(dbConfig, new DefaultIndexHeaderManagerFactory()));
+        ColumnIndexManagerProvider columnIndexManagerProvider = new DefaultColumnIndexManagerProvider(dbConfig, new DefaultIndexStorageManagerFactory(dbConfig, new DefaultFileHandlerPoolFactory(dbConfig), new DefaultIndexHeaderManagerFactory()));
 
         SchemaManager schemaManager = new JsonSchemaManager(dbConfig, columnIndexManagerProvider, databaseStorageManager);
         schemaManager.createSchema("new_db");

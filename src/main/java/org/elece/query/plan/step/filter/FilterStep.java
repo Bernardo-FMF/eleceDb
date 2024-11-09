@@ -5,7 +5,7 @@ import org.elece.db.DbObject;
 public abstract class FilterStep {
     private final Long scanId;
 
-    public FilterStep(Long scanId) {
+    protected FilterStep(Long scanId) {
         this.scanId = scanId;
     }
 

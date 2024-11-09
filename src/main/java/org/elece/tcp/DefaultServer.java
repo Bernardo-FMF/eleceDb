@@ -1,7 +1,7 @@
 package org.elece.tcp;
 
 import org.elece.config.DbConfig;
-import org.elece.thread.ISocketWorker;
+import org.elece.thread.DefaultSocketWorker;
 import org.elece.thread.ManagedThreadPool;
 import org.elece.thread.SocketWorker;
 
@@ -10,13 +10,14 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-// TODO just a stub class, needs to be properly addressed
 public class DefaultServer implements Server {
     private final DbConfig config;
-    private final ManagedThreadPool<ISocketWorker> managedThreadPool;
+    private final DependencyContainer dependencyContainer;
+    private final ManagedThreadPool<SocketWorker> managedThreadPool;
 
     public DefaultServer(DbConfig config) {
         this.config = config;
+        this.dependencyContainer = new DependencyContainer(config);
         this.managedThreadPool = new ManagedThreadPool<>(config);
     }
 
@@ -31,7 +32,7 @@ public class DefaultServer implements Server {
 
             while (managedThreadPool.isRunning()) {
                 Socket socket = serverSocket.accept();
-                managedThreadPool.execute(new SocketWorker(socket));
+                managedThreadPool.execute(new DefaultSocketWorker(socket, dependencyContainer));
             }
         } catch (Exception e) {
             e.printStackTrace();

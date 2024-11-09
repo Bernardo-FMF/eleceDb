@@ -195,12 +195,10 @@ public class IndexPathFinder implements QueryPlanVisitor {
     private static EqualityComparator<?> buildEqualityComparator(ValueExpression<?> valueExpression,
                                                                  boolean shouldBeEqual) {
         SqlValue<?> value = valueExpression.getValue();
-        if (value instanceof SqlNumberValue numberValue) {
-            return new NumberEqualityComparator(numberValue, shouldBeEqual);
-        } else if (value instanceof SqlStringValue stringValue) {
-            return new StringEqualityComparator(stringValue, shouldBeEqual);
-        } else {
-            return new BooleanEqualityComparator((SqlBoolValue) value, shouldBeEqual);
-        }
+        return switch (value) {
+            case SqlNumberValue numberValue -> new NumberEqualityComparator(numberValue, shouldBeEqual);
+            case SqlStringValue stringValue -> new StringEqualityComparator(stringValue, shouldBeEqual);
+            default -> new BooleanEqualityComparator((SqlBoolValue) value, shouldBeEqual);
+        };
     }
 }

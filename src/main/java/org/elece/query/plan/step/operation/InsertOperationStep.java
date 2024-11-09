@@ -30,36 +30,47 @@ public class InsertOperationStep extends OperationStep<byte[]> {
                                                 SerializationException, InterruptedTaskException, FileChannelException {
         Pointer rowPointer = databaseStorageManager.store(table.getId(), value);
 
-        IndexManager<Integer, Pointer> clusterIndexManager = columnIndexManagerProvider.getClusterIndexManager(table);
         byte[] clusterBytes = SerializationUtils.getValueOfField(table, SchemaSearcher.findClusterColumn(table), value);
         int rowClusterId = BinaryUtils.bytesToInteger(clusterBytes, 0);
-        clusterIndexManager.addIndex(rowClusterId, rowPointer);
+        try {
+            IndexManager<Integer, Pointer> clusterIndexManager = columnIndexManagerProvider.getClusterIndexManager(table);
+            clusterIndexManager.addIndex(rowClusterId, rowPointer);
 
-        for (Column column : table.getColumns()) {
-            if (CLUSTER_ID.equals(column.getName())) {
-                continue;
-            }
+            for (Column column : table.getColumns()) {
+                if (CLUSTER_ID.equals(column.getName())) {
+                    continue;
+                }
 
-            if (column.isUnique()) {
-                byte[] indexValueAsBytes = SerializationUtils.getValueOfField(table, column, value);
+                if (column.isUnique()) {
+                    byte[] indexValueAsBytes = SerializationUtils.getValueOfField(table, column, value);
 
-                switch (column.getSqlType().getType()) {
-                    case Int -> {
-                        IndexManager<Integer, Number> indexManager = columnIndexManagerProvider.getIndexManager(table, column);
+                    switch (column.getSqlType().getType()) {
+                        case Int -> {
+                            IndexManager<Integer, Number> indexManager = columnIndexManagerProvider.getIndexManager(table, column);
 
-                        int indexValue = BinaryUtils.bytesToInteger(indexValueAsBytes, 0);
-                        indexManager.addIndex(indexValue, rowClusterId);
-                    }
-                    case Varchar -> {
-                        IndexManager<String, Number> indexManager = columnIndexManagerProvider.getIndexManager(table, column);
+                            int indexValue = BinaryUtils.bytesToInteger(indexValueAsBytes, 0);
+                            indexManager.addIndex(indexValue, rowClusterId);
+                        }
+                        case Varchar -> {
+                            IndexManager<String, Number> indexManager = columnIndexManagerProvider.getIndexManager(table, column);
 
-                        String indexValue = BinaryUtils.bytesToString(indexValueAsBytes, 0);
-                        indexManager.addIndex(indexValue, rowClusterId);
+                            String indexValue = BinaryUtils.bytesToString(indexValueAsBytes, 0);
+                            indexManager.addIndex(indexValue, rowClusterId);
+                        }
+                        default -> {
+                            return false;
+                        }
                     }
                 }
             }
+
+            return true;
+        } catch (BTreeException | StorageException | SchemaException | SerializationException |
+                 InterruptedTaskException | FileChannelException exception) {
+            databaseStorageManager.remove(rowPointer);
+            rollbackIndexes(columnIndexManagerProvider, table, rowClusterId, rowPointer, value, false);
+            throw exception;
         }
 
-        return true;
     }
 }
