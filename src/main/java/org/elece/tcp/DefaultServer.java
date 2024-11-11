@@ -21,6 +21,8 @@ public class DefaultServer implements Server {
     private final DependencyContainer dependencyContainer;
     private final ManagedThreadPool<SocketWorker> managedThreadPool;
 
+    private ServerSocket serverSocket;
+
     public DefaultServer(DbConfig config) {
         this.config = config;
         this.dependencyContainer = new DependencyContainer(config);
@@ -29,8 +31,6 @@ public class DefaultServer implements Server {
 
     @Override
     public void start() throws InterruptedTaskException, StorageException, FileChannelException, ServerException {
-        ServerSocket serverSocket = null;
-
         try {
             ServerSocketFactory factory = ServerSocketFactory.getDefault();
 
@@ -47,14 +47,19 @@ public class DefaultServer implements Server {
             throw new ServerException(DbError.SERVER_ERROR, String.format("Error while running the server: %s", exception.getMessage()));
         } finally {
             try {
-                if (Objects.nonNull(serverSocket)) {
-                    logger.debug("Closing server socket gracefully");
-                    serverSocket.close();
-                }
+                close();
             } catch (IOException exception) {
                 throw new ServerException(DbError.SERVER_ERROR, String.format("Error while closing the server: %s", exception.getMessage()));
             }
-            dependencyContainer.getFileHandlerPoolFactory().getFileHandlerPool().closeAll();
         }
+    }
+
+    @Override
+    public void close() throws IOException, InterruptedTaskException, StorageException, FileChannelException {
+        if (Objects.nonNull(serverSocket)) {
+            logger.debug("Closing server socket gracefully");
+            serverSocket.close();
+        }
+        dependencyContainer.getFileHandlerPoolFactory().getFileHandlerPool().closeAll();
     }
 }

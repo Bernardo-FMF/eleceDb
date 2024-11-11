@@ -16,7 +16,8 @@ public class SelectQueryPlan implements QueryPlan {
     private final Queue<ScanStep> scanSteps;
     private final Map<Long, List<FilterStep>> filterSteps;
 
-    private final TracerStep<DbObject> tracerStep;
+    private final TracerStep<DbObject> startTracerStep;
+    private final TracerStep<DbObject> endTracerStep;
 
     private final SelectorStep selectorStep;
 
@@ -25,11 +26,13 @@ public class SelectQueryPlan implements QueryPlan {
     private final StreamStep streamStep;
 
     public SelectQueryPlan(Queue<ScanStep> scanSteps, Map<Long, List<FilterStep>> filterSteps,
-                           TracerStep<DbObject> tracerStep, SelectorStep selectorStep, OrderStep orderStep,
+                           TracerStep<DbObject> startTracerStep, TracerStep<DbObject> endTracerStep,
+                           SelectorStep selectorStep, OrderStep orderStep,
                            StreamStep streamStep) {
         this.scanSteps = scanSteps;
         this.filterSteps = filterSteps;
-        this.tracerStep = tracerStep;
+        this.startTracerStep = startTracerStep;
+        this.endTracerStep = endTracerStep;
         this.selectorStep = selectorStep;
         this.orderStep = orderStep;
         this.streamStep = streamStep;
@@ -39,6 +42,9 @@ public class SelectQueryPlan implements QueryPlan {
     public void execute() throws ParserException, SerializationException, SchemaException, StorageException,
                                  DbException, BTreeException, DeserializationException, ProtoException,
                                  InterruptedTaskException, FileChannelException {
+        ResultInfo startResultInfo = startTracerStep.buildResultInfo();
+        streamStep.stream(startResultInfo);
+
         while (!scanSteps.isEmpty()) {
             ScanStep rowScanner = scanSteps.poll();
             List<FilterStep> rowFilters = filterSteps.get(rowScanner.getScanId());
@@ -65,7 +71,7 @@ public class SelectQueryPlan implements QueryPlan {
                 Optional<byte[]> serializedData = selectorStep.next(dbObject);
 
                 if (serializedData.isPresent()) {
-                    tracerStep.trace(dbObject);
+                    endTracerStep.trace(dbObject);
 
                     if (!Objects.isNull(orderStep)) {
                         orderStep.addToBuffer(serializedData.get());
@@ -87,7 +93,7 @@ public class SelectQueryPlan implements QueryPlan {
             orderStep.clearBuffer();
         }
 
-        ResultInfo resultInfo = tracerStep.buildResultInfo();
+        ResultInfo resultInfo = endTracerStep.buildResultInfo();
         streamStep.stream(resultInfo);
     }
 }

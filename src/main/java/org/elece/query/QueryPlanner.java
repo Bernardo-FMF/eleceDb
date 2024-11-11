@@ -34,10 +34,7 @@ import org.elece.query.plan.step.scan.SequentialScanStep;
 import org.elece.query.plan.step.selector.AttributeSelectorStep;
 import org.elece.query.plan.step.stream.OutputStreamStep;
 import org.elece.query.plan.step.stream.StreamStep;
-import org.elece.query.plan.step.tracer.DeleteTracerStep;
-import org.elece.query.plan.step.tracer.InsertTracerStep;
-import org.elece.query.plan.step.tracer.SelectTracerStep;
-import org.elece.query.plan.step.tracer.UpdateTracerStep;
+import org.elece.query.plan.step.tracer.*;
 import org.elece.query.plan.step.validator.InsertValidatorStep;
 import org.elece.query.plan.step.value.InsertValueStep;
 import org.elece.serializer.SerializerRegistry;
@@ -47,7 +44,7 @@ import org.elece.sql.parser.expression.OrderIdentifierExpression;
 import org.elece.sql.parser.expression.internal.Order;
 import org.elece.sql.parser.statement.*;
 import org.elece.storage.file.FileHandlerPool;
-import org.elece.thread.ClientBridge;
+import org.elece.thread.ClientInterface;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -71,13 +68,15 @@ public class QueryPlanner {
         this.dbConfig = dbConfig;
     }
 
-    public void plan(Statement statement, ClientBridge clientBridge) throws SchemaException, BTreeException,
-                                                                            SerializationException, StorageException,
-                                                                            DeserializationException, DbException,
-                                                                            QueryException, ParserException,
-                                                                            ProtoException, InterruptedTaskException,
-                                                                            FileChannelException {
-        final StreamStep streamStep = new OutputStreamStep(clientBridge);
+    public void plan(Statement statement, ClientInterface clientInterface) throws SchemaException, BTreeException,
+                                                                                  SerializationException,
+                                                                                  StorageException,
+                                                                                  DeserializationException, DbException,
+                                                                                  QueryException, ParserException,
+                                                                                  ProtoException,
+                                                                                  InterruptedTaskException,
+                                                                                  FileChannelException {
+        final StreamStep streamStep = new OutputStreamStep(clientInterface);
         Optional<QueryExecutor> queryExecutor = switch (statement.getStatementType()) {
             case CreateDb -> Optional.of(new CreateDbQueryExecutor((CreateDbStatement) statement, streamStep));
             case CreateIndex -> Optional.of(new CreateIndexQueryExecutor((CreateIndexStatement) statement, streamStep));
@@ -225,7 +224,8 @@ public class QueryPlanner {
             builder.addFilterStep(filterStep);
         }
         builder.setSelectorStep(new AttributeSelectorStep(table, selectedColumns))
-                .setTracerStep(new SelectTracerStep(selectedColumns, table, queryContext.getScanInfo()))
+                .setInitialTracerStep(new SelectInitialTracerStep(selectedColumns, table, queryContext.getScanInfo()))
+                .setEndTracerStep(new SelectEndTracerStep())
                 .setStreamStep(streamStep);
 
         if (!Objects.isNull(statement.getOrderBy())) {

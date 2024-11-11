@@ -24,7 +24,7 @@ public class Proto {
                 throw new ProtoException(DbError.INVALID_HEADER_SIZE_ERROR, String.format("Size header is not valid, expected %o but read %o bytes", payloadLenSize, Integer.BYTES));
             }
 
-            int payloadLen = ByteBuffer.wrap(payloadLenBuf).order(ByteOrder.BIG_ENDIAN).getInt();
+            int payloadLen = ByteBuffer.wrap(payloadLenBuf).order(ByteOrder.LITTLE_ENDIAN).getInt();
 
             payloadBuf = new byte[payloadLen];
 

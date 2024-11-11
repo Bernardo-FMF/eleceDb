@@ -30,10 +30,10 @@ public class DefaultSocketWorker implements SocketWorker {
 
     @Override
     public void run() {
-        ClientBridge clientBridge;
+        ClientInterface clientInterface;
         InputStream inputStream;
         try {
-            clientBridge = new ClientBridge(socket.getOutputStream());
+            clientInterface = new DefaultClientInterface(socket.getOutputStream());
             inputStream = socket.getInputStream();
         } catch (IOException exception) {
             throw new RuntimeDbException(DbError.IO_ERROR, exception.getMessage());
@@ -50,14 +50,14 @@ public class DefaultSocketWorker implements SocketWorker {
                 sqlOptimizer.optimize(dependencyContainer.getSchemaManager(), parsedStatement);
 
                 QueryPlanner queryPlanner = dependencyContainer.getQueryPlanner();
-                queryPlanner.plan(parsedStatement, clientBridge);
+                queryPlanner.plan(parsedStatement, clientInterface);
             } catch (ProtoException | ParserException | TokenizerException | SchemaException |
                      AnalyzerException | BTreeException | QueryException | SerializationException |
                      InterruptedTaskException | StorageException | DeserializationException | FileChannelException |
                      DbException exception) {
                 ErrorResultInfo errorResultInfo = new ErrorResultInfo(exception.getDbError(), exception.getMessage());
                 try {
-                    clientBridge.send(BinaryUtils.stringToBytes(errorResultInfo.deserialize()));
+                    clientInterface.send(BinaryUtils.stringToBytes(errorResultInfo.deserialize()));
                 } catch (ProtoException nestedException) {
                     throw new RuntimeDbException(nestedException.getDbError(), nestedException.getMessage());
                 }

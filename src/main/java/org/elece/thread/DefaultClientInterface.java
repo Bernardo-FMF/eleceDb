@@ -6,7 +6,7 @@ import org.elece.exception.ProtoException;
 import java.io.IOException;
 import java.io.OutputStream;
 
-public record ClientBridge(OutputStream outputStream) {
+public record DefaultClientInterface(OutputStream outputStream) implements ClientInterface {
     public void send(byte[] response) throws ProtoException {
         try {
             outputStream.write(response);

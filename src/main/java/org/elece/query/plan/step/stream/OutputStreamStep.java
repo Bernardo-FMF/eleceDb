@@ -2,14 +2,14 @@ package org.elece.query.plan.step.stream;
 
 import org.elece.exception.ProtoException;
 import org.elece.query.result.ResultInfo;
-import org.elece.thread.ClientBridge;
+import org.elece.thread.ClientInterface;
 import org.elece.utils.BinaryUtils;
 
 public class OutputStreamStep extends StreamStep {
-    private final ClientBridge clientBridge;
+    private final ClientInterface clientInterface;
 
-    public OutputStreamStep(ClientBridge clientBridge) {
-        this.clientBridge = clientBridge;
+    public OutputStreamStep(ClientInterface clientInterface) {
+        this.clientInterface = clientInterface;
     }
 
     @Override
@@ -20,11 +20,11 @@ public class OutputStreamStep extends StreamStep {
         BinaryUtils.copyBytes(sizeBytes, concatenatedData, 0, 0, Integer.BYTES);
         BinaryUtils.copyBytes(data, concatenatedData, 0, Integer.BYTES, data.length);
 
-        clientBridge.send(concatenatedData);
+        clientInterface.send(concatenatedData);
     }
 
     @Override
     public void stream(ResultInfo resultInfo) throws ProtoException {
-        clientBridge.send(BinaryUtils.stringToBytes(resultInfo.deserialize()));
+        clientInterface.send(BinaryUtils.stringToBytes(resultInfo.deserialize()));
     }
 }

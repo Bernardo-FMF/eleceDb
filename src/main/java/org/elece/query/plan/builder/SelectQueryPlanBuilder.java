@@ -14,7 +14,8 @@ import java.util.*;
 public class SelectQueryPlanBuilder {
     private final Queue<ScanStep> scanSteps;
     private final Map<Long, List<FilterStep>> filterSteps;
-    private TracerStep<DbObject> tracerStep;
+    private TracerStep<DbObject> initialTracerStep;
+    private TracerStep<DbObject> endTracerStep;
     private SelectorStep selectorStep;
     private OrderStep orderStep;
     private StreamStep streamStep;
@@ -41,8 +42,13 @@ public class SelectQueryPlanBuilder {
         return this;
     }
 
-    public SelectQueryPlanBuilder setTracerStep(TracerStep<DbObject> tracerStep) {
-        this.tracerStep = tracerStep;
+    public SelectQueryPlanBuilder setInitialTracerStep(TracerStep<DbObject> initialTracerStep) {
+        this.initialTracerStep = initialTracerStep;
+        return this;
+    }
+
+    public SelectQueryPlanBuilder setEndTracerStep(TracerStep<DbObject> endTracerStep) {
+        this.endTracerStep = endTracerStep;
         return this;
     }
 
@@ -62,6 +68,6 @@ public class SelectQueryPlanBuilder {
     }
 
     public SelectQueryPlan build() {
-        return new SelectQueryPlan(scanSteps, filterSteps, tracerStep, selectorStep, orderStep, streamStep);
+        return new SelectQueryPlan(scanSteps, filterSteps, initialTracerStep, endTracerStep, selectorStep, orderStep, streamStep);
     }
 }
