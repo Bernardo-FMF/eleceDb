@@ -4,17 +4,19 @@ public class GenericQueryResultInfo extends ResultInfo {
     private static final String PREFIX = "Response::%s::";
 
     private final QueryType queryType;
+    private final String message;
     private final Integer rowCount;
 
-    public GenericQueryResultInfo(QueryType queryType, Integer rowCount) {
+    public GenericQueryResultInfo(QueryType queryType, String message, Integer rowCount) {
         this.queryType = queryType;
+        this.message = message;
         this.rowCount = rowCount;
     }
 
     @Override
     public String deserialize() {
         StringBuilder innerData = new StringBuilder();
-        innerData.append("Message: Database created").append("\n")
+        innerData.append("Message: ").append(message).append("\n")
                 .append("AffectedRowCount: ").append(rowCount).append("\n");
 
         StringBuilder fullData = new StringBuilder();

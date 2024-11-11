@@ -23,6 +23,7 @@ public class DropDbQueryExecutor implements QueryExecutor {
         streamStep.stream(GenericQueryResultInfoBuilder.builder()
                 .setQueryType(GenericQueryResultInfo.QueryType.DROP_DB)
                 .setAffectedRowCount(rowCount)
+                .setMessage("Database deleted")
                 .build());
     }
 }

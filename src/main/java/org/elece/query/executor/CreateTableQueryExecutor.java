@@ -32,6 +32,7 @@ public class CreateTableQueryExecutor implements QueryExecutor {
         streamStep.stream(GenericQueryResultInfoBuilder.builder()
                 .setQueryType(GenericQueryResultInfo.QueryType.CREATE_TABLE)
                 .setAffectedRowCount(0)
+                .setMessage("Table created")
                 .build());
     }
 }

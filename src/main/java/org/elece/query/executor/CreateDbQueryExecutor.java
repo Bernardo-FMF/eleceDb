@@ -23,6 +23,7 @@ public class CreateDbQueryExecutor implements QueryExecutor {
         streamStep.stream(GenericQueryResultInfoBuilder.builder()
                 .setQueryType(GenericQueryResultInfo.QueryType.CREATE_DB)
                 .setAffectedRowCount(0)
+                .setMessage("Database created")
                 .build());
     }
 }

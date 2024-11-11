@@ -26,6 +26,7 @@ public class DropTableQueryExecutor implements QueryExecutor {
         streamStep.stream(GenericQueryResultInfoBuilder.builder()
                 .setQueryType(GenericQueryResultInfo.QueryType.DROP_TABLE)
                 .setAffectedRowCount(rowCount)
+                .setMessage("Table deleted")
                 .build());
     }
 }

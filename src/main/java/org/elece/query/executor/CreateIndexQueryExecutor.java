@@ -30,6 +30,7 @@ public class CreateIndexQueryExecutor implements QueryExecutor {
         streamStep.stream(GenericQueryResultInfoBuilder.builder()
                 .setQueryType(GenericQueryResultInfo.QueryType.CREATE_INDEX)
                 .setAffectedRowCount(rowCount)
+                .setMessage("Index created")
                 .build());
     }
 }
