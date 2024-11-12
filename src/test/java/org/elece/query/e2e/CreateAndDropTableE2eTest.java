@@ -10,12 +10,10 @@ import org.elece.db.schema.model.Table;
 import org.elece.exception.*;
 import org.elece.query.QueryPlanner;
 import org.elece.sql.parser.statement.CreateTableStatement;
+import org.elece.sql.parser.statement.DropTableStatement;
 import org.elece.tcp.DependencyContainer;
 import org.elece.utils.FileTestUtils;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -28,8 +26,10 @@ import static org.elece.db.schema.model.Column.CLUSTER_ID;
  * This integration test aims to validate the "create table" functionality.
  * The workflow is as follows:
  * -> If there is no table created with that name, the new table is persisted in disk, and the client receives a success message.
+ * -> After dropping a table, the client receives a success message.
  */
-class CreateTableE2eTest {
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+class CreateAndDropTableE2eTest {
     private static DbConfig dbConfig;
     private static DependencyContainer dependencyContainer;
 
@@ -52,6 +52,7 @@ class CreateTableE2eTest {
     }
 
     @Test
+    @Order(1)
     void test_createTable() throws SchemaException, ParserException, BTreeException, QueryException,
                                    SerializationException, InterruptedTaskException, StorageException,
                                    DeserializationException, ProtoException, FileChannelException, DbException,
@@ -73,9 +74,9 @@ class CreateTableE2eTest {
         Schema schema = dependencyContainer.getSchemaManager().getSchema();
         Assertions.assertNotNull(schema);
         Assertions.assertEquals("usersDb", schema.getDbName());
-        Assertions.assertEquals(1, schema.getCollections().size());
+        Assertions.assertEquals(1, schema.getTables().size());
 
-        Table usersTable = schema.getCollections().getFirst();
+        Table usersTable = schema.getTables().getFirst();
         Assertions.assertEquals("users", usersTable.getName());
         Assertions.assertEquals(5, usersTable.getColumns().size());
 
@@ -106,5 +107,31 @@ class CreateTableE2eTest {
 
         List<Index> indexes = usersTable.getIndexes();
         Assertions.assertEquals(3, indexes.size());
+    }
+
+    @Test
+    @Order(2)
+    void test_dropTable() throws SchemaException, ParserException, BTreeException, QueryException,
+                                 SerializationException, InterruptedTaskException, StorageException,
+                                 DeserializationException, ProtoException, FileChannelException, DbException,
+                                 AnalyzerException, TokenizerException {
+        MockedClientInterface clientInterface = new MockedClientInterface();
+        QueryPlanner queryPlanner = dependencyContainer.getQueryPlanner();
+
+        DropTableStatement dropTableStatement = (DropTableStatement) E2eUtils.prepareStatement(dependencyContainer.getSchemaManager(), "DROP TABLE users");
+        queryPlanner.plan(dropTableStatement, clientInterface);
+
+        List<MockedClientInterface.Response> responses = clientInterface.getResponses();
+        Assertions.assertEquals(1, responses.size());
+
+        MockedClientInterface.Response createDatabaseResponse = responses.getFirst();
+        Assertions.assertEquals(MockedClientInterface.ResponseType.DROP_TABLE, createDatabaseResponse.responseType());
+        Assertions.assertEquals("Table deleted", E2eUtils.extractValue("Message", createDatabaseResponse.response()));
+        Assertions.assertEquals("0", E2eUtils.extractValue("AffectedRowCount", createDatabaseResponse.response()));
+
+        Schema schema = dependencyContainer.getSchemaManager().getSchema();
+        Assertions.assertNotNull(schema);
+        Assertions.assertEquals("usersDb", schema.getDbName());
+        Assertions.assertEquals(0, schema.getTables().size());
     }
 }

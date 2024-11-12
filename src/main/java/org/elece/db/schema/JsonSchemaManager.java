@@ -48,7 +48,7 @@ public class JsonSchemaManager implements SchemaManager {
         this.gson = new GsonBuilder().serializeNulls().create();
         loadSchema();
 
-        tableIndex = new AtomicInteger(Objects.isNull(schema) || schema.getCollections().isEmpty() ? 0 : schema.getCollections().getLast().getId());
+        tableIndex = new AtomicInteger(Objects.isNull(schema) || schema.getTables().isEmpty() ? 0 : schema.getTables().getLast().getId());
     }
 
     private void loadSchema() throws SchemaException {
@@ -105,7 +105,7 @@ public class JsonSchemaManager implements SchemaManager {
         validateSchemaExists();
 
         int totalRowCount = 0;
-        for (Table table : schema.getCollections()) {
+        for (Table table : schema.getTables()) {
             totalRowCount += deleteTable(table.getName());
         }
 

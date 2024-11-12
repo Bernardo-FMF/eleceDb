@@ -16,7 +16,7 @@ public class SchemaSearcher {
     }
 
     public static Optional<Table> findTable(Schema schema, String name) {
-        return schema.getCollections().stream().filter(collection -> collection.getName().equals(name)).findFirst();
+        return schema.getTables().stream().filter(collection -> collection.getName().equals(name)).findFirst();
     }
 
     public static Optional<Column> findColumn(Table table, String name) {

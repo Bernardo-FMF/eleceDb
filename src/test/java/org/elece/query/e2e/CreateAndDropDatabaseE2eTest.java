@@ -6,6 +6,7 @@ import org.elece.db.schema.model.Schema;
 import org.elece.exception.*;
 import org.elece.query.QueryPlanner;
 import org.elece.sql.parser.statement.CreateDbStatement;
+import org.elece.sql.parser.statement.DropDbStatement;
 import org.elece.tcp.DependencyContainer;
 import org.elece.utils.FileTestUtils;
 import org.junit.jupiter.api.*;
@@ -15,13 +16,14 @@ import java.nio.file.Files;
 import java.util.List;
 
 /**
- * This integration test aims to validate the "create database" functionality.
+ * This integration test suite aims to validate the "create database" and "drop database" functionality.
  * The workflow is as follows:
  * -> If there is no database created yet, the new database is persisted in disk, and the client receives a success message.
  * -> If a database already exists, an exception is thrown, that is then sent to the client.
+ * -> After dropping a database, the client receives a success message.
  */
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-class CreateDatabaseE2eTest {
+class CreateAndDropDatabaseE2eTest {
     private static DbConfig dbConfig;
     private static DependencyContainer dependencyContainer;
 
@@ -64,7 +66,7 @@ class CreateDatabaseE2eTest {
         Schema schema = dependencyContainer.getSchemaManager().getSchema();
         Assertions.assertNotNull(schema);
         Assertions.assertEquals("usersDb", schema.getDbName());
-        Assertions.assertEquals(0, schema.getCollections().size());
+        Assertions.assertEquals(0, schema.getTables().size());
     }
 
     @Test
@@ -75,5 +77,28 @@ class CreateDatabaseE2eTest {
         QueryPlanner queryPlanner = dependencyContainer.getQueryPlanner();
         SchemaException schemaException = Assertions.assertThrows(SchemaException.class, () -> queryPlanner.plan(createDbStatement, new MockedClientInterface()));
         Assertions.assertEquals("Database schema is already defined", schemaException.getMessage());
+    }
+
+    @Test
+    @Order(3)
+    void test_dropDatabase() throws SchemaException, ParserException, AnalyzerException, TokenizerException,
+                                    BTreeException, QueryException, SerializationException, InterruptedTaskException,
+                                    StorageException, DeserializationException, ProtoException, FileChannelException,
+                                    DbException {
+        MockedClientInterface clientInterface = new MockedClientInterface();
+        QueryPlanner queryPlanner = dependencyContainer.getQueryPlanner();
+
+        DropDbStatement dropDbStatement = (DropDbStatement) E2eUtils.prepareStatement(dependencyContainer.getSchemaManager(), "DROP DATABASE usersDb");
+        queryPlanner.plan(dropDbStatement, clientInterface);
+
+        List<MockedClientInterface.Response> responses = clientInterface.getResponses();
+        Assertions.assertEquals(1, responses.size());
+
+        MockedClientInterface.Response createDatabaseResponse = responses.getFirst();
+        Assertions.assertEquals(MockedClientInterface.ResponseType.DROP_DB, createDatabaseResponse.responseType());
+        Assertions.assertEquals("Database deleted", E2eUtils.extractValue("Message", createDatabaseResponse.response()));
+        Assertions.assertEquals("0", E2eUtils.extractValue("AffectedRowCount", createDatabaseResponse.response()));
+
+        Assertions.assertNull(dependencyContainer.getSchemaManager().getSchema());
     }
 }

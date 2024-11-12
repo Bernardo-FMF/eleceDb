@@ -16,7 +16,7 @@ public class Schema {
         return dbName;
     }
 
-    public List<Table> getCollections() {
+    public List<Table> getTables() {
         return tables;
     }
 
