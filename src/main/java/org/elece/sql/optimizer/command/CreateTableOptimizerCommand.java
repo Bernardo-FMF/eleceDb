@@ -24,10 +24,11 @@ public class CreateTableOptimizerCommand implements OptimizerCommand<CreateTable
                 .build();
         clusterColumn.setId(idGenerator.getAndIncrement());
 
-        statement.getColumns().addFirst(clusterColumn);
 
         for (Column column : statement.getColumns()) {
             column.setId(idGenerator.getAndIncrement());
         }
+
+        statement.getColumns().addFirst(clusterColumn);
     }
 }

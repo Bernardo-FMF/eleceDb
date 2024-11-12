@@ -50,7 +50,7 @@ class CreateDatabaseE2eTest {
         MockedClientInterface clientInterface = new MockedClientInterface();
         QueryPlanner queryPlanner = dependencyContainer.getQueryPlanner();
 
-        CreateDbStatement createDbStatement = (CreateDbStatement) E2eUtils.prepareStatement(dependencyContainer.getSchemaManager(), "CREATE DATABASE users");
+        CreateDbStatement createDbStatement = (CreateDbStatement) E2eUtils.prepareStatement(dependencyContainer.getSchemaManager(), "CREATE DATABASE usersDb");
         queryPlanner.plan(createDbStatement, clientInterface);
 
         List<MockedClientInterface.Response> responses = clientInterface.getResponses();
@@ -63,7 +63,7 @@ class CreateDatabaseE2eTest {
 
         Schema schema = dependencyContainer.getSchemaManager().getSchema();
         Assertions.assertNotNull(schema);
-        Assertions.assertEquals("users", schema.getDbName());
+        Assertions.assertEquals("usersDb", schema.getDbName());
         Assertions.assertEquals(0, schema.getCollections().size());
     }
 

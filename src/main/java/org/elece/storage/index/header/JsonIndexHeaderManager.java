@@ -46,7 +46,7 @@ public class JsonIndexHeaderManager implements IndexHeaderManager {
     }
 
     private void loadIndexHeader(File file) throws StorageException {
-        JsonReader jsonReader;
+        JsonReader jsonReader = null;
         try {
             jsonReader = new JsonReader(new FileReader(file));
             IndexHeader newIndexHeader = gson.fromJson(jsonReader, IndexHeader.class);
@@ -58,6 +58,14 @@ public class JsonIndexHeaderManager implements IndexHeaderManager {
             }
         } catch (FileNotFoundException exception) {
             throw new StorageException(DbError.INTERNAL_STORAGE_ERROR, "Couldn't read index header file(s)");
+        } finally {
+            try {
+                if (Objects.nonNull(jsonReader)) {
+                    jsonReader.close();
+                }
+            } catch (IOException exception) {
+                throw new StorageException(DbError.INTERNAL_STORAGE_ERROR, "Failed to close index header file(s)");
+            }
         }
     }
 
