@@ -11,6 +11,7 @@ import org.elece.sql.token.model.type.Symbol;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public interface OptimizerCommand<T extends Statement> extends ExpressionParserVisitor<Expression> {
     SqlNumberValue sqlNumber1 = new SqlNumberValue(1);
@@ -19,6 +20,9 @@ public interface OptimizerCommand<T extends Statement> extends ExpressionParserV
     void optimize(SchemaManager schemaManager, T statement) throws ParserException;
 
     default Expression optimizeWhere(Expression where) throws ParserException {
+        if (Objects.isNull(where)) {
+            return null;
+        }
         return optimize(where);
     }
 
@@ -107,7 +111,9 @@ public interface OptimizerCommand<T extends Statement> extends ExpressionParserV
         return binaryExpression;
     }
 
-    private Expression simplifyExpressionBySqlNumber(BinaryExpression binaryExpression, IdentifierExpression identifierExpression, Expression otherExpression) {
+    private Expression simplifyExpressionBySqlNumber(BinaryExpression binaryExpression,
+                                                     IdentifierExpression identifierExpression,
+                                                     Expression otherExpression) {
         if (otherExpression instanceof ValueExpression<?> valueExpression) {
             if (valueExpression.getValue().equals(sqlNumber0) && (binaryExpression.getOperator() == Symbol.Plus || binaryExpression.getOperator() == Symbol.Minus)) {
                 return identifierExpression;
@@ -122,7 +128,8 @@ public interface OptimizerCommand<T extends Statement> extends ExpressionParserV
         return binaryExpression;
     }
 
-    private Expression optimizeNestedBinaryExpression(BinaryExpression binaryExpression, BinaryExpression innerBinaryExpression) throws ParserException {
+    private Expression optimizeNestedBinaryExpression(BinaryExpression binaryExpression,
+                                                      BinaryExpression innerBinaryExpression) throws ParserException {
         if (innerBinaryExpression.getRight() instanceof ValueExpression<?>) {
             Expression leftInnerExpression = innerBinaryExpression.getLeft();
             innerBinaryExpression.setLeft(binaryExpression.getRight());

@@ -26,6 +26,8 @@ public class IndexPath {
     }
 
     public Queue<DefaultPathNode> buildNodePathsQueue() {
-        return new PriorityQueue<>(Comparator.comparingInt(DefaultPathNode::getPriority));
+        PriorityQueue<DefaultPathNode> newQueue = new PriorityQueue<>(Comparator.comparingInt(DefaultPathNode::getPriority));
+        newQueue.addAll(nodePaths);
+        return newQueue;
     }
 }

@@ -37,7 +37,7 @@ class InsertE2eTest {
                                DbException {
         dbConfig = DefaultDbConfigBuilder.builder()
                 .setPort(3000)
-                .setBaseDbPath(Files.createTempDirectory("Create_Index_E2e_Test").toString())
+                .setBaseDbPath(Files.createTempDirectory("Insert_E2e_Test").toString())
                 .setSessionStrategy(DbConfig.SessionStrategy.IMMEDIATE)
                 .build();
 

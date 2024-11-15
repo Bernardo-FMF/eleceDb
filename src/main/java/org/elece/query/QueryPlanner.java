@@ -118,10 +118,6 @@ public class QueryPlanner {
         Table table = possibleTable.get();
 
         NodeCollection nodeCollection = buildNodeCollection(table, statement.getWhere());
-        if (nodeCollection.isEmpty()) {
-            return Optional.empty();
-        }
-
         QueryContext queryContext = new QueryContext();
         findScanPaths(queryContext, table, nodeCollection, Order.DEFAULT_ORDER);
 
@@ -151,10 +147,6 @@ public class QueryPlanner {
         Table table = possibleTable.get();
 
         NodeCollection nodeCollection = buildNodeCollection(table, statement.getWhere());
-        if (nodeCollection.isEmpty()) {
-            return Optional.empty();
-        }
-
         QueryContext queryContext = new QueryContext();
         findScanPaths(queryContext, table, nodeCollection, Order.DEFAULT_ORDER);
 
@@ -209,10 +201,6 @@ public class QueryPlanner {
                 .toList();
 
         NodeCollection nodeCollection = buildNodeCollection(table, statement.getWhere());
-        if (nodeCollection.isEmpty()) {
-            return Optional.empty();
-        }
-
         QueryContext queryContext = new QueryContext();
         findScanPaths(queryContext, table, nodeCollection, order);
 
@@ -244,6 +232,12 @@ public class QueryPlanner {
                                                                                                      StorageException,
                                                                                                      FileChannelException,
                                                                                                      BTreeException {
+        if (nodeCollection.isEmpty()) {
+            ScanStep scanStep = new SequentialScanStep(table, columnIndexManagerProvider, databaseStorageManager);
+            queryContext.getScanInfo().addMainScan(SchemaSearcher.findClusterColumn(table));
+            queryContext.addScanStep(scanStep);
+            return;
+        }
         for (IndexPath indexPath : nodeCollection.getIndexPaths()) {
             Optional<DefaultPathNode> possibleMainPath = findMainPath(indexPath);
             ScanStep scanStep;
@@ -288,6 +282,9 @@ public class QueryPlanner {
     }
 
     private NodeCollection buildNodeCollection(Table table, Expression filter) throws QueryException {
+        if (Objects.isNull(filter)) {
+            return new NodeCollection();
+        }
         return filter.accept(new IndexPathFinder(table));
     }
 
@@ -296,6 +293,10 @@ public class QueryPlanner {
         if (nodePaths.isEmpty()) {
             return Optional.empty();
         }
-        return Optional.of(nodePaths.poll());
+        DefaultPathNode polledNode = nodePaths.poll();
+        if (polledNode.getIndexType() == DefaultPathNode.IndexType.NON_INDEXED) {
+            return Optional.empty();
+        }
+        return Optional.of(polledNode);
     }
 }
