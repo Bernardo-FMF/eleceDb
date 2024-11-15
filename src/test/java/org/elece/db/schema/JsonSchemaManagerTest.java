@@ -36,7 +36,7 @@ import java.util.Optional;
 
 import static org.elece.db.schema.model.Column.CLUSTER_ID;
 
-public class JsonSchemaManagerTest {
+class JsonSchemaManagerTest {
     private static final int VARCHAR_MAX_SIZE = 255;
 
     private static final String TABLE_NAME = "user_table";
@@ -47,7 +47,7 @@ public class JsonSchemaManagerTest {
     private Table table;
 
     @BeforeEach
-    public void setup() throws IOException {
+    void setup() throws IOException {
         dbConfig = DefaultDbConfigBuilder.builder()
                 .setBaseDbPath(Files.createTempDirectory("Json_Schema_Manager_Test").toString())
                 .build();
@@ -62,7 +62,7 @@ public class JsonSchemaManagerTest {
     }
 
     @Test
-    public void test_createSchema() throws SchemaException {
+    void test_createSchema() throws SchemaException {
         DatabaseStorageManager databaseStorageManager = new DiskPageDatabaseStorageManager(dbConfig, new UnrestrictedFileHandlerPool(DefaultFileHandlerFactory.getInstance(), dbConfig), new InMemoryReservedSlotTracer());
         ColumnIndexManagerProvider columnIndexManagerProvider = new DefaultColumnIndexManagerProvider(dbConfig, new DefaultIndexStorageManagerFactory(dbConfig, new DefaultFileHandlerPoolFactory(dbConfig), new DefaultIndexHeaderManagerFactory()));
 
@@ -74,7 +74,7 @@ public class JsonSchemaManagerTest {
     }
 
     @Test
-    public void test_createTable() throws SchemaException, StorageException {
+    void test_createTable() throws SchemaException, StorageException {
         DatabaseStorageManager databaseStorageManager = new DiskPageDatabaseStorageManager(dbConfig, new UnrestrictedFileHandlerPool(DefaultFileHandlerFactory.getInstance(), dbConfig), new InMemoryReservedSlotTracer());
         ColumnIndexManagerProvider columnIndexManagerProvider = new DefaultColumnIndexManagerProvider(dbConfig, new DefaultIndexStorageManagerFactory(dbConfig, new DefaultFileHandlerPoolFactory(dbConfig), new DefaultIndexHeaderManagerFactory()));
 
@@ -97,7 +97,7 @@ public class JsonSchemaManagerTest {
     }
 
     @Test
-    public void test_createIndex() throws SchemaException, StorageException, BTreeException, SerializationException,
+    void test_createIndex() throws SchemaException, StorageException, BTreeException, SerializationException,
                                           DeserializationException, DbException, InterruptedTaskException,
                                           FileChannelException {
         DatabaseStorageManager databaseStorageManager = new DiskPageDatabaseStorageManager(dbConfig, new UnrestrictedFileHandlerPool(DefaultFileHandlerFactory.getInstance(), dbConfig), new InMemoryReservedSlotTracer());
@@ -121,7 +121,7 @@ public class JsonSchemaManagerTest {
     }
 
     @Test
-    public void test_createIndexWithPreviousData() throws SchemaException, StorageException, DbException,
+    void test_createIndexWithPreviousData() throws SchemaException, StorageException, DbException,
                                                           BTreeException, SerializationException,
                                                           DeserializationException, InterruptedTaskException,
                                                           FileChannelException {
@@ -166,7 +166,7 @@ public class JsonSchemaManagerTest {
     }
 
     @Test
-    public void test_deleteTable() throws SchemaException, StorageException, DbException, InterruptedTaskException,
+    void test_deleteTable() throws SchemaException, StorageException, DbException, InterruptedTaskException,
                                           FileChannelException {
         DatabaseStorageManager databaseStorageManager = new DiskPageDatabaseStorageManager(dbConfig, new UnrestrictedFileHandlerPool(DefaultFileHandlerFactory.getInstance(), dbConfig), new InMemoryReservedSlotTracer());
         ColumnIndexManagerProvider columnIndexManagerProvider = new DefaultColumnIndexManagerProvider(dbConfig, new DefaultIndexStorageManagerFactory(dbConfig, new DefaultFileHandlerPoolFactory(dbConfig), new DefaultIndexHeaderManagerFactory()));
@@ -185,7 +185,7 @@ public class JsonSchemaManagerTest {
     }
 
     @Test
-    public void test_deleteTableWithPreviousData() throws SchemaException, StorageException, DbException,
+    void test_deleteTableWithPreviousData() throws SchemaException, StorageException, DbException,
                                                           BTreeException, SerializationException,
                                                           InterruptedTaskException, FileChannelException {
         DatabaseStorageManager databaseStorageManager = new DiskPageDatabaseStorageManager(dbConfig, new UnrestrictedFileHandlerPool(DefaultFileHandlerFactory.getInstance(), dbConfig), new InMemoryReservedSlotTracer());

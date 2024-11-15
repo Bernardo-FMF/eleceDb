@@ -19,7 +19,7 @@ class UnrestrictedFileHandlerPoolTest {
     private Path dbPath;
 
     @BeforeEach
-    public void setup() throws IOException {
+    void setup() throws IOException {
         dbPath = Files.createTempDirectory("Unrestricted_File_Handler_Pool_Test_Case");
         DbConfig dbConfig = DefaultDbConfigBuilder.builder()
                 .setFileDescriptorAcquisitionSize(1)
@@ -34,12 +34,12 @@ class UnrestrictedFileHandlerPoolTest {
     }
 
     @AfterEach
-    public void destroy() throws IOException {
+    void destroy() throws IOException {
         FileTestUtils.deleteDirectory(dbPath.toString());
     }
 
     @Test
-    public void test_acquireFileHandler_newHandler() throws InterruptedTaskException, FileChannelException {
+    void test_acquireFileHandler_newHandler() throws InterruptedTaskException, FileChannelException {
         String filename1 = "file1.bin";
 
         Path file1 = Path.of(dbPath.toString(), filename1);
@@ -52,7 +52,7 @@ class UnrestrictedFileHandlerPoolTest {
     }
 
     @Test
-    public void test_acquireFileHandler_existingHandler() throws InterruptedTaskException, FileChannelException {
+    void test_acquireFileHandler_existingHandler() throws InterruptedTaskException, FileChannelException {
         String filename1 = "file1.bin";
 
         Path file1 = Path.of(dbPath.toString(), filename1);

@@ -36,7 +36,7 @@ class IndexPathFinderTest {
     private Table table;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         Column clusterColumn = new Column(CLUSTER_ID, SqlType.intType, new ArrayList<>(List.of(SqlConstraint.Unique)));
         clusterColumn.setId(1);
         Column idColumn = new Column(COLUMN_ID_PRIMARY, SqlType.intType, new ArrayList<>(List.of(SqlConstraint.PrimaryKey)));
@@ -67,7 +67,8 @@ class IndexPathFinderTest {
     }
 
     @Test
-    public void test_WhereExpressionWithSinglePath_NumberEquality() throws ParserException, TokenizerException, QueryException {
+    void test_WhereExpressionWithSinglePath_NumberEquality() throws ParserException, TokenizerException,
+                                                                    QueryException {
         SqlParser sqlParser = new SqlParser("SELECT id, name FROM users WHERE id = 1;");
         SelectStatement statement = (SelectStatement) sqlParser.parse();
 
@@ -88,7 +89,8 @@ class IndexPathFinderTest {
     }
 
     @Test
-    public void test_WhereExpressionWithSinglePath_StringEquality() throws ParserException, TokenizerException, QueryException {
+    void test_WhereExpressionWithSinglePath_StringEquality() throws ParserException, TokenizerException,
+                                                                    QueryException {
         SqlParser sqlParser = new SqlParser("SELECT id, name FROM users WHERE name = \"user\";");
         SelectStatement statement = (SelectStatement) sqlParser.parse();
 
@@ -109,7 +111,8 @@ class IndexPathFinderTest {
     }
 
     @Test
-    public void test_WhereExpressionWithSinglePath_BooleanEquality() throws ParserException, TokenizerException, QueryException {
+    void test_WhereExpressionWithSinglePath_BooleanEquality() throws ParserException, TokenizerException,
+                                                                     QueryException {
         SqlParser sqlParser = new SqlParser("SELECT id, name FROM users WHERE isDeleted = false;");
         SelectStatement statement = (SelectStatement) sqlParser.parse();
 
@@ -130,7 +133,7 @@ class IndexPathFinderTest {
     }
 
     @Test
-    public void test_WhereExpressionWithUnionPaths() throws ParserException, TokenizerException, QueryException {
+    void test_WhereExpressionWithUnionPaths() throws ParserException, TokenizerException, QueryException {
         SqlParser sqlParser = new SqlParser("SELECT id, name FROM users WHERE id = 1 or name = \"user\";");
         SelectStatement statement = (SelectStatement) sqlParser.parse();
 
@@ -160,7 +163,7 @@ class IndexPathFinderTest {
     }
 
     @Test
-    public void test_WhereExpressionWithMergedPaths() throws ParserException, TokenizerException, QueryException {
+    void test_WhereExpressionWithMergedPaths() throws ParserException, TokenizerException, QueryException {
         SqlParser sqlParser = new SqlParser("SELECT id, name FROM users WHERE id = 1 and name = \"user\";");
         SelectStatement statement = (SelectStatement) sqlParser.parse();
 
@@ -183,7 +186,7 @@ class IndexPathFinderTest {
     }
 
     @Test
-    public void test_WhereExpressionWithUnionPathsMerged() throws ParserException, TokenizerException, QueryException {
+    void test_WhereExpressionWithUnionPathsMerged() throws ParserException, TokenizerException, QueryException {
         SqlParser sqlParser = new SqlParser("SELECT id, name FROM users WHERE (id = 1 or name = \"user\") and isDeleted = false;");
         SelectStatement statement = (SelectStatement) sqlParser.parse();
 
@@ -217,7 +220,7 @@ class IndexPathFinderTest {
     }
 
     @Test
-    public void test_WhereExpressionWithMergedPathsUnion() throws ParserException, TokenizerException, QueryException {
+    void test_WhereExpressionWithMergedPathsUnion() throws ParserException, TokenizerException, QueryException {
         SqlParser sqlParser = new SqlParser("SELECT id, name FROM users WHERE (id = 1 and name = \"user\") or isDeleted = false;");
         SelectStatement statement = (SelectStatement) sqlParser.parse();
 
@@ -250,7 +253,8 @@ class IndexPathFinderTest {
     }
 
     @Test
-    public void test_WhereExpressionWithMergedPathsWithInvalidIntersection() throws ParserException, TokenizerException, QueryException {
+    void test_WhereExpressionWithMergedPathsWithInvalidIntersection() throws ParserException, TokenizerException,
+                                                                             QueryException {
         SqlParser sqlParser = new SqlParser("SELECT id, name FROM users WHERE id < 1 and id > 10;");
         SelectStatement statement = (SelectStatement) sqlParser.parse();
 
@@ -261,7 +265,7 @@ class IndexPathFinderTest {
     }
 
     @Test
-    public void test_WhereExpressionWithRange_1() throws ParserException, TokenizerException, QueryException {
+    void test_WhereExpressionWithRange_1() throws ParserException, TokenizerException, QueryException {
         SqlParser sqlParser = new SqlParser("SELECT id, name FROM users WHERE id > 1;");
         SelectStatement statement = (SelectStatement) sqlParser.parse();
 
@@ -283,7 +287,7 @@ class IndexPathFinderTest {
     }
 
     @Test
-    public void test_WhereExpressionWithRange_2() throws ParserException, TokenizerException, QueryException {
+    void test_WhereExpressionWithRange_2() throws ParserException, TokenizerException, QueryException {
         SqlParser sqlParser = new SqlParser("SELECT id, name FROM users WHERE id <= 10;");
         SelectStatement statement = (SelectStatement) sqlParser.parse();
 
@@ -305,7 +309,7 @@ class IndexPathFinderTest {
     }
 
     @Test
-    public void test_WhereExpressionWithRange_3() throws ParserException, TokenizerException, QueryException {
+    void test_WhereExpressionWithRange_3() throws ParserException, TokenizerException, QueryException {
         SqlParser sqlParser = new SqlParser("SELECT id, name FROM users WHERE id <= 10 and name = \"user\";");
         SelectStatement statement = (SelectStatement) sqlParser.parse();
 

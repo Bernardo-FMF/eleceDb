@@ -6,9 +6,9 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Optional;
 
-public class BooleanEqualityComparatorTest {
+class BooleanEqualityComparatorTest {
     @Test
-    public void test_compareSameValue_expectEquality() {
+    void test_compareSameValue_expectEquality() {
         SqlBoolValue value = new SqlBoolValue(true);
         SqlBoolValue inputValue = new SqlBoolValue(true);
 
@@ -18,7 +18,7 @@ public class BooleanEqualityComparatorTest {
     }
 
     @Test
-    public void test_compareDifferentValues_expectEquality() {
+    void test_compareDifferentValues_expectEquality() {
         SqlBoolValue value = new SqlBoolValue(true);
         SqlBoolValue inputValue = new SqlBoolValue(false);
 
@@ -28,7 +28,7 @@ public class BooleanEqualityComparatorTest {
     }
 
     @Test
-    public void test_compareSameValue_expectInequality() {
+    void test_compareSameValue_expectInequality() {
         SqlBoolValue value = new SqlBoolValue(true);
         SqlBoolValue inputValue = new SqlBoolValue(true);
 
@@ -38,7 +38,7 @@ public class BooleanEqualityComparatorTest {
     }
 
     @Test
-    public void test_compareDifferentValues_expectInequality() {
+    void test_compareDifferentValues_expectInequality() {
         SqlBoolValue value = new SqlBoolValue(true);
         SqlBoolValue inputValue = new SqlBoolValue(false);
 
@@ -48,7 +48,7 @@ public class BooleanEqualityComparatorTest {
     }
 
     @Test
-    public void test_intersectSameValue_expectEquality() {
+    void test_intersectSameValue_expectEquality() {
         SqlBoolValue value1 = new SqlBoolValue(true);
         SqlBoolValue value2 = new SqlBoolValue(true);
 
@@ -65,7 +65,7 @@ public class BooleanEqualityComparatorTest {
     }
 
     @Test
-    public void test_intersectSameValues_invalidIntersection() {
+    void test_intersectSameValues_invalidIntersection() {
         SqlBoolValue value1 = new SqlBoolValue(true);
         SqlBoolValue value2 = new SqlBoolValue(true);
 
@@ -77,7 +77,7 @@ public class BooleanEqualityComparatorTest {
     }
 
     @Test
-    public void test_intersectDifferentValues_invalidIntersection() {
+    void test_intersectDifferentValues_invalidIntersection() {
         SqlBoolValue value1 = new SqlBoolValue(true);
         SqlBoolValue value2 = new SqlBoolValue(false);
 
@@ -89,7 +89,7 @@ public class BooleanEqualityComparatorTest {
     }
 
     @Test
-    public void test_intersectSameValue_expectInequality() {
+    void test_intersectSameValue_expectInequality() {
         SqlBoolValue value1 = new SqlBoolValue(true);
         SqlBoolValue value2 = new SqlBoolValue(true);
 

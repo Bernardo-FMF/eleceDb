@@ -2,14 +2,13 @@ package org.elece.sql.token.processor;
 
 import org.elece.sql.token.CharStream;
 import org.elece.sql.token.TokenWrapper;
-import org.elece.sql.token.model.NumberToken;
 import org.elece.sql.token.model.StringToken;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 class StringTokenProcessorTest {
     @Test
-    public void test_singleQuotationMarks() {
+    void test_singleQuotationMarks() {
         StringTokenProcessor stringTokenProcessor = new StringTokenProcessor();
 
         String input = "'test'";
@@ -23,7 +22,7 @@ class StringTokenProcessorTest {
     }
 
     @Test
-    public void test_doubleQuotationMarks() {
+    void test_doubleQuotationMarks() {
         StringTokenProcessor stringTokenProcessor = new StringTokenProcessor();
 
         String input = "\"test\"";

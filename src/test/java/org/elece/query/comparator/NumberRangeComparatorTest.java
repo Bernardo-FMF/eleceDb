@@ -8,7 +8,7 @@ import java.util.Optional;
 
 class NumberRangeComparatorTest {
     @Test
-    public void test_compareValueWithinRange_1() {
+    void test_compareValueWithinRange_1() {
         SqlNumberValue leftBoundary = new SqlNumberValue(1);
         SqlNumberValue rightBoundary = new SqlNumberValue(4);
 
@@ -23,7 +23,7 @@ class NumberRangeComparatorTest {
     }
 
     @Test
-    public void test_compareValueWithinRange_2() {
+    void test_compareValueWithinRange_2() {
         SqlNumberValue leftBoundary = new SqlNumberValue(1);
         SqlNumberValue rightBoundary = new SqlNumberValue(4);
 
@@ -38,7 +38,7 @@ class NumberRangeComparatorTest {
     }
 
     @Test
-    public void test_compareValueWithinRange_3() {
+    void test_compareValueWithinRange_3() {
         SqlNumberValue leftBoundary = new SqlNumberValue(1);
 
         NumberRangeComparator numberRangeComparator = new NumberRangeComparator(leftBoundary, null,
@@ -52,7 +52,7 @@ class NumberRangeComparatorTest {
     }
 
     @Test
-    public void test_compareValueWithinRange_4() {
+    void test_compareValueWithinRange_4() {
         NumberRangeComparator numberRangeComparator = new NumberRangeComparator(null, null,
                 NumberRangeComparator.InclusionType.Excluded, NumberRangeComparator.InclusionType.Excluded);
 
@@ -64,7 +64,7 @@ class NumberRangeComparatorTest {
     }
 
     @Test
-    public void test_intersectRange_1() {
+    void test_intersectRange_1() {
         SqlNumberValue leftBoundary1 = new SqlNumberValue(1);
         SqlNumberValue rightBoundary1 = new SqlNumberValue(4);
 
@@ -83,7 +83,7 @@ class NumberRangeComparatorTest {
     }
 
     @Test
-    public void test_intersectRange_2() {
+    void test_intersectRange_2() {
         SqlNumberValue leftBoundary1 = new SqlNumberValue(1);
         SqlNumberValue rightBoundary1 = new SqlNumberValue(4);
 
@@ -109,7 +109,7 @@ class NumberRangeComparatorTest {
     }
 
     @Test
-    public void test_intersectRange_3() {
+    void test_intersectRange_3() {
         NumberRangeComparator numberRangeComparator1 = new NumberRangeComparator(null, null,
                 NumberRangeComparator.InclusionType.Included, NumberRangeComparator.InclusionType.Included);
 
@@ -132,7 +132,7 @@ class NumberRangeComparatorTest {
     }
 
     @Test
-    public void test_intersectRange_4() {
+    void test_intersectRange_4() {
         NumberEqualityComparator numberEqualityComparator = new NumberEqualityComparator(new SqlNumberValue(5), true);
 
         SqlNumberValue leftBoundary2 = new SqlNumberValue(4);
@@ -155,7 +155,7 @@ class NumberRangeComparatorTest {
     }
 
     @Test
-    public void test_intersectRange_5() {
+    void test_intersectRange_5() {
         NumberEqualityComparator numberEqualityComparator = new NumberEqualityComparator(new SqlNumberValue(5), false);
 
         SqlNumberValue leftBoundary2 = new SqlNumberValue(4);

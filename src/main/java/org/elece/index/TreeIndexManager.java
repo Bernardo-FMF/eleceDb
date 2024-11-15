@@ -155,11 +155,12 @@ public class TreeIndexManager<K extends Comparable<K>, V> extends AbstractTreeIn
     }
 
     @Override
-    public K getLastIndex() throws StorageException, InterruptedTaskException, FileChannelException {
+    public Optional<K> getLastIndex() throws StorageException, InterruptedTaskException, FileChannelException {
         Session<K> session = this.sessionFactory.create(indexStorageManager, indexId, nodeFactory, keyValueSize);
         AbstractTreeNode<K> root = getRoot(session);
         LeafTreeNode<K, V> farRightLeaf = getFarRightLeaf(session, root);
-        return farRightLeaf.getKeyList(dbConfig.getBTreeDegree()).getLast();
+        List<K> keyList = farRightLeaf.getKeyList(dbConfig.getBTreeDegree());
+        return !keyList.isEmpty() ? Optional.of(keyList.getLast()) : Optional.empty();
     }
 
     private AbstractTreeNode<K> getRoot(Session<K> session) throws StorageException, InterruptedTaskException,

@@ -31,9 +31,17 @@ public class InsertOptimizerCommand implements OptimizerCommand<InsertStatement>
         }
 
         List<Column> columns = table.getColumns();
+        if (columns.size() - 1 != statement.getValues().size()) {
+            throw new ParserException(DbError.TOO_MANY_VALUES_ERROR, "Number of values to be inserted exceeds the number of columns in the table");
+        }
+
         for (int currentIndex = 0; currentIndex < columns.size(); currentIndex++) {
             Column currentColumn = columns.get(currentIndex);
-            int sortedIndex = currentColumn.getId();
+            if (CLUSTER_ID.equals(currentColumn.getName())) {
+                continue;
+            }
+
+            int sortedIndex = currentColumn.getId() - 1;
 
             if (currentIndex != sortedIndex) {
                 Collections.swap(columns, currentIndex, sortedIndex);

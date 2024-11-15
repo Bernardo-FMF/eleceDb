@@ -25,5 +25,5 @@ public interface IndexManager<K extends Comparable<K>, V> extends Queryable<K, V
     LockableIterator<LeafTreeNode.KeyValue<K, V>> getSortedIterator() throws StorageException, InterruptedTaskException,
                                                                              FileChannelException;
 
-    K getLastIndex() throws StorageException, InterruptedTaskException, FileChannelException;
+    Optional<K> getLastIndex() throws StorageException, InterruptedTaskException, FileChannelException;
 }

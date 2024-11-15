@@ -21,7 +21,7 @@ class RestrictedFileHandlerPoolTest {
     private Path dbPath;
 
     @BeforeEach
-    public void setup() throws IOException {
+    void setup() throws IOException {
         dbPath = Files.createTempDirectory("Restricted_File_Handler_Pool_Test_Case");
         DbConfig dbConfig = DefaultDbConfigBuilder.builder()
                 .setFileDescriptorAcquisitionSize(1)
@@ -36,12 +36,12 @@ class RestrictedFileHandlerPoolTest {
     }
 
     @AfterEach
-    public void destroy() throws IOException {
+    void destroy() throws IOException {
         FileTestUtils.deleteDirectory(dbPath.toString());
     }
 
     @Test
-    public void test_acquireFileHandler_newHandler() throws StorageException, InterruptedTaskException,
+    void test_acquireFileHandler_newHandler() throws StorageException, InterruptedTaskException,
                                                             FileChannelException {
         String filename1 = "file1.bin";
 
@@ -55,7 +55,7 @@ class RestrictedFileHandlerPoolTest {
     }
 
     @Test
-    public void test_acquireFileHandler_existingHandler() throws StorageException, InterruptedTaskException,
+    void test_acquireFileHandler_existingHandler() throws StorageException, InterruptedTaskException,
                                                                  FileChannelException {
         String filename1 = "file1.bin";
 
@@ -71,7 +71,7 @@ class RestrictedFileHandlerPoolTest {
     }
 
     @Test
-    public void test_acquireFileHandler_timeout() throws StorageException, InterruptedTaskException,
+    void test_acquireFileHandler_timeout() throws StorageException, InterruptedTaskException,
                                                          FileChannelException {
         String filename1 = "file1.bin";
         String filename2 = "file2.bin";

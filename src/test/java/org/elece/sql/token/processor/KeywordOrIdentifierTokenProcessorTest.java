@@ -4,14 +4,13 @@ import org.elece.sql.token.CharStream;
 import org.elece.sql.token.TokenWrapper;
 import org.elece.sql.token.model.IdentifierToken;
 import org.elece.sql.token.model.KeywordToken;
-import org.elece.sql.token.model.Token;
 import org.elece.sql.token.model.type.Keyword;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 class KeywordOrIdentifierTokenProcessorTest {
     @Test
-    public void test_keyword() {
+    void test_keyword() {
         KeywordOrIdentifierTokenProcessor keywordOrIdentifierTokenProcessor = new KeywordOrIdentifierTokenProcessor();
 
         String input = "select";
@@ -25,7 +24,7 @@ class KeywordOrIdentifierTokenProcessorTest {
     }
 
     @Test
-    public void test_identifier() {
+    void test_identifier() {
         KeywordOrIdentifierTokenProcessor keywordOrIdentifierTokenProcessor = new KeywordOrIdentifierTokenProcessor();
 
         String input = "name";
@@ -39,7 +38,7 @@ class KeywordOrIdentifierTokenProcessorTest {
     }
 
     @Test
-    public void test_keywordFollowedByIdentifier() {
+    void test_keywordFollowedByIdentifier() {
         KeywordOrIdentifierTokenProcessor keywordOrIdentifierTokenProcessor = new KeywordOrIdentifierTokenProcessor();
 
         String input = "select name";

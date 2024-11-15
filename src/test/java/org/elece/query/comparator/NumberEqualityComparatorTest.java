@@ -8,7 +8,7 @@ import java.util.Optional;
 
 class NumberEqualityComparatorTest {
     @Test
-    public void test_compareSameValue_expectEquality() {
+    void test_compareSameValue_expectEquality() {
         SqlNumberValue value = new SqlNumberValue(1);
         SqlNumberValue inputValue = new SqlNumberValue(1);
 
@@ -18,7 +18,7 @@ class NumberEqualityComparatorTest {
     }
 
     @Test
-    public void test_compareDifferentValues_expectEquality() {
+    void test_compareDifferentValues_expectEquality() {
         SqlNumberValue value = new SqlNumberValue(1);
         SqlNumberValue inputValue = new SqlNumberValue(2);
 
@@ -28,7 +28,7 @@ class NumberEqualityComparatorTest {
     }
 
     @Test
-    public void test_compareSameValue_expectInequality() {
+    void test_compareSameValue_expectInequality() {
         SqlNumberValue value = new SqlNumberValue(1);
         SqlNumberValue inputValue = new SqlNumberValue(1);
 
@@ -38,7 +38,7 @@ class NumberEqualityComparatorTest {
     }
 
     @Test
-    public void test_compareDifferentValues_expectInequality() {
+    void test_compareDifferentValues_expectInequality() {
         SqlNumberValue value = new SqlNumberValue(1);
         SqlNumberValue inputValue = new SqlNumberValue(2);
 
@@ -48,7 +48,7 @@ class NumberEqualityComparatorTest {
     }
 
     @Test
-    public void test_intersectSameValue_expectEquality() {
+    void test_intersectSameValue_expectEquality() {
         SqlNumberValue value1 = new SqlNumberValue(1);
         SqlNumberValue value2 = new SqlNumberValue(1);
 
@@ -65,7 +65,7 @@ class NumberEqualityComparatorTest {
     }
 
     @Test
-    public void test_intersectSameValues_invalidIntersection() {
+    void test_intersectSameValues_invalidIntersection() {
         SqlNumberValue value1 = new SqlNumberValue(1);
         SqlNumberValue value2 = new SqlNumberValue(1);
 
@@ -77,7 +77,7 @@ class NumberEqualityComparatorTest {
     }
 
     @Test
-    public void test_intersectDifferentValues_invalidIntersection() {
+    void test_intersectDifferentValues_invalidIntersection() {
         SqlNumberValue value1 = new SqlNumberValue(1);
         SqlNumberValue value2 = new SqlNumberValue(2);
 
@@ -89,7 +89,7 @@ class NumberEqualityComparatorTest {
     }
 
     @Test
-    public void test_intersectSameValue_expectInequality() {
+    void test_intersectSameValue_expectInequality() {
         SqlNumberValue value1 = new SqlNumberValue(1);
         SqlNumberValue value2 = new SqlNumberValue(1);
 

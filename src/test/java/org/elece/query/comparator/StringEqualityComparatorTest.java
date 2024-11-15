@@ -6,9 +6,9 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Optional;
 
-public class StringEqualityComparatorTest {
+class StringEqualityComparatorTest {
     @Test
-    public void test_compareSameValue_expectEquality() {
+    void test_compareSameValue_expectEquality() {
         SqlStringValue value = new SqlStringValue("user1");
         SqlStringValue inputValue = new SqlStringValue("user1");
 
@@ -18,7 +18,7 @@ public class StringEqualityComparatorTest {
     }
 
     @Test
-    public void test_compareDifferentValues_expectEquality() {
+    void test_compareDifferentValues_expectEquality() {
         SqlStringValue value = new SqlStringValue("user1");
         SqlStringValue inputValue = new SqlStringValue("user2");
 
@@ -28,7 +28,7 @@ public class StringEqualityComparatorTest {
     }
 
     @Test
-    public void test_compareSameValue_expectInequality() {
+    void test_compareSameValue_expectInequality() {
         SqlStringValue value = new SqlStringValue("user1");
         SqlStringValue inputValue = new SqlStringValue("user1");
 
@@ -38,7 +38,7 @@ public class StringEqualityComparatorTest {
     }
 
     @Test
-    public void test_compareDifferentValues_expectInequality() {
+    void test_compareDifferentValues_expectInequality() {
         SqlStringValue value = new SqlStringValue("user1");
         SqlStringValue inputValue = new SqlStringValue("user2");
 
@@ -48,7 +48,7 @@ public class StringEqualityComparatorTest {
     }
 
     @Test
-    public void test_intersectSameValue_expectEquality() {
+    void test_intersectSameValue_expectEquality() {
         SqlStringValue value1 = new SqlStringValue("user1");
         SqlStringValue value2 = new SqlStringValue("user1");
 
@@ -65,7 +65,7 @@ public class StringEqualityComparatorTest {
     }
 
     @Test
-    public void test_intersectSameValues_invalidIntersection() {
+    void test_intersectSameValues_invalidIntersection() {
         SqlStringValue value1 = new SqlStringValue("user1");
         SqlStringValue value2 = new SqlStringValue("user1");
 
@@ -77,7 +77,7 @@ public class StringEqualityComparatorTest {
     }
 
     @Test
-    public void test_intersectDifferentValues_invalidIntersection() {
+    void test_intersectDifferentValues_invalidIntersection() {
         SqlStringValue value1 = new SqlStringValue("user1");
         SqlStringValue value2 = new SqlStringValue("user2");
 
@@ -89,7 +89,7 @@ public class StringEqualityComparatorTest {
     }
 
     @Test
-    public void test_intersectSameValue_expectInequality() {
+    void test_intersectSameValue_expectInequality() {
         SqlStringValue value1 = new SqlStringValue("user1");
         SqlStringValue value2 = new SqlStringValue("user1");
 

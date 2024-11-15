@@ -49,8 +49,8 @@ public class InsertValueStep extends ValueStep {
         }
 
         IndexManager<Integer, Pointer> clusterIndexManager = columnIndexManagerProvider.getClusterIndexManager(table);
-        int clusterId = clusterIndexManager.getLastIndex();
-        literalValues.addFirst(new SqlNumberValue(clusterId));
+        Optional<Integer> clusterId = clusterIndexManager.getLastIndex();
+        literalValues.addFirst(new SqlNumberValue(clusterId.orElse(1)));
 
         List<Column> columns = table.getColumns();
         for (int columnId = 0; columnId < columns.size(); columnId++) {

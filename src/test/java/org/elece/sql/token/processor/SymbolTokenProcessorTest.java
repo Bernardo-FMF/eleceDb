@@ -2,7 +2,6 @@ package org.elece.sql.token.processor;
 
 import org.elece.sql.token.CharStream;
 import org.elece.sql.token.TokenWrapper;
-import org.elece.sql.token.model.StringToken;
 import org.elece.sql.token.model.SymbolToken;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -13,7 +12,7 @@ class SymbolTokenProcessorTest {
     private static final Set<String> CHARACTERS = Set.of("=", "<", ">", "*", "/", "-", "+", "(", ")", ",", ";", "!=", "<=", ">=");
 
     @Test
-    public void test_allCharacters() {
+    void test_allCharacters() {
         SymbolTokenProcessor symbolTokenProcessor = new SymbolTokenProcessor();
         CHARACTERS.forEach(character -> {
             CharStream charStream = new CharStream(character);

@@ -21,11 +21,11 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class DiskPageDatabaseStorageManagerTest {
+class DiskPageDatabaseStorageManagerTest {
     private DiskPageDatabaseStorageManager diskPageDatabaseStorageManager;
 
     @BeforeEach
-    public void setup() throws IOException {
+    void setup() throws IOException {
         DbConfig dbConfig = DefaultDbConfigBuilder.builder()
                 .setBaseDbPath(Files.createTempDirectory("Disk_Page_Database_Storage_Manager_Test").toString())
                 .setDbPageSize(64000)
@@ -71,7 +71,7 @@ public class DiskPageDatabaseStorageManagerTest {
     }
 
     @Test
-    public void test_storeObjectsMultiThreaded() throws DbException, InterruptedException, InterruptedTaskException,
+    void test_storeObjectsMultiThreaded() throws DbException, InterruptedException, InterruptedTaskException,
                                                         StorageException, FileChannelException {
         int cases = 20;
 

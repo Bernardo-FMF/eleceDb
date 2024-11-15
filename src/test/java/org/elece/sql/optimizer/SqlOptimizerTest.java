@@ -32,7 +32,7 @@ class SqlOptimizerTest {
     private static final SchemaManager schemaManager = Mockito.mock(SchemaManager.class);
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         List<Column> columns = new ArrayList<>();
         columns.add(ColumnBuilder.builder().setName("name").setSqlType(SqlType.varchar(255)).setConstraints(List.of()).build());
         columns.add(ColumnBuilder.builder().setName("id").setSqlType(SqlType.intType).setConstraints(List.of(SqlConstraint.Unique, SqlConstraint.PrimaryKey)).build());
@@ -59,7 +59,7 @@ class SqlOptimizerTest {
     }
 
     @Test
-    public void test_selectWhere_sumZero() throws ParserException, TokenizerException {
+    void test_selectWhere_sumZero() throws ParserException, TokenizerException {
         SqlParser sqlParser = new SqlParser("SELECT id, name FROM users WHERE id + 0 = 1;");
         SelectStatement statement = (SelectStatement) sqlParser.parse();
         sqlOptimizer.optimize(schemaManager, statement);
@@ -68,7 +68,7 @@ class SqlOptimizerTest {
     }
 
     @Test
-    public void test_selectWhere_subtractZero() throws ParserException, TokenizerException {
+    void test_selectWhere_subtractZero() throws ParserException, TokenizerException {
         SqlParser sqlParser = new SqlParser("SELECT id, name FROM users WHERE id - 0 = 1;");
         SelectStatement statement = (SelectStatement) sqlParser.parse();
         sqlOptimizer.optimize(schemaManager, statement);
@@ -77,7 +77,7 @@ class SqlOptimizerTest {
     }
 
     @Test
-    public void test_selectWhere_divOne() throws ParserException, TokenizerException {
+    void test_selectWhere_divOne() throws ParserException, TokenizerException {
         SqlParser sqlParser = new SqlParser("SELECT id, name FROM users WHERE id / 1 = 1;");
         SelectStatement statement = (SelectStatement) sqlParser.parse();
         sqlOptimizer.optimize(schemaManager, statement);
@@ -86,7 +86,7 @@ class SqlOptimizerTest {
     }
 
     @Test
-    public void test_selectWhere_mulOne() throws ParserException, TokenizerException {
+    void test_selectWhere_mulOne() throws ParserException, TokenizerException {
         SqlParser sqlParser = new SqlParser("SELECT id, name FROM users WHERE id * 1 = 1;");
         SelectStatement statement = (SelectStatement) sqlParser.parse();
         sqlOptimizer.optimize(schemaManager, statement);
@@ -95,7 +95,7 @@ class SqlOptimizerTest {
     }
 
     @Test
-    public void test_selectWhere_simplifySum() throws ParserException, TokenizerException {
+    void test_selectWhere_simplifySum() throws ParserException, TokenizerException {
         SqlParser sqlParser = new SqlParser("SELECT id, name FROM users WHERE id + 2 + 4 > 8;");
         SelectStatement statement = (SelectStatement) sqlParser.parse();
         sqlOptimizer.optimize(schemaManager, statement);

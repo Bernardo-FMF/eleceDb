@@ -45,7 +45,7 @@ class TreeIndexManagerTest {
     private PointerBinaryObject.Factory pointerVBinaryObjectFactory;
 
     @BeforeEach
-    public void setUp() throws IOException, StorageException {
+    void setUp() throws IOException, StorageException {
         dbPath = Files.createTempDirectory("Tree_Index_Manager_Test_Case");
 
         integerKBinaryObjectFactory = new IntegerSerializer().getBinaryObjectFactory(ColumnBuilder.builder().setSqlType(SqlType.intType).build());
@@ -75,12 +75,12 @@ class TreeIndexManagerTest {
     }
 
     @AfterEach
-    public void destroy() throws IOException {
+    void destroy() throws IOException {
         FileTestUtils.deleteDirectory(dbPath.toString());
     }
 
     @Test
-    public void test_tryToAddZero() {
+    void test_tryToAddZero() {
         IndexManager<Integer, Pointer> indexManager = new TreeIndexManager<>(1, indexStorageManager, DefaultSessionFactory.getInstance(integerDbConfig), integerDbConfig,
                 integerKBinaryObjectFactory, pointerVBinaryObjectFactory, new DefaultNodeFactory<>(integerKBinaryObjectFactory, pointerVBinaryObjectFactory));
 
@@ -88,7 +88,7 @@ class TreeIndexManagerTest {
     }
 
     @Test
-    public void test_addIntegerIndexes() throws BTreeException, StorageException, SerializationException,
+    void test_addIntegerIndexes() throws BTreeException, StorageException, SerializationException,
                                                 InterruptedTaskException, FileChannelException {
         IndexManager<Integer, Pointer> indexManager = new TreeIndexManager<>(1, indexStorageManager, DefaultSessionFactory.getInstance(integerDbConfig), integerDbConfig,
                 integerKBinaryObjectFactory, pointerVBinaryObjectFactory, new DefaultNodeFactory<>(integerKBinaryObjectFactory, pointerVBinaryObjectFactory));
@@ -108,7 +108,7 @@ class TreeIndexManagerTest {
 
 
     @Test
-    public void test_addStringIndexes() throws BTreeException, StorageException, SerializationException,
+    void test_addStringIndexes() throws BTreeException, StorageException, SerializationException,
                                                InterruptedTaskException, FileChannelException {
         IndexManager<String, Pointer> stringIndexManager = new TreeIndexManager<>(1, indexStorageManager, DefaultSessionFactory.getInstance(stringDbConfig), stringDbConfig,
                 stringKBinaryObjectFactory, pointerVBinaryObjectFactory, new DefaultNodeFactory<>(stringKBinaryObjectFactory, pointerVBinaryObjectFactory));
@@ -136,7 +136,7 @@ class TreeIndexManagerTest {
     }
 
     @Test
-    public void test_updateIntegerIndexes() throws BTreeException, StorageException, SerializationException,
+    void test_updateIntegerIndexes() throws BTreeException, StorageException, SerializationException,
                                                    InterruptedTaskException, FileChannelException {
         IndexManager<Integer, Pointer> indexManager = new TreeIndexManager<>(1, indexStorageManager, DefaultSessionFactory.getInstance(stringDbConfig), integerDbConfig,
                 integerKBinaryObjectFactory, pointerVBinaryObjectFactory, new DefaultNodeFactory<>(integerKBinaryObjectFactory, pointerVBinaryObjectFactory));
@@ -159,7 +159,7 @@ class TreeIndexManagerTest {
     }
 
     @Test
-    public void test_purgeIndex() throws StorageException, BTreeException, SerializationException,
+    void test_purgeIndex() throws StorageException, BTreeException, SerializationException,
                                          InterruptedTaskException, FileChannelException {
         IndexManager<String, Pointer> stringIndexManager = new TreeIndexManager<>(1, indexStorageManager, DefaultSessionFactory.getInstance(stringDbConfig), stringDbConfig,
                 stringKBinaryObjectFactory, pointerVBinaryObjectFactory, new DefaultNodeFactory<>(stringKBinaryObjectFactory, pointerVBinaryObjectFactory));
