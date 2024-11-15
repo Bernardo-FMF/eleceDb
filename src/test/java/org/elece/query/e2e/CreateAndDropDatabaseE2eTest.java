@@ -52,7 +52,8 @@ class CreateAndDropDatabaseE2eTest {
         MockedClientInterface clientInterface = new MockedClientInterface();
         QueryPlanner queryPlanner = dependencyContainer.getQueryPlanner();
 
-        CreateDbStatement createDbStatement = (CreateDbStatement) E2eUtils.prepareStatement(dependencyContainer.getSchemaManager(), "CREATE DATABASE usersDb");
+        CreateDbStatement createDbStatement = (CreateDbStatement) E2eUtils.prepareStatement(dependencyContainer.getSchemaManager(),
+                "CREATE DATABASE usersDb");
         queryPlanner.plan(createDbStatement, clientInterface);
 
         List<MockedClientInterface.Response> responses = clientInterface.getResponses();
@@ -73,7 +74,8 @@ class CreateAndDropDatabaseE2eTest {
     @Order(2)
     void test_createDatabase_failDueToDatabaseAlreadyExisting() throws SchemaException, ParserException,
                                                                        AnalyzerException, TokenizerException {
-        CreateDbStatement createDbStatement = (CreateDbStatement) E2eUtils.prepareStatement(dependencyContainer.getSchemaManager(), "CREATE DATABASE users");
+        CreateDbStatement createDbStatement = (CreateDbStatement) E2eUtils.prepareStatement(dependencyContainer.getSchemaManager(),
+                "CREATE DATABASE users");
         QueryPlanner queryPlanner = dependencyContainer.getQueryPlanner();
         SchemaException schemaException = Assertions.assertThrows(SchemaException.class, () -> queryPlanner.plan(createDbStatement, new MockedClientInterface()));
         Assertions.assertEquals("Database schema is already defined", schemaException.getMessage());
@@ -88,7 +90,8 @@ class CreateAndDropDatabaseE2eTest {
         MockedClientInterface clientInterface = new MockedClientInterface();
         QueryPlanner queryPlanner = dependencyContainer.getQueryPlanner();
 
-        DropDbStatement dropDbStatement = (DropDbStatement) E2eUtils.prepareStatement(dependencyContainer.getSchemaManager(), "DROP DATABASE usersDb");
+        DropDbStatement dropDbStatement = (DropDbStatement) E2eUtils.prepareStatement(dependencyContainer.getSchemaManager(),
+                "DROP DATABASE usersDb");
         queryPlanner.plan(dropDbStatement, clientInterface);
 
         List<MockedClientInterface.Response> responses = clientInterface.getResponses();

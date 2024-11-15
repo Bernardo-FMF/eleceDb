@@ -60,16 +60,17 @@ class CreateAndDropTableE2eTest {
         MockedClientInterface clientInterface = new MockedClientInterface();
         QueryPlanner queryPlanner = dependencyContainer.getQueryPlanner();
 
-        CreateTableStatement createTableStatement = (CreateTableStatement) E2eUtils.prepareStatement(dependencyContainer.getSchemaManager(), "CREATE TABLE users (id INT PRIMARY KEY, name VARCHAR(255), username VARCHAR(255) UNIQUE, isAdmin BOOL);");
+        CreateTableStatement createTableStatement = (CreateTableStatement) E2eUtils.prepareStatement(dependencyContainer.getSchemaManager(),
+                "CREATE TABLE users (id INT PRIMARY KEY, name VARCHAR(255), username VARCHAR(255) UNIQUE, isAdmin BOOL);");
         queryPlanner.plan(createTableStatement, clientInterface);
 
         List<MockedClientInterface.Response> responses = clientInterface.getResponses();
         Assertions.assertEquals(1, responses.size());
 
-        MockedClientInterface.Response createDatabaseResponse = responses.getFirst();
-        Assertions.assertEquals(MockedClientInterface.ResponseType.CREATE_TABLE, createDatabaseResponse.responseType());
-        Assertions.assertEquals("Table created", E2eUtils.extractValue("Message", createDatabaseResponse.response()));
-        Assertions.assertEquals("0", E2eUtils.extractValue("AffectedRowCount", createDatabaseResponse.response()));
+        MockedClientInterface.Response createTableResponse = responses.getFirst();
+        Assertions.assertEquals(MockedClientInterface.ResponseType.CREATE_TABLE, createTableResponse.responseType());
+        Assertions.assertEquals("Table created", E2eUtils.extractValue("Message", createTableResponse.response()));
+        Assertions.assertEquals("0", E2eUtils.extractValue("AffectedRowCount", createTableResponse.response()));
 
         Schema schema = dependencyContainer.getSchemaManager().getSchema();
         Assertions.assertNotNull(schema);
@@ -118,16 +119,17 @@ class CreateAndDropTableE2eTest {
         MockedClientInterface clientInterface = new MockedClientInterface();
         QueryPlanner queryPlanner = dependencyContainer.getQueryPlanner();
 
-        DropTableStatement dropTableStatement = (DropTableStatement) E2eUtils.prepareStatement(dependencyContainer.getSchemaManager(), "DROP TABLE users");
+        DropTableStatement dropTableStatement = (DropTableStatement) E2eUtils.prepareStatement(dependencyContainer.getSchemaManager(),
+                "DROP TABLE users");
         queryPlanner.plan(dropTableStatement, clientInterface);
 
         List<MockedClientInterface.Response> responses = clientInterface.getResponses();
         Assertions.assertEquals(1, responses.size());
 
-        MockedClientInterface.Response createDatabaseResponse = responses.getFirst();
-        Assertions.assertEquals(MockedClientInterface.ResponseType.DROP_TABLE, createDatabaseResponse.responseType());
-        Assertions.assertEquals("Table deleted", E2eUtils.extractValue("Message", createDatabaseResponse.response()));
-        Assertions.assertEquals("0", E2eUtils.extractValue("AffectedRowCount", createDatabaseResponse.response()));
+        MockedClientInterface.Response createTableResponse = responses.getFirst();
+        Assertions.assertEquals(MockedClientInterface.ResponseType.DROP_TABLE, createTableResponse.responseType());
+        Assertions.assertEquals("Table deleted", E2eUtils.extractValue("Message", createTableResponse.response()));
+        Assertions.assertEquals("0", E2eUtils.extractValue("AffectedRowCount", createTableResponse.response()));
 
         Schema schema = dependencyContainer.getSchemaManager().getSchema();
         Assertions.assertNotNull(schema);

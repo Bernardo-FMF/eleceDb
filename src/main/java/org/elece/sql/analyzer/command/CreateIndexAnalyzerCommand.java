@@ -43,7 +43,7 @@ public class CreateIndexAnalyzerCommand implements AnalyzerCommand<CreateIndexSt
         }
 
         Column column = optionalColumn.get();
-        if (!column.getConstraints().contains(SqlConstraint.Unique)) {
+        if (!column.getSqlType().getConstraints().contains(SqlConstraint.Unique)) {
             throw new AnalyzerException(DbError.COLUMN_NOT_UNIQUE_ERROR, String.format("Column %s of the table %s is not unique", column.getName(), table.getName()));
         }
     }
