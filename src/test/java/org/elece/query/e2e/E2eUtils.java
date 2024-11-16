@@ -10,11 +10,14 @@ import org.elece.sql.analyzer.SqlAnalyzer;
 import org.elece.sql.optimizer.SqlOptimizer;
 import org.elece.sql.parser.SqlParser;
 import org.elece.sql.parser.expression.internal.SqlType;
+import org.elece.sql.parser.statement.CreateTableStatement;
+import org.elece.sql.parser.statement.InsertStatement;
 import org.elece.sql.parser.statement.Statement;
 import org.elece.tcp.DependencyContainer;
 import org.elece.utils.BinaryUtils;
 import org.elece.utils.SerializationUtils;
 
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -90,5 +93,44 @@ public class E2eUtils {
             SerializationUtils.setValueOfField(table, column, serializedData, row);
         }
         return row;
+    }
+
+    public static void createTable(DependencyContainer dependencyContainer) throws ParserException, TokenizerException,
+                                                                                   AnalyzerException, SchemaException,
+                                                                                   BTreeException,
+                                                                                   SerializationException,
+                                                                                   StorageException,
+                                                                                   DeserializationException,
+                                                                                   DbException, QueryException,
+                                                                                   ProtoException,
+                                                                                   InterruptedTaskException,
+                                                                                   FileChannelException {
+        CreateTableStatement createTableStatement = (CreateTableStatement) E2eUtils.prepareStatement(dependencyContainer.getSchemaManager(),
+                "CREATE TABLE users (id INT PRIMARY KEY, name VARCHAR(255), username VARCHAR(255) UNIQUE, isAdmin BOOL);");
+        dependencyContainer.getQueryPlanner().plan(createTableStatement, new MockedClientInterface());
+    }
+
+    public static void insertRows(DependencyContainer dependencyContainer) throws ParserException, TokenizerException,
+                                                                                  AnalyzerException, SchemaException,
+                                                                                  BTreeException,
+                                                                                  SerializationException,
+                                                                                  StorageException,
+                                                                                  DeserializationException, DbException,
+                                                                                  QueryException, ProtoException,
+                                                                                  InterruptedTaskException,
+                                                                                  FileChannelException {
+        MockedClientInterface clientInterface = new MockedClientInterface();
+        List<String> statements = List.of(
+                "INSERT INTO users (id, name, username, isAdmin) VALUES (1, \"name1\", \"username1\", true);",
+                "INSERT INTO users (id, name, username, isAdmin) VALUES (2, \"name2\", \"username2\", false);",
+                "INSERT INTO users (id, name, username, isAdmin) VALUES (3, \"name3\", \"username3\", false);",
+                "INSERT INTO users (id, name, username, isAdmin) VALUES (4, \"name4\", \"username4\", false);",
+                "INSERT INTO users (id, name, username, isAdmin) VALUES (5, \"name5\", \"username5\", false);"
+        );
+
+        for (String statement : statements) {
+            InsertStatement insertStatement = (InsertStatement) E2eUtils.prepareStatement(dependencyContainer.getSchemaManager(), statement);
+            dependencyContainer.getQueryPlanner().plan(insertStatement, clientInterface);
+        }
     }
 }

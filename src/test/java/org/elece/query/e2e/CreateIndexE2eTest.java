@@ -5,7 +5,6 @@ import org.elece.config.DefaultDbConfigBuilder;
 import org.elece.db.schema.model.Table;
 import org.elece.exception.*;
 import org.elece.sql.parser.statement.CreateIndexStatement;
-import org.elece.sql.parser.statement.CreateTableStatement;
 import org.elece.tcp.DependencyContainer;
 import org.elece.utils.FileTestUtils;
 import org.junit.jupiter.api.*;
@@ -34,9 +33,7 @@ class CreateIndexE2eTest {
 
         dependencyContainer.getSchemaManager().createSchema("usersDb");
 
-        CreateTableStatement createTableStatement = (CreateTableStatement) E2eUtils.prepareStatement(dependencyContainer.getSchemaManager(),
-                "CREATE TABLE users (id INT PRIMARY KEY, name VARCHAR(255), username VARCHAR(255) UNIQUE, isAdmin BOOL);");
-        dependencyContainer.getQueryPlanner().plan(createTableStatement, new MockedClientInterface());
+        E2eUtils.createTable(dependencyContainer);
     }
 
     @AfterAll

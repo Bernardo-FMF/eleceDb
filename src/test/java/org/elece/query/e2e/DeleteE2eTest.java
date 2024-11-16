@@ -7,9 +7,7 @@ import org.elece.exception.*;
 import org.elece.index.ColumnIndexManagerProvider;
 import org.elece.index.IndexManager;
 import org.elece.memory.Pointer;
-import org.elece.sql.parser.statement.CreateTableStatement;
 import org.elece.sql.parser.statement.DeleteStatement;
-import org.elece.sql.parser.statement.InsertStatement;
 import org.elece.tcp.DependencyContainer;
 import org.elece.utils.FileTestUtils;
 import org.junit.jupiter.api.*;
@@ -39,27 +37,8 @@ class DeleteE2eTest {
 
         dependencyContainer.getSchemaManager().createSchema("usersDb");
 
-        CreateTableStatement createTableStatement = (CreateTableStatement) E2eUtils.prepareStatement(dependencyContainer.getSchemaManager(),
-                "CREATE TABLE users (id INT PRIMARY KEY, name VARCHAR(255), username VARCHAR(255) UNIQUE, isAdmin BOOL);");
-        dependencyContainer.getQueryPlanner().plan(createTableStatement, new MockedClientInterface());
-
-        MockedClientInterface clientInterface = new MockedClientInterface();
-        InsertStatement insertStatement1 = (InsertStatement) E2eUtils.prepareStatement(dependencyContainer.getSchemaManager(),
-                "INSERT INTO users (id, name, username, isAdmin) VALUES (1, \"name1\", \"username1\", true);");
-        InsertStatement insertStatement2 = (InsertStatement) E2eUtils.prepareStatement(dependencyContainer.getSchemaManager(),
-                "INSERT INTO users (id, name, username, isAdmin) VALUES (2, \"name2\", \"username2\", false);");
-        InsertStatement insertStatement3 = (InsertStatement) E2eUtils.prepareStatement(dependencyContainer.getSchemaManager(),
-                "INSERT INTO users (id, name, username, isAdmin) VALUES (3, \"name3\", \"username3\", false);");
-        InsertStatement insertStatement4 = (InsertStatement) E2eUtils.prepareStatement(dependencyContainer.getSchemaManager(),
-                "INSERT INTO users (id, name, username, isAdmin) VALUES (4, \"name4\", \"username4\", false);");
-        InsertStatement insertStatement5 = (InsertStatement) E2eUtils.prepareStatement(dependencyContainer.getSchemaManager(),
-                "INSERT INTO users (id, name, username, isAdmin) VALUES (5, \"name5\", \"username5\", false);");
-
-        dependencyContainer.getQueryPlanner().plan(insertStatement1, clientInterface);
-        dependencyContainer.getQueryPlanner().plan(insertStatement2, clientInterface);
-        dependencyContainer.getQueryPlanner().plan(insertStatement3, clientInterface);
-        dependencyContainer.getQueryPlanner().plan(insertStatement4, clientInterface);
-        dependencyContainer.getQueryPlanner().plan(insertStatement5, clientInterface);
+        E2eUtils.createTable(dependencyContainer);
+        E2eUtils.insertRows(dependencyContainer);
     }
 
     @AfterAll
