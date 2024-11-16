@@ -7,6 +7,6 @@ public class SqlStringValue extends SqlValue<String> {
 
     @Override
     public Integer compare(SqlValue<String> target) {
-        return this.getValue().compareTo(target.getValue());
+        return this.getValue().compareTo(target.getValue().trim());
     }
 }

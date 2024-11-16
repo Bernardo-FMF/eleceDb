@@ -31,8 +31,7 @@ public class AttributeSelectorStep extends SelectorStep {
         byte[] selectedData = new byte[newRowSize];
         for (Column column : selectedColumns) {
             byte[] valueOfField = SerializationUtils.getValueOfField(table, column, dbObject);
-
-            System.arraycopy(valueOfField, 0, selectedData, SerializationUtils.getByteArrayOffsetTillFieldIndex(selectedColumns, selectedColumns.indexOf(column)), valueOfField.length);
+            SerializationUtils.setValueOfField(selectedColumns, column, valueOfField, selectedData);
         }
 
 

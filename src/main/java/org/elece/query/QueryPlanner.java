@@ -27,10 +27,7 @@ import org.elece.query.plan.step.operation.DeleteOperationStep;
 import org.elece.query.plan.step.operation.InsertOperationStep;
 import org.elece.query.plan.step.operation.UpdateOperationStep;
 import org.elece.query.plan.step.order.CacheableOrderStep;
-import org.elece.query.plan.step.scan.EqualityRowScanStep;
-import org.elece.query.plan.step.scan.RangeRowScanStep;
-import org.elece.query.plan.step.scan.ScanStep;
-import org.elece.query.plan.step.scan.SequentialScanStep;
+import org.elece.query.plan.step.scan.*;
 import org.elece.query.plan.step.selector.AttributeSelectorStep;
 import org.elece.query.plan.step.stream.OutputStreamStep;
 import org.elece.query.plan.step.stream.StreamStep;
@@ -191,7 +188,7 @@ public class QueryPlanner {
             return Optional.empty();
         }
         Table table = possibleTable.get();
-        Order order = Objects.isNull(statement.getOrderBy()) ? Order.DEFAULT_ORDER : ((OrderIdentifierExpression) statement.getOrderBy().getFirst()).getOrder();
+        Order order = Objects.isNull(statement.getOrderBy()) || statement.getOrderBy().isEmpty() ? Order.DEFAULT_ORDER : ((OrderIdentifierExpression) statement.getOrderBy().getFirst()).getOrder();
 
         List<Column> selectedColumns = statement.getColumns().stream()
                 .map(IdentifierExpression.class::cast)
@@ -216,7 +213,7 @@ public class QueryPlanner {
                 .setEndTracerStep(new SelectEndTracerStep())
                 .setStreamStep(streamStep);
 
-        if (!Objects.isNull(statement.getOrderBy())) {
+        if (!Objects.isNull(statement.getOrderBy()) && !statement.getOrderBy().isEmpty()) {
             OrderIdentifierExpression orderBy = (OrderIdentifierExpression) statement.getOrderBy().getFirst();
             Optional<Column> column = SchemaSearcher.findColumn(table, orderBy.getName());
             column.ifPresent(value -> builder.setOrderStep(new CacheableOrderStep<>(order, selectedColumns, value, queryContext.getScanSteps().getFirst().getScanId(), fileHandlerPool, serializerRegistry, dbConfig)));
@@ -252,7 +249,11 @@ public class QueryPlanner {
                 }
 
                 if (mainPath.getValueComparator() instanceof EqualityComparator<?> equalityComparator) {
-                    scanStep = new EqualityRowScanStep<>(table, column.get(), (EqualityComparator<V>) equalityComparator, columnIndexManagerProvider, databaseStorageManager);
+                    if (equalityComparator.shouldBeEqual()) {
+                        scanStep = new EqualityRowScanStep<>(table, column.get(), (EqualityComparator<V>) equalityComparator, columnIndexManagerProvider, databaseStorageManager);
+                    } else {
+                        scanStep = new InequalityRowScanStep<>(table, column.get(), (EqualityComparator<V>) equalityComparator, columnIndexManagerProvider, databaseStorageManager);
+                    }
                 } else {
                     scanStep = new RangeRowScanStep(table, column.get(), (NumberRangeComparator) mainPath.getValueComparator(), order, columnIndexManagerProvider, databaseStorageManager);
                 }

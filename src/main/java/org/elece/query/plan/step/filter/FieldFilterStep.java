@@ -52,7 +52,7 @@ public class FieldFilterStep<V> extends FilterStep {
                 Serializer<String> serializer = serializerRegistry.getSerializer(sqlType);
                 String deserializedValue = serializer.deserialize(valueOfField, column);
 
-                comparisonResult = ((ValueComparator<String>) valueComparator).compare(new SqlStringValue(deserializedValue));
+                comparisonResult = ((ValueComparator<String>) valueComparator).compare(new SqlStringValue(deserializedValue.trim()));
             }
         } catch (DeserializationException exception) {
             return false;
