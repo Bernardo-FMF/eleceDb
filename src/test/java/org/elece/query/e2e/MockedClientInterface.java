@@ -29,10 +29,13 @@ public class MockedClientInterface implements ClientInterface {
             selectResponse = new SelectResponse(stringResponse);
         } else if (stringResponse.contains("SelectEndResult")) {
             selectResponse.setEndHeader(stringResponse);
-        }
-        if (Objects.nonNull(selectResponse)) {
+        } else if (Objects.nonNull(selectResponse)) {
             selectResponse.addRow(response);
         }
+    }
+
+    public SelectResponse getSelectResponse() {
+        return selectResponse;
     }
 
     public List<Response> getResponses() {

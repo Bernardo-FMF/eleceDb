@@ -14,13 +14,7 @@ public class OutputStreamStep extends StreamStep {
 
     @Override
     public void stream(byte[] data) throws ProtoException {
-        byte[] concatenatedData = new byte[data.length + Integer.BYTES];
-        byte[] sizeBytes = BinaryUtils.integerToBytes(data.length);
-
-        BinaryUtils.copyBytes(sizeBytes, concatenatedData, 0, 0, Integer.BYTES);
-        BinaryUtils.copyBytes(data, concatenatedData, 0, Integer.BYTES, data.length);
-
-        clientInterface.send(concatenatedData);
+        clientInterface.send(data);
     }
 
     @Override

@@ -53,7 +53,11 @@ public class SerializationUtils {
     }
 
     public static void setValueOfField(Table table, Column column, byte[] serializedValue, byte[] rowData) {
-        int offset = getByteArrayOffsetTillFieldIndex(table.getColumns(), table.getColumns().indexOf(column));
+        setValueOfField(table.getColumns(), column, serializedValue, rowData);
+    }
+
+    public static void setValueOfField(List<Column> columns, Column column, byte[] serializedValue, byte[] rowData) {
+        int offset = getByteArrayOffsetTillFieldIndex(columns, columns.indexOf(column));
         int size = getByteArraySizeOfField(column);
         System.arraycopy(serializedValue, 0, rowData, offset, size);
     }

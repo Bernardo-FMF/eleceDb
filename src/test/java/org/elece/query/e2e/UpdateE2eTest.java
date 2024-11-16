@@ -66,56 +66,6 @@ class UpdateE2eTest {
                 ));
     }
 
-    private static void planAndValidateQuery(String query, List<Integer> affectedRows,
-                                             Map<Column, Object> newValueMap) throws
-                                                                              SchemaException,
-                                                                              ParserException,
-                                                                              BTreeException,
-                                                                              QueryException,
-                                                                              SerializationException,
-                                                                              InterruptedTaskException,
-                                                                              StorageException,
-                                                                              DeserializationException,
-                                                                              ProtoException,
-                                                                              FileChannelException,
-                                                                              DbException,
-                                                                              AnalyzerException,
-                                                                              TokenizerException {
-        UpdateStatement updateStatement = (UpdateStatement) E2eUtils.prepareStatement(dependencyContainer.getSchemaManager(), query);
-        MockedClientInterface clientInterface = new MockedClientInterface();
-        dependencyContainer.getQueryPlanner().plan(updateStatement, clientInterface);
-
-        List<MockedClientInterface.Response> responses = clientInterface.getResponses();
-        Assertions.assertEquals(1, responses.size());
-
-        MockedClientInterface.Response updateResponse = responses.getFirst();
-        Assertions.assertEquals(MockedClientInterface.ResponseType.UPDATE, updateResponse.responseType());
-        Assertions.assertEquals(String.valueOf(affectedRows.size()), E2eUtils.extractValue("RowCount", updateResponse.response()));
-
-        Table table = dependencyContainer.getSchemaManager().getSchema().getTables().getFirst();
-        IndexManager<Integer, Pointer> clusterIndexManager = dependencyContainer.getColumnIndexManagerProvider().getClusterIndexManager(table);
-        for (Integer affectedRow : affectedRows) {
-            Optional<Pointer> affectedPointer = clusterIndexManager.getIndex(affectedRow);
-            Assertions.assertTrue(affectedPointer.isPresent());
-            Optional<DbObject> optionalDbObject = dependencyContainer.getDatabaseStorageManager().select(affectedPointer.get());
-            Assertions.assertTrue(optionalDbObject.isPresent());
-            DbObject dbObject = optionalDbObject.get();
-
-            for (Map.Entry<Column, Object> entry : newValueMap.entrySet()) {
-                Column column = entry.getKey();
-                byte[] newValue = SerializationUtils.getValueOfField(table, column, dbObject);
-                SerializerRegistry serializerRegistry = dependencyContainer.getSerializerRegistry();
-                Serializer<?> serializer = serializerRegistry.getSerializer(column.getSqlType().getType());
-                Object deserializedNewValue = serializer.deserialize(newValue, column);
-                if (deserializedNewValue instanceof String stringValue) {
-                    Assertions.assertEquals(entry.getValue(), stringValue.trim());
-                } else {
-                    Assertions.assertEquals(entry.getValue(), deserializedNewValue);
-                }
-            }
-        }
-    }
-
     @Test
     @Order(2)
     void test_updateWithNonIndexedWhere() throws SchemaException, ParserException, BTreeException, QueryException,
@@ -171,5 +121,51 @@ class UpdateE2eTest {
                         SchemaSearcher.findColumn(dependencyContainer.getSchemaManager().getSchema().getTables().getFirst(), "id").get(), 6,
                         SchemaSearcher.findColumn(dependencyContainer.getSchemaManager().getSchema().getTables().getFirst(), "isAdmin").get(), false
                 ));
+    }
+
+    private static void planAndValidateQuery(String query, List<Integer> affectedRows,
+                                             Map<Column, Object> newValueMap) throws SchemaException, ParserException,
+                                                                                     BTreeException, QueryException,
+                                                                                     SerializationException,
+                                                                                     InterruptedTaskException,
+                                                                                     StorageException,
+                                                                                     DeserializationException,
+                                                                                     ProtoException,
+                                                                                     FileChannelException, DbException,
+                                                                                     AnalyzerException,
+                                                                                     TokenizerException {
+        UpdateStatement updateStatement = (UpdateStatement) E2eUtils.prepareStatement(dependencyContainer.getSchemaManager(), query);
+        MockedClientInterface clientInterface = new MockedClientInterface();
+        dependencyContainer.getQueryPlanner().plan(updateStatement, clientInterface);
+
+        List<MockedClientInterface.Response> responses = clientInterface.getResponses();
+        Assertions.assertEquals(1, responses.size());
+
+        MockedClientInterface.Response updateResponse = responses.getFirst();
+        Assertions.assertEquals(MockedClientInterface.ResponseType.UPDATE, updateResponse.responseType());
+        Assertions.assertEquals(String.valueOf(affectedRows.size()), E2eUtils.extractValue("RowCount", updateResponse.response()));
+
+        Table table = dependencyContainer.getSchemaManager().getSchema().getTables().getFirst();
+        IndexManager<Integer, Pointer> clusterIndexManager = dependencyContainer.getColumnIndexManagerProvider().getClusterIndexManager(table);
+        for (Integer affectedRow : affectedRows) {
+            Optional<Pointer> affectedPointer = clusterIndexManager.getIndex(affectedRow);
+            Assertions.assertTrue(affectedPointer.isPresent());
+            Optional<DbObject> optionalDbObject = dependencyContainer.getDatabaseStorageManager().select(affectedPointer.get());
+            Assertions.assertTrue(optionalDbObject.isPresent());
+            DbObject dbObject = optionalDbObject.get();
+
+            for (Map.Entry<Column, Object> entry : newValueMap.entrySet()) {
+                Column column = entry.getKey();
+                byte[] newValue = SerializationUtils.getValueOfField(table, column, dbObject);
+                SerializerRegistry serializerRegistry = dependencyContainer.getSerializerRegistry();
+                Serializer<?> serializer = serializerRegistry.getSerializer(column.getSqlType().getType());
+                Object deserializedNewValue = serializer.deserialize(newValue, column);
+                if (deserializedNewValue instanceof String stringValue) {
+                    Assertions.assertEquals(entry.getValue(), stringValue.trim());
+                } else {
+                    Assertions.assertEquals(entry.getValue(), deserializedNewValue);
+                }
+            }
+        }
     }
 }
