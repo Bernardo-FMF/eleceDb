@@ -1,6 +1,9 @@
 package org.elece.query.path;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.PriorityQueue;
+import java.util.Queue;
+import java.util.Set;
 
 public class IndexPath {
     private final Set<DefaultPathNode> nodePaths;
@@ -26,7 +29,7 @@ public class IndexPath {
     }
 
     public Queue<DefaultPathNode> buildNodePathsQueue() {
-        PriorityQueue<DefaultPathNode> newQueue = new PriorityQueue<>(Comparator.comparingInt(DefaultPathNode::getPriority));
+        PriorityQueue<DefaultPathNode> newQueue = new PriorityQueue<>((nodeA, nodeB) -> nodeB.getPriority() - nodeA.getPriority());
         newQueue.addAll(nodePaths);
         return newQueue;
     }
