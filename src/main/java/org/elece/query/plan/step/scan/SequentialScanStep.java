@@ -11,6 +11,7 @@ import org.elece.memory.Pointer;
 import org.elece.memory.tree.node.LeafTreeNode;
 
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class SequentialScanStep extends ScanStep {
     private final DatabaseStorageManager databaseStorageManager;
@@ -42,7 +43,14 @@ public class SequentialScanStep extends ScanStep {
             }
             LeafTreeNode.KeyValue<Integer, Pointer> keyValue = sortedIterator.next();
 
-            return databaseStorageManager.select(keyValue.value());
+            AtomicReference<Optional<DbObject>> dbObjectResult = new AtomicReference<>(Optional.empty());
+            databaseStorageManager.select(keyValue.value()).ifPresent(dbObject -> {
+                if (dbObject.isAlive()) {
+                    dbObjectResult.set(Optional.of(dbObject));
+                }
+            });
+
+            return dbObjectResult.get();
         } catch (DbException | InterruptedTaskException | StorageException | FileChannelException e) {
             finish();
             return Optional.empty();

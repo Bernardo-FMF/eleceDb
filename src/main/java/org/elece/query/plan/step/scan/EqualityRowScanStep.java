@@ -11,6 +11,7 @@ import org.elece.memory.Pointer;
 import org.elece.query.comparator.EqualityComparator;
 
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class EqualityRowScanStep<V extends Comparable<V>> extends ScanStep {
     private final DatabaseStorageManager databaseStorageManager;
@@ -43,7 +44,14 @@ public class EqualityRowScanStep<V extends Comparable<V>> extends ScanStep {
                 if (rowPointer.isEmpty()) {
                     return Optional.empty();
                 }
-                return databaseStorageManager.select(rowPointer.get());
+                AtomicReference<Optional<DbObject>> dbObjectResult = new AtomicReference<>(Optional.empty());
+                databaseStorageManager.select(rowPointer.get()).ifPresent(dbObject -> {
+                    if (dbObject.isAlive()) {
+                        dbObjectResult.set(Optional.of(dbObject));
+                    }
+                });
+
+                return dbObjectResult.get();
             }
             return Optional.empty();
         } catch (BTreeException | StorageException | DbException | InterruptedTaskException |

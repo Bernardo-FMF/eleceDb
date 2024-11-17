@@ -226,7 +226,7 @@ public class JsonSchemaManager implements SchemaManager {
                 LeafTreeNode.KeyValue<K, Pointer> keyValue = sortedIterator.next();
 
                 Optional<DbObject> optionalDbObject = databaseStorageManager.select(keyValue.value());
-                if (optionalDbObject.isEmpty()) {
+                if (optionalDbObject.isEmpty() || !optionalDbObject.get().isAlive()) {
                     continue;
                 }
 

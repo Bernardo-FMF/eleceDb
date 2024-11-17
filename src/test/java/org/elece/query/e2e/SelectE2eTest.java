@@ -102,7 +102,7 @@ class SelectE2eTest {
                                                            DbException, AnalyzerException, TokenizerException {
         Table table = dependencyContainer.getSchemaManager().getSchema().getTables().getFirst();
         planAndValidateQuery(
-                "SELECT id, name FROM users WHERE name = \"name1\" OR name = \"name2\";",
+                "SELECT id, name FROM users WHERE name = \"name1\" OR name = \"name2\" ORDER BY id ASC;",
                 List.of(
                         SchemaSearcher.findColumn(table, "id").get(),
                         SchemaSearcher.findColumn(table, "name").get()

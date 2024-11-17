@@ -17,6 +17,7 @@ import org.elece.sql.parser.expression.internal.SqlValue;
 
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class InequalityRowScanStep<V extends Comparable<V>> extends ScanStep {
     private final DatabaseStorageManager databaseStorageManager;
@@ -70,7 +71,14 @@ public class InequalityRowScanStep<V extends Comparable<V>> extends ScanStep {
             if (clusterPointer.isEmpty()) {
                 return Optional.empty();
             }
-            return databaseStorageManager.select(clusterPointer.get());
+            AtomicReference<Optional<DbObject>> dbObjectResult = new AtomicReference<>(Optional.empty());
+            databaseStorageManager.select(clusterPointer.get()).ifPresent(dbObject -> {
+                if (dbObject.isAlive()) {
+                    dbObjectResult.set(Optional.of(dbObject));
+                }
+            });
+
+            return dbObjectResult.get();
         } catch (DbException | InterruptedTaskException | StorageException | FileChannelException | BTreeException e) {
             finish();
             return Optional.empty();

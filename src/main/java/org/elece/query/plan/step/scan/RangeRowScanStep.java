@@ -14,6 +14,7 @@ import org.elece.sql.parser.expression.internal.SqlNumberValue;
 
 import java.util.Iterator;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class RangeRowScanStep extends ScanStep {
     private final DatabaseStorageManager databaseStorageManager;
@@ -85,7 +86,14 @@ public class RangeRowScanStep extends ScanStep {
                 return Optional.empty();
             }
 
-            return databaseStorageManager.select(index.get());
+            AtomicReference<Optional<DbObject>> dbObjectResult = new AtomicReference<>(Optional.empty());
+            databaseStorageManager.select(index.get()).ifPresent(dbObject -> {
+                if (dbObject.isAlive()) {
+                    dbObjectResult.set(Optional.of(dbObject));
+                }
+            });
+
+            return dbObjectResult.get();
         } catch (BTreeException | StorageException | DbException | InterruptedTaskException |
                  FileChannelException exception) {
             finish();

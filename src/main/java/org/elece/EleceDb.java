@@ -73,6 +73,7 @@ public class EleceDb {
         if (Objects.nonNull(keepAliveTime)) {
             builder.setKeepAliveTime(keepAliveTime);
         }
+
         Integer fileDescriptorAcquisitionSize = getProperty("elece.db.fileDescriptorAcquisitionSize", Integer.class);
         if (Objects.nonNull(fileDescriptorAcquisitionSize)) {
             builder.setFileDescriptorAcquisitionSize(fileDescriptorAcquisitionSize);
@@ -88,9 +89,9 @@ public class EleceDb {
             builder.setAcquisitionTimeoutTime(acquisitionTimeoutTime);
         }
 
-        Integer timeoutUnit = getProperty("elece.db.timeoutUnit", Integer.class);
+        TimeUnit timeoutUnit = getProperty("elece.db.timeoutUnit", TimeUnit.class);
         if (Objects.nonNull(timeoutUnit)) {
-            builder.setTimeoutUnit(TimeUnit.values()[timeoutUnit]);
+            builder.setTimeoutUnit(timeoutUnit);
         }
 
         Integer bTreeDegree = getProperty("elece.db.btree.degree", Integer.class);
@@ -156,7 +157,7 @@ public class EleceDb {
         return builder.build();
     }
 
-    private static <T> T getProperty(String name, Class<T> clazz) {
+    public static <T> T getProperty(String name, Class<T> clazz) {
         if (Strings.isNullOrEmpty(name)) {
             throw new UnsupportedOperationException(String.format("Can't safely parse the property value to %s. Property value is null or empty", clazz));
         }
