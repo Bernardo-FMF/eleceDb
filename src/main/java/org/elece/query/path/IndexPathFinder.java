@@ -187,7 +187,7 @@ public class IndexPathFinder implements QueryPlanVisitor {
         SqlNumberValue leftValue = valueIsLeftBoundary ? valueExpression.getValue() : null;
         SqlNumberValue rightValue = !valueIsLeftBoundary ? valueExpression.getValue() : null;
 
-        NumberRangeComparator.InclusionType inclusionType = inclusive ? NumberRangeComparator.InclusionType.Included : NumberRangeComparator.InclusionType.Excluded;
+        NumberRangeComparator.InclusionType inclusionType = inclusive ? NumberRangeComparator.InclusionType.INCLUDED : NumberRangeComparator.InclusionType.EXCLUDED;
 
         return new NumberRangeComparator(leftValue, rightValue, inclusionType, inclusionType);
     }

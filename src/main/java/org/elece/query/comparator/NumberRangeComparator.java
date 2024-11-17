@@ -26,8 +26,8 @@ public class NumberRangeComparator implements ValueComparator<Integer> {
                                  InclusionType rightInclusion) {
         this.leftBoundary = Objects.isNull(leftBoundary) ? MIN_VALUE : leftBoundary;
         this.rightBoundary = Objects.isNull(rightBoundary) ? MAX_VALUE : rightBoundary;
-        this.leftInclusion = Objects.isNull(leftBoundary) ? InclusionType.Included : leftInclusion;
-        this.rightInclusion = Objects.isNull(rightBoundary) ? InclusionType.Included : rightInclusion;
+        this.leftInclusion = Objects.isNull(leftBoundary) ? InclusionType.INCLUDED : leftInclusion;
+        this.rightInclusion = Objects.isNull(rightBoundary) ? InclusionType.INCLUDED : rightInclusion;
         this.exclusions = new HashSet<>();
     }
 
@@ -41,7 +41,7 @@ public class NumberRangeComparator implements ValueComparator<Integer> {
 
         boolean leftCheck;
         int leftBoundaryValue = leftBoundary.getValue();
-        if (leftInclusion == InclusionType.Included) {
+        if (leftInclusion == InclusionType.INCLUDED) {
             leftCheck = internalValue >= leftBoundaryValue;
         } else {
             leftCheck = internalValue > leftBoundaryValue;
@@ -49,7 +49,7 @@ public class NumberRangeComparator implements ValueComparator<Integer> {
 
         boolean rightCheck;
         int rightBoundaryValue = rightBoundary.getValue();
-        if (rightInclusion == InclusionType.Included) {
+        if (rightInclusion == InclusionType.INCLUDED) {
             rightCheck = internalValue <= rightBoundaryValue;
         } else {
             rightCheck = internalValue < rightBoundaryValue;
@@ -99,8 +99,8 @@ public class NumberRangeComparator implements ValueComparator<Integer> {
             newLeftInclusion = otherRange.leftInclusion;
         } else {
             newLeftBoundary = this.leftBoundary;
-            newLeftInclusion = this.leftInclusion == InclusionType.Excluded || otherRange.leftInclusion == InclusionType.Excluded
-                    ? InclusionType.Excluded : InclusionType.Included;
+            newLeftInclusion = this.leftInclusion == InclusionType.EXCLUDED || otherRange.leftInclusion == InclusionType.EXCLUDED
+                    ? InclusionType.EXCLUDED : InclusionType.INCLUDED;
         }
 
         SqlNumberValue newRightBoundary;
@@ -113,18 +113,18 @@ public class NumberRangeComparator implements ValueComparator<Integer> {
             newRightInclusion = otherRange.rightInclusion;
         } else {
             newRightBoundary = this.rightBoundary;
-            newRightInclusion = this.rightInclusion == InclusionType.Excluded || otherRange.rightInclusion == InclusionType.Excluded
-                    ? InclusionType.Excluded : InclusionType.Included;
+            newRightInclusion = this.rightInclusion == InclusionType.EXCLUDED || otherRange.rightInclusion == InclusionType.EXCLUDED
+                    ? InclusionType.EXCLUDED : InclusionType.INCLUDED;
         }
 
         if (newLeftBoundary.getValue() > newRightBoundary.getValue() ||
                 (Objects.equals(newLeftBoundary.getValue(), newRightBoundary.getValue()) &&
-                        (newLeftInclusion == InclusionType.Excluded || newRightInclusion == InclusionType.Excluded))) {
+                        (newLeftInclusion == InclusionType.EXCLUDED || newRightInclusion == InclusionType.EXCLUDED))) {
             return Optional.empty();
         }
 
         if (Objects.equals(newLeftBoundary.getValue(), newRightBoundary.getValue())) {
-            return Optional.of(new NumberEqualityComparator(newLeftBoundary, newLeftInclusion == InclusionType.Included));
+            return Optional.of(new NumberEqualityComparator(newLeftBoundary, newLeftInclusion == InclusionType.INCLUDED));
         }
 
         NumberRangeComparator intersection = new NumberRangeComparator(newLeftBoundary, newRightBoundary, newLeftInclusion, newRightInclusion);
@@ -169,8 +169,19 @@ public class NumberRangeComparator implements ValueComparator<Integer> {
         return Objects.hash(exclusions, leftBoundary, rightBoundary, leftInclusion, rightInclusion);
     }
 
+    @Override
+    public String toString() {
+        return "NumberRangeComparator{" +
+                "exclusions=" + exclusions +
+                ", leftBoundary=" + leftBoundary +
+                ", rightBoundary=" + rightBoundary +
+                ", leftInclusion=" + leftInclusion +
+                ", rightInclusion=" + rightInclusion +
+                '}';
+    }
+
     public enum InclusionType {
-        Included,
-        Excluded
+        INCLUDED,
+        EXCLUDED
     }
 }

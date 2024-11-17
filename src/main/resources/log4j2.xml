@@ -4,7 +4,7 @@
             <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss} %p %m%n"/>
         </Console>
         <RollingFile name="fileLog" fileName="logs/eleceDb.log" filePattern="logs/eleceDb-%i.log" append="true">
-            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss} %p %m%n"/>
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss} [%t] %-5level %logger{36} - %msg%n"/>
             <Policies>
                 <SizeBasedTriggeringPolicy size="10MB"/>
             </Policies>

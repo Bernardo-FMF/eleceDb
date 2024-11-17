@@ -3,6 +3,8 @@ package org.elece.db.schema;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.stream.JsonReader;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.elece.config.DbConfig;
 import org.elece.db.DatabaseStorageManager;
 import org.elece.db.DbObject;
@@ -33,6 +35,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static org.elece.db.schema.model.Column.CLUSTER_ID;
 
 public class JsonSchemaManager implements SchemaManager {
+    private final Logger logger = LogManager.getLogger(JsonSchemaManager.class);
+
     private Schema schema;
     private final DbConfig dbConfig;
     private final ColumnIndexManagerProvider columnIndexManagerProvider;
@@ -52,8 +56,10 @@ public class JsonSchemaManager implements SchemaManager {
     }
 
     private void loadSchema() throws SchemaException {
+        logger.info("Loading schema into memory");
         String schemePath = getSchemePath();
         if (!Files.exists(Path.of(schemePath))) {
+            logger.info("Schema not found in '{}'", schemePath);
             this.schema = null;
             return;
         }
@@ -61,6 +67,7 @@ public class JsonSchemaManager implements SchemaManager {
             FileReader fileReader = new FileReader(schemePath);
             JsonReader jsonReader = new JsonReader(fileReader);
             this.schema = gson.fromJson(jsonReader, Schema.class);
+            logger.info("Loaded schema: {}", this.schema);
             fileReader.close();
         } catch (IOException exception) {
             throw new SchemaException(DbError.SCHEMA_PERSISTENCE_ERROR, exception.getMessage());
@@ -76,6 +83,7 @@ public class JsonSchemaManager implements SchemaManager {
             FileWriter fileWriter = new FileWriter(this.getSchemePath());
             gson.toJson(this.schema, fileWriter);
             fileWriter.close();
+            logger.info("Updated schema in disk: {}", this.schema);
         } catch (IOException exception) {
             throw new SchemaException(DbError.SCHEMA_PERSISTENCE_ERROR, exception.getMessage());
         }
@@ -97,6 +105,7 @@ public class JsonSchemaManager implements SchemaManager {
                 .setTables(new ArrayList<>())
                 .build();
         persistSchema();
+        logger.info("Created new schema: {}", this.schema);
     }
 
     @Override
@@ -113,6 +122,7 @@ public class JsonSchemaManager implements SchemaManager {
 
         persistSchema();
 
+        logger.info("Deleted existing schema: {}; Removed {} rows", this.schema, totalRowCount);
         return totalRowCount;
     }
 
@@ -136,6 +146,7 @@ public class JsonSchemaManager implements SchemaManager {
         schema.addTable(table);
 
         persistSchema();
+        logger.info("Created new table {}", table);
     }
 
     @Override
@@ -161,6 +172,7 @@ public class JsonSchemaManager implements SchemaManager {
 
         IndexManager<K, Pointer> clusterIndexManager = columnIndexManagerProvider.getClusterIndexManager(table);
         LockableIterator<LeafTreeNode.KeyValue<K, Pointer>> sortedIterator = clusterIndexManager.getSortedIterator();
+        logger.info("Deleted table {}; Trying to remove all indexes", tableName);
         try {
             sortedIterator.lock();
             while (sortedIterator.hasNext()) {
@@ -172,9 +184,12 @@ public class JsonSchemaManager implements SchemaManager {
             sortedIterator.unlock();
             columnIndexManagerProvider.clearIndexManager(table, SchemaSearcher.findClusterColumn(table));
         }
+        logger.info("Cleared cluster index and all data from disk from table {}", tableName);
 
+        logger.info("Removing all related indexes from table {}", tableName);
         for (Column column : table.getColumns()) {
             if (column.isUnique()) {
+                logger.info("Clearing indexed column {}", column.getName());
                 IndexManager<?, ?> indexManager = columnIndexManagerProvider.getIndexManager(table, column);
                 indexManager.purgeIndex();
 
@@ -182,6 +197,7 @@ public class JsonSchemaManager implements SchemaManager {
             }
         }
 
+        logger.info("Deleted table {}; Removed {} rows", tableName, rowCount);
         return rowCount;
     }
 
@@ -220,6 +236,8 @@ public class JsonSchemaManager implements SchemaManager {
         IndexManager<K, Pointer> clusterIndexManager = columnIndexManagerProvider.getClusterIndexManager(table);
         IndexManager<?, K> indexManager = columnIndexManagerProvider.getIndexManager(table, optionalColumn.get());
         LockableIterator<LeafTreeNode.KeyValue<K, Pointer>> sortedIterator = clusterIndexManager.getSortedIterator();
+
+        logger.info("Creating new index {} on table {}; Trying to update indexes", index, tableName);
         try {
             sortedIterator.lock();
             while (sortedIterator.hasNext()) {
@@ -239,6 +257,7 @@ public class JsonSchemaManager implements SchemaManager {
             sortedIterator.unlock();
         }
 
+        logger.info("Created new index {} on table {}; Affected {} rows", index, tableName, rowCount);
         return rowCount;
     }
 

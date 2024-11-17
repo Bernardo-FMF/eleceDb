@@ -15,7 +15,7 @@ import java.net.Socket;
 import java.util.Objects;
 
 public class DefaultServer implements Server {
-    private static final Logger logger = LogManager.getLogger(DefaultServer.class);
+    private final Logger logger = LogManager.getLogger(DefaultServer.class);
 
     private final DbConfig config;
     private final DependencyContainer dependencyContainer;

@@ -43,4 +43,12 @@ public abstract class EqualityComparator<V> implements ValueComparator<V> {
     public int hashCode() {
         return Objects.hash(boundary, shouldBeEqual);
     }
+
+    @Override
+    public String toString() {
+        return "EqualityComparator{" +
+                "boundary=" + boundary +
+                ", shouldBeEqual=" + shouldBeEqual +
+                '}';
+    }
 }

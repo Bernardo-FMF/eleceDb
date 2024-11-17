@@ -50,20 +50,20 @@ public class RangeRowScanStep extends ScanStep {
         boolean rightIsUnbounded = rightBoundary.compare(NumberRangeComparator.MAX_VALUE) == 0;
 
         if (leftIsUnbounded) {
-            if (rangeComparator.getRightInclusion() == NumberRangeComparator.InclusionType.Included) {
+            if (rangeComparator.getRightInclusion() == NumberRangeComparator.InclusionType.INCLUDED) {
                 return indexManager.getLessThanEqual(rightBoundary.getValue(), rangeComparator.getExclusions(), order);
             } else {
                 return indexManager.getLessThan(rightBoundary.getValue(), rangeComparator.getExclusions(), order);
             }
         } else if (rightIsUnbounded) {
-            if (rangeComparator.getLeftInclusion() == NumberRangeComparator.InclusionType.Included) {
+            if (rangeComparator.getLeftInclusion() == NumberRangeComparator.InclusionType.INCLUDED) {
                 return indexManager.getGreaterThanEqual(leftBoundary.getValue(), rangeComparator.getExclusions(), order);
             } else {
                 return indexManager.getGreaterThan(leftBoundary.getValue(), rangeComparator.getExclusions(), order);
             }
         } else {
-            leftBoundary = rangeComparator.getLeftInclusion() == NumberRangeComparator.InclusionType.Included ? leftBoundary : new SqlNumberValue(leftBoundary.getValue() + 1);
-            rightBoundary = rangeComparator.getRightInclusion() == NumberRangeComparator.InclusionType.Included ? rightBoundary : new SqlNumberValue(rightBoundary.getValue() - 1);
+            leftBoundary = rangeComparator.getLeftInclusion() == NumberRangeComparator.InclusionType.INCLUDED ? leftBoundary : new SqlNumberValue(leftBoundary.getValue() + 1);
+            rightBoundary = rangeComparator.getRightInclusion() == NumberRangeComparator.InclusionType.INCLUDED ? rightBoundary : new SqlNumberValue(rightBoundary.getValue() - 1);
 
             return indexManager.getBetweenRange(leftBoundary.getValue(), rightBoundary.getValue(), rangeComparator.getExclusions(), order);
         }

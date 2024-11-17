@@ -1,5 +1,7 @@
 package org.elece.query;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.elece.config.DbConfig;
 import org.elece.db.DatabaseStorageManager;
 import org.elece.db.schema.SchemaManager;
@@ -50,6 +52,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class QueryPlanner {
+    private final Logger logger = LogManager.getLogger(QueryPlanner.class);
+
     private final SchemaManager schemaManager;
     private final DatabaseStorageManager databaseStorageManager;
     private final ColumnIndexManagerProvider columnIndexManagerProvider;
@@ -87,10 +91,12 @@ public class QueryPlanner {
         };
 
         if (queryExecutor.isPresent()) {
+            logger.debug("Executing a '{}' query without building a plan", statement.getStatementType());
             queryExecutor.get().execute(schemaManager);
             return;
         }
 
+        logger.debug("Building query plan for a '{}' query", statement.getStatementType());
         Optional<QueryPlan> plan = switch (statement.getStatementType()) {
             case Select -> buildSelectQueryPlan((SelectStatement) statement, streamStep);
             case Insert -> buildInsertQueryPlan((InsertStatement) statement, streamStep);
@@ -237,12 +243,14 @@ public class QueryPlanner {
             ScanStep scanStep = new SequentialScanStep(table, columnIndexManagerProvider, databaseStorageManager);
             queryContext.getScanInfo().addMainScan(SchemaSearcher.findClusterColumn(table));
             queryContext.addScanStep(scanStep);
+            logger.debug("Resorting to a sequential scan due to no filters: {}", queryContext.getScanInfo());
             return;
         }
         for (IndexPath indexPath : nodeCollection.getIndexPaths()) {
             Optional<DefaultPathNode> possibleMainPath = findMainPath(indexPath);
             ScanStep scanStep;
             if (possibleMainPath.isEmpty()) {
+                logger.debug("Resorting to a sequential scan due to no other paths available: {}", queryContext.getScanInfo());
                 scanStep = new SequentialScanStep(table, columnIndexManagerProvider, databaseStorageManager);
                 queryContext.getScanInfo().addMainScan(SchemaSearcher.findClusterColumn(table));
             } else {
@@ -254,11 +262,14 @@ public class QueryPlanner {
 
                 if (mainPath.getValueComparator() instanceof EqualityComparator<?> equalityComparator) {
                     if (equalityComparator.shouldBeEqual()) {
+                        logger.debug("Creating equality scanner for node {}", mainPath);
                         scanStep = new EqualityRowScanStep<>(table, column.get(), (EqualityComparator<V>) equalityComparator, columnIndexManagerProvider, databaseStorageManager);
                     } else {
+                        logger.debug("Creating inequality scanner for node {}", mainPath);
                         scanStep = new InequalityRowScanStep<>(table, column.get(), (EqualityComparator<V>) equalityComparator, columnIndexManagerProvider, databaseStorageManager);
                     }
                 } else {
+                    logger.debug("Creating range scanner for node {}", mainPath);
                     scanStep = new RangeRowScanStep(table, column.get(), (NumberRangeComparator) mainPath.getValueComparator(), order, columnIndexManagerProvider, databaseStorageManager);
                 }
                 queryContext.getScanInfo().addMainScan(column.get());
@@ -267,6 +278,7 @@ public class QueryPlanner {
 
             findSecondaryScanPaths(queryContext, table, indexPath, possibleMainPath, scanStep);
         }
+        logger.debug("Query scan info discovered: {}", queryContext.getScanInfo());
     }
 
     private <V extends Comparable<V>> void findSecondaryScanPaths(QueryContext queryContext, Table table,
@@ -278,8 +290,10 @@ public class QueryPlanner {
                 .orElseGet(indexPath::getNodePaths);
 
         for (DefaultPathNode secondaryPath : secondaryPaths) {
+
             Optional<Column> column = SchemaSearcher.findColumn(table, secondaryPath.getColumnName());
             if (column.isPresent()) {
+                logger.debug("Creating secondary path for filtering {}", secondaryPath);
                 queryContext.addFilterStep(new FieldFilterStep<>(table, column.get(), (ValueComparator<V>) secondaryPath.getValueComparator(), serializerRegistry, scanStep.getScanId()));
                 queryContext.getScanInfo().addSecondaryFilterScan(column.get());
             }

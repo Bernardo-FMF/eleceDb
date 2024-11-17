@@ -1,5 +1,7 @@
 package org.elece.thread;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.elece.exception.*;
 import org.elece.query.QueryPlanner;
 import org.elece.query.result.ErrorResultInfo;
@@ -17,6 +19,8 @@ import java.io.InputStream;
 import java.net.Socket;
 
 public class DefaultSocketWorker implements SocketWorker {
+    private final Logger logger = LogManager.getLogger(DefaultSocketWorker.class);
+
     private final Socket socket;
     private final DependencyContainer dependencyContainer;
     private final SqlOptimizer sqlOptimizer;
@@ -42,13 +46,16 @@ public class DefaultSocketWorker implements SocketWorker {
 
         while (socket.isConnected()) {
             try {
-                String statement = Proto.deserialize(inputStream);
+                String query = Proto.deserialize(inputStream);
+                logger.debug("Received query: {}", query);
 
-                SqlParser sqlParser = new SqlParser(statement);
+                SqlParser sqlParser = new SqlParser(query);
                 Statement parsedStatement = sqlParser.parse();
 
                 sqlAnalyzer.analyze(dependencyContainer.getSchemaManager(), parsedStatement);
                 sqlOptimizer.optimize(dependencyContainer.getSchemaManager(), parsedStatement);
+
+                logger.debug("Parsed statement: {}", parsedStatement);
 
                 QueryPlanner queryPlanner = dependencyContainer.getQueryPlanner();
                 queryPlanner.plan(parsedStatement, clientInterface);
@@ -56,6 +63,7 @@ public class DefaultSocketWorker implements SocketWorker {
                      AnalyzerException | BTreeException | QueryException | SerializationException |
                      InterruptedTaskException | StorageException | DeserializationException | FileChannelException |
                      DbException exception) {
+                logger.error(String.format("Error type: %s; Error message: %s", exception.getDbError(), exception.getMessage()), exception);
                 ErrorResultInfo errorResultInfo = ErrorResultInfoBuilder.builder()
                         .setDbError(exception.getDbError())
                         .setMessage(exception.getMessage())

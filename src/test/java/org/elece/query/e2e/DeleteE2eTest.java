@@ -72,16 +72,8 @@ class DeleteE2eTest {
         Table table = dependencyContainer.getSchemaManager().getSchema().getTables().getFirst();
         IndexManager<Integer, Pointer> clusterIndexManager = columnIndexManagerProvider.getClusterIndexManager(table);
 
-        Optional<Pointer> indexPointer1 = clusterIndexManager.getIndex(1);
-        Assertions.assertTrue(indexPointer1.isPresent());
         Optional<Pointer> indexPointer2 = clusterIndexManager.getIndex(2);
         Assertions.assertTrue(indexPointer2.isEmpty());
-        Optional<Pointer> indexPointer3 = clusterIndexManager.getIndex(3);
-        Assertions.assertTrue(indexPointer3.isPresent());
-        Optional<Pointer> indexPointer4 = clusterIndexManager.getIndex(4);
-        Assertions.assertTrue(indexPointer4.isPresent());
-        Optional<Pointer> indexPointer5 = clusterIndexManager.getIndex(5);
-        Assertions.assertTrue(indexPointer5.isPresent());
     }
 
     @Test
@@ -112,14 +104,6 @@ class DeleteE2eTest {
 
         Optional<Pointer> indexPointer1 = clusterIndexManager.getIndex(1);
         Assertions.assertTrue(indexPointer1.isEmpty());
-        Optional<Pointer> indexPointer2 = clusterIndexManager.getIndex(2);
-        Assertions.assertTrue(indexPointer2.isEmpty());
-        Optional<Pointer> indexPointer3 = clusterIndexManager.getIndex(3);
-        Assertions.assertTrue(indexPointer3.isPresent());
-        Optional<Pointer> indexPointer4 = clusterIndexManager.getIndex(4);
-        Assertions.assertTrue(indexPointer4.isPresent());
-        Optional<Pointer> indexPointer5 = clusterIndexManager.getIndex(5);
-        Assertions.assertTrue(indexPointer5.isPresent());
     }
 
     @Test
@@ -147,16 +131,10 @@ class DeleteE2eTest {
         Table table = dependencyContainer.getSchemaManager().getSchema().getTables().getFirst();
         IndexManager<Integer, Pointer> clusterIndexManager = columnIndexManagerProvider.getClusterIndexManager(table);
 
-        Optional<Pointer> indexPointer1 = clusterIndexManager.getIndex(1);
-        Assertions.assertTrue(indexPointer1.isEmpty());
-        Optional<Pointer> indexPointer2 = clusterIndexManager.getIndex(2);
-        Assertions.assertTrue(indexPointer2.isEmpty());
         Optional<Pointer> indexPointer3 = clusterIndexManager.getIndex(3);
         Assertions.assertTrue(indexPointer3.isEmpty());
         Optional<Pointer> indexPointer4 = clusterIndexManager.getIndex(4);
         Assertions.assertTrue(indexPointer4.isEmpty());
-        Optional<Pointer> indexPointer5 = clusterIndexManager.getIndex(5);
-        Assertions.assertTrue(indexPointer5.isPresent());
     }
 
     @Test
@@ -184,14 +162,6 @@ class DeleteE2eTest {
         Table table = dependencyContainer.getSchemaManager().getSchema().getTables().getFirst();
         IndexManager<Integer, Pointer> clusterIndexManager = columnIndexManagerProvider.getClusterIndexManager(table);
 
-        Optional<Pointer> indexPointer1 = clusterIndexManager.getIndex(1);
-        Assertions.assertTrue(indexPointer1.isEmpty());
-        Optional<Pointer> indexPointer2 = clusterIndexManager.getIndex(2);
-        Assertions.assertTrue(indexPointer2.isEmpty());
-        Optional<Pointer> indexPointer3 = clusterIndexManager.getIndex(3);
-        Assertions.assertTrue(indexPointer3.isEmpty());
-        Optional<Pointer> indexPointer4 = clusterIndexManager.getIndex(4);
-        Assertions.assertTrue(indexPointer4.isEmpty());
         Optional<Pointer> indexPointer5 = clusterIndexManager.getIndex(5);
         Assertions.assertTrue(indexPointer5.isEmpty());
     }

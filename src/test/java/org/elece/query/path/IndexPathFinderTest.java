@@ -283,7 +283,7 @@ class IndexPathFinderTest {
 
         DefaultPathNode idNode = findNode(nodes, COLUMN_ID_PRIMARY);
 
-        validateRangeNode(idNode, COLUMN_ID_PRIMARY, 1, Integer.MAX_VALUE, NumberRangeComparator.InclusionType.Excluded, NumberRangeComparator.InclusionType.Included, DefaultPathNode.IndexType.INDEXED);
+        validateRangeNode(idNode, COLUMN_ID_PRIMARY, 1, Integer.MAX_VALUE, NumberRangeComparator.InclusionType.EXCLUDED, NumberRangeComparator.InclusionType.INCLUDED, DefaultPathNode.IndexType.INDEXED);
     }
 
     @Test
@@ -305,7 +305,7 @@ class IndexPathFinderTest {
 
         DefaultPathNode idNode = findNode(nodes, COLUMN_ID_PRIMARY);
 
-        validateRangeNode(idNode, COLUMN_ID_PRIMARY, Integer.MIN_VALUE, 10, NumberRangeComparator.InclusionType.Included, NumberRangeComparator.InclusionType.Included, DefaultPathNode.IndexType.INDEXED);
+        validateRangeNode(idNode, COLUMN_ID_PRIMARY, Integer.MIN_VALUE, 10, NumberRangeComparator.InclusionType.INCLUDED, NumberRangeComparator.InclusionType.INCLUDED, DefaultPathNode.IndexType.INDEXED);
     }
 
     @Test
@@ -328,7 +328,7 @@ class IndexPathFinderTest {
         DefaultPathNode idNode = findNode(nodes, COLUMN_ID_PRIMARY);
         DefaultPathNode nameNode = findNode(nodes, COLUMN_NAME_NORMAL);
 
-        validateRangeNode(idNode, COLUMN_ID_PRIMARY, Integer.MIN_VALUE, 10, NumberRangeComparator.InclusionType.Included, NumberRangeComparator.InclusionType.Included, DefaultPathNode.IndexType.INDEXED);
+        validateRangeNode(idNode, COLUMN_ID_PRIMARY, Integer.MIN_VALUE, 10, NumberRangeComparator.InclusionType.INCLUDED, NumberRangeComparator.InclusionType.INCLUDED, DefaultPathNode.IndexType.INDEXED);
         validateNode(nameNode, COLUMN_NAME_NORMAL, StringEqualityComparator.class, "user", DefaultPathNode.IndexType.INDEXED);
     }
 

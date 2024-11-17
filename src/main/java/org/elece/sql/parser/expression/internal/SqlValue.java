@@ -42,4 +42,11 @@ public abstract class SqlValue<T> {
     public int hashCode() {
         return Objects.hashCode(value);
     }
+
+    @Override
+    public String toString() {
+        return "SqlValue{" +
+                "value=" + value +
+                '}';
+    }
 }

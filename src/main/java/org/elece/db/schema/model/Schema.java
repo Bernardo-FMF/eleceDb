@@ -44,4 +44,12 @@ public class Schema {
     public int hashCode() {
         return Objects.hash(dbName, tables);
     }
+
+    @Override
+    public String toString() {
+        return "Schema{" +
+                "dbName='" + dbName + '\'' +
+                ", tables=" + tables +
+                '}';
+    }
 }

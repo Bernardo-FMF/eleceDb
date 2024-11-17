@@ -53,6 +53,15 @@ public class DefaultPathNode {
         return Objects.hash(columnName, valueComparator, indexType);
     }
 
+    @Override
+    public String toString() {
+        return "DefaultPathNode{" +
+                "columnName='" + columnName + '\'' +
+                ", valueComparator=" + valueComparator +
+                ", indexType=" + indexType +
+                '}';
+    }
+
     public enum IndexType {
         NON_INDEXED(0),
         INDEXED(1);
