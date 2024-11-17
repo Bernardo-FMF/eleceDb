@@ -22,3 +22,17 @@ jobs:
 
       - name: build with maven
         run: mvn -B package
+
+      - name: log in to docker
+        run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: build and push Docker image
+        run: |
+          if [ "${{ github.event_name }}" == "push" ]; then
+            image_tag=$(git log -1 --pretty=%h)
+            docker build -t ${{ secrets.DOCKER_USERNAME }}/elecedb:$image_tag -t ${{ secrets.DOCKER_USERNAME }}/elecedb:latest .
+            docker push ${{ secrets.DOCKER_USERNAME }}/elecedb:$image_tag
+            docker push ${{ secrets.DOCKER_USERNAME }}/elecedb:latest
+          else
+            echo "Skipping Docker image build on pull requests."
+          fi
