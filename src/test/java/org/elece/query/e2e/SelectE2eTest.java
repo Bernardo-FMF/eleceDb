@@ -6,12 +6,9 @@ import org.elece.db.schema.SchemaSearcher;
 import org.elece.db.schema.model.Column;
 import org.elece.db.schema.model.Table;
 import org.elece.exception.*;
-import org.elece.serializer.Serializer;
-import org.elece.serializer.SerializerRegistry;
 import org.elece.sql.parser.statement.SelectStatement;
 import org.elece.tcp.DependencyContainer;
 import org.elece.utils.FileTestUtils;
-import org.elece.utils.SerializationUtils;
 import org.junit.jupiter.api.*;
 
 import java.io.IOException;
@@ -200,24 +197,24 @@ class SelectE2eTest {
         dependencyContainer.getQueryPlanner().plan(selectStatement, clientInterface);
 
         MockedClientInterface.SelectResponse selectResponse = clientInterface.getSelectResponse();
-        List<byte[]> rows = selectResponse.getRows();
+        List<List<String>> rows = selectResponse.getRows();
         Assertions.assertEquals(expectedValues.size(), rows.size());
 
         for (List<Object> expectedRow : expectedValues) {
-            byte[] actualRow = rows.get(expectedValues.indexOf(expectedRow));
+            List<String> actualRow = rows.get(expectedValues.indexOf(expectedRow));
 
-            for (Column selectedColumn : selectedColumns) {
-                Object expectedValue = expectedRow.get(selectedColumns.indexOf(selectedColumn));
-                byte[] actualValueBytes = SerializationUtils.getValueOfField(selectedColumns, selectedColumn, actualRow);
+            Assertions.assertEquals(expectedRow.size(), actualRow.size());
+            for (int index = 0; index < expectedRow.size(); index++) {
+                Object expectedValue = expectedRow.get(index);
 
-                SerializerRegistry serializerRegistry = dependencyContainer.getSerializerRegistry();
-                Serializer<?> serializer = serializerRegistry.getSerializer(selectedColumn.getSqlType().getType());
-                Object actualValue = serializer.deserialize(actualValueBytes, selectedColumn);
-                if (actualValue instanceof String stringValue) {
-                    Assertions.assertEquals(expectedValue, stringValue.trim());
-                } else {
-                    Assertions.assertEquals(expectedValue, actualValue);
-                }
+                Column column = selectedColumns.get(index);
+                Object actualValue = actualRow.get(index);
+                actualValue = switch (column.getSqlType().getType()) {
+                    case Int -> Integer.parseInt(actualValue.toString());
+                    case Bool -> Boolean.parseBoolean(actualValue.toString());
+                    case Varchar -> actualValue.toString().substring(1, actualValue.toString().length() - 1);
+                };
+                Assertions.assertEquals(expectedValue, actualValue);
             }
         }
     }

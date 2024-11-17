@@ -30,7 +30,7 @@ public class MockedClientInterface implements ClientInterface {
         } else if (stringResponse.contains("SelectEndResult")) {
             selectResponse.setEndHeader(stringResponse);
         } else if (Objects.nonNull(selectResponse)) {
-            selectResponse.addRow(response);
+            selectResponse.addRow(stringResponse);
         }
     }
 
@@ -45,15 +45,17 @@ public class MockedClientInterface implements ClientInterface {
     public static final class SelectResponse {
         private final String initialHeader;
         private String endHeader;
-        private final List<byte[]> rows;
+        private final List<List<String>> rows;
 
         public SelectResponse(String initialHeader) {
             this.initialHeader = initialHeader;
             this.rows = new ArrayList<>();
         }
 
-        public void addRow(byte[] row) {
-            rows.add(row);
+        public void addRow(String row) {
+            String trimmedRow = row.substring(1, row.length() - 1);
+            String[] splitValues = trimmedRow.split(", ");
+            rows.add(List.of(splitValues));
         }
 
         public void setEndHeader(String endHeader) {
@@ -68,7 +70,7 @@ public class MockedClientInterface implements ClientInterface {
             return endHeader;
         }
 
-        public List<byte[]> getRows() {
+        public List<List<String>> getRows() {
             return rows;
         }
     }
