@@ -3,6 +3,7 @@ package org.elece.thread;
 import org.elece.exception.*;
 import org.elece.query.QueryPlanner;
 import org.elece.query.result.ErrorResultInfo;
+import org.elece.query.result.builder.ErrorResultInfoBuilder;
 import org.elece.sql.analyzer.SqlAnalyzer;
 import org.elece.sql.optimizer.SqlOptimizer;
 import org.elece.sql.parser.SqlParser;
@@ -55,7 +56,10 @@ public class DefaultSocketWorker implements SocketWorker {
                      AnalyzerException | BTreeException | QueryException | SerializationException |
                      InterruptedTaskException | StorageException | DeserializationException | FileChannelException |
                      DbException exception) {
-                ErrorResultInfo errorResultInfo = new ErrorResultInfo(exception.getDbError(), exception.getMessage());
+                ErrorResultInfo errorResultInfo = ErrorResultInfoBuilder.builder()
+                        .setDbError(exception.getDbError())
+                        .setMessage(exception.getMessage())
+                        .build();
                 try {
                     clientInterface.send(BinaryUtils.stringToBytes(errorResultInfo.deserialize()));
                 } catch (ProtoException nestedException) {

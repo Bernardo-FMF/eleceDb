@@ -15,15 +15,7 @@ public class ErrorResultInfo extends ResultInfo {
 
     @Override
     public String deserialize() {
-        StringBuilder innerData = new StringBuilder();
-        innerData.append("Error type: ").append(dbError.toString()).append("\n");
-        innerData.append("Error message: ").append(message).append("\n");
-
-        StringBuilder fullData = new StringBuilder();
-        fullData.append(PREFIX)
-                .append("::\n")
-                .append(innerData);
-
-        return fullData.toString();
+        String innerData = "Error type: " + dbError.toString() + "\n" + "Error message: " + message + "\n";
+        return PREFIX + "::\n" + innerData;
     }
 }

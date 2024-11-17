@@ -31,9 +31,11 @@ import org.elece.query.plan.step.scan.*;
 import org.elece.query.plan.step.selector.AttributeSelectorStep;
 import org.elece.query.plan.step.stream.OutputStreamStep;
 import org.elece.query.plan.step.stream.StreamStep;
-import org.elece.query.plan.step.tracer.*;
+import org.elece.query.plan.step.tracer.GenericTracerStep;
+import org.elece.query.plan.step.tracer.SelectInitialTracerStep;
 import org.elece.query.plan.step.validator.InsertValidatorStep;
 import org.elece.query.plan.step.value.InsertValueStep;
+import org.elece.query.result.GenericQueryResultInfo;
 import org.elece.serializer.SerializerRegistry;
 import org.elece.sql.parser.expression.Expression;
 import org.elece.sql.parser.expression.IdentifierExpression;
@@ -126,7 +128,7 @@ public class QueryPlanner {
             builder.addFilterStep(filterStep);
         }
         builder.setOperationStep(new DeleteOperationStep(table, columnIndexManagerProvider, databaseStorageManager))
-                .setTracerStep(new DeleteTracerStep(table, queryContext.getScanInfo()))
+                .setTracerStep(new GenericTracerStep<>(GenericQueryResultInfo.QueryType.DELETE))
                 .setStreamStep(streamStep);
 
         return Optional.of(builder.build());
@@ -155,7 +157,7 @@ public class QueryPlanner {
             builder.addFilterStep(filterStep);
         }
         builder.setOperationStep(new UpdateOperationStep(table, statement.getColumns(), databaseStorageManager, columnIndexManagerProvider, serializerRegistry))
-                .setTracerStep(new UpdateTracerStep(table, queryContext.getScanInfo()))
+                .setTracerStep(new GenericTracerStep<>(GenericQueryResultInfo.QueryType.UPDATE))
                 .setStreamStep(streamStep);
 
         return Optional.of(builder.build());
@@ -173,7 +175,7 @@ public class QueryPlanner {
                 .setValueStep(new InsertValueStep(table, statement.getValues(), columnIndexManagerProvider, serializerRegistry))
                 .setValidatorStep(new InsertValidatorStep(table, columnIndexManagerProvider))
                 .setOperationStep(new InsertOperationStep(table, columnIndexManagerProvider, databaseStorageManager))
-                .setTracerStep(new InsertTracerStep(table));
+                .setTracerStep(new GenericTracerStep<>(GenericQueryResultInfo.QueryType.INSERT));
 
         return Optional.of(builder.build());
     }
@@ -209,8 +211,8 @@ public class QueryPlanner {
             builder.addFilterStep(filterStep);
         }
         builder.setSelectorStep(new AttributeSelectorStep(table, selectedColumns))
-                .setInitialTracerStep(new SelectInitialTracerStep(selectedColumns, table, queryContext.getScanInfo()))
-                .setEndTracerStep(new SelectEndTracerStep())
+                .setInitialTracerStep(new SelectInitialTracerStep(selectedColumns))
+                .setEndTracerStep(new GenericTracerStep<>(GenericQueryResultInfo.QueryType.SELECT_END))
                 .setStreamStep(streamStep);
 
         if (!Objects.isNull(statement.getOrderBy()) && !statement.getOrderBy().isEmpty()) {

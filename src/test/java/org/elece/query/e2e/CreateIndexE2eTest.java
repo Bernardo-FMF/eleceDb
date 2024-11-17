@@ -63,6 +63,6 @@ class CreateIndexE2eTest {
         MockedClientInterface.Response createIndexResponse = responses.getFirst();
         Assertions.assertEquals(MockedClientInterface.ResponseType.CREATE_INDEX, createIndexResponse.responseType());
         Assertions.assertEquals("Index created", E2eUtils.extractValue("Message", createIndexResponse.response()));
-        Assertions.assertEquals("1", E2eUtils.extractValue("AffectedRowCount", createIndexResponse.response()));
+        Assertions.assertEquals("1", E2eUtils.extractValue("RowCount", createIndexResponse.response()));
     }
 }

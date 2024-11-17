@@ -2,6 +2,8 @@ package org.elece.query.result.builder;
 
 import org.elece.query.result.GenericQueryResultInfo;
 
+import java.util.Objects;
+
 public class GenericQueryResultInfoBuilder {
     private GenericQueryResultInfo.QueryType queryType;
     private Integer affectedRowCount;
@@ -31,6 +33,9 @@ public class GenericQueryResultInfoBuilder {
     }
 
     public GenericQueryResultInfo build() {
+        if (Objects.isNull(message)) {
+            return new GenericQueryResultInfo(queryType, affectedRowCount);
+        }
         return new GenericQueryResultInfo(queryType, message, affectedRowCount);
     }
 }

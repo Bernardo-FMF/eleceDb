@@ -1,7 +1,7 @@
 package org.elece.sql.parser.statement;
 
-import org.elece.sql.parser.expression.internal.Assignment;
 import org.elece.sql.parser.expression.Expression;
+import org.elece.sql.parser.expression.internal.Assignment;
 
 import java.util.List;
 

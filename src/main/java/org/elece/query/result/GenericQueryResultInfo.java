@@ -1,11 +1,17 @@
 package org.elece.query.result;
 
+import java.util.Objects;
+
 public class GenericQueryResultInfo extends ResultInfo {
     private static final String PREFIX = "Response::%s::";
 
     private final QueryType queryType;
     private final String message;
     private final Integer rowCount;
+
+    public GenericQueryResultInfo(QueryType queryType, Integer rowCount) {
+        this(queryType, null, rowCount);
+    }
 
     public GenericQueryResultInfo(QueryType queryType, String message, Integer rowCount) {
         this.queryType = queryType;
@@ -16,16 +22,12 @@ public class GenericQueryResultInfo extends ResultInfo {
     @Override
     public String deserialize() {
         StringBuilder innerData = new StringBuilder();
-        innerData.append("Message: ").append(message).append("\n")
-                .append("AffectedRowCount: ").append(rowCount).append("\n");
+        if (Objects.nonNull(message)) {
+            innerData.append("Message: ").append(message).append("\n");
+        }
+        innerData.append("RowCount: ").append(rowCount).append("\n");
 
-        StringBuilder fullData = new StringBuilder();
-        fullData.append(String.format(PREFIX, queryType.getQueryType()))
-                .append(innerData.length())
-                .append("::\n")
-                .append(innerData);
-
-        return fullData.toString();
+        return String.format(PREFIX, queryType.getQueryHeader()) + innerData.length() + "::\n" + innerData;
     }
 
     public enum QueryType {
@@ -33,16 +35,20 @@ public class GenericQueryResultInfo extends ResultInfo {
         CREATE_INDEX("CreateIndexResult"),
         CREATE_TABLE("CreateTableResult"),
         DROP_DB("DropDbResult"),
-        DROP_TABLE("DropTableResult");
+        DROP_TABLE("DropTableResult"),
+        DELETE("DeleteResult"),
+        INSERT("InsertResult"),
+        UPDATE("UpdateResult"),
+        SELECT_END("SelectEndResult");
 
-        private final String queryType;
+        private final String queryHeader;
 
-        QueryType(String queryType) {
-            this.queryType = queryType;
+        QueryType(String queryHeader) {
+            this.queryHeader = queryHeader;
         }
 
-        public String getQueryType() {
-            return this.queryType;
+        public String getQueryHeader() {
+            return this.queryHeader;
         }
     }
 }

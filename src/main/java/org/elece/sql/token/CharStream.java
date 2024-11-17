@@ -3,7 +3,6 @@ package org.elece.sql.token;
 import org.elece.sql.token.model.type.Whitespace;
 
 import java.util.Iterator;
-import java.util.NoSuchElementException;
 import java.util.function.Predicate;
 
 public class CharStream implements Iterator<Character> {

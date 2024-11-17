@@ -70,7 +70,7 @@ class CreateAndDropTableE2eTest {
         MockedClientInterface.Response createTableResponse = responses.getFirst();
         Assertions.assertEquals(MockedClientInterface.ResponseType.CREATE_TABLE, createTableResponse.responseType());
         Assertions.assertEquals("Table created", E2eUtils.extractValue("Message", createTableResponse.response()));
-        Assertions.assertEquals("0", E2eUtils.extractValue("AffectedRowCount", createTableResponse.response()));
+        Assertions.assertEquals("0", E2eUtils.extractValue("RowCount", createTableResponse.response()));
 
         Schema schema = dependencyContainer.getSchemaManager().getSchema();
         Assertions.assertNotNull(schema);
@@ -129,7 +129,7 @@ class CreateAndDropTableE2eTest {
         MockedClientInterface.Response createTableResponse = responses.getFirst();
         Assertions.assertEquals(MockedClientInterface.ResponseType.DROP_TABLE, createTableResponse.responseType());
         Assertions.assertEquals("Table deleted", E2eUtils.extractValue("Message", createTableResponse.response()));
-        Assertions.assertEquals("0", E2eUtils.extractValue("AffectedRowCount", createTableResponse.response()));
+        Assertions.assertEquals("0", E2eUtils.extractValue("RowCount", createTableResponse.response()));
 
         Schema schema = dependencyContainer.getSchemaManager().getSchema();
         Assertions.assertNotNull(schema);
