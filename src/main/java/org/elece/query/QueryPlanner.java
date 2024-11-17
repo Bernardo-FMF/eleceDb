@@ -21,6 +21,7 @@ import org.elece.query.plan.builder.DeleteQueryPlanBuilder;
 import org.elece.query.plan.builder.InsertQueryPlanBuilder;
 import org.elece.query.plan.builder.SelectQueryPlanBuilder;
 import org.elece.query.plan.builder.UpdateQueryPlanBuilder;
+import org.elece.query.plan.step.deserializer.RowDeserializerStep;
 import org.elece.query.plan.step.filter.FieldFilterStep;
 import org.elece.query.plan.step.filter.FilterStep;
 import org.elece.query.plan.step.operation.DeleteOperationStep;
@@ -213,6 +214,7 @@ public class QueryPlanner {
         builder.setSelectorStep(new AttributeSelectorStep(table, selectedColumns))
                 .setInitialTracerStep(new SelectInitialTracerStep(selectedColumns))
                 .setEndTracerStep(new GenericTracerStep<>(GenericQueryResultInfo.QueryType.SELECT_END))
+                .setDeserializerStep(new RowDeserializerStep(serializerRegistry, selectedColumns))
                 .setStreamStep(streamStep);
 
         if (!Objects.isNull(statement.getOrderBy()) && !statement.getOrderBy().isEmpty()) {

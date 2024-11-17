@@ -2,6 +2,7 @@ package org.elece.query.plan;
 
 import org.elece.db.DbObject;
 import org.elece.exception.*;
+import org.elece.query.plan.step.deserializer.DeserializerStep;
 import org.elece.query.plan.step.filter.FilterStep;
 import org.elece.query.plan.step.order.OrderStep;
 import org.elece.query.plan.step.scan.ScanStep;
@@ -9,6 +10,7 @@ import org.elece.query.plan.step.selector.SelectorStep;
 import org.elece.query.plan.step.stream.StreamStep;
 import org.elece.query.plan.step.tracer.TracerStep;
 import org.elece.query.result.ResultInfo;
+import org.elece.utils.BinaryUtils;
 
 import java.util.*;
 
@@ -23,11 +25,13 @@ public class SelectQueryPlan implements QueryPlan {
 
     private final OrderStep orderStep;
 
+    private final DeserializerStep deserializerStep;
+
     private final StreamStep streamStep;
 
     public SelectQueryPlan(Queue<ScanStep> scanSteps, Map<Long, List<FilterStep>> filterSteps,
                            TracerStep<DbObject> startTracerStep, TracerStep<DbObject> endTracerStep,
-                           SelectorStep selectorStep, OrderStep orderStep,
+                           SelectorStep selectorStep, OrderStep orderStep, DeserializerStep deserializerStep,
                            StreamStep streamStep) {
         this.scanSteps = scanSteps;
         this.filterSteps = filterSteps;
@@ -35,6 +39,7 @@ public class SelectQueryPlan implements QueryPlan {
         this.endTracerStep = endTracerStep;
         this.selectorStep = selectorStep;
         this.orderStep = orderStep;
+        this.deserializerStep = deserializerStep;
         this.streamStep = streamStep;
     }
 
@@ -76,7 +81,7 @@ public class SelectQueryPlan implements QueryPlan {
                     if (!Objects.isNull(orderStep)) {
                         orderStep.addToBuffer(serializedData.get());
                     } else {
-                        streamStep.stream(serializedData.get());
+                        streamStep.stream(BinaryUtils.stringToBytes(deserializerStep.deserialize(serializedData.get())));
                     }
                 }
             }
@@ -87,7 +92,7 @@ public class SelectQueryPlan implements QueryPlan {
 
             Iterator<byte[]> orderedIterator = orderStep.getIterator();
             while (orderedIterator.hasNext()) {
-                streamStep.stream(orderedIterator.next());
+                streamStep.stream(BinaryUtils.stringToBytes(deserializerStep.deserialize(orderedIterator.next())));
             }
 
             orderStep.clearBuffer();

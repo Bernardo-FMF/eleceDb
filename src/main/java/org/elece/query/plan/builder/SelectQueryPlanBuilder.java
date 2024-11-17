@@ -2,6 +2,7 @@ package org.elece.query.plan.builder;
 
 import org.elece.db.DbObject;
 import org.elece.query.plan.SelectQueryPlan;
+import org.elece.query.plan.step.deserializer.DeserializerStep;
 import org.elece.query.plan.step.filter.FilterStep;
 import org.elece.query.plan.step.order.OrderStep;
 import org.elece.query.plan.step.scan.ScanStep;
@@ -18,6 +19,7 @@ public class SelectQueryPlanBuilder {
     private TracerStep<DbObject> endTracerStep;
     private SelectorStep selectorStep;
     private OrderStep orderStep;
+    private DeserializerStep deserializerStep;
     private StreamStep streamStep;
 
     private SelectQueryPlanBuilder() {
@@ -62,12 +64,17 @@ public class SelectQueryPlanBuilder {
         return this;
     }
 
+    public SelectQueryPlanBuilder setDeserializerStep(DeserializerStep deserializerStep) {
+        this.deserializerStep = deserializerStep;
+        return this;
+    }
+
     public SelectQueryPlanBuilder setStreamStep(StreamStep streamStep) {
         this.streamStep = streamStep;
         return this;
     }
 
     public SelectQueryPlan build() {
-        return new SelectQueryPlan(scanSteps, filterSteps, initialTracerStep, endTracerStep, selectorStep, orderStep, streamStep);
+        return new SelectQueryPlan(scanSteps, filterSteps, initialTracerStep, endTracerStep, selectorStep, orderStep, deserializerStep, streamStep);
     }
 }
