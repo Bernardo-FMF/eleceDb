@@ -14,16 +14,14 @@ import org.elece.query.comparator.EqualityComparator;
 import org.elece.query.comparator.NumberRangeComparator;
 import org.elece.query.comparator.ValueComparator;
 import org.elece.query.executor.*;
-import org.elece.query.path.DefaultPathNode;
-import org.elece.query.path.IndexPath;
-import org.elece.query.path.IndexPathFinder;
-import org.elece.query.path.NodeCollection;
+import org.elece.query.path.*;
 import org.elece.query.plan.QueryPlan;
 import org.elece.query.plan.builder.DeleteQueryPlanBuilder;
 import org.elece.query.plan.builder.InsertQueryPlanBuilder;
 import org.elece.query.plan.builder.SelectQueryPlanBuilder;
 import org.elece.query.plan.builder.UpdateQueryPlanBuilder;
 import org.elece.query.plan.step.deserializer.RowDeserializerStep;
+import org.elece.query.plan.step.filter.ComplexFieldFilterStep;
 import org.elece.query.plan.step.filter.FieldFilterStep;
 import org.elece.query.plan.step.filter.FilterStep;
 import org.elece.query.plan.step.operation.DeleteOperationStep;
@@ -286,17 +284,23 @@ public class QueryPlanner {
                                                                   Optional<DefaultPathNode> possibleMainPath,
                                                                   ScanStep scanStep) {
         Set<DefaultPathNode> secondaryPaths = possibleMainPath
-                .map(defaultPathNode -> indexPath.getNodePaths().stream().filter(pathNode -> !Objects.equals(pathNode, defaultPathNode)).collect(Collectors.toSet()))
-                .orElseGet(indexPath::getNodePaths);
+                .map(defaultPathNode -> indexPath.getPathNodes().stream().filter(pathNode -> !Objects.equals(pathNode, defaultPathNode)).collect(Collectors.toSet()))
+                .orElseGet(indexPath::getPathNodes);
+
+        Set<ComplexPathNode> secondaryComplexPaths = indexPath.getComplexPathNodes();
 
         for (DefaultPathNode secondaryPath : secondaryPaths) {
-
             Optional<Column> column = SchemaSearcher.findColumn(table, secondaryPath.getColumnName());
             if (column.isPresent()) {
                 logger.debug("Creating secondary path for filtering {}", secondaryPath);
                 queryContext.addFilterStep(new FieldFilterStep<>(table, column.get(), (ValueComparator<V>) secondaryPath.getValueComparator(), serializerRegistry, scanStep.getScanId()));
                 queryContext.getScanInfo().addSecondaryFilterScan(column.get());
             }
+        }
+
+        for (ComplexPathNode complexPathNode : secondaryComplexPaths) {
+            logger.debug("Creating complex secondary path for filtering {}", complexPathNode);
+            queryContext.addFilterStep(new ComplexFieldFilterStep(table, complexPathNode, serializerRegistry, scanStep.getScanId()));
         }
     }
 
@@ -308,7 +312,7 @@ public class QueryPlanner {
     }
 
     private Optional<DefaultPathNode> findMainPath(IndexPath indexPath) {
-        Queue<DefaultPathNode> nodePaths = indexPath.buildNodePathsQueue();
+        Queue<DefaultPathNode> nodePaths = indexPath.buildPathNodesQueue();
         if (nodePaths.isEmpty()) {
             return Optional.empty();
         }

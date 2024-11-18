@@ -60,10 +60,11 @@ class SelectE2eTest {
                         SchemaSearcher.findColumn(table, "id").get(),
                         SchemaSearcher.findColumn(table, "name").get(),
                         SchemaSearcher.findColumn(table, "username").get(),
-                        SchemaSearcher.findColumn(table, "isAdmin").get()
+                        SchemaSearcher.findColumn(table, "isAdmin").get(),
+                        SchemaSearcher.findColumn(table, "numberColumn").get()
                 ),
                 List.of(
-                        List.of(1, "name1", "username1", true)
+                        List.of(1, "name1", "username1", true, 1)
                 ));
     }
 
@@ -178,6 +179,53 @@ class SelectE2eTest {
                         List.of(3, "name3"),
                         List.of(4, "name4"),
                         List.of(5, "name5")
+                ));
+    }
+
+    @Test
+    @Order(7)
+    void test_selectWithComplexVariableWhere() throws SchemaException, ParserException, BTreeException,
+                                                      QueryException,
+                                                      SerializationException, InterruptedTaskException,
+                                                      StorageException,
+                                                      DeserializationException, ProtoException,
+                                                      FileChannelException,
+                                                      DbException, AnalyzerException, TokenizerException {
+        Table table = dependencyContainer.getSchemaManager().getSchema().getTables().getFirst();
+        planAndValidateQuery(
+                "SELECT id, name FROM users WHERE id = numberColumn;",
+                List.of(
+                        SchemaSearcher.findColumn(table, "id").get(),
+                        SchemaSearcher.findColumn(table, "name").get()
+                ),
+                List.of(
+                        List.of(1, "name1"),
+                        List.of(2, "name2"),
+                        List.of(3, "name3")
+                ));
+    }
+
+    @Test
+    @Order(8)
+    void test_selectWithComplexVariableWhereWithMultipleBranches() throws SchemaException, ParserException,
+                                                                          BTreeException,
+                                                                          QueryException,
+                                                                          SerializationException,
+                                                                          InterruptedTaskException,
+                                                                          StorageException,
+                                                                          DeserializationException, ProtoException,
+                                                                          FileChannelException,
+                                                                          DbException, AnalyzerException,
+                                                                          TokenizerException {
+        Table table = dependencyContainer.getSchemaManager().getSchema().getTables().getFirst();
+        planAndValidateQuery(
+                "SELECT id, name FROM users WHERE id = numberColumn and isAdmin = true;",
+                List.of(
+                        SchemaSearcher.findColumn(table, "id").get(),
+                        SchemaSearcher.findColumn(table, "name").get()
+                ),
+                List.of(
+                        List.of(1, "name1")
                 ));
     }
 

@@ -25,12 +25,21 @@ public class OrderIdentifierExpression extends Expression {
     }
 
     @Override
-    public SqlType accept(ExpressionAnalyzerVisitor.ExpressionContext expressionContext, ExpressionAnalyzerVisitor visitor) throws AnalyzerException {
+    public SqlType accept(ExpressionAnalyzerVisitor.ExpressionContext expressionContext,
+                          ExpressionAnalyzerVisitor visitor) throws AnalyzerException {
         return visitor.visit(expressionContext, this);
     }
 
     @Override
     public <T> T accept(ExpressionParserVisitor<T> visitor) throws ParserException {
         return visitor.visit(this);
+    }
+
+    @Override
+    public String toString() {
+        return "OrderIdentifierExpression{" +
+                "name='" + name + '\'' +
+                ", order=" + order +
+                '}';
     }
 }

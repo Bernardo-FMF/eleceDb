@@ -21,7 +21,8 @@ public class NestedExpression extends Expression {
     }
 
     @Override
-    public SqlType accept(ExpressionAnalyzerVisitor.ExpressionContext expressionContext, ExpressionAnalyzerVisitor visitor) throws AnalyzerException {
+    public SqlType accept(ExpressionAnalyzerVisitor.ExpressionContext expressionContext,
+                          ExpressionAnalyzerVisitor visitor) throws AnalyzerException {
         return visitor.visit(expressionContext, this);
     }
 
@@ -33,5 +34,12 @@ public class NestedExpression extends Expression {
     @Override
     public NodeCollection accept(QueryPlanVisitor visitor) throws QueryException {
         return visitor.visit(this);
+    }
+
+    @Override
+    public String toString() {
+        return "NestedExpression{" +
+                "expression=" + expression +
+                '}';
     }
 }

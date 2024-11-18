@@ -106,7 +106,7 @@ public class E2eUtils {
                                                                                    InterruptedTaskException,
                                                                                    FileChannelException {
         CreateTableStatement createTableStatement = (CreateTableStatement) E2eUtils.prepareStatement(dependencyContainer.getSchemaManager(),
-                "CREATE TABLE users (id INT PRIMARY KEY, name VARCHAR(255), username VARCHAR(255) UNIQUE, isAdmin BOOL);");
+                "CREATE TABLE users (id INT PRIMARY KEY, name VARCHAR(255), username VARCHAR(255) UNIQUE, isAdmin BOOL, numberColumn INT);");
         dependencyContainer.getQueryPlanner().plan(createTableStatement, new MockedClientInterface());
     }
 
@@ -121,11 +121,11 @@ public class E2eUtils {
                                                                                   FileChannelException {
         MockedClientInterface clientInterface = new MockedClientInterface();
         List<String> statements = List.of(
-                "INSERT INTO users (id, name, username, isAdmin) VALUES (1, \"name1\", \"username1\", true);",
-                "INSERT INTO users (id, name, username, isAdmin) VALUES (2, \"name2\", \"username2\", false);",
-                "INSERT INTO users (id, name, username, isAdmin) VALUES (3, \"name3\", \"username3\", false);",
-                "INSERT INTO users (id, name, username, isAdmin) VALUES (4, \"name4\", \"username4\", false);",
-                "INSERT INTO users (id, name, username, isAdmin) VALUES (5, \"name5\", \"username5\", false);"
+                "INSERT INTO users (id, name, username, isAdmin, numberColumn) VALUES (1, \"name1\", \"username1\", true, 1);",
+                "INSERT INTO users (id, name, username, isAdmin, numberColumn) VALUES (2, \"name2\", \"username2\", false, 2);",
+                "INSERT INTO users (id, name, username, isAdmin, numberColumn) VALUES (3, \"name3\", \"username3\", false, 3);",
+                "INSERT INTO users (id, name, username, isAdmin, numberColumn) VALUES (4, \"name4\", \"username4\", false, 1);",
+                "INSERT INTO users (id, name, username, isAdmin, numberColumn) VALUES (5, \"name5\", \"username5\", false, 1);"
         );
 
         for (String statement : statements) {

@@ -31,8 +31,6 @@ public class IndexPathFinder implements QueryPlanVisitor {
     public NodeCollection visit(BinaryExpression binaryExpression) throws QueryException {
         NodeCollection nodeCollection = new NodeCollection();
 
-        // TODO: what about cases where expressions are similar to "where id + 4 > 0" for example. This use case must be handled as well
-
         if (isValueComparison(binaryExpression)) {
             IdentifierExpression identifierExpression = (IdentifierExpression) (binaryExpression.getLeft() instanceof IdentifierExpression ? binaryExpression.getLeft() : binaryExpression.getRight());
 
@@ -66,6 +64,12 @@ public class IndexPathFinder implements QueryPlanVisitor {
             }
         }
 
+        // If the binary expression is not a value comparison, nor an and/or expression,
+        // then we can assume that it's actually a complex expression like 'id = value + 1'
+        IndexPath indexPath = new IndexPath();
+        indexPath.addPath(new ComplexPathNode(binaryExpression));
+        nodeCollection.addPath(indexPath);
+
         return nodeCollection;
     }
 
@@ -97,7 +101,7 @@ public class IndexPathFinder implements QueryPlanVisitor {
         for (IndexPath indexPath : indexPaths) {
             Map<String, List<DefaultPathNode>> leftNodesGroupedByColumn = new HashMap<>();
 
-            for (DefaultPathNode node : indexPath.getNodePaths()) {
+            for (DefaultPathNode node : indexPath.getPathNodes()) {
                 if (leftNodesGroupedByColumn.containsKey(node.getColumnName())) {
                     leftNodesGroupedByColumn.get(node.getColumnName()).add(node);
                 } else {
@@ -106,6 +110,7 @@ public class IndexPathFinder implements QueryPlanVisitor {
             }
 
             IndexPath mergedIndexPath = new IndexPath();
+            indexPath.getComplexPathNodes().forEach(mergedIndexPath::addPath);
             for (Map.Entry<String, List<DefaultPathNode>> columnEntry : leftNodesGroupedByColumn.entrySet()) {
                 if (columnEntry.getValue().size() == 1) {
                     mergedIndexPath.addPath(columnEntry.getValue().getFirst());
@@ -118,12 +123,12 @@ public class IndexPathFinder implements QueryPlanVisitor {
             mergedIndexPaths.add(mergedIndexPath);
         }
 
-        NodeCollection mergedNodes = new NodeCollection();
 
         if (isCanceled.get()) {
-            return mergedNodes;
+            return new NodeCollection();
         }
 
+        NodeCollection mergedNodes = new NodeCollection();
         mergedIndexPaths.forEach(mergedNodes::addPath);
         return mergedNodes;
     }

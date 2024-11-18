@@ -46,7 +46,7 @@ class CreateIndexE2eTest {
                                    DbException, ParserException, AnalyzerException, TokenizerException, BTreeException,
                                    QueryException, SerializationException, DeserializationException, ProtoException {
         Table table = dependencyContainer.getSchemaManager().getSchema().getTables().getFirst();
-        Object[] rowData = new Object[]{1, 1, "name", "userUniqueName", true};
+        Object[] rowData = new Object[]{1, 1, "name", "userUniqueName", true, 1};
 
         byte[] row = E2eUtils.serializeRow(table, rowData);
 

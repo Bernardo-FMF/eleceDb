@@ -80,7 +80,7 @@ class IndexPathFinderTest {
 
         Assertions.assertNotNull(path);
 
-        Set<DefaultPathNode> nodes = path.getNodePaths();
+        Set<DefaultPathNode> nodes = path.getPathNodes();
         Assertions.assertEquals(1, nodes.size());
 
         DefaultPathNode idNode = findNode(nodes, COLUMN_ID_PRIMARY);
@@ -102,7 +102,7 @@ class IndexPathFinderTest {
 
         Assertions.assertNotNull(path);
 
-        Set<DefaultPathNode> nodes = path.getNodePaths();
+        Set<DefaultPathNode> nodes = path.getPathNodes();
         Assertions.assertEquals(1, nodes.size());
 
         DefaultPathNode nameNode = findNode(nodes, COLUMN_NAME_NORMAL);
@@ -124,7 +124,7 @@ class IndexPathFinderTest {
 
         Assertions.assertNotNull(path);
 
-        Set<DefaultPathNode> nodes = path.getNodePaths();
+        Set<DefaultPathNode> nodes = path.getPathNodes();
         Assertions.assertEquals(1, nodes.size());
 
         DefaultPathNode deletedNode = findNode(nodes, COLUMN_DELETED_NORMAL);
@@ -147,10 +147,10 @@ class IndexPathFinderTest {
         Assertions.assertNotNull(leftPath);
         Assertions.assertNotNull(rightPath);
 
-        Set<DefaultPathNode> leftNodes = leftPath.getNodePaths();
+        Set<DefaultPathNode> leftNodes = leftPath.getPathNodes();
         Assertions.assertEquals(1, leftNodes.size());
 
-        Set<DefaultPathNode> rightNodes = rightPath.getNodePaths();
+        Set<DefaultPathNode> rightNodes = rightPath.getPathNodes();
         Assertions.assertEquals(1, rightNodes.size());
 
         DefaultPathNode leftIdNode = findNode(leftNodes, COLUMN_ID_PRIMARY);
@@ -175,7 +175,7 @@ class IndexPathFinderTest {
 
         Assertions.assertNotNull(path);
 
-        Set<DefaultPathNode> nodes = path.getNodePaths();
+        Set<DefaultPathNode> nodes = path.getPathNodes();
         Assertions.assertEquals(2, nodes.size());
 
         DefaultPathNode idNode = findNode(nodes, COLUMN_ID_PRIMARY);
@@ -200,10 +200,10 @@ class IndexPathFinderTest {
         Assertions.assertNotNull(leftPath);
         Assertions.assertNotNull(rightPath);
 
-        Set<DefaultPathNode> leftNodes = leftPath.getNodePaths();
+        Set<DefaultPathNode> leftNodes = leftPath.getPathNodes();
         Assertions.assertEquals(2, leftNodes.size());
 
-        Set<DefaultPathNode> rightNodes = rightPath.getNodePaths();
+        Set<DefaultPathNode> rightNodes = rightPath.getPathNodes();
         Assertions.assertEquals(2, rightNodes.size());
 
         DefaultPathNode leftIdNode = findNode(leftNodes, COLUMN_ID_PRIMARY);
@@ -235,10 +235,10 @@ class IndexPathFinderTest {
         Assertions.assertNotNull(leftPath);
         Assertions.assertNotNull(rightPath);
 
-        Set<DefaultPathNode> leftNodes = leftPath.getNodePaths();
+        Set<DefaultPathNode> leftNodes = leftPath.getPathNodes();
         Assertions.assertEquals(1, leftNodes.size());
 
-        Set<DefaultPathNode> rightNodes = rightPath.getNodePaths();
+        Set<DefaultPathNode> rightNodes = rightPath.getPathNodes();
         Assertions.assertEquals(2, rightNodes.size());
 
         DefaultPathNode leftDeletedNode = findNode(leftNodes, COLUMN_DELETED_NORMAL);
@@ -278,7 +278,7 @@ class IndexPathFinderTest {
 
         Assertions.assertNotNull(path);
 
-        Set<DefaultPathNode> nodes = path.getNodePaths();
+        Set<DefaultPathNode> nodes = path.getPathNodes();
         Assertions.assertEquals(1, nodes.size());
 
         DefaultPathNode idNode = findNode(nodes, COLUMN_ID_PRIMARY);
@@ -300,7 +300,7 @@ class IndexPathFinderTest {
 
         Assertions.assertNotNull(path);
 
-        Set<DefaultPathNode> nodes = path.getNodePaths();
+        Set<DefaultPathNode> nodes = path.getPathNodes();
         Assertions.assertEquals(1, nodes.size());
 
         DefaultPathNode idNode = findNode(nodes, COLUMN_ID_PRIMARY);
@@ -322,7 +322,7 @@ class IndexPathFinderTest {
 
         Assertions.assertNotNull(path);
 
-        Set<DefaultPathNode> nodes = path.getNodePaths();
+        Set<DefaultPathNode> nodes = path.getPathNodes();
         Assertions.assertEquals(2, nodes.size());
 
         DefaultPathNode idNode = findNode(nodes, COLUMN_ID_PRIMARY);
@@ -336,7 +336,7 @@ class IndexPathFinderTest {
         Set<String> columnsSet = new HashSet<>(Arrays.asList(columns));
 
         for (IndexPath indexPath : indexPaths) {
-            Set<String> indexPathColumns = indexPath.getNodePaths()
+            Set<String> indexPathColumns = indexPath.getPathNodes()
                     .stream()
                     .map(DefaultPathNode::getColumnName)
                     .collect(Collectors.toSet());
@@ -377,7 +377,11 @@ class IndexPathFinderTest {
         }
     }
 
-    private void validateRangeNode(DefaultPathNode node, String expectedColumnName, int expectedLeftBoundary, int expectedRightBoundary, NumberRangeComparator.InclusionType expectedLeftInclusionType, NumberRangeComparator.InclusionType expectedRightInclusionType, DefaultPathNode.IndexType expectedIndexType) {
+    private void validateRangeNode(DefaultPathNode node, String expectedColumnName, int expectedLeftBoundary,
+                                   int expectedRightBoundary,
+                                   NumberRangeComparator.InclusionType expectedLeftInclusionType,
+                                   NumberRangeComparator.InclusionType expectedRightInclusionType,
+                                   DefaultPathNode.IndexType expectedIndexType) {
         Assertions.assertEquals(expectedColumnName, node.getColumnName());
         Assertions.assertEquals(expectedIndexType, node.getIndexType());
         Assertions.assertInstanceOf(NumberRangeComparator.class, node.getValueComparator());

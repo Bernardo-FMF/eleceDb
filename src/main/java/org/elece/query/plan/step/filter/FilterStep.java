@@ -1,6 +1,8 @@
 package org.elece.query.plan.step.filter;
 
 import org.elece.db.DbObject;
+import org.elece.exception.DeserializationException;
+import org.elece.exception.ParserException;
 
 public abstract class FilterStep {
     private final Long scanId;
@@ -13,5 +15,5 @@ public abstract class FilterStep {
         return scanId;
     }
 
-    public abstract boolean next(DbObject dbObject);
+    public abstract boolean next(DbObject dbObject) throws ParserException, DeserializationException;
 }

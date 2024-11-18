@@ -6,31 +6,33 @@ import java.util.Queue;
 import java.util.Set;
 
 public class IndexPath {
-    private final Set<DefaultPathNode> nodePaths;
+    private final Set<DefaultPathNode> pathNodes;
+    private final Set<ComplexPathNode> complexPathNodes;
 
     public IndexPath() {
-        this.nodePaths = new HashSet<>();
+        this.pathNodes = new HashSet<>();
+        this.complexPathNodes = new HashSet<>();
     }
 
     public void addPath(DefaultPathNode node) {
-        nodePaths.add(node);
+        pathNodes.add(node);
     }
 
-    public Set<DefaultPathNode> getNodePaths() {
-        return nodePaths;
+    public void addPath(ComplexPathNode node) {
+        complexPathNodes.add(node);
     }
 
-    public int size() {
-        return nodePaths.size();
+    public Set<DefaultPathNode> getPathNodes() {
+        return pathNodes;
     }
 
-    public boolean isEmpty() {
-        return nodePaths.isEmpty();
+    public Set<ComplexPathNode> getComplexPathNodes() {
+        return complexPathNodes;
     }
 
-    public Queue<DefaultPathNode> buildNodePathsQueue() {
+    public Queue<DefaultPathNode> buildPathNodesQueue() {
         PriorityQueue<DefaultPathNode> newQueue = new PriorityQueue<>((nodeA, nodeB) -> nodeB.getPriority() - nodeA.getPriority());
-        newQueue.addAll(nodePaths);
+        newQueue.addAll(pathNodes);
         return newQueue;
     }
 }

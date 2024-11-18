@@ -42,7 +42,8 @@ public class BinaryExpression extends Expression {
     }
 
     @Override
-    public SqlType accept(ExpressionAnalyzerVisitor.ExpressionContext expressionContext, ExpressionAnalyzerVisitor visitor) throws AnalyzerException {
+    public SqlType accept(ExpressionAnalyzerVisitor.ExpressionContext expressionContext,
+                          ExpressionAnalyzerVisitor visitor) throws AnalyzerException {
         return visitor.visit(expressionContext, this);
     }
 
@@ -54,5 +55,14 @@ public class BinaryExpression extends Expression {
     @Override
     public NodeCollection accept(QueryPlanVisitor visitor) throws QueryException {
         return visitor.visit(this);
+    }
+
+    @Override
+    public String toString() {
+        return "BinaryExpression{" +
+                "left=" + left +
+                ", operator=" + operator +
+                ", right=" + right +
+                '}';
     }
 }

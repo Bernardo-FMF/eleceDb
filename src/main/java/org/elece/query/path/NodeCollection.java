@@ -16,7 +16,7 @@ public class NodeCollection {
 
     public void mergePath(IndexPath indexPath) {
         for (IndexPath path : this.indexPaths) {
-            for (DefaultPathNode node : indexPath.getNodePaths()) {
+            for (DefaultPathNode node : indexPath.getPathNodes()) {
                 path.addPath(node);
             }
         }
