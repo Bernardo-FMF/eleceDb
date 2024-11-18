@@ -55,7 +55,7 @@ public class ExpressionUtils {
         } else if (expression instanceof UnaryExpression unaryExpression) {
             SqlValue<?> resolvedValue = resolveExpression(valuesTuple, unaryExpression.getExpression());
             if (resolvedValue instanceof SqlNumberValue numberValue) {
-                if (unaryExpression.getOperator() == Symbol.Minus) {
+                if (unaryExpression.getOperator() == Symbol.MINUS) {
                     return new SqlNumberValue(numberValue.getValue() * -1);
                 }
                 return resolvedValue;
@@ -74,12 +74,12 @@ public class ExpressionUtils {
             Integer comparisonResult = leftValue.partialComparison(rightValue);
             if (binaryExpression.getOperator() instanceof Symbol symbol) {
                 SqlValue<?> sqlValue = switch (symbol) {
-                    case Eq -> new SqlBoolValue(comparisonResult == 0);
-                    case Neq -> new SqlBoolValue(comparisonResult != 0);
-                    case Lt -> new SqlBoolValue(comparisonResult < 0);
-                    case LtEq -> new SqlBoolValue(comparisonResult <= 0);
-                    case Gt -> new SqlBoolValue(comparisonResult > 0);
-                    case GtEq -> new SqlBoolValue(comparisonResult >= 0);
+                    case EQ -> new SqlBoolValue(comparisonResult == 0);
+                    case NEQ -> new SqlBoolValue(comparisonResult != 0);
+                    case LT -> new SqlBoolValue(comparisonResult < 0);
+                    case LT_EQ -> new SqlBoolValue(comparisonResult <= 0);
+                    case GT -> new SqlBoolValue(comparisonResult > 0);
+                    case GT_EQ -> new SqlBoolValue(comparisonResult >= 0);
                     default -> null;
                 };
 
@@ -88,16 +88,16 @@ public class ExpressionUtils {
                 }
 
                 if (leftValue instanceof SqlNumberValue leftNumber && rightValue instanceof SqlNumberValue rightNumber) {
-                    if (binaryExpression.getOperator() == Symbol.Div && rightNumber.getValue() == 0) {
+                    if (binaryExpression.getOperator() == Symbol.DIV && rightNumber.getValue() == 0) {
                         throw new ParserException(DbError.DIVISION_BY_ZERO_ERROR, String.format("Division by zero between %o and %o", leftNumber.getValue(), rightNumber.getValue()));
                     }
 
                     try {
                         Integer arithmeticResult = switch (symbol) {
-                            case Plus -> leftNumber.getValue() + rightNumber.getValue();
-                            case Minus -> leftNumber.getValue() - rightNumber.getValue();
-                            case Mul -> leftNumber.getValue() * rightNumber.getValue();
-                            case Div -> leftNumber.getValue() / rightNumber.getValue();
+                            case PLUS -> leftNumber.getValue() + rightNumber.getValue();
+                            case MINUS -> leftNumber.getValue() - rightNumber.getValue();
+                            case MUL -> leftNumber.getValue() * rightNumber.getValue();
+                            case DIV -> leftNumber.getValue() / rightNumber.getValue();
                             default ->
                                     throw new ParserException(DbError.UNHANDLED_ARITHMETIC_OPERATOR_ERROR, String.format("Arithmetic operator %s is unhandled", new String(symbol.getSymbolValue())));
                         };

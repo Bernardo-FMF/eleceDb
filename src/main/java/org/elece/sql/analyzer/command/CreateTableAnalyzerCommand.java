@@ -37,17 +37,17 @@ public class CreateTableAnalyzerCommand implements AnalyzerCommand<CreateTableSt
                 throw new AnalyzerException(DbError.INVALID_COLUMN_ERROR, String.format("Column %s is invalid", CLUSTER_ID));
             }
 
-            if (column.getConstraints().contains(SqlConstraint.PrimaryKey)) {
+            if (column.getConstraints().contains(SqlConstraint.PRIMARY_KEY)) {
                 if (hasPrimaryKey) {
                     throw new AnalyzerException(DbError.MULTIPLE_PRIMARY_KEYS_ERROR, "Table definition contains multiple primary keys");
                 }
-                if (!column.getSqlType().getConstraints().contains(SqlConstraint.PrimaryKey)) {
+                if (!column.getSqlType().getConstraints().contains(SqlConstraint.PRIMARY_KEY)) {
                     throw new AnalyzerException(DbError.INCOMPATIBLE_TYPE_FOR_PRIMARY_KEY_ERROR, String.format("Type %s used for column %s is not usable as primary key", column.getName(), column.getSqlType().getType()));
                 }
                 hasPrimaryKey = true;
             }
 
-            if (column.getConstraints().contains(SqlConstraint.Unique) && !column.getSqlType().getConstraints().contains(SqlConstraint.Unique)) {
+            if (column.getConstraints().contains(SqlConstraint.UNIQUE) && !column.getSqlType().getConstraints().contains(SqlConstraint.UNIQUE)) {
                 throw new AnalyzerException(DbError.INCOMPATIBLE_TYPE_FOR_INDEX_ERROR, String.format("Type %s used for column %s is not usable for index", column.getName(), column.getSqlType().getType()));
             }
         }

@@ -65,10 +65,10 @@ public class E2eUtils {
                 continue;
             }
 
-            if (type == SqlType.Type.Int) {
+            if (type == SqlType.Type.INT) {
                 IndexManager<Integer, Integer> idIndexManager = dependencyContainer.getColumnIndexManagerProvider().getIndexManager(table, column);
                 idIndexManager.addIndex((Integer) currentColumnData, (Integer) rowData[0]);
-            } else if (type == SqlType.Type.Varchar) {
+            } else if (type == SqlType.Type.VARCHAR) {
                 IndexManager<String, Integer> usernameIndexManager = dependencyContainer.getColumnIndexManagerProvider().getIndexManager(table, column);
                 usernameIndexManager.addIndex((String) currentColumnData, (Integer) rowData[0]);
             }
@@ -82,9 +82,9 @@ public class E2eUtils {
             byte[] serializedData = new byte[column.getSqlType().getSize()];
             SqlType.Type type = column.getSqlType().getType();
             Object currentColumnData = rowData[column.getId() - 1];
-            if (type == SqlType.Type.Int) {
+            if (type == SqlType.Type.INT) {
                 System.arraycopy(BinaryUtils.integerToBytes((Integer) currentColumnData), 0, serializedData, 0, column.getSqlType().getSize());
-            } else if (type == SqlType.Type.Bool) {
+            } else if (type == SqlType.Type.BOOL) {
                 System.arraycopy(new byte[]{(byte) (((Boolean) currentColumnData) ? 1 : 0)}, 0, serializedData, 0, column.getSqlType().getSize());
             } else {
                 System.arraycopy(BinaryUtils.stringToBytes((String) currentColumnData), 0, serializedData, 0, ((String) currentColumnData).length());

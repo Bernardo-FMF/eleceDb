@@ -27,7 +27,7 @@ class SelectE2eTest {
                                DbException {
         dbConfig = DefaultDbConfigBuilder.builder()
                 .setPort(3000)
-                .setBaseDbPath(Files.createTempDirectory("Update_E2e_Test").toString())
+                .setBaseDbPath(Files.createTempDirectory("Select_E2e_Test").toString())
                 .setSessionStrategy(DbConfig.SessionStrategy.IMMEDIATE)
                 .build();
 
@@ -258,9 +258,9 @@ class SelectE2eTest {
                 Column column = selectedColumns.get(index);
                 Object actualValue = actualRow.get(index);
                 actualValue = switch (column.getSqlType().getType()) {
-                    case Int -> Integer.parseInt(actualValue.toString());
-                    case Bool -> Boolean.parseBoolean(actualValue.toString());
-                    case Varchar -> actualValue.toString().substring(1, actualValue.toString().length() - 1);
+                    case INT -> Integer.parseInt(actualValue.toString());
+                    case BOOL -> Boolean.parseBoolean(actualValue.toString());
+                    case VARCHAR -> actualValue.toString().substring(1, actualValue.toString().length() - 1);
                 };
                 Assertions.assertEquals(expectedValue, actualValue);
             }

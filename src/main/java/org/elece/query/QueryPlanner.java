@@ -80,11 +80,13 @@ public class QueryPlanner {
                                                                                   FileChannelException {
         final StreamStep streamStep = new OutputStreamStep(clientInterface);
         Optional<QueryExecutor> queryExecutor = switch (statement.getStatementType()) {
-            case CreateDb -> Optional.of(new CreateDbQueryExecutor((CreateDbStatement) statement, streamStep));
-            case CreateIndex -> Optional.of(new CreateIndexQueryExecutor((CreateIndexStatement) statement, streamStep));
-            case CreateTable -> Optional.of(new CreateTableQueryExecutor((CreateTableStatement) statement, streamStep));
-            case DropDb -> Optional.of(new DropDbQueryExecutor(streamStep));
-            case DropTable -> Optional.of(new DropTableQueryExecutor((DropTableStatement) statement, streamStep));
+            case CREATE_DB -> Optional.of(new CreateDbQueryExecutor((CreateDbStatement) statement, streamStep));
+            case CREATE_INDEX ->
+                    Optional.of(new CreateIndexQueryExecutor((CreateIndexStatement) statement, streamStep));
+            case CREATE_TABLE ->
+                    Optional.of(new CreateTableQueryExecutor((CreateTableStatement) statement, streamStep));
+            case DROP_DB -> Optional.of(new DropDbQueryExecutor(streamStep));
+            case DROP_TABLE -> Optional.of(new DropTableQueryExecutor((DropTableStatement) statement, streamStep));
             default -> Optional.empty();
         };
 
@@ -96,10 +98,10 @@ public class QueryPlanner {
 
         logger.debug("Building query plan for a '{}' query", statement.getStatementType());
         Optional<QueryPlan> plan = switch (statement.getStatementType()) {
-            case Select -> buildSelectQueryPlan((SelectStatement) statement, streamStep);
-            case Insert -> buildInsertQueryPlan((InsertStatement) statement, streamStep);
-            case Update -> buildUpdateQueryPlan((UpdateStatement) statement, streamStep);
-            case Delete -> buildDeleteQueryPlan((DeleteStatement) statement, streamStep);
+            case SELECT -> buildSelectQueryPlan((SelectStatement) statement, streamStep);
+            case INSERT -> buildInsertQueryPlan((InsertStatement) statement, streamStep);
+            case UPDATE -> buildUpdateQueryPlan((UpdateStatement) statement, streamStep);
+            case DELETE -> buildDeleteQueryPlan((DeleteStatement) statement, streamStep);
             default -> Optional.empty();
         };
 

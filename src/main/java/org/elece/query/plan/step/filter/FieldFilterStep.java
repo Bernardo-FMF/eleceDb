@@ -38,17 +38,17 @@ public class FieldFilterStep<V> extends FilterStep {
 
         boolean comparisonResult = true;
         try {
-            if (sqlType == SqlType.Type.Int) {
+            if (sqlType == SqlType.Type.INT) {
                 Serializer<Integer> serializer = serializerRegistry.getSerializer(sqlType);
                 Integer deserializedValue = serializer.deserialize(valueOfField, column);
 
                 comparisonResult = ((ValueComparator<Integer>) valueComparator).compare(new SqlNumberValue(deserializedValue));
-            } else if (sqlType == SqlType.Type.Bool) {
+            } else if (sqlType == SqlType.Type.BOOL) {
                 Serializer<Boolean> serializer = serializerRegistry.getSerializer(sqlType);
                 Boolean deserializedValue = serializer.deserialize(valueOfField, column);
 
                 comparisonResult = ((ValueComparator<Boolean>) valueComparator).compare(new SqlBoolValue(deserializedValue));
-            } else if (sqlType == SqlType.Type.Varchar) {
+            } else if (sqlType == SqlType.Type.VARCHAR) {
                 Serializer<String> serializer = serializerRegistry.getSerializer(sqlType);
                 String deserializedValue = serializer.deserialize(valueOfField, column);
 

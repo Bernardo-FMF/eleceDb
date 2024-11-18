@@ -5,21 +5,21 @@ import java.util.List;
 import java.util.Objects;
 
 public enum Symbol implements IOperator {
-    LtEq(true, false,'<', '='),
-    GtEq(true, false,'>', '='),
-    Neq(true, false,'!', '='),
-    Eq(true, false,'='),
-    Lt(true, false,'<'),
-    Gt(true, false,'>'),
-    Mul(true, false,'*'),
-    Div(true, false,'/'),
-    Plus(true, true, '+'),
-    Minus(true, true, '-'),
-    LeftParenthesis('('),
-    RightParenthesis(')'),
-    Comma(','),
-    SemiColon(';'),
-    Eof();
+    LT_EQ(true, false, '<', '='),
+    GT_EQ(true, false, '>', '='),
+    NEQ(true, false, '!', '='),
+    EQ(true, false, '='),
+    LT(true, false, '<'),
+    GT(true, false, '>'),
+    MUL(true, false, '*'),
+    DIV(true, false, '/'),
+    PLUS(true, true, '+'),
+    MINUS(true, true, '-'),
+    LEFT_PARENTHESIS('('),
+    RIGHT_PARENTHESIS(')'),
+    COMMA(','),
+    SEMI_COLON(';'),
+    EOF();
 
     public static final Symbol[] VALUES = values();
     private final char[] symbolValue;

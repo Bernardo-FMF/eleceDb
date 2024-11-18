@@ -21,7 +21,7 @@ public abstract class AbstractKeywordCommand implements KeywordCommand {
     public static final String UNEXPECTED_TOKEN_PREFIX = "Unexpected token %s - %s";
     private final PeekableIterator<TokenWrapper> tokenizer;
 
-    public AbstractKeywordCommand(PeekableIterator<TokenWrapper> tokenizer) {
+    protected AbstractKeywordCommand(PeekableIterator<TokenWrapper> tokenizer) {
         this.tokenizer = tokenizer;
     }
 
@@ -40,7 +40,7 @@ public abstract class AbstractKeywordCommand implements KeywordCommand {
 
     protected Assignment parseAssignment() throws ParserException, TokenizerException {
         String identifier = parseIdentifier();
-        expectSymbolToken(Symbol.Eq);
+        expectSymbolToken(Symbol.EQ);
         Expression expression = parseExpression();
 
         return new Assignment(identifier, expression);
@@ -50,27 +50,27 @@ public abstract class AbstractKeywordCommand implements KeywordCommand {
                                                                                                              ParserException,
                                                                                                              TokenizerException {
         if (requiresParenthesis) {
-            expectSymbolToken(Symbol.LeftParenthesis);
+            expectSymbolToken(Symbol.LEFT_PARENTHESIS);
         }
 
         List<T> results = new ArrayList<>();
         T parsedExpression = parserFunction.parse();
         results.add(parsedExpression);
 
-        while (expectOptionalSymbolToken(Symbol.Comma)) {
+        while (expectOptionalSymbolToken(Symbol.COMMA)) {
             results.add(parserFunction.parse());
         }
 
         if (requiresParenthesis) {
-            expectSymbolToken(Symbol.RightParenthesis);
+            expectSymbolToken(Symbol.RIGHT_PARENTHESIS);
         }
 
         return results;
     }
 
     protected List<Expression> parseOrderBy() throws TokenizerException, ParserException {
-        if (expectOptionalKeywordToken(Keyword.Order)) {
-            expectKeywordToken(Keyword.By);
+        if (expectOptionalKeywordToken(Keyword.ORDER)) {
+            expectKeywordToken(Keyword.BY);
             List<Expression> expressions = parseExpressionDefinitions(false);
             List<Expression> convertedExpressions = new ArrayList<>();
             for (Expression expression : expressions) {
@@ -86,7 +86,7 @@ public abstract class AbstractKeywordCommand implements KeywordCommand {
     }
 
     protected Expression parseWhere() throws TokenizerException, ParserException {
-        if (expectOptionalKeywordToken(Keyword.Where)) {
+        if (expectOptionalKeywordToken(Keyword.WHERE)) {
             return parseExpression();
         }
         return null;
@@ -94,7 +94,7 @@ public abstract class AbstractKeywordCommand implements KeywordCommand {
 
     protected String parseIdentifier() throws TokenizerException, ParserException {
         Token nextToken = nextToken();
-        if (nextToken.getTokenType() == Token.TokenType.IdentifierToken) {
+        if (nextToken.getTokenType() == Token.TokenType.IDENTIFIER_TOKEN) {
             return ((IdentifierToken) nextToken).getIdentifier();
         }
         throw new ParserException(DbError.UNEXPECTED_TOKEN_ERROR, String.format(UNEXPECTED_TOKEN_PREFIX, nextToken, "Expected an identifier"));
@@ -102,20 +102,20 @@ public abstract class AbstractKeywordCommand implements KeywordCommand {
 
     protected Column parseColumn() throws TokenizerException, ParserException {
         String name = parseIdentifier();
-        Token nextToken = expectToken(token -> token.getTokenType() == Token.TokenType.KeywordToken && ((KeywordToken) token).getKeyword().isDataType());
+        Token nextToken = expectToken(token -> token.getTokenType() == Token.TokenType.KEYWORD_TOKEN && ((KeywordToken) token).getKeyword().isDataType());
         SqlType sqlType = switch (((KeywordToken) nextToken).getKeyword()) {
-            case Int -> SqlType.intType;
-            case Bool -> SqlType.boolType;
-            case Varchar -> {
-                expectSymbolToken(Symbol.LeftParenthesis);
+            case INT -> SqlType.intType;
+            case BOOL -> SqlType.boolType;
+            case VARCHAR -> {
+                expectSymbolToken(Symbol.LEFT_PARENTHESIS);
 
                 Token varcharToken = nextToken();
-                if (varcharToken.getTokenType() != Token.TokenType.NumberToken) {
+                if (varcharToken.getTokenType() != Token.TokenType.NUMBER_TOKEN) {
                     throw new ParserException(DbError.UNEXPECTED_TOKEN_ERROR, String.format(UNEXPECTED_TOKEN_PREFIX, varcharToken, "Expected a number corresponding to the varchar size"));
                 }
                 int size = Integer.parseInt(((NumberToken) varcharToken).getNumber());
 
-                expectSymbolToken(Symbol.RightParenthesis);
+                expectSymbolToken(Symbol.RIGHT_PARENTHESIS);
                 yield SqlType.varchar(size);
             }
             default ->
@@ -125,16 +125,16 @@ public abstract class AbstractKeywordCommand implements KeywordCommand {
         List<SqlConstraint> columnCapabilities = new ArrayList<>();
 
         Token capabilityToken;
-        while ((capabilityToken = peekToken()).getTokenType() == Token.TokenType.KeywordToken &&
-                (((KeywordToken) capabilityToken).getKeyword() == Keyword.Primary ||
-                        ((KeywordToken) capabilityToken).getKeyword() == Keyword.Unique)) {
+        while ((capabilityToken = peekToken()).getTokenType() == Token.TokenType.KEYWORD_TOKEN &&
+                (((KeywordToken) capabilityToken).getKeyword() == Keyword.PRIMARY ||
+                        ((KeywordToken) capabilityToken).getKeyword() == Keyword.UNIQUE)) {
             KeywordToken keywordToken = (KeywordToken) nextToken();
-            if (keywordToken.getKeyword() == Keyword.Primary) {
-                expectKeywordToken(Keyword.Key);
+            if (keywordToken.getKeyword() == Keyword.PRIMARY) {
+                expectKeywordToken(Keyword.KEY);
 
-                columnCapabilities.add(SqlConstraint.PrimaryKey);
-            } else if (keywordToken.getKeyword() == Keyword.Unique) {
-                columnCapabilities.add(SqlConstraint.Unique);
+                columnCapabilities.add(SqlConstraint.PRIMARY_KEY);
+            } else if (keywordToken.getKeyword() == Keyword.UNIQUE) {
+                columnCapabilities.add(SqlConstraint.UNIQUE);
             } else {
                 throw new ParserException(DbError.UNEXPECTED_TOKEN_ERROR, String.format(UNEXPECTED_TOKEN_PREFIX, capabilityToken, "Token is invalid in the query context"));
             }
@@ -164,10 +164,10 @@ public abstract class AbstractKeywordCommand implements KeywordCommand {
     public Expression parseInfix(Expression expression, Integer nextPrecedence) throws ParserException,
                                                                                        TokenizerException {
         Token nextToken = nextToken();
-        if ((nextToken.getTokenType() == Token.TokenType.SymbolToken && ((SymbolToken) nextToken).getSymbol().isBinaryOperator())) {
+        if ((nextToken.getTokenType() == Token.TokenType.SYMBOL_TOKEN && ((SymbolToken) nextToken).getSymbol().isBinaryOperator())) {
             return new BinaryExpression(expression, ((SymbolToken) nextToken).getSymbol(), parseExpression(nextPrecedence));
         }
-        if (nextToken.getTokenType() == Token.TokenType.KeywordToken && ((KeywordToken) nextToken).getKeyword().isBinaryOperator()) {
+        if (nextToken.getTokenType() == Token.TokenType.KEYWORD_TOKEN && ((KeywordToken) nextToken).getKeyword().isBinaryOperator()) {
             return new BinaryExpression(expression, ((KeywordToken) nextToken).getKeyword(), parseExpression(nextPrecedence));
         }
         throw new ParserException(DbError.UNEXPECTED_TOKEN_ERROR, String.format(UNEXPECTED_TOKEN_PREFIX, nextToken, "Token is invalid in the query context"));
@@ -177,18 +177,18 @@ public abstract class AbstractKeywordCommand implements KeywordCommand {
     public Expression parsePrefix() throws ParserException, TokenizerException {
         Token nextToken = nextToken();
         return switch (nextToken.getTokenType()) {
-            case IdentifierToken -> {
+            case IDENTIFIER_TOKEN -> {
                 Token possibleOrderByToken = peekToken();
-                boolean isOrderBy = possibleOrderByToken.getTokenType() == Token.TokenType.KeywordToken &&
-                        (((KeywordToken) possibleOrderByToken).getKeyword() == Keyword.Desc || ((KeywordToken) possibleOrderByToken).getKeyword() == Keyword.Asc);
+                boolean isOrderBy = possibleOrderByToken.getTokenType() == Token.TokenType.KEYWORD_TOKEN &&
+                        (((KeywordToken) possibleOrderByToken).getKeyword() == Keyword.DESC || ((KeywordToken) possibleOrderByToken).getKeyword() == Keyword.ASC);
                 if (isOrderBy) {
                     Token order = nextToken();
                     yield new OrderIdentifierExpression(((IdentifierToken) nextToken).getIdentifier(), Order.fromKeyword(((KeywordToken) order).getKeyword()));
                 }
                 yield new IdentifierExpression(((IdentifierToken) nextToken).getIdentifier());
             }
-            case StringToken -> new ValueExpression<>(new SqlStringValue(((StringToken) nextToken).getString()));
-            case NumberToken -> {
+            case STRING_TOKEN -> new ValueExpression<>(new SqlStringValue(((StringToken) nextToken).getString()));
+            case NUMBER_TOKEN -> {
                 String number = ((NumberToken) nextToken).getNumber();
                 int value;
                 try {
@@ -198,18 +198,18 @@ public abstract class AbstractKeywordCommand implements KeywordCommand {
                 }
                 yield new ValueExpression<>(new SqlNumberValue(value));
             }
-            case KeywordToken -> switch (((KeywordToken) nextToken).getKeyword()) {
-                case True -> new ValueExpression<>(new SqlBoolValue(true));
-                case False -> new ValueExpression<>(new SqlBoolValue(false));
+            case KEYWORD_TOKEN -> switch (((KeywordToken) nextToken).getKeyword()) {
+                case TRUE -> new ValueExpression<>(new SqlBoolValue(true));
+                case FALSE -> new ValueExpression<>(new SqlBoolValue(false));
                 default ->
                         throw new ParserException(DbError.UNEXPECTED_TOKEN_ERROR, String.format(UNEXPECTED_TOKEN_PREFIX, nextToken, "Token is invalid in the query context"));
             };
-            case SymbolToken -> switch (((SymbolToken) nextToken).getSymbol()) {
-                case Mul -> new WildcardExpression();
-                case Minus, Plus -> new UnaryExpression(((SymbolToken) nextToken).getSymbol(), parseExpression(50));
-                case LeftParenthesis -> {
+            case SYMBOL_TOKEN -> switch (((SymbolToken) nextToken).getSymbol()) {
+                case MUL -> new WildcardExpression();
+                case MINUS, PLUS -> new UnaryExpression(((SymbolToken) nextToken).getSymbol(), parseExpression(50));
+                case LEFT_PARENTHESIS -> {
                     Expression expression = parseExpression();
-                    expectSymbolToken(Symbol.RightParenthesis);
+                    expectSymbolToken(Symbol.RIGHT_PARENTHESIS);
 
                     yield new NestedExpression(expression);
                 }
@@ -225,19 +225,19 @@ public abstract class AbstractKeywordCommand implements KeywordCommand {
     public Integer getNextPrecedence() throws TokenizerException {
         Token nextToken = peekToken();
         Token.TokenType tokenType = nextToken.getTokenType();
-        if (tokenType == Token.TokenType.KeywordToken) {
+        if (tokenType == Token.TokenType.KEYWORD_TOKEN) {
             Keyword keyword = ((KeywordToken) nextToken).getKeyword();
             return switch (keyword) {
-                case Or -> 5;
-                case And -> 10;
+                case OR -> 5;
+                case AND -> 10;
                 default -> 0;
             };
-        } else if (tokenType == Token.TokenType.SymbolToken) {
+        } else if (tokenType == Token.TokenType.SYMBOL_TOKEN) {
             Symbol symbol = ((SymbolToken) nextToken).getSymbol();
             return switch (symbol) {
-                case Eq, Neq, Gt, GtEq, Lt, LtEq -> 20;
-                case Plus, Minus -> 30;
-                case Mul, Div -> 40;
+                case EQ, NEQ, GT, GT_EQ, LT, LT_EQ -> 20;
+                case PLUS, MINUS -> 30;
+                case MUL, DIV -> 40;
                 default -> 0;
             };
         }
@@ -246,19 +246,19 @@ public abstract class AbstractKeywordCommand implements KeywordCommand {
     }
 
     protected Token expectKeywordToken(Keyword keyword) throws TokenizerException, ParserException {
-        return expectToken(token -> token.getTokenType() == Token.TokenType.KeywordToken && ((KeywordToken) token).getKeyword() == keyword);
+        return expectToken(token -> token.getTokenType() == Token.TokenType.KEYWORD_TOKEN && ((KeywordToken) token).getKeyword() == keyword);
     }
 
     protected Token expectSymbolToken(Symbol symbol) throws TokenizerException, ParserException {
-        return expectToken(token -> token.getTokenType() == Token.TokenType.SymbolToken && ((SymbolToken) token).getSymbol() == symbol);
+        return expectToken(token -> token.getTokenType() == Token.TokenType.SYMBOL_TOKEN && ((SymbolToken) token).getSymbol() == symbol);
     }
 
     protected Boolean expectOptionalKeywordToken(Keyword keyword) throws TokenizerException {
-        return expectOptionalToken(token -> token.getTokenType() == Token.TokenType.KeywordToken && ((KeywordToken) token).getKeyword() == keyword);
+        return expectOptionalToken(token -> token.getTokenType() == Token.TokenType.KEYWORD_TOKEN && ((KeywordToken) token).getKeyword() == keyword);
     }
 
     protected Boolean expectOptionalSymbolToken(Symbol symbol) throws TokenizerException {
-        return expectOptionalToken(token -> token.getTokenType() == Token.TokenType.SymbolToken && ((SymbolToken) token).getSymbol() == symbol);
+        return expectOptionalToken(token -> token.getTokenType() == Token.TokenType.SYMBOL_TOKEN && ((SymbolToken) token).getSymbol() == symbol);
     }
 
     protected Token expectToken(Predicate<Token> predicate) throws TokenizerException, ParserException {
@@ -290,7 +290,7 @@ public abstract class AbstractKeywordCommand implements KeywordCommand {
 
     protected void skipWhitespaceTokens() {
         TokenWrapper token;
-        while ((token = tokenizer.peek()).hasToken() && token.getToken().getTokenType() == Token.TokenType.WhitespaceToken) {
+        while ((token = tokenizer.peek()).hasToken() && token.getToken().getTokenType() == Token.TokenType.WHITESPACE_TOKEN) {
             tokenizer.next();
         }
     }

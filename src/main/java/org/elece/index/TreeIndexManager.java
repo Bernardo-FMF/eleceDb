@@ -216,7 +216,7 @@ public class TreeIndexManager<K extends Comparable<K>, V> extends AbstractTreeIn
     public Iterator<V> getGreaterThan(K k, Set<K> kExclusions, Order order) throws StorageException, BTreeException,
                                                                                    InterruptedTaskException,
                                                                                    FileChannelException {
-        return new QueryIterator(order, key -> key.compareTo(k) > 0, k, Symbol.Gt, kExclusions);
+        return new QueryIterator(order, key -> key.compareTo(k) > 0, k, Symbol.GT, kExclusions);
     }
 
     @Override
@@ -224,21 +224,21 @@ public class TreeIndexManager<K extends Comparable<K>, V> extends AbstractTreeIn
                                                                                         BTreeException,
                                                                                         InterruptedTaskException,
                                                                                         FileChannelException {
-        return new QueryIterator(order, key -> key.compareTo(k) >= 0, k, Symbol.GtEq, kExclusions);
+        return new QueryIterator(order, key -> key.compareTo(k) >= 0, k, Symbol.GT_EQ, kExclusions);
     }
 
     @Override
     public Iterator<V> getLessThan(K k, Set<K> kExclusions, Order order) throws StorageException, BTreeException,
                                                                                 InterruptedTaskException,
                                                                                 FileChannelException {
-        return new QueryIterator(order, key -> key.compareTo(k) < 0, k, Symbol.Lt, kExclusions);
+        return new QueryIterator(order, key -> key.compareTo(k) < 0, k, Symbol.LT, kExclusions);
     }
 
     @Override
     public Iterator<V> getLessThanEqual(K k, Set<K> kExclusions, Order order) throws StorageException, BTreeException,
                                                                                      InterruptedTaskException,
                                                                                      FileChannelException {
-        return new QueryIterator(order, key -> key.compareTo(k) <= 0, k, Symbol.LtEq, kExclusions);
+        return new QueryIterator(order, key -> key.compareTo(k) <= 0, k, Symbol.LT_EQ, kExclusions);
     }
 
     @Override
@@ -279,15 +279,15 @@ public class TreeIndexManager<K extends Comparable<K>, V> extends AbstractTreeIn
         private void locateInitialTargetNode() throws
                                                StorageException, BTreeException, InterruptedTaskException,
                                                FileChannelException {
-            if (order == Order.Asc) {
-                if (operation == Symbol.Lt || operation == Symbol.LtEq) {
+            if (order == Order.ASC) {
+                if (operation == Symbol.LT || operation == Symbol.LT_EQ) {
                     targetTreeNode = getFarLeftLeaf(session, getRoot(session));
                     nodeKeyValueList = targetTreeNode.getKeyValueList(dbConfig.getBTreeDegree());
                 } else {
                     targetTreeNode = BTreeUtils.getResponsibleNode(indexStorageManager, getRoot(session), key, indexId, dbConfig.getBTreeDegree(), nodeFactory, vBinaryObjectFactory);
                     nodeKeyValueList = targetTreeNode.getKeyValueList(dbConfig.getBTreeDegree());
 
-                    if (operation == Symbol.Gt && nodeKeyValueList.getLast().key().compareTo(key) <= 0 && targetTreeNode.getNextSiblingPointer(dbConfig.getBTreeDegree()).isPresent()) {
+                    if (operation == Symbol.GT && nodeKeyValueList.getLast().key().compareTo(key) <= 0 && targetTreeNode.getNextSiblingPointer(dbConfig.getBTreeDegree()).isPresent()) {
                         targetTreeNode = (LeafTreeNode<K, V>) session.read(targetTreeNode.getNextSiblingPointer(dbConfig.getBTreeDegree()).get());
                         nodeKeyValueList = targetTreeNode.getKeyValueList(dbConfig.getBTreeDegree());
                     }
@@ -300,14 +300,14 @@ public class TreeIndexManager<K extends Comparable<K>, V> extends AbstractTreeIn
                     }
                 }
             } else {
-                if (operation == Symbol.Gt || operation == Symbol.GtEq) {
+                if (operation == Symbol.GT || operation == Symbol.GT_EQ) {
                     targetTreeNode = getFarRightLeaf(session, getRoot(session));
                     nodeKeyValueList = targetTreeNode.getKeyValueList(dbConfig.getBTreeDegree());
                 } else {
                     targetTreeNode = BTreeUtils.getResponsibleNode(indexStorageManager, getRoot(session), key, indexId, dbConfig.getBTreeDegree(), nodeFactory, vBinaryObjectFactory);
                     nodeKeyValueList = targetTreeNode.getKeyValueList(dbConfig.getBTreeDegree());
 
-                    if (operation == Symbol.Lt && nodeKeyValueList.getFirst().key().compareTo(key) >= 0 && targetTreeNode.getPreviousSiblingPointer(dbConfig.getBTreeDegree()).isPresent()) {
+                    if (operation == Symbol.LT && nodeKeyValueList.getFirst().key().compareTo(key) >= 0 && targetTreeNode.getPreviousSiblingPointer(dbConfig.getBTreeDegree()).isPresent()) {
                         targetTreeNode = (LeafTreeNode<K, V>) session.read(targetTreeNode.getPreviousSiblingPointer(dbConfig.getBTreeDegree()).get());
                         nodeKeyValueList = targetTreeNode.getKeyValueList(dbConfig.getBTreeDegree());
                     }
@@ -324,7 +324,7 @@ public class TreeIndexManager<K extends Comparable<K>, V> extends AbstractTreeIn
 
         @Override
         public boolean hasNext() {
-            if (order == Order.Asc) {
+            if (order == Order.ASC) {
                 if (keyValueIndex == -1) {
                     return false;
                 }
@@ -366,7 +366,7 @@ public class TreeIndexManager<K extends Comparable<K>, V> extends AbstractTreeIn
         @Override
         public V next() {
             V nextKey = nodeKeyValueList.get(keyValueIndex).value();
-            if (order == Order.Desc) {
+            if (order == Order.DESC) {
                 keyValueIndex--;
             } else {
                 keyValueIndex++;

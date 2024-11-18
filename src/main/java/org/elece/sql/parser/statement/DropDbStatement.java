@@ -4,7 +4,7 @@ public class DropDbStatement extends DropStatement {
     private final String db;
 
     public DropDbStatement(String db) {
-        super(StatementType.DropDb);
+        super(StatementType.DROP_DB);
         this.db = db;
     }
 

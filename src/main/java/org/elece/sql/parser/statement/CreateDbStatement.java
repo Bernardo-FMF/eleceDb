@@ -4,7 +4,7 @@ public class CreateDbStatement extends CreateStatement {
     private final String db;
 
     public CreateDbStatement(String db) {
-        super(StatementType.CreateDb);
+        super(StatementType.CREATE_DB);
         this.db = db;
     }
 

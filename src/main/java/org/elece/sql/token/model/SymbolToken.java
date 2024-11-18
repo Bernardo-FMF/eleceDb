@@ -8,7 +8,7 @@ public class SymbolToken extends Token {
     private final Symbol symbol;
 
     public SymbolToken(Symbol symbol) {
-        super(TokenType.SymbolToken);
+        super(TokenType.SYMBOL_TOKEN);
         this.symbol = symbol;
     }
 

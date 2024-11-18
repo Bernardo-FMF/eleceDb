@@ -227,7 +227,7 @@ public class JsonSchemaManager implements SchemaManager {
         }
 
         Column column = optionalColumn.get();
-        column.addConstraint(SqlConstraint.Unique);
+        column.addConstraint(SqlConstraint.UNIQUE);
 
         persistSchema();
 

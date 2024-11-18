@@ -6,7 +6,7 @@ public class NumberToken extends Token {
     private final String number;
 
     public NumberToken(String number) {
-        super(TokenType.NumberToken);
+        super(TokenType.NUMBER_TOKEN);
         this.number = number;
     }
 

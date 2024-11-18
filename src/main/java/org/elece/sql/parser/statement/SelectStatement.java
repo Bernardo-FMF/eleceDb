@@ -11,7 +11,7 @@ public class SelectStatement extends Statement {
     private List<Expression> orderBy;
 
     public SelectStatement(List<Expression> columns, String from, Expression where, List<Expression> orderBy) {
-        super(StatementType.Select);
+        super(StatementType.SELECT);
         this.columns = columns;
         this.from = from;
         this.where = where;

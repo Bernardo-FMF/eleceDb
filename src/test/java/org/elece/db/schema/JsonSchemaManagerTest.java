@@ -52,9 +52,9 @@ class JsonSchemaManagerTest {
                 .setBaseDbPath(Files.createTempDirectory("Json_Schema_Manager_Test").toString())
                 .build();
 
-        Column clusterColumn = new Column(CLUSTER_ID, SqlType.intType, new ArrayList<>(List.of(SqlConstraint.Unique)));
+        Column clusterColumn = new Column(CLUSTER_ID, SqlType.intType, new ArrayList<>(List.of(SqlConstraint.UNIQUE)));
         clusterColumn.setId(1);
-        Column idColumn = new Column(COLUMN_ID_PRIMARY, SqlType.intType, new ArrayList<>(List.of(SqlConstraint.PrimaryKey)));
+        Column idColumn = new Column(COLUMN_ID_PRIMARY, SqlType.intType, new ArrayList<>(List.of(SqlConstraint.PRIMARY_KEY)));
         idColumn.setId(2);
         Column nameColumn = new Column(COLUMN_NAME_NORMAL, SqlType.varcharType, new ArrayList<>());
         nameColumn.setId(3);

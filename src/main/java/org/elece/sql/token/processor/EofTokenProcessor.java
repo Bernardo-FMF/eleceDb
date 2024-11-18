@@ -15,6 +15,6 @@ public class EofTokenProcessor implements TokenProcessor<Character> {
 
     @Override
     public TokenWrapper consume(CharStream stream) {
-        return TokenWrapper.builder().setToken(new SymbolToken(Symbol.Eof)).build();
+        return TokenWrapper.builder().setToken(new SymbolToken(Symbol.EOF)).build();
     }
 }

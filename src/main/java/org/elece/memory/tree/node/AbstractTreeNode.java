@@ -50,7 +50,7 @@ public abstract class AbstractTreeNode<K extends Comparable<K>> {
      * @param data                 The byte array containing the node's data.
      * @param kBinaryObjectFactory Factory for creating binary representations of keys.
      */
-    public AbstractTreeNode(byte[] data, BinaryObjectFactory<K> kBinaryObjectFactory) {
+    protected AbstractTreeNode(byte[] data, BinaryObjectFactory<K> kBinaryObjectFactory) {
         this.data = data;
         this.kBinaryObjectFactory = kBinaryObjectFactory;
     }

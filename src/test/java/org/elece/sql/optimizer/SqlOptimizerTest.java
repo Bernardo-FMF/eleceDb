@@ -35,7 +35,7 @@ class SqlOptimizerTest {
     void setup() {
         List<Column> columns = new ArrayList<>();
         columns.add(ColumnBuilder.builder().setName("name").setSqlType(SqlType.varchar(255)).setConstraints(List.of()).build());
-        columns.add(ColumnBuilder.builder().setName("id").setSqlType(SqlType.intType).setConstraints(List.of(SqlConstraint.Unique, SqlConstraint.PrimaryKey)).build());
+        columns.add(ColumnBuilder.builder().setName("id").setSqlType(SqlType.intType).setConstraints(List.of(SqlConstraint.UNIQUE, SqlConstraint.PRIMARY_KEY)).build());
 
         List<Index> indexes = new ArrayList<>();
         indexes.add(IndexBuilder.builder()

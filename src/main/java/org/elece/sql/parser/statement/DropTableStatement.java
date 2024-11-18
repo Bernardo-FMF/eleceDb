@@ -4,7 +4,7 @@ public class DropTableStatement extends DropStatement {
     private final String table;
 
     public DropTableStatement(String table) {
-        super(StatementType.DropTable);
+        super(StatementType.DROP_TABLE);
         this.table = table;
     }
 

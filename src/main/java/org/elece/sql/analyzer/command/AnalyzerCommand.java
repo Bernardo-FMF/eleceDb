@@ -33,7 +33,7 @@ public interface AnalyzerCommand<T extends Statement> extends ExpressionAnalyzer
             return;
         }
 
-        throw new AnalyzerException(DbError.UNEXPECTED_TYPE_ERROR, String.format("Expected type %s but expression resolved to %s", SqlType.Type.Bool, expression));
+        throw new AnalyzerException(DbError.UNEXPECTED_TYPE_ERROR, String.format("Expected type %s but expression resolved to %s", SqlType.Type.BOOL, expression));
     }
 
     default void analyzeAssignment(Table table, Assignment assignment, boolean allowIdentifiers) throws
@@ -56,7 +56,7 @@ public interface AnalyzerCommand<T extends Statement> extends ExpressionAnalyzer
     }
 
     private void validateVarcharSize(SqlType columnSqlType, Assignment assignment) throws AnalyzerException {
-        if (columnSqlType.getType() == SqlType.Type.Varchar &&
+        if (columnSqlType.getType() == SqlType.Type.VARCHAR &&
                 assignment.getValue() instanceof ValueExpression<?> expression &&
                 expression.getValue() instanceof SqlStringValue sqlValue &&
                 sqlValue.getValue().length() > columnSqlType.getSize()) {
@@ -98,9 +98,9 @@ public interface AnalyzerCommand<T extends Statement> extends ExpressionAnalyzer
 
         Column column = optionalColumn.get();
         return switch (column.getSqlType().getType()) {
-            case Int -> SqlType.intType;
-            case Varchar -> SqlType.varcharType;
-            case Bool -> SqlType.boolType;
+            case INT -> SqlType.intType;
+            case VARCHAR -> SqlType.varcharType;
+            case BOOL -> SqlType.boolType;
         };
     }
 
@@ -109,17 +109,17 @@ public interface AnalyzerCommand<T extends Statement> extends ExpressionAnalyzer
         IOperator operator = expression.getOperator();
         Expression innerExpression = expression.getExpression();
         if (!Objects.isNull(expressionContext.type()) &&
-                operator == Symbol.Minus &&
+                operator == Symbol.MINUS &&
                 innerExpression instanceof ValueExpression<?> valueExpression &&
                 valueExpression.getValue() instanceof SqlNumberValue) {
             return SqlType.intType;
         }
 
         SqlType innerDataType = innerExpression.accept(expressionContext, this);
-        if (innerDataType.getType() == SqlType.Type.Int) {
+        if (innerDataType.getType() == SqlType.Type.INT) {
             return SqlType.intType;
         } else {
-            throw new AnalyzerException(DbError.UNEXPECTED_TYPE_ERROR, String.format("Expected type %s but expression resolved to %s", SqlType.Type.Int, innerExpression));
+            throw new AnalyzerException(DbError.UNEXPECTED_TYPE_ERROR, String.format("Expected type %s but expression resolved to %s", SqlType.Type.INT, innerExpression));
         }
     }
 
@@ -135,9 +135,9 @@ public interface AnalyzerCommand<T extends Statement> extends ExpressionAnalyzer
             return SqlType.boolType;
         } else if (operator instanceof Symbol symbol) {
             return switch (symbol) {
-                case Eq, Neq, Lt, LtEq, Gt, GtEq -> SqlType.boolType;
-                case Plus, Minus, Div, Mul -> {
-                    if (leftSqlType.getType() == SqlType.Type.Int) {
+                case EQ, NEQ, LT, LT_EQ, GT, GT_EQ -> SqlType.boolType;
+                case PLUS, MINUS, DIV, MUL -> {
+                    if (leftSqlType.getType() == SqlType.Type.INT) {
                         yield SqlType.intType;
                     }
                     throw new AnalyzerException(DbError.CANNOT_APPLY_BINARY_OPERATOR_ERROR, String.format("Cannot apply binary operation %s %s %s", symbol, expression.getLeft(), expression.getRight()));

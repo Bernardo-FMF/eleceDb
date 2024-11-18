@@ -21,7 +21,7 @@ public class UpdateKeywordCommand extends AbstractKeywordCommand {
     public Statement parse() throws ParserException, TokenizerException {
         String table = parseIdentifier();
 
-        expectKeywordToken(Keyword.Set);
+        expectKeywordToken(Keyword.SET);
 
         List<Assignment> assignments = parseCommaSeparated(this::parseAssignment, false);
         Expression where = parseWhere();

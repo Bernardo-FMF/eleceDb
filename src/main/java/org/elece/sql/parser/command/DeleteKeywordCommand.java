@@ -16,7 +16,7 @@ public class DeleteKeywordCommand extends AbstractKeywordCommand {
 
     @Override
     public Statement parse() throws ParserException, TokenizerException {
-        expectKeywordToken(Keyword.From);
+        expectKeywordToken(Keyword.FROM);
 
         String identifier = parseIdentifier();
         Expression where = parseWhere();

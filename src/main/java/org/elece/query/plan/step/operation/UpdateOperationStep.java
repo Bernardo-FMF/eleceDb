@@ -69,7 +69,7 @@ public class UpdateOperationStep extends OperationStep<DbObject> {
                 return false;
             }
 
-            if (!column.getName().equals(CLUSTER_ID) && column.isUnique() && column.getSqlType().getType() == SqlType.Type.Int) {
+            if (!column.getName().equals(CLUSTER_ID) && column.isUnique() && column.getSqlType().getType() == SqlType.Type.INT) {
                 IndexManager<Integer, Integer> indexManager = columnIndexManagerProvider.getIndexManager(table, column);
                 Integer newValue = (Integer) serializerRegistry.getSerializer(column.getSqlType().getType()).deserialize(newValueBytes.get(), column);
                 byte[] oldValue = SerializationUtils.getValueOfField(table, column, value);
@@ -106,7 +106,7 @@ public class UpdateOperationStep extends OperationStep<DbObject> {
                                                         BTreeException, SerializationException,
                                                         InterruptedTaskException, FileChannelException {
         for (Column column : updatedIndexedColumns) {
-            if (column.getSqlType().getType() == SqlType.Type.Int) {
+            if (column.getSqlType().getType() == SqlType.Type.INT) {
                 IndexManager<Integer, Integer> indexManager = columnIndexManagerProvider.getIndexManager(table, column);
                 byte[] newValueBytes = SerializationUtils.getValueOfField(table, column, newData);
                 Integer newValue = (Integer) serializerRegistry.getSerializer(column.getSqlType().getType()).deserialize(newValueBytes, column);
@@ -114,7 +114,7 @@ public class UpdateOperationStep extends OperationStep<DbObject> {
 
                 indexManager.removeIndex(oldValue);
                 indexManager.addIndex(newValue, rowClusterId);
-            } else if (column.getSqlType().getType() == SqlType.Type.Varchar) {
+            } else if (column.getSqlType().getType() == SqlType.Type.VARCHAR) {
                 IndexManager<String, Integer> indexManager = columnIndexManagerProvider.getIndexManager(table, column);
                 byte[] newValueBytes = SerializationUtils.getValueOfField(table, column, newData);
                 String newValue = (String) serializerRegistry.getSerializer(column.getSqlType().getType()).deserialize(newValueBytes, column);

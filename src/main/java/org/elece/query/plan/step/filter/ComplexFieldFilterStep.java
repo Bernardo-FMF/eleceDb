@@ -43,15 +43,15 @@ public class ComplexFieldFilterStep extends FilterStep {
             byte[] valueOfField = SerializationUtils.getValueOfField(table, column.get(), dbObject);
             SqlType.Type type = column.get().getSqlType().getType();
             SqlValue<?> value = switch (type) {
-                case Int -> {
+                case INT -> {
                     Serializer<Integer> serializer = serializerRegistry.getSerializer(type);
                     yield new SqlNumberValue(serializer.deserialize(valueOfField, column.get()));
                 }
-                case Bool -> {
+                case BOOL -> {
                     Serializer<Boolean> serializer = serializerRegistry.getSerializer(type);
                     yield new SqlBoolValue(serializer.deserialize(valueOfField, column.get()));
                 }
-                case Varchar -> {
+                case VARCHAR -> {
                     Serializer<String> serializer = serializerRegistry.getSerializer(type);
                     yield new SqlStringValue(serializer.deserialize(valueOfField, column.get()).trim());
                 }

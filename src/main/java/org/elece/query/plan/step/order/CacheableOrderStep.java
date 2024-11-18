@@ -64,7 +64,7 @@ public class CacheableOrderStep<V extends Comparable<V>> extends OrderStep {
             return b1Key.compare(b2Key);
         };
 
-        if (order == Order.Desc) {
+        if (order == Order.DESC) {
             comparator = comparator.reversed();
         }
 
@@ -75,21 +75,21 @@ public class CacheableOrderStep<V extends Comparable<V>> extends OrderStep {
     private Function<byte[], SqlValue<V>> buildValueDeserializerFunction() {
         Serializer<V> serializer = serializerRegistry.getSerializer(orderByColumn.getSqlType().getType());
         return switch (orderByColumn.getSqlType().getType()) {
-            case Int -> data -> {
+            case INT -> data -> {
                 try {
                     return (SqlValue<V>) new SqlNumberValue((Integer) serializer.deserialize(data, orderByColumn));
                 } catch (DeserializationException exception) {
                     throw new RuntimeDbException(exception.getDbError(), exception.getMessage());
                 }
             };
-            case Bool -> data -> {
+            case BOOL -> data -> {
                 try {
                     return (SqlValue<V>) new SqlBoolValue((Boolean) serializer.deserialize(data, orderByColumn));
                 } catch (DeserializationException exception) {
                     throw new RuntimeDbException(exception.getDbError(), exception.getMessage());
                 }
             };
-            case Varchar -> data -> {
+            case VARCHAR -> data -> {
                 try {
                     return (SqlValue<V>) new SqlStringValue((String) serializer.deserialize(data, orderByColumn));
                 } catch (DeserializationException exception) {

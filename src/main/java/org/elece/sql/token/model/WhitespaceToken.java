@@ -8,7 +8,7 @@ public class WhitespaceToken extends Token {
     private final Whitespace whitespace;
 
     public WhitespaceToken(Whitespace whitespace) {
-        super(TokenType.WhitespaceToken);
+        super(TokenType.WHITESPACE_TOKEN);
         this.whitespace = whitespace;
     }
 

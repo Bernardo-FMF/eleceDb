@@ -3,7 +3,7 @@ package org.elece.sql.token.model;
 public abstract class Token {
     private final TokenType tokenType;
 
-    public Token(TokenType tokenType) {
+    protected Token(TokenType tokenType) {
         this.tokenType = tokenType;
     }
 
@@ -12,11 +12,11 @@ public abstract class Token {
     }
 
     public enum TokenType {
-        WhitespaceToken,
-        SymbolToken,
-        KeywordToken,
-        NumberToken,
-        StringToken,
-        IdentifierToken
+        WHITESPACE_TOKEN,
+        SYMBOL_TOKEN,
+        KEYWORD_TOKEN,
+        NUMBER_TOKEN,
+        STRING_TOKEN,
+        IDENTIFIER_TOKEN
     }
 }

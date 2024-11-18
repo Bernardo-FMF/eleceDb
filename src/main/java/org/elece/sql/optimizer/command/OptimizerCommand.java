@@ -104,7 +104,7 @@ public interface OptimizerCommand<T extends Statement> extends ExpressionParserV
         } else if (binaryExpression.getRight() instanceof IdentifierExpression identifierExpression) {
             return simplifyExpressionBySqlNumber(binaryExpression, identifierExpression, binaryExpression.getLeft());
         } else if (binaryExpression.getLeft() instanceof BinaryExpression innerBinaryExpression &&
-                binaryExpression.getOperator() == Symbol.Plus &&
+                binaryExpression.getOperator() == Symbol.PLUS &&
                 binaryExpression.getRight() instanceof ValueExpression<?>) {
             return optimizeNestedBinaryExpression(binaryExpression, innerBinaryExpression);
         }
@@ -115,13 +115,13 @@ public interface OptimizerCommand<T extends Statement> extends ExpressionParserV
                                                      IdentifierExpression identifierExpression,
                                                      Expression otherExpression) {
         if (otherExpression instanceof ValueExpression<?> valueExpression) {
-            if (valueExpression.getValue().equals(sqlNumber0) && (binaryExpression.getOperator() == Symbol.Plus || binaryExpression.getOperator() == Symbol.Minus)) {
+            if (valueExpression.getValue().equals(sqlNumber0) && (binaryExpression.getOperator() == Symbol.PLUS || binaryExpression.getOperator() == Symbol.MINUS)) {
                 return identifierExpression;
             }
-            if (valueExpression.getValue().equals(sqlNumber1) && (binaryExpression.getOperator() == Symbol.Mul || binaryExpression.getOperator() == Symbol.Div)) {
+            if (valueExpression.getValue().equals(sqlNumber1) && (binaryExpression.getOperator() == Symbol.MUL || binaryExpression.getOperator() == Symbol.DIV)) {
                 return identifierExpression;
             }
-            if (valueExpression.getValue().equals(sqlNumber0) && binaryExpression.getOperator() == Symbol.Mul) {
+            if (valueExpression.getValue().equals(sqlNumber0) && binaryExpression.getOperator() == Symbol.MUL) {
                 return valueExpression;
             }
         }

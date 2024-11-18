@@ -8,7 +8,7 @@ import java.util.Objects;
 public abstract class SqlValue<T> {
     private final T value;
 
-    public SqlValue(T value) {
+    protected SqlValue(T value) {
         this.value = value;
     }
 

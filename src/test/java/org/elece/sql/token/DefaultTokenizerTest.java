@@ -12,18 +12,18 @@ class DefaultTokenizerTest {
     void test_select() {
         PeekableIterator<TokenWrapper> tokenizer = new DefaultTokenizer("SELECT id, name FROM users;").tokenize();
         TokenWrapper[] expectedTokens = new TokenWrapper[]{
-                TokenWrapper.builder().setToken(new KeywordToken(Keyword.Select)).build(),
-                TokenWrapper.builder().setToken(new WhitespaceToken(Whitespace.Space)).build(),
+                TokenWrapper.builder().setToken(new KeywordToken(Keyword.SELECT)).build(),
+                TokenWrapper.builder().setToken(new WhitespaceToken(Whitespace.SPACE)).build(),
                 TokenWrapper.builder().setToken(new IdentifierToken("id")).build(),
-                TokenWrapper.builder().setToken(new SymbolToken(Symbol.Comma)).build(),
-                TokenWrapper.builder().setToken(new WhitespaceToken(Whitespace.Space)).build(),
+                TokenWrapper.builder().setToken(new SymbolToken(Symbol.COMMA)).build(),
+                TokenWrapper.builder().setToken(new WhitespaceToken(Whitespace.SPACE)).build(),
                 TokenWrapper.builder().setToken(new IdentifierToken("name")).build(),
-                TokenWrapper.builder().setToken(new WhitespaceToken(Whitespace.Space)).build(),
-                TokenWrapper.builder().setToken(new KeywordToken(Keyword.From)).build(),
-                TokenWrapper.builder().setToken(new WhitespaceToken(Whitespace.Space)).build(),
+                TokenWrapper.builder().setToken(new WhitespaceToken(Whitespace.SPACE)).build(),
+                TokenWrapper.builder().setToken(new KeywordToken(Keyword.FROM)).build(),
+                TokenWrapper.builder().setToken(new WhitespaceToken(Whitespace.SPACE)).build(),
                 TokenWrapper.builder().setToken(new IdentifierToken("users")).build(),
-                TokenWrapper.builder().setToken(new SymbolToken(Symbol.SemiColon)).build(),
-                TokenWrapper.builder().setToken(new SymbolToken(Symbol.Eof)).build()
+                TokenWrapper.builder().setToken(new SymbolToken(Symbol.SEMI_COLON)).build(),
+                TokenWrapper.builder().setToken(new SymbolToken(Symbol.EOF)).build()
         };
 
         int idx = 0;
@@ -38,26 +38,26 @@ class DefaultTokenizerTest {
     void test_selectWhere() {
         PeekableIterator<TokenWrapper> tokenizer = new DefaultTokenizer("SELECT id, name FROM users where id > 10;").tokenize();
         TokenWrapper[] expectedTokens = new TokenWrapper[]{
-                TokenWrapper.builder().setToken(new KeywordToken(Keyword.Select)).build(),
-                TokenWrapper.builder().setToken(new WhitespaceToken(Whitespace.Space)).build(),
+                TokenWrapper.builder().setToken(new KeywordToken(Keyword.SELECT)).build(),
+                TokenWrapper.builder().setToken(new WhitespaceToken(Whitespace.SPACE)).build(),
                 TokenWrapper.builder().setToken(new IdentifierToken("id")).build(),
-                TokenWrapper.builder().setToken(new SymbolToken(Symbol.Comma)).build(),
-                TokenWrapper.builder().setToken(new WhitespaceToken(Whitespace.Space)).build(),
+                TokenWrapper.builder().setToken(new SymbolToken(Symbol.COMMA)).build(),
+                TokenWrapper.builder().setToken(new WhitespaceToken(Whitespace.SPACE)).build(),
                 TokenWrapper.builder().setToken(new IdentifierToken("name")).build(),
-                TokenWrapper.builder().setToken(new WhitespaceToken(Whitespace.Space)).build(),
-                TokenWrapper.builder().setToken(new KeywordToken(Keyword.From)).build(),
-                TokenWrapper.builder().setToken(new WhitespaceToken(Whitespace.Space)).build(),
+                TokenWrapper.builder().setToken(new WhitespaceToken(Whitespace.SPACE)).build(),
+                TokenWrapper.builder().setToken(new KeywordToken(Keyword.FROM)).build(),
+                TokenWrapper.builder().setToken(new WhitespaceToken(Whitespace.SPACE)).build(),
                 TokenWrapper.builder().setToken(new IdentifierToken("users")).build(),
-                TokenWrapper.builder().setToken(new WhitespaceToken(Whitespace.Space)).build(),
-                TokenWrapper.builder().setToken(new KeywordToken(Keyword.Where)).build(),
-                TokenWrapper.builder().setToken(new WhitespaceToken(Whitespace.Space)).build(),
+                TokenWrapper.builder().setToken(new WhitespaceToken(Whitespace.SPACE)).build(),
+                TokenWrapper.builder().setToken(new KeywordToken(Keyword.WHERE)).build(),
+                TokenWrapper.builder().setToken(new WhitespaceToken(Whitespace.SPACE)).build(),
                 TokenWrapper.builder().setToken(new IdentifierToken("id")).build(),
-                TokenWrapper.builder().setToken(new WhitespaceToken(Whitespace.Space)).build(),
-                TokenWrapper.builder().setToken(new SymbolToken(Symbol.Gt)).build(),
-                TokenWrapper.builder().setToken(new WhitespaceToken(Whitespace.Space)).build(),
+                TokenWrapper.builder().setToken(new WhitespaceToken(Whitespace.SPACE)).build(),
+                TokenWrapper.builder().setToken(new SymbolToken(Symbol.GT)).build(),
+                TokenWrapper.builder().setToken(new WhitespaceToken(Whitespace.SPACE)).build(),
                 TokenWrapper.builder().setToken(new NumberToken("10")).build(),
-                TokenWrapper.builder().setToken(new SymbolToken(Symbol.SemiColon)).build(),
-                TokenWrapper.builder().setToken(new SymbolToken(Symbol.Eof)).build()
+                TokenWrapper.builder().setToken(new SymbolToken(Symbol.SEMI_COLON)).build(),
+                TokenWrapper.builder().setToken(new SymbolToken(Symbol.EOF)).build()
         };
 
         int idx = 0;
@@ -72,24 +72,24 @@ class DefaultTokenizerTest {
     void test_selectOrderBy() {
         PeekableIterator<TokenWrapper> tokenizer = new DefaultTokenizer("SELECT id, name FROM users ORDER BY name;").tokenize();
         TokenWrapper[] expectedTokens = new TokenWrapper[]{
-                TokenWrapper.builder().setToken(new KeywordToken(Keyword.Select)).build(),
-                TokenWrapper.builder().setToken(new WhitespaceToken(Whitespace.Space)).build(),
+                TokenWrapper.builder().setToken(new KeywordToken(Keyword.SELECT)).build(),
+                TokenWrapper.builder().setToken(new WhitespaceToken(Whitespace.SPACE)).build(),
                 TokenWrapper.builder().setToken(new IdentifierToken("id")).build(),
-                TokenWrapper.builder().setToken(new SymbolToken(Symbol.Comma)).build(),
-                TokenWrapper.builder().setToken(new WhitespaceToken(Whitespace.Space)).build(),
+                TokenWrapper.builder().setToken(new SymbolToken(Symbol.COMMA)).build(),
+                TokenWrapper.builder().setToken(new WhitespaceToken(Whitespace.SPACE)).build(),
                 TokenWrapper.builder().setToken(new IdentifierToken("name")).build(),
-                TokenWrapper.builder().setToken(new WhitespaceToken(Whitespace.Space)).build(),
-                TokenWrapper.builder().setToken(new KeywordToken(Keyword.From)).build(),
-                TokenWrapper.builder().setToken(new WhitespaceToken(Whitespace.Space)).build(),
+                TokenWrapper.builder().setToken(new WhitespaceToken(Whitespace.SPACE)).build(),
+                TokenWrapper.builder().setToken(new KeywordToken(Keyword.FROM)).build(),
+                TokenWrapper.builder().setToken(new WhitespaceToken(Whitespace.SPACE)).build(),
                 TokenWrapper.builder().setToken(new IdentifierToken("users")).build(),
-                TokenWrapper.builder().setToken(new WhitespaceToken(Whitespace.Space)).build(),
-                TokenWrapper.builder().setToken(new KeywordToken(Keyword.Order)).build(),
-                TokenWrapper.builder().setToken(new WhitespaceToken(Whitespace.Space)).build(),
-                TokenWrapper.builder().setToken(new KeywordToken(Keyword.By)).build(),
-                TokenWrapper.builder().setToken(new WhitespaceToken(Whitespace.Space)).build(),
+                TokenWrapper.builder().setToken(new WhitespaceToken(Whitespace.SPACE)).build(),
+                TokenWrapper.builder().setToken(new KeywordToken(Keyword.ORDER)).build(),
+                TokenWrapper.builder().setToken(new WhitespaceToken(Whitespace.SPACE)).build(),
+                TokenWrapper.builder().setToken(new KeywordToken(Keyword.BY)).build(),
+                TokenWrapper.builder().setToken(new WhitespaceToken(Whitespace.SPACE)).build(),
                 TokenWrapper.builder().setToken(new IdentifierToken("name")).build(),
-                TokenWrapper.builder().setToken(new SymbolToken(Symbol.SemiColon)).build(),
-                TokenWrapper.builder().setToken(new SymbolToken(Symbol.Eof)).build()
+                TokenWrapper.builder().setToken(new SymbolToken(Symbol.SEMI_COLON)).build(),
+                TokenWrapper.builder().setToken(new SymbolToken(Symbol.EOF)).build()
         };
 
         int idx = 0;
@@ -104,42 +104,42 @@ class DefaultTokenizerTest {
     void test_selectWhereWithAndOr() {
         PeekableIterator<TokenWrapper> tokenizer = new DefaultTokenizer("SELECT id, name FROM users WHERE id > 5 AND id < 10 OR name = 'name';").tokenize();
         TokenWrapper[] expectedTokens = new TokenWrapper[]{
-                TokenWrapper.builder().setToken(new KeywordToken(Keyword.Select)).build(),
-                TokenWrapper.builder().setToken(new WhitespaceToken(Whitespace.Space)).build(),
+                TokenWrapper.builder().setToken(new KeywordToken(Keyword.SELECT)).build(),
+                TokenWrapper.builder().setToken(new WhitespaceToken(Whitespace.SPACE)).build(),
                 TokenWrapper.builder().setToken(new IdentifierToken("id")).build(),
-                TokenWrapper.builder().setToken(new SymbolToken(Symbol.Comma)).build(),
-                TokenWrapper.builder().setToken(new WhitespaceToken(Whitespace.Space)).build(),
+                TokenWrapper.builder().setToken(new SymbolToken(Symbol.COMMA)).build(),
+                TokenWrapper.builder().setToken(new WhitespaceToken(Whitespace.SPACE)).build(),
                 TokenWrapper.builder().setToken(new IdentifierToken("name")).build(),
-                TokenWrapper.builder().setToken(new WhitespaceToken(Whitespace.Space)).build(),
-                TokenWrapper.builder().setToken(new KeywordToken(Keyword.From)).build(),
-                TokenWrapper.builder().setToken(new WhitespaceToken(Whitespace.Space)).build(),
+                TokenWrapper.builder().setToken(new WhitespaceToken(Whitespace.SPACE)).build(),
+                TokenWrapper.builder().setToken(new KeywordToken(Keyword.FROM)).build(),
+                TokenWrapper.builder().setToken(new WhitespaceToken(Whitespace.SPACE)).build(),
                 TokenWrapper.builder().setToken(new IdentifierToken("users")).build(),
-                TokenWrapper.builder().setToken(new WhitespaceToken(Whitespace.Space)).build(),
-                TokenWrapper.builder().setToken(new KeywordToken(Keyword.Where)).build(),
-                TokenWrapper.builder().setToken(new WhitespaceToken(Whitespace.Space)).build(),
+                TokenWrapper.builder().setToken(new WhitespaceToken(Whitespace.SPACE)).build(),
+                TokenWrapper.builder().setToken(new KeywordToken(Keyword.WHERE)).build(),
+                TokenWrapper.builder().setToken(new WhitespaceToken(Whitespace.SPACE)).build(),
                 TokenWrapper.builder().setToken(new IdentifierToken("id")).build(),
-                TokenWrapper.builder().setToken(new WhitespaceToken(Whitespace.Space)).build(),
-                TokenWrapper.builder().setToken(new SymbolToken(Symbol.Gt)).build(),
-                TokenWrapper.builder().setToken(new WhitespaceToken(Whitespace.Space)).build(),
+                TokenWrapper.builder().setToken(new WhitespaceToken(Whitespace.SPACE)).build(),
+                TokenWrapper.builder().setToken(new SymbolToken(Symbol.GT)).build(),
+                TokenWrapper.builder().setToken(new WhitespaceToken(Whitespace.SPACE)).build(),
                 TokenWrapper.builder().setToken(new NumberToken("5")).build(),
-                TokenWrapper.builder().setToken(new WhitespaceToken(Whitespace.Space)).build(),
-                TokenWrapper.builder().setToken(new KeywordToken(Keyword.And)).build(),
-                TokenWrapper.builder().setToken(new WhitespaceToken(Whitespace.Space)).build(),
+                TokenWrapper.builder().setToken(new WhitespaceToken(Whitespace.SPACE)).build(),
+                TokenWrapper.builder().setToken(new KeywordToken(Keyword.AND)).build(),
+                TokenWrapper.builder().setToken(new WhitespaceToken(Whitespace.SPACE)).build(),
                 TokenWrapper.builder().setToken(new IdentifierToken("id")).build(),
-                TokenWrapper.builder().setToken(new WhitespaceToken(Whitespace.Space)).build(),
-                TokenWrapper.builder().setToken(new SymbolToken(Symbol.Lt)).build(),
-                TokenWrapper.builder().setToken(new WhitespaceToken(Whitespace.Space)).build(),
+                TokenWrapper.builder().setToken(new WhitespaceToken(Whitespace.SPACE)).build(),
+                TokenWrapper.builder().setToken(new SymbolToken(Symbol.LT)).build(),
+                TokenWrapper.builder().setToken(new WhitespaceToken(Whitespace.SPACE)).build(),
                 TokenWrapper.builder().setToken(new NumberToken("10")).build(),
-                TokenWrapper.builder().setToken(new WhitespaceToken(Whitespace.Space)).build(),
-                TokenWrapper.builder().setToken(new KeywordToken(Keyword.Or)).build(),
-                TokenWrapper.builder().setToken(new WhitespaceToken(Whitespace.Space)).build(),
+                TokenWrapper.builder().setToken(new WhitespaceToken(Whitespace.SPACE)).build(),
+                TokenWrapper.builder().setToken(new KeywordToken(Keyword.OR)).build(),
+                TokenWrapper.builder().setToken(new WhitespaceToken(Whitespace.SPACE)).build(),
                 TokenWrapper.builder().setToken(new IdentifierToken("name")).build(),
-                TokenWrapper.builder().setToken(new WhitespaceToken(Whitespace.Space)).build(),
-                TokenWrapper.builder().setToken(new SymbolToken(Symbol.Eq)).build(),
-                TokenWrapper.builder().setToken(new WhitespaceToken(Whitespace.Space)).build(),
+                TokenWrapper.builder().setToken(new WhitespaceToken(Whitespace.SPACE)).build(),
+                TokenWrapper.builder().setToken(new SymbolToken(Symbol.EQ)).build(),
+                TokenWrapper.builder().setToken(new WhitespaceToken(Whitespace.SPACE)).build(),
                 TokenWrapper.builder().setToken(new StringToken("name")).build(),
-                TokenWrapper.builder().setToken(new SymbolToken(Symbol.SemiColon)).build(),
-                TokenWrapper.builder().setToken(new SymbolToken(Symbol.Eof)).build()
+                TokenWrapper.builder().setToken(new SymbolToken(Symbol.SEMI_COLON)).build(),
+                TokenWrapper.builder().setToken(new SymbolToken(Symbol.EOF)).build()
         };
 
         int idx = 0;
@@ -154,31 +154,31 @@ class DefaultTokenizerTest {
     void test_createTable() {
         PeekableIterator<TokenWrapper> tokenizer = new DefaultTokenizer("CREATE TABLE users (id INT PRIMARY KEY, name VARCHAR(255));").tokenize();
         TokenWrapper[] expectedTokens = new TokenWrapper[]{
-                TokenWrapper.builder().setToken(new KeywordToken(Keyword.Create)).build(),
-                TokenWrapper.builder().setToken(new WhitespaceToken(Whitespace.Space)).build(),
-                TokenWrapper.builder().setToken(new KeywordToken(Keyword.Table)).build(),
-                TokenWrapper.builder().setToken(new WhitespaceToken(Whitespace.Space)).build(),
+                TokenWrapper.builder().setToken(new KeywordToken(Keyword.CREATE)).build(),
+                TokenWrapper.builder().setToken(new WhitespaceToken(Whitespace.SPACE)).build(),
+                TokenWrapper.builder().setToken(new KeywordToken(Keyword.TABLE)).build(),
+                TokenWrapper.builder().setToken(new WhitespaceToken(Whitespace.SPACE)).build(),
                 TokenWrapper.builder().setToken(new IdentifierToken("users")).build(),
-                TokenWrapper.builder().setToken(new WhitespaceToken(Whitespace.Space)).build(),
-                TokenWrapper.builder().setToken(new SymbolToken(Symbol.LeftParenthesis)).build(),
+                TokenWrapper.builder().setToken(new WhitespaceToken(Whitespace.SPACE)).build(),
+                TokenWrapper.builder().setToken(new SymbolToken(Symbol.LEFT_PARENTHESIS)).build(),
                 TokenWrapper.builder().setToken(new IdentifierToken("id")).build(),
-                TokenWrapper.builder().setToken(new WhitespaceToken(Whitespace.Space)).build(),
-                TokenWrapper.builder().setToken(new KeywordToken(Keyword.Int)).build(),
-                TokenWrapper.builder().setToken(new WhitespaceToken(Whitespace.Space)).build(),
-                TokenWrapper.builder().setToken(new KeywordToken(Keyword.Primary)).build(),
-                TokenWrapper.builder().setToken(new WhitespaceToken(Whitespace.Space)).build(),
-                TokenWrapper.builder().setToken(new KeywordToken(Keyword.Key)).build(),
-                TokenWrapper.builder().setToken(new SymbolToken(Symbol.Comma)).build(),
-                TokenWrapper.builder().setToken(new WhitespaceToken(Whitespace.Space)).build(),
+                TokenWrapper.builder().setToken(new WhitespaceToken(Whitespace.SPACE)).build(),
+                TokenWrapper.builder().setToken(new KeywordToken(Keyword.INT)).build(),
+                TokenWrapper.builder().setToken(new WhitespaceToken(Whitespace.SPACE)).build(),
+                TokenWrapper.builder().setToken(new KeywordToken(Keyword.PRIMARY)).build(),
+                TokenWrapper.builder().setToken(new WhitespaceToken(Whitespace.SPACE)).build(),
+                TokenWrapper.builder().setToken(new KeywordToken(Keyword.KEY)).build(),
+                TokenWrapper.builder().setToken(new SymbolToken(Symbol.COMMA)).build(),
+                TokenWrapper.builder().setToken(new WhitespaceToken(Whitespace.SPACE)).build(),
                 TokenWrapper.builder().setToken(new IdentifierToken("name")).build(),
-                TokenWrapper.builder().setToken(new WhitespaceToken(Whitespace.Space)).build(),
-                TokenWrapper.builder().setToken(new KeywordToken(Keyword.Varchar)).build(),
-                TokenWrapper.builder().setToken(new SymbolToken(Symbol.LeftParenthesis)).build(),
+                TokenWrapper.builder().setToken(new WhitespaceToken(Whitespace.SPACE)).build(),
+                TokenWrapper.builder().setToken(new KeywordToken(Keyword.VARCHAR)).build(),
+                TokenWrapper.builder().setToken(new SymbolToken(Symbol.LEFT_PARENTHESIS)).build(),
                 TokenWrapper.builder().setToken(new NumberToken("255")).build(),
-                TokenWrapper.builder().setToken(new SymbolToken(Symbol.RightParenthesis)).build(),
-                TokenWrapper.builder().setToken(new SymbolToken(Symbol.RightParenthesis)).build(),
-                TokenWrapper.builder().setToken(new SymbolToken(Symbol.SemiColon)).build(),
-                TokenWrapper.builder().setToken(new SymbolToken(Symbol.Eof)).build()
+                TokenWrapper.builder().setToken(new SymbolToken(Symbol.RIGHT_PARENTHESIS)).build(),
+                TokenWrapper.builder().setToken(new SymbolToken(Symbol.RIGHT_PARENTHESIS)).build(),
+                TokenWrapper.builder().setToken(new SymbolToken(Symbol.SEMI_COLON)).build(),
+                TokenWrapper.builder().setToken(new SymbolToken(Symbol.EOF)).build()
         };
 
         int idx = 0;
@@ -193,27 +193,27 @@ class DefaultTokenizerTest {
     void test_updateTable() {
         PeekableIterator<TokenWrapper> tokenizer = new DefaultTokenizer("UPDATE users SET name = 'updatedName' WHERE id = 1;").tokenize();
         TokenWrapper[] expectedTokens = new TokenWrapper[]{
-                TokenWrapper.builder().setToken(new KeywordToken(Keyword.Update)).build(),
-                TokenWrapper.builder().setToken(new WhitespaceToken(Whitespace.Space)).build(),
+                TokenWrapper.builder().setToken(new KeywordToken(Keyword.UPDATE)).build(),
+                TokenWrapper.builder().setToken(new WhitespaceToken(Whitespace.SPACE)).build(),
                 TokenWrapper.builder().setToken(new IdentifierToken("users")).build(),
-                TokenWrapper.builder().setToken(new WhitespaceToken(Whitespace.Space)).build(),
-                TokenWrapper.builder().setToken(new KeywordToken(Keyword.Set)).build(),
-                TokenWrapper.builder().setToken(new WhitespaceToken(Whitespace.Space)).build(),
+                TokenWrapper.builder().setToken(new WhitespaceToken(Whitespace.SPACE)).build(),
+                TokenWrapper.builder().setToken(new KeywordToken(Keyword.SET)).build(),
+                TokenWrapper.builder().setToken(new WhitespaceToken(Whitespace.SPACE)).build(),
                 TokenWrapper.builder().setToken(new IdentifierToken("name")).build(),
-                TokenWrapper.builder().setToken(new WhitespaceToken(Whitespace.Space)).build(),
-                TokenWrapper.builder().setToken(new SymbolToken(Symbol.Eq)).build(),
-                TokenWrapper.builder().setToken(new WhitespaceToken(Whitespace.Space)).build(),
+                TokenWrapper.builder().setToken(new WhitespaceToken(Whitespace.SPACE)).build(),
+                TokenWrapper.builder().setToken(new SymbolToken(Symbol.EQ)).build(),
+                TokenWrapper.builder().setToken(new WhitespaceToken(Whitespace.SPACE)).build(),
                 TokenWrapper.builder().setToken(new StringToken("updatedName")).build(),
-                TokenWrapper.builder().setToken(new WhitespaceToken(Whitespace.Space)).build(),
-                TokenWrapper.builder().setToken(new KeywordToken(Keyword.Where)).build(),
-                TokenWrapper.builder().setToken(new WhitespaceToken(Whitespace.Space)).build(),
+                TokenWrapper.builder().setToken(new WhitespaceToken(Whitespace.SPACE)).build(),
+                TokenWrapper.builder().setToken(new KeywordToken(Keyword.WHERE)).build(),
+                TokenWrapper.builder().setToken(new WhitespaceToken(Whitespace.SPACE)).build(),
                 TokenWrapper.builder().setToken(new IdentifierToken("id")).build(),
-                TokenWrapper.builder().setToken(new WhitespaceToken(Whitespace.Space)).build(),
-                TokenWrapper.builder().setToken(new SymbolToken(Symbol.Eq)).build(),
-                TokenWrapper.builder().setToken(new WhitespaceToken(Whitespace.Space)).build(),
+                TokenWrapper.builder().setToken(new WhitespaceToken(Whitespace.SPACE)).build(),
+                TokenWrapper.builder().setToken(new SymbolToken(Symbol.EQ)).build(),
+                TokenWrapper.builder().setToken(new WhitespaceToken(Whitespace.SPACE)).build(),
                 TokenWrapper.builder().setToken(new NumberToken("1")).build(),
-                TokenWrapper.builder().setToken(new SymbolToken(Symbol.SemiColon)).build(),
-                TokenWrapper.builder().setToken(new SymbolToken(Symbol.Eof)).build()
+                TokenWrapper.builder().setToken(new SymbolToken(Symbol.SEMI_COLON)).build(),
+                TokenWrapper.builder().setToken(new SymbolToken(Symbol.EOF)).build()
         };
 
         int idx = 0;
@@ -228,21 +228,21 @@ class DefaultTokenizerTest {
     void test_deleteFrom() {
         PeekableIterator<TokenWrapper> tokenizer = new DefaultTokenizer("DELETE FROM users WHERE id = 1;").tokenize();
         TokenWrapper[] expectedTokens = new TokenWrapper[]{
-                TokenWrapper.builder().setToken(new KeywordToken(Keyword.Delete)).build(),
-                TokenWrapper.builder().setToken(new WhitespaceToken(Whitespace.Space)).build(),
-                TokenWrapper.builder().setToken(new KeywordToken(Keyword.From)).build(),
-                TokenWrapper.builder().setToken(new WhitespaceToken(Whitespace.Space)).build(),
+                TokenWrapper.builder().setToken(new KeywordToken(Keyword.DELETE)).build(),
+                TokenWrapper.builder().setToken(new WhitespaceToken(Whitespace.SPACE)).build(),
+                TokenWrapper.builder().setToken(new KeywordToken(Keyword.FROM)).build(),
+                TokenWrapper.builder().setToken(new WhitespaceToken(Whitespace.SPACE)).build(),
                 TokenWrapper.builder().setToken(new IdentifierToken("users")).build(),
-                TokenWrapper.builder().setToken(new WhitespaceToken(Whitespace.Space)).build(),
-                TokenWrapper.builder().setToken(new KeywordToken(Keyword.Where)).build(),
-                TokenWrapper.builder().setToken(new WhitespaceToken(Whitespace.Space)).build(),
+                TokenWrapper.builder().setToken(new WhitespaceToken(Whitespace.SPACE)).build(),
+                TokenWrapper.builder().setToken(new KeywordToken(Keyword.WHERE)).build(),
+                TokenWrapper.builder().setToken(new WhitespaceToken(Whitespace.SPACE)).build(),
                 TokenWrapper.builder().setToken(new IdentifierToken("id")).build(),
-                TokenWrapper.builder().setToken(new WhitespaceToken(Whitespace.Space)).build(),
-                TokenWrapper.builder().setToken(new SymbolToken(Symbol.Eq)).build(),
-                TokenWrapper.builder().setToken(new WhitespaceToken(Whitespace.Space)).build(),
+                TokenWrapper.builder().setToken(new WhitespaceToken(Whitespace.SPACE)).build(),
+                TokenWrapper.builder().setToken(new SymbolToken(Symbol.EQ)).build(),
+                TokenWrapper.builder().setToken(new WhitespaceToken(Whitespace.SPACE)).build(),
                 TokenWrapper.builder().setToken(new NumberToken("1")).build(),
-                TokenWrapper.builder().setToken(new SymbolToken(Symbol.SemiColon)).build(),
-                TokenWrapper.builder().setToken(new SymbolToken(Symbol.Eof)).build()
+                TokenWrapper.builder().setToken(new SymbolToken(Symbol.SEMI_COLON)).build(),
+                TokenWrapper.builder().setToken(new SymbolToken(Symbol.EOF)).build()
         };
 
         int idx = 0;
@@ -257,29 +257,29 @@ class DefaultTokenizerTest {
     void test_insertInto() {
         PeekableIterator<TokenWrapper> tokenizer = new DefaultTokenizer("INSERT INTO users (id, name) VALUES (1, 'name');").tokenize();
         TokenWrapper[] expectedTokens = new TokenWrapper[]{
-                TokenWrapper.builder().setToken(new KeywordToken(Keyword.Insert)).build(),
-                TokenWrapper.builder().setToken(new WhitespaceToken(Whitespace.Space)).build(),
-                TokenWrapper.builder().setToken(new KeywordToken(Keyword.Into)).build(),
-                TokenWrapper.builder().setToken(new WhitespaceToken(Whitespace.Space)).build(),
+                TokenWrapper.builder().setToken(new KeywordToken(Keyword.INSERT)).build(),
+                TokenWrapper.builder().setToken(new WhitespaceToken(Whitespace.SPACE)).build(),
+                TokenWrapper.builder().setToken(new KeywordToken(Keyword.INTO)).build(),
+                TokenWrapper.builder().setToken(new WhitespaceToken(Whitespace.SPACE)).build(),
                 TokenWrapper.builder().setToken(new IdentifierToken("users")).build(),
-                TokenWrapper.builder().setToken(new WhitespaceToken(Whitespace.Space)).build(),
-                TokenWrapper.builder().setToken(new SymbolToken(Symbol.LeftParenthesis)).build(),
+                TokenWrapper.builder().setToken(new WhitespaceToken(Whitespace.SPACE)).build(),
+                TokenWrapper.builder().setToken(new SymbolToken(Symbol.LEFT_PARENTHESIS)).build(),
                 TokenWrapper.builder().setToken(new IdentifierToken("id")).build(),
-                TokenWrapper.builder().setToken(new SymbolToken(Symbol.Comma)).build(),
-                TokenWrapper.builder().setToken(new WhitespaceToken(Whitespace.Space)).build(),
+                TokenWrapper.builder().setToken(new SymbolToken(Symbol.COMMA)).build(),
+                TokenWrapper.builder().setToken(new WhitespaceToken(Whitespace.SPACE)).build(),
                 TokenWrapper.builder().setToken(new IdentifierToken("name")).build(),
-                TokenWrapper.builder().setToken(new SymbolToken(Symbol.RightParenthesis)).build(),
-                TokenWrapper.builder().setToken(new WhitespaceToken(Whitespace.Space)).build(),
-                TokenWrapper.builder().setToken(new KeywordToken(Keyword.Values)).build(),
-                TokenWrapper.builder().setToken(new WhitespaceToken(Whitespace.Space)).build(),
-                TokenWrapper.builder().setToken(new SymbolToken(Symbol.LeftParenthesis)).build(),
+                TokenWrapper.builder().setToken(new SymbolToken(Symbol.RIGHT_PARENTHESIS)).build(),
+                TokenWrapper.builder().setToken(new WhitespaceToken(Whitespace.SPACE)).build(),
+                TokenWrapper.builder().setToken(new KeywordToken(Keyword.VALUES)).build(),
+                TokenWrapper.builder().setToken(new WhitespaceToken(Whitespace.SPACE)).build(),
+                TokenWrapper.builder().setToken(new SymbolToken(Symbol.LEFT_PARENTHESIS)).build(),
                 TokenWrapper.builder().setToken(new NumberToken("1")).build(),
-                TokenWrapper.builder().setToken(new SymbolToken(Symbol.Comma)).build(),
-                TokenWrapper.builder().setToken(new WhitespaceToken(Whitespace.Space)).build(),
+                TokenWrapper.builder().setToken(new SymbolToken(Symbol.COMMA)).build(),
+                TokenWrapper.builder().setToken(new WhitespaceToken(Whitespace.SPACE)).build(),
                 TokenWrapper.builder().setToken(new StringToken("name")).build(),
-                TokenWrapper.builder().setToken(new SymbolToken(Symbol.RightParenthesis)).build(),
-                TokenWrapper.builder().setToken(new SymbolToken(Symbol.SemiColon)).build(),
-                TokenWrapper.builder().setToken(new SymbolToken(Symbol.Eof)).build()
+                TokenWrapper.builder().setToken(new SymbolToken(Symbol.RIGHT_PARENTHESIS)).build(),
+                TokenWrapper.builder().setToken(new SymbolToken(Symbol.SEMI_COLON)).build(),
+                TokenWrapper.builder().setToken(new SymbolToken(Symbol.EOF)).build()
         };
 
         int idx = 0;

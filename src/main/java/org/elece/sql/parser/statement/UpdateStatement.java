@@ -11,7 +11,7 @@ public class UpdateStatement extends Statement {
     private Expression where;
 
     public UpdateStatement(String table, List<Assignment> columns, Expression where) {
-        super(StatementType.Update);
+        super(StatementType.UPDATE);
         this.table = table;
         this.columns = columns;
         this.where = where;

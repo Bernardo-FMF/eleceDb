@@ -57,7 +57,7 @@ public abstract class OperationStep<V> {
             if (column.isUnique()) {
                 byte[] indexValueAsBytes = SerializationUtils.getValueOfField(table, column, value);
 
-                if (column.getSqlType().getType() == SqlType.Type.Int) {
+                if (column.getSqlType().getType() == SqlType.Type.INT) {
                     IndexManager<Integer, Number> indexManager = columnIndexManagerProvider.getIndexManager(table, column);
 
                     int indexValue = BinaryUtils.bytesToInteger(indexValueAsBytes, 0);
@@ -71,7 +71,7 @@ public abstract class OperationStep<V> {
                         }
                     }
 
-                } else if (column.getSqlType().getType() == SqlType.Type.Varchar) {
+                } else if (column.getSqlType().getType() == SqlType.Type.VARCHAR) {
                     IndexManager<String, Number> indexManager = columnIndexManagerProvider.getIndexManager(table, column);
 
                     String indexValue = BinaryUtils.bytesToString(indexValueAsBytes, 0);

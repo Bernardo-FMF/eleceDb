@@ -89,8 +89,8 @@ public class InequalityRowScanStep<V extends Comparable<V>> extends ScanStep {
 
     private SqlValue<V> transformToSqlValue(V value) {
         return switch (column.getSqlType().getType()) {
-            case Int -> (SqlValue<V>) new SqlNumberValue((Integer) value);
-            case Varchar -> (SqlValue<V>) new SqlStringValue((String) value);
+            case INT -> (SqlValue<V>) new SqlNumberValue((Integer) value);
+            case VARCHAR -> (SqlValue<V>) new SqlStringValue((String) value);
             default -> null;
         };
     }

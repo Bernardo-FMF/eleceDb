@@ -45,7 +45,7 @@ public final class Column {
     }
 
     public boolean isUnique() {
-        return constraints.contains(SqlConstraint.PrimaryKey) || constraints.contains(SqlConstraint.Unique);
+        return constraints.contains(SqlConstraint.PRIMARY_KEY) || constraints.contains(SqlConstraint.UNIQUE);
     }
 
     @Override

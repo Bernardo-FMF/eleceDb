@@ -22,19 +22,19 @@ public class InsertKeywordCommand extends AbstractKeywordCommand {
 
     @Override
     public Statement parse() throws ParserException, TokenizerException {
-        expectKeywordToken(Keyword.Into);
+        expectKeywordToken(Keyword.INTO);
 
         String table = parseIdentifier();
 
         Token parenthesisToken = peekToken();
-        boolean hasColumnParenthesis = parenthesisToken.getTokenType() == Token.TokenType.SymbolToken && ((SymbolToken) parenthesisToken).getSymbol() == Symbol.LeftParenthesis;
+        boolean hasColumnParenthesis = parenthesisToken.getTokenType() == Token.TokenType.SYMBOL_TOKEN && ((SymbolToken) parenthesisToken).getSymbol() == Symbol.LEFT_PARENTHESIS;
 
         List<String> columns = new ArrayList<>();
         if (hasColumnParenthesis) {
             columns.addAll(parseIdentifierList());
         }
 
-        expectKeywordToken(Keyword.Values);
+        expectKeywordToken(Keyword.VALUES);
 
         List<Expression> values = parseExpressionDefinitions(true);
 

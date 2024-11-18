@@ -41,7 +41,7 @@ public class InsertValidatorStep extends ValidatorStep<byte[]> {
             if (column.isUnique()) {
                 byte[] indexValueAsBytes = SerializationUtils.getValueOfField(table, column, value);
 
-                if (column.getSqlType().getType() == SqlType.Type.Int) {
+                if (column.getSqlType().getType() == SqlType.Type.INT) {
                     IndexManager<Integer, Integer> indexManager = columnIndexManagerProvider.getIndexManager(table, column);
 
                     int indexValue = BinaryUtils.bytesToInteger(indexValueAsBytes, 0);
@@ -49,7 +49,7 @@ public class InsertValidatorStep extends ValidatorStep<byte[]> {
                     if (index.isPresent()) {
                         return false;
                     }
-                } else if (column.getSqlType().getType() == SqlType.Type.Varchar) {
+                } else if (column.getSqlType().getType() == SqlType.Type.VARCHAR) {
                     IndexManager<String, Integer> indexManager = columnIndexManagerProvider.getIndexManager(table, column);
 
                     String indexValue = BinaryUtils.bytesToString(indexValueAsBytes, 0);

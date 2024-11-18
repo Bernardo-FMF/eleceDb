@@ -9,7 +9,7 @@ public class CreateTableStatement extends CreateStatement {
     private final List<Column> columns;
 
     public CreateTableStatement(String name, List<Column> columns) {
-        super(StatementType.CreateTable);
+        super(StatementType.CREATE_TABLE);
         this.name = name;
         this.columns = columns;
     }

@@ -19,10 +19,10 @@ public class WhitespaceTokenProcessor implements TokenProcessor<Character> {
 
         Character next = stream.next();
 
-        if (Whitespace.CarriageNewLine.getWhitespaceValue()[0] == next) {
+        if (Whitespace.CARRIAGE_NEW_LINE.getWhitespaceValue()[0] == next) {
             Character nextWhitespace = stream.peek();
-            if (Whitespace.CarriageNewLine.getWhitespaceValue()[1] == nextWhitespace) {
-                tokenBuilder.setToken(new WhitespaceToken(Whitespace.NewLine));
+            if (Whitespace.CARRIAGE_NEW_LINE.getWhitespaceValue()[1] == nextWhitespace) {
+                tokenBuilder.setToken(new WhitespaceToken(Whitespace.NEW_LINE));
             }
         }
 

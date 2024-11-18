@@ -45,13 +45,13 @@ public class InsertOperationStep extends OperationStep<byte[]> {
                     byte[] indexValueAsBytes = SerializationUtils.getValueOfField(table, column, value);
 
                     switch (column.getSqlType().getType()) {
-                        case Int -> {
+                        case INT -> {
                             IndexManager<Integer, Number> indexManager = columnIndexManagerProvider.getIndexManager(table, column);
 
                             int indexValue = BinaryUtils.bytesToInteger(indexValueAsBytes, 0);
                             indexManager.addIndex(indexValue, rowClusterId);
                         }
-                        case Varchar -> {
+                        case VARCHAR -> {
                             IndexManager<String, Number> indexManager = columnIndexManagerProvider.getIndexManager(table, column);
 
                             String indexValue = BinaryUtils.bytesToString(indexValueAsBytes, 0);

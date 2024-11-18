@@ -4,10 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public enum Whitespace {
-    CarriageNewLine('\r', '\n'),
-    Space(' '),
-    Tab('\t'),
-    NewLine('\n');
+    CARRIAGE_NEW_LINE('\r', '\n'),
+    SPACE(' '),
+    TAB('\t'),
+    NEW_LINE('\n');
 
     private final char[] whitespaceValue;
 

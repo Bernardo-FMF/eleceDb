@@ -27,7 +27,7 @@ public class KeywordOrIdentifierTokenProcessor implements TokenProcessor<Charact
                 .collect(Collectors.joining(""));
 
         Keyword keyword = Keyword.getKeyword(possibleKeyword);
-        if (!Objects.isNull(keyword) && Keyword.None != keyword) {
+        if (!Objects.isNull(keyword) && Keyword.NONE != keyword) {
             tokenBuilder.setToken(new KeywordToken(keyword));
         } else {
             tokenBuilder.setToken(new IdentifierToken(possibleKeyword));

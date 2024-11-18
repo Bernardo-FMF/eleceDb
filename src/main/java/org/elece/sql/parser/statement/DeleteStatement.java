@@ -7,7 +7,7 @@ public class DeleteStatement extends Statement {
     private Expression where;
 
     public DeleteStatement(String from, Expression where) {
-        super(StatementType.Delete);
+        super(StatementType.DELETE);
         this.from = from;
         this.where = where;
     }

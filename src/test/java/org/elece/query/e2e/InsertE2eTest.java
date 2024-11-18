@@ -85,9 +85,9 @@ class InsertE2eTest {
         DbObject dbObject = optionalDbObject.get();
 
         SerializerRegistry serializerRegistry = dependencyContainer.getSerializerRegistry();
-        Serializer<Integer> intSerializer = serializerRegistry.getSerializer(SqlType.Type.Int);
-        Serializer<String> varcharSerializer = serializerRegistry.getSerializer(SqlType.Type.Varchar);
-        Serializer<Boolean> boolSerializer = serializerRegistry.getSerializer(SqlType.Type.Bool);
+        Serializer<Integer> intSerializer = serializerRegistry.getSerializer(SqlType.Type.INT);
+        Serializer<String> varcharSerializer = serializerRegistry.getSerializer(SqlType.Type.VARCHAR);
+        Serializer<Boolean> boolSerializer = serializerRegistry.getSerializer(SqlType.Type.BOOL);
         byte[] clusterValueBytes = SerializationUtils.getValueOfField(table, SchemaSearcher.findClusterColumn(table), dbObject);
         byte[] idValueBytes = SerializationUtils.getValueOfField(table, SchemaSearcher.findColumn(table, "id").get(), dbObject);
         byte[] nameValueBytes = SerializationUtils.getValueOfField(table, SchemaSearcher.findColumn(table, "name").get(), dbObject);

@@ -6,7 +6,7 @@ public class StringToken extends Token {
     private final String string;
 
     public StringToken(String string) {
-        super(TokenType.StringToken);
+        super(TokenType.STRING_TOKEN);
         this.string = string;
     }
 

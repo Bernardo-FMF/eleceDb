@@ -21,13 +21,13 @@ public class SelectKeywordCommand extends AbstractKeywordCommand {
     public Statement parse() throws ParserException, TokenizerException {
         List<Expression> selectedColumns = parseExpressionDefinitions(false);
 
-        expectKeywordToken(Keyword.From);
+        expectKeywordToken(Keyword.FROM);
 
         String identifier = parseIdentifier();
         Expression where = parseWhere();
         List<Expression> orderBy = parseOrderBy();
 
-        expectSymbolToken(Symbol.SemiColon);
+        expectSymbolToken(Symbol.SEMI_COLON);
 
         return new SelectStatement(selectedColumns, identifier, where, orderBy);
     }

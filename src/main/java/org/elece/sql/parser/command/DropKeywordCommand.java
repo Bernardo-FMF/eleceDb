@@ -18,12 +18,12 @@ public class DropKeywordCommand extends AbstractKeywordCommand {
 
     @Override
     public Statement parse() throws ParserException, TokenizerException {
-        KeywordToken nextToken = (KeywordToken) expectToken(token -> token.getTokenType() == Token.TokenType.KeywordToken &&
-                (((KeywordToken) token).getKeyword() == Keyword.Table ||
-                        ((KeywordToken) token).getKeyword() == Keyword.Database));
+        KeywordToken nextToken = (KeywordToken) expectToken(token -> token.getTokenType() == Token.TokenType.KEYWORD_TOKEN &&
+                (((KeywordToken) token).getKeyword() == Keyword.TABLE ||
+                        ((KeywordToken) token).getKeyword() == Keyword.DATABASE));
 
         String identifier = parseIdentifier();
 
-        return nextToken.getKeyword() == Keyword.Table ? new DropTableStatement(identifier) : new DropDbStatement(identifier);
+        return nextToken.getKeyword() == Keyword.TABLE ? new DropTableStatement(identifier) : new DropDbStatement(identifier);
     }
 }

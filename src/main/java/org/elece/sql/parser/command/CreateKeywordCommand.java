@@ -17,7 +17,7 @@ import org.elece.sql.token.model.type.Symbol;
 import java.util.Set;
 
 public class CreateKeywordCommand extends AbstractKeywordCommand {
-    private static final Set<Keyword> supportedCreateKeywords = Set.of(Keyword.Database, Keyword.Table, Keyword.Index, Keyword.Unique);
+    private static final Set<Keyword> supportedCreateKeywords = Set.of(Keyword.DATABASE, Keyword.TABLE, Keyword.INDEX, Keyword.UNIQUE);
 
     public CreateKeywordCommand(PeekableIterator<TokenWrapper> tokenizer) {
         super(tokenizer);
@@ -25,25 +25,25 @@ public class CreateKeywordCommand extends AbstractKeywordCommand {
 
     @Override
     public Statement parse() throws ParserException, TokenizerException {
-        KeywordToken nextToken = (KeywordToken) expectToken(token -> token.getTokenType() == Token.TokenType.KeywordToken &&
+        KeywordToken nextToken = (KeywordToken) expectToken(token -> token.getTokenType() == Token.TokenType.KEYWORD_TOKEN &&
                 supportedCreateKeywords.contains(((KeywordToken) token).getKeyword()));
 
         return switch (nextToken.getKeyword()) {
-            case Database -> new CreateDbStatement(parseIdentifier());
-            case Table -> new CreateTableStatement(parseIdentifier(), parseColumnDefinitions());
-            case Unique, Index -> {
-                boolean isUnique = nextToken.getKeyword() == Keyword.Unique;
+            case DATABASE -> new CreateDbStatement(parseIdentifier());
+            case TABLE -> new CreateTableStatement(parseIdentifier(), parseColumnDefinitions());
+            case UNIQUE, INDEX -> {
+                boolean isUnique = nextToken.getKeyword() == Keyword.UNIQUE;
                 if (isUnique) {
-                    expectKeywordToken(Keyword.Index);
+                    expectKeywordToken(Keyword.INDEX);
                 }
 
                 String name = parseIdentifier();
-                expectKeywordToken(Keyword.On);
+                expectKeywordToken(Keyword.ON);
                 String table = parseIdentifier();
 
-                expectSymbolToken(Symbol.LeftParenthesis);
+                expectSymbolToken(Symbol.LEFT_PARENTHESIS);
                 String column = parseIdentifier();
-                expectSymbolToken(Symbol.RightParenthesis);
+                expectSymbolToken(Symbol.RIGHT_PARENTHESIS);
 
                 yield new CreateIndexStatement(name, table, column, isUnique);
             }

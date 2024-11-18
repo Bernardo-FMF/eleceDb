@@ -19,13 +19,13 @@ public class QueryUtils {
         SqlType.Type type = column.getSqlType().getType();
         byte[] serializedValue = new byte[0];
 
-        if (type == SqlType.Type.Int) {
+        if (type == SqlType.Type.INT) {
             Serializer<Integer> serializer = serializerRegistry.getSerializer(type);
             serializedValue = serializer.serialize((Integer) value.getValue(), column);
-        } else if (type == SqlType.Type.Bool) {
+        } else if (type == SqlType.Type.BOOL) {
             Serializer<Boolean> serializer = serializerRegistry.getSerializer(type);
             serializedValue = serializer.serialize((Boolean) value.getValue(), column);
-        } else if (type == SqlType.Type.Varchar) {
+        } else if (type == SqlType.Type.VARCHAR) {
             serializedValue = new byte[column.getSqlType().getSize()];
             Serializer<String> serializer = serializerRegistry.getSerializer(type);
             byte[] shortenedValue = serializer.serialize((String) value.getValue(), column);

@@ -19,7 +19,7 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class IndexPathFinder implements QueryPlanVisitor {
-    private static final EnumSet<Symbol> rangeSymbols = EnumSet.of(Symbol.Eq, Symbol.Neq, Symbol.Lt, Symbol.LtEq, Symbol.Gt, Symbol.GtEq);
+    private static final EnumSet<Symbol> rangeSymbols = EnumSet.of(Symbol.EQ, Symbol.NEQ, Symbol.LT, Symbol.LT_EQ, Symbol.GT, Symbol.GT_EQ);
 
     private final Table table;
 
@@ -50,8 +50,8 @@ public class IndexPathFinder implements QueryPlanVisitor {
             }
         }
 
-        boolean isAndOperator = binaryExpression.getOperator() instanceof Keyword keyword && keyword == Keyword.And;
-        boolean isOrOperator = binaryExpression.getOperator() instanceof Keyword keyword && keyword == Keyword.Or;
+        boolean isAndOperator = binaryExpression.getOperator() instanceof Keyword keyword && keyword == Keyword.AND;
+        boolean isOrOperator = binaryExpression.getOperator() instanceof Keyword keyword && keyword == Keyword.OR;
 
         if (isAndOperator || isOrOperator) {
             NodeCollection leftPaths = binaryExpression.getLeft().accept(this);
@@ -178,12 +178,12 @@ public class IndexPathFinder implements QueryPlanVisitor {
 
     private static ValueComparator<?> determineBounds(Symbol operator, ValueExpression<?> valueExpression,
                                                       boolean valueIsLeftSide) {
-        if (operator == Symbol.Eq || operator == Symbol.Neq) {
-            return buildEqualityComparator(valueExpression, operator == Symbol.Eq);
+        if (operator == Symbol.EQ || operator == Symbol.NEQ) {
+            return buildEqualityComparator(valueExpression, operator == Symbol.EQ);
         }
 
-        boolean isLeftBoundary = (valueIsLeftSide && (operator == Symbol.Lt || operator == Symbol.LtEq)) || (!valueIsLeftSide && (operator == Symbol.Gt || operator == Symbol.GtEq));
-        return buildRangeComparator((ValueExpression<SqlNumberValue>) valueExpression, operator == Symbol.LtEq || operator == Symbol.GtEq, isLeftBoundary);
+        boolean isLeftBoundary = (valueIsLeftSide && (operator == Symbol.LT || operator == Symbol.LT_EQ)) || (!valueIsLeftSide && (operator == Symbol.GT || operator == Symbol.GT_EQ));
+        return buildRangeComparator((ValueExpression<SqlNumberValue>) valueExpression, operator == Symbol.LT_EQ || operator == Symbol.GT_EQ, isLeftBoundary);
     }
 
     private static NumberRangeComparator buildRangeComparator(ValueExpression<SqlNumberValue> valueExpression,

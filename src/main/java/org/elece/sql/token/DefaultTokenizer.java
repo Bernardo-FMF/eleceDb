@@ -60,7 +60,7 @@ public class DefaultTokenizer implements Tokenizer {
         public TokenWrapper next() {
             TokenWrapper tokenWrapper = this.defaultTokenizer.nextToken();
             if (tokenWrapper.hasToken()) {
-                if (tokenWrapper.getToken().getTokenType() == Token.TokenType.SymbolToken && ((SymbolToken) tokenWrapper.getToken()).getSymbol() == Symbol.Eof) {
+                if (tokenWrapper.getToken().getTokenType() == Token.TokenType.SYMBOL_TOKEN && ((SymbolToken) tokenWrapper.getToken()).getSymbol() == Symbol.EOF) {
                     this.defaultTokenizer.reachedEof.set(true);
                 }
             }

@@ -20,7 +20,7 @@ class KeywordOrIdentifierTokenProcessorTest {
         TokenWrapper wrapper = keywordOrIdentifierTokenProcessor.consume(charStream);
         Assertions.assertTrue(wrapper.getToken() instanceof KeywordToken);
         KeywordToken keywordToken = (KeywordToken) wrapper.getToken();
-        Assertions.assertEquals(Keyword.Select, keywordToken.getKeyword());
+        Assertions.assertEquals(Keyword.SELECT, keywordToken.getKeyword());
     }
 
     @Test
@@ -48,7 +48,7 @@ class KeywordOrIdentifierTokenProcessorTest {
         TokenWrapper tokenWrapper = keywordOrIdentifierTokenProcessor.consume(charStream);
         Assertions.assertTrue(tokenWrapper.getToken() instanceof KeywordToken);
         KeywordToken keywordToken = (KeywordToken) tokenWrapper.getToken();
-        Assertions.assertEquals(Keyword.Select, keywordToken.getKeyword());
+        Assertions.assertEquals(Keyword.SELECT, keywordToken.getKeyword());
 
         charStream.next();
 

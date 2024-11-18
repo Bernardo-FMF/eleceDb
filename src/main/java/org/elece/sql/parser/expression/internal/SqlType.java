@@ -16,16 +16,16 @@ public class SqlType {
         this.constraints = constraints;
     }
 
-    public static SqlType intType = new SqlType(Type.Int, Integer.BYTES, List.of(SqlConstraint.PrimaryKey, SqlConstraint.Unique));
-    public static SqlType boolType = new SqlType(Type.Bool, 1, List.of());
-    public static SqlType varcharType = new SqlType(Type.Varchar, VARCHAR_MAX_SIZE, List.of(SqlConstraint.PrimaryKey, SqlConstraint.Unique));
+    public static SqlType intType = new SqlType(Type.INT, Integer.BYTES, List.of(SqlConstraint.PRIMARY_KEY, SqlConstraint.UNIQUE));
+    public static SqlType boolType = new SqlType(Type.BOOL, 1, List.of());
+    public static SqlType varcharType = new SqlType(Type.VARCHAR, VARCHAR_MAX_SIZE, List.of(SqlConstraint.PRIMARY_KEY, SqlConstraint.UNIQUE));
 
     public static SqlType varchar(Integer size) {
         if (size >= VARCHAR_MAX_SIZE) {
             return varcharType;
         }
         int validSize = (size <= 0) ? VARCHAR_MAX_SIZE : size;
-        return new SqlType(Type.Varchar, validSize, List.of(SqlConstraint.PrimaryKey, SqlConstraint.Unique));
+        return new SqlType(Type.VARCHAR, validSize, List.of(SqlConstraint.PRIMARY_KEY, SqlConstraint.UNIQUE));
     }
 
     public Type getType() {
@@ -41,9 +41,9 @@ public class SqlType {
     }
 
     public enum Type {
-        Int,
-        Bool,
-        Varchar
+        INT,
+        BOOL,
+        VARCHAR
     }
 
     @Override

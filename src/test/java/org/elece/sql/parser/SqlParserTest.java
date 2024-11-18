@@ -34,27 +34,6 @@ class SqlParserTest {
     }
 
     @Test
-    void test_startTransaction() throws ParserException, TokenizerException {
-        SqlParser sqlParser = new SqlParser("START TRANSACTION;");
-        Statement statement = sqlParser.parse();
-        Assertions.assertInstanceOf(TransactionStatement.class, statement);
-    }
-
-    @Test
-    void test_rollback() throws ParserException, TokenizerException {
-        SqlParser sqlParser = new SqlParser("ROLLBACK;");
-        Statement statement = sqlParser.parse();
-        Assertions.assertInstanceOf(RollbackStatement.class, statement);
-    }
-
-    @Test
-    void test_commit() throws ParserException, TokenizerException {
-        SqlParser sqlParser = new SqlParser("COMMIT;");
-        Statement statement = sqlParser.parse();
-        Assertions.assertInstanceOf(CommitStatement.class, statement);
-    }
-
-    @Test
     void test_insertWithColumns() throws ParserException, TokenizerException {
         SqlParser sqlParser = new SqlParser("INSERT INTO users (id, name) VALUES (1, \"user1\");");
         Statement statement = sqlParser.parse();
@@ -117,7 +96,7 @@ class SqlParserTest {
 
         BinaryExpression where = (BinaryExpression) updateStatement.getWhere();
         Assertions.assertEquals("id", ((IdentifierExpression) where.getLeft()).getName());
-        Assertions.assertEquals(Symbol.Eq, where.getOperator());
+        Assertions.assertEquals(Symbol.EQ, where.getOperator());
         Assertions.assertEquals(1, ((ValueExpression<SqlNumberValue>) where.getRight()).getValue().getValue());
     }
 
@@ -134,12 +113,12 @@ class SqlParserTest {
         Assertions.assertEquals("id", createTableStatement.getColumns().get(0).getName());
         Assertions.assertEquals(SqlType.intType, createTableStatement.getColumns().get(0).getSqlType());
         Assertions.assertEquals(1, createTableStatement.getColumns().get(0).getConstraints().size());
-        Assertions.assertEquals(SqlConstraint.PrimaryKey, createTableStatement.getColumns().get(0).getConstraints().get(0));
+        Assertions.assertEquals(SqlConstraint.PRIMARY_KEY, createTableStatement.getColumns().get(0).getConstraints().get(0));
 
         Assertions.assertEquals("name", createTableStatement.getColumns().get(1).getName());
         Assertions.assertEquals(SqlType.varchar(255), createTableStatement.getColumns().get(1).getSqlType());
         Assertions.assertEquals(1, createTableStatement.getColumns().get(1).getConstraints().size());
-        Assertions.assertEquals(SqlConstraint.Unique, createTableStatement.getColumns().get(1).getConstraints().get(0));
+        Assertions.assertEquals(SqlConstraint.UNIQUE, createTableStatement.getColumns().get(1).getConstraints().get(0));
     }
 
     @Test
@@ -189,7 +168,7 @@ class SqlParserTest {
 
         BinaryExpression where = (BinaryExpression) selectStatement.getWhere();
         Assertions.assertEquals("id", ((IdentifierExpression) where.getLeft()).getName());
-        Assertions.assertEquals(Symbol.Eq, where.getOperator());
+        Assertions.assertEquals(Symbol.EQ, where.getOperator());
         Assertions.assertEquals(1, ((ValueExpression<SqlNumberValue>) where.getRight()).getValue().getValue());
     }
 
@@ -220,22 +199,11 @@ class SqlParserTest {
         Assertions.assertNotNull(selectStatement.getOrderBy());
         BinaryExpression where = (BinaryExpression) selectStatement.getWhere();
         Assertions.assertEquals("id", ((IdentifierExpression) where.getLeft()).getName());
-        Assertions.assertEquals(Symbol.Gt, where.getOperator());
+        Assertions.assertEquals(Symbol.GT, where.getOperator());
         Assertions.assertEquals(5, ((ValueExpression<SqlNumberValue>) where.getRight()).getValue().getValue());
         Assertions.assertNotNull(selectStatement.getOrderBy());
         Assertions.assertEquals(1, selectStatement.getOrderBy().size());
         Assertions.assertEquals("name", ((OrderIdentifierExpression) selectStatement.getOrderBy().get(0)).getName());
         Assertions.assertEquals(Order.DEFAULT_ORDER, ((OrderIdentifierExpression) selectStatement.getOrderBy().get(0)).getOrder());
-    }
-
-    @Test
-    void test_explain() throws ParserException, TokenizerException {
-        SqlParser sqlParser = new SqlParser("EXPLAIN SELECT id, name FROM users;");
-        ExplainStatement statement = (ExplainStatement) sqlParser.parse();
-
-        SelectStatement selectStatement = (SelectStatement) statement.getStatement();
-        Assertions.assertEquals("users", selectStatement.getFrom());
-        Assertions.assertNull(selectStatement.getWhere());
-        Assertions.assertEquals(0, selectStatement.getOrderBy().size());
     }
 }

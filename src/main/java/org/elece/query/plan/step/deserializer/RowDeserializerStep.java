@@ -27,9 +27,9 @@ public class RowDeserializerStep extends DeserializerStep {
             byte[] valueOfField = SerializationUtils.getValueOfField(selectedColumns, column, data);
             SqlType.Type type = column.getSqlType().getType();
             Serializer<?> serializer = serializerRegistry.getSerializer(type);
-            if (Objects.requireNonNull(type) == SqlType.Type.Int || type == SqlType.Type.Bool) {
+            if (Objects.requireNonNull(type) == SqlType.Type.INT || type == SqlType.Type.BOOL) {
                 deserializedData.append(serializer.deserialize(valueOfField, column));
-            } else if (type == SqlType.Type.Varchar) {
+            } else if (type == SqlType.Type.VARCHAR) {
                 deserializedData.append("'").append(((String) serializer.deserialize(valueOfField, column)).trim()).append("'");
             }
 

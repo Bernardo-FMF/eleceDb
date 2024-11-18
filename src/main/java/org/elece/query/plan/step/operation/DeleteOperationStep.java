@@ -55,13 +55,13 @@ public class DeleteOperationStep extends OperationStep<DbObject> {
                     byte[] indexValueAsBytes = SerializationUtils.getValueOfField(table, column, value);
 
                     switch (column.getSqlType().getType()) {
-                        case Int -> {
+                        case INT -> {
                             IndexManager<Integer, Number> indexManager = columnIndexManagerProvider.getIndexManager(table, column);
 
                             int indexValue = BinaryUtils.bytesToInteger(indexValueAsBytes, 0);
                             indexManager.removeIndex(indexValue);
                         }
-                        case Varchar -> {
+                        case VARCHAR -> {
                             IndexManager<String, Number> indexManager = columnIndexManagerProvider.getIndexManager(table, column);
 
                             String indexValue = BinaryUtils.bytesToString(indexValueAsBytes, 0);

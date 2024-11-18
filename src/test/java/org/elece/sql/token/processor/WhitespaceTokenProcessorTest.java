@@ -14,10 +14,10 @@ class WhitespaceTokenProcessorTest {
     private static final Set<String> CHARACTERS = Set.of(" ", "\t", "\n", "\r\n");
 
     private static final Map<String, Whitespace> CHARACTER_MAP = Map.of(
-            " ", Whitespace.Space,
-            "\t", Whitespace.Tab,
-            "\n", Whitespace.NewLine,
-            "\r\n", Whitespace.NewLine
+            " ", Whitespace.SPACE,
+            "\t", Whitespace.TAB,
+            "\n", Whitespace.NEW_LINE,
+            "\r\n", Whitespace.NEW_LINE
     );
 
     @Test

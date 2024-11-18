@@ -33,8 +33,8 @@ class SqlAnalyzerTest {
     @BeforeEach
     void setup() {
         List<Column> columns = new ArrayList<>();
-        columns.add(ColumnBuilder.builder().setName("name").setSqlType(SqlType.varchar(255)).setConstraints(List.of(SqlConstraint.Unique)).build());
-        columns.add(ColumnBuilder.builder().setName("id").setSqlType(SqlType.intType).setConstraints(List.of(SqlConstraint.Unique, SqlConstraint.PrimaryKey)).build());
+        columns.add(ColumnBuilder.builder().setName("name").setSqlType(SqlType.varchar(255)).setConstraints(List.of(SqlConstraint.UNIQUE)).build());
+        columns.add(ColumnBuilder.builder().setName("id").setSqlType(SqlType.intType).setConstraints(List.of(SqlConstraint.UNIQUE, SqlConstraint.PRIMARY_KEY)).build());
 
         List<Index> indexes = new ArrayList<>();
         indexes.add(IndexBuilder.builder()
@@ -67,27 +67,6 @@ class SqlAnalyzerTest {
     @Test
     void test_dropTable() throws ParserException, TokenizerException, AnalyzerException {
         SqlParser sqlParser = new SqlParser("DROP TABLE users;");
-        Statement statement = sqlParser.parse();
-        sqlAnalyzer.analyze(schemaManager, statement);
-    }
-
-    @Test
-    void test_startTransaction() throws ParserException, TokenizerException, AnalyzerException {
-        SqlParser sqlParser = new SqlParser("START TRANSACTION;");
-        Statement statement = sqlParser.parse();
-        sqlAnalyzer.analyze(schemaManager, statement);
-    }
-
-    @Test
-    void test_rollback() throws ParserException, TokenizerException, AnalyzerException {
-        SqlParser sqlParser = new SqlParser("ROLLBACK;");
-        Statement statement = sqlParser.parse();
-        sqlAnalyzer.analyze(schemaManager, statement);
-    }
-
-    @Test
-    void test_commit() throws ParserException, TokenizerException, AnalyzerException {
-        SqlParser sqlParser = new SqlParser("COMMIT;");
         Statement statement = sqlParser.parse();
         sqlAnalyzer.analyze(schemaManager, statement);
     }
@@ -179,13 +158,6 @@ class SqlAnalyzerTest {
     @Test
     void test_selectWhereOrderBy() throws ParserException, TokenizerException, AnalyzerException {
         SqlParser sqlParser = new SqlParser("SELECT id, name FROM users WHERE id > 5 ORDER BY name;");
-        Statement statement = sqlParser.parse();
-        sqlAnalyzer.analyze(schemaManager, statement);
-    }
-
-    @Test
-    void test_explain() throws ParserException, TokenizerException, AnalyzerException {
-        SqlParser sqlParser = new SqlParser("EXPLAIN SELECT id, name FROM users;");
         Statement statement = sqlParser.parse();
         sqlAnalyzer.analyze(schemaManager, statement);
     }

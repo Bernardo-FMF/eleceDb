@@ -20,7 +20,7 @@ public class CreateTableOptimizerCommand implements OptimizerCommand<CreateTable
         Column clusterColumn = ColumnBuilder.builder()
                 .setName(CLUSTER_ID)
                 .setSqlType(SqlType.intType)
-                .setConstraints(List.of(SqlConstraint.Unique))
+                .setConstraints(List.of(SqlConstraint.UNIQUE))
                 .build();
         clusterColumn.setId(idGenerator.getAndIncrement());
 
