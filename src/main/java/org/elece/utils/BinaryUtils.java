@@ -5,6 +5,10 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
 public class BinaryUtils {
+    private BinaryUtils() {
+        // private constructor
+    }
+
     public static long bytesToLong(final byte[] bytes, int originIndex) {
         return ByteBuffer.wrap(Arrays.copyOfRange(bytes, originIndex, originIndex + Long.BYTES)).getLong();
     }

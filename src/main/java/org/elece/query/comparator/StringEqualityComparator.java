@@ -17,11 +17,11 @@ public class StringEqualityComparator extends EqualityComparator<String> {
             String thisValue = this.boundary.getValue();
             String otherValue = otherString.boundary.getValue();
 
-            if ((this.shouldBeEqual && otherString.shouldBeEqual) || (!this.shouldBeEqual && !otherString.shouldBeEqual)) {
-                if (Objects.equals(thisValue, otherValue)) {
-                    return Optional.of(this);
-                }
+            if (((this.shouldBeEqual && otherString.shouldBeEqual) || (!this.shouldBeEqual && !otherString.shouldBeEqual)) &&
+                    Objects.equals(thisValue, otherValue)) {
+                return Optional.of(this);
             }
+
         }
 
         return Optional.empty();

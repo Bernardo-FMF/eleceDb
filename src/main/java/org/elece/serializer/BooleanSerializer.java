@@ -6,7 +6,7 @@ import org.elece.sql.parser.expression.internal.SqlType;
 public class BooleanSerializer implements Serializer<Boolean> {
     @Override
     public byte[] serialize(Boolean value, Column column) {
-        return new byte[]{(byte) (value ? 1 : 0)};
+        return new byte[]{(byte) (Boolean.TRUE.equals(value) ? 1 : 0)};
     }
 
     @Override

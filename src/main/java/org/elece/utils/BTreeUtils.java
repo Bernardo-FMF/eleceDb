@@ -11,6 +11,10 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 public class BTreeUtils {
+    private BTreeUtils() {
+        // private constructor
+    }
+
     /**
      * Utility function to calculate how many bytes are required to store a b+ tree node.
      * Also ensures that there is alignment to an 8 byte boundary.

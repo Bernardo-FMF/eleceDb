@@ -5,7 +5,7 @@ import org.elece.exception.AnalyzerException;
 import org.elece.sql.analyzer.command.*;
 import org.elece.sql.parser.statement.Statement;
 
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.Map;
 import java.util.Objects;
 
@@ -13,7 +13,7 @@ public class SqlAnalyzer {
     private static final Map<Statement.StatementType, AnalyzerCommand> analyzerCommandMap;
 
     static {
-        analyzerCommandMap = new HashMap<>();
+        analyzerCommandMap = new EnumMap<>(Statement.StatementType.class);
         analyzerCommandMap.put(Statement.StatementType.CREATE_TABLE, new CreateTableAnalyzerCommand());
         analyzerCommandMap.put(Statement.StatementType.CREATE_INDEX, new CreateIndexAnalyzerCommand());
         analyzerCommandMap.put(Statement.StatementType.DELETE, new DeleteAnalyzerCommand());

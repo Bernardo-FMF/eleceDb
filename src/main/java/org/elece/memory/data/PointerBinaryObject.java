@@ -4,7 +4,7 @@ import org.elece.exception.BTreeException;
 import org.elece.memory.Pointer;
 
 public class PointerBinaryObject extends AbstractBinaryObject<Pointer> {
-    public static int BYTES = Pointer.BYTES;
+    public static final int BYTES = Pointer.BYTES;
 
     public PointerBinaryObject(byte[] bytes) {
         super(bytes);

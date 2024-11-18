@@ -21,7 +21,7 @@ public enum Symbol implements IOperator {
     SEMI_COLON(';'),
     EOF();
 
-    public static final Symbol[] VALUES = values();
+    private static final Symbol[] SYMBOL_VALUES = values();
     private final char[] symbolValue;
     private final boolean isUnaryOperator;
     private final boolean isBinaryOperator;
@@ -41,7 +41,7 @@ public enum Symbol implements IOperator {
     }
 
     public static boolean canMatch(Character character) {
-        for (Symbol symbol : VALUES) {
+        for (Symbol symbol : SYMBOL_VALUES) {
             if (!Objects.isNull(symbol.symbolValue) && symbol.symbolValue[0] == character) {
                 return true;
             }
@@ -51,7 +51,7 @@ public enum Symbol implements IOperator {
 
     public static List<Symbol> matchableSymbols(Character character) {
         List<Symbol> symbols = new ArrayList<>();
-        for (Symbol symbol : VALUES) {
+        for (Symbol symbol : SYMBOL_VALUES) {
             if (!Objects.isNull(symbol.symbolValue) && symbol.symbolValue[0] == character) {
                 symbols.add(symbol);
             }

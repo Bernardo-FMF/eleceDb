@@ -257,7 +257,7 @@ public class InternalTreeNode<K extends Comparable<K>> extends AbstractTreeNode<
      *
      * @param childPointers The list of child pointers to set.
      */
-    public void setChildren(ArrayList<Pointer> childPointers) {
+    public void setChildren(List<Pointer> childPointers) {
         // Iterate over the child pointers and set each at the corresponding index.
         for (int index = 0; index < childPointers.size(); index++) {
             this.setChildAtIndex(index, childPointers.get(index));

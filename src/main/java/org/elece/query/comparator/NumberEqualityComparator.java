@@ -17,11 +17,11 @@ public class NumberEqualityComparator extends EqualityComparator<Integer> {
             Integer thisValue = this.boundary.getValue();
             Integer otherValue = otherNumber.boundary.getValue();
 
-            if ((this.shouldBeEqual && otherNumber.shouldBeEqual) || (!this.shouldBeEqual && !otherNumber.shouldBeEqual)) {
-                if (Objects.equals(thisValue, otherValue)) {
-                    return Optional.of(this);
-                }
+            if (((this.shouldBeEqual && otherNumber.shouldBeEqual) || (!this.shouldBeEqual && !otherNumber.shouldBeEqual)) &&
+                    Objects.equals(thisValue, otherValue)) {
+                return Optional.of(this);
             }
+
         }
         if (other instanceof NumberRangeComparator otherNumber) {
             return otherNumber.intersect(this);

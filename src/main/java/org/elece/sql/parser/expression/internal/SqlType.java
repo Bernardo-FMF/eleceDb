@@ -16,9 +16,9 @@ public class SqlType {
         this.constraints = constraints;
     }
 
-    public static SqlType intType = new SqlType(Type.INT, Integer.BYTES, List.of(SqlConstraint.PRIMARY_KEY, SqlConstraint.UNIQUE));
-    public static SqlType boolType = new SqlType(Type.BOOL, 1, List.of());
-    public static SqlType varcharType = new SqlType(Type.VARCHAR, VARCHAR_MAX_SIZE, List.of(SqlConstraint.PRIMARY_KEY, SqlConstraint.UNIQUE));
+    public static final SqlType intType = new SqlType(Type.INT, Integer.BYTES, List.of(SqlConstraint.PRIMARY_KEY, SqlConstraint.UNIQUE));
+    public static final SqlType boolType = new SqlType(Type.BOOL, 1, List.of());
+    public static final SqlType varcharType = new SqlType(Type.VARCHAR, VARCHAR_MAX_SIZE, List.of(SqlConstraint.PRIMARY_KEY, SqlConstraint.UNIQUE));
 
     public static SqlType varchar(Integer size) {
         if (size >= VARCHAR_MAX_SIZE) {

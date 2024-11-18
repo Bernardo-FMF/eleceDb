@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.Optional;
 
 public class Page {
-    public static int META_BYTES = Integer.BYTES;
+    public static final int META_BYTES = Integer.BYTES;
 
     private final int pageNumber;
     private final int chunk;

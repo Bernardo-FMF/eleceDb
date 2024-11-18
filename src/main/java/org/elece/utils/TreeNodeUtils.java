@@ -47,7 +47,7 @@ public class TreeNodeUtils {
 
     public static void cleanChildrenPointers(InternalTreeNode<?> node, int degree, int keySize, int valueSize) {
         // This accounts to the maximum amount of keys an internal node can have (degree - 1).
-        int len = ((degree - 1) * ((keySize + valueSize)) + Pointer.BYTES);
+        int len = ((degree - 1) * (keySize + valueSize) + Pointer.BYTES);
         // Overwrite the specified portion of the node's data array with zeros.
         // Note that the overwritten section is after the node's flag that determines its type.
         System.arraycopy(new byte[len], 0, node.getData(), OFFSET_TREE_NODE_FLAGS_END, len);
@@ -205,23 +205,23 @@ public class TreeNodeUtils {
         return Optional.of(Pointer.fromBytes(node.getData(), position));
     }
 
-    public static <K extends Comparable<K>, V> void setNextPointer(AbstractTreeNode<?> node, int degree,
-                                                                   Pointer pointer, int keySize, int valueSize) {
+    public static void setNextPointer(AbstractTreeNode<?> node, int degree, Pointer pointer, int keySize,
+                                      int valueSize) {
         // Calculate the position in the data array where the next pointer should be stored.
         // This is after all key-value pairs and the previous pointer.
         int position = OFFSET_LEAF_NODE_KEY_BEGIN + ((degree - 1) * (keySize + valueSize)) + Pointer.BYTES;
         System.arraycopy(pointer.toBytes(), 0, node.getData(), position, Pointer.BYTES);
     }
 
-    public static <K extends Comparable<K>, V> void setPreviousPointer(AbstractTreeNode<?> node, int degree,
-                                                                       Pointer pointer, int keySize, int valueSize) {
+    public static void setPreviousPointer(AbstractTreeNode<?> node, int degree, Pointer pointer, int keySize,
+                                          int valueSize) {
         // Calculate the position in the data array where the next pointer should be stored.
         // This is after all key-value pairs.
         int position = OFFSET_LEAF_NODE_KEY_BEGIN + ((degree - 1) * (keySize + valueSize));
         System.arraycopy(pointer.toBytes(), 0, node.getData(), position, Pointer.BYTES);
     }
 
-    public static <K extends Comparable<K>> void removeChildAtIndex(AbstractTreeNode<?> node, int index, int keySize) {
+    public static void removeChildAtIndex(AbstractTreeNode<?> node, int index, int keySize) {
         // Overwrite the child pointer with zeros to remove it.
         System.arraycopy(new byte[Pointer.BYTES], 0, node.getData(), calculateDataArrayPosition(index, keySize), Pointer.BYTES);
     }

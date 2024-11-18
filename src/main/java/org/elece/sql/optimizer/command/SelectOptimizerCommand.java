@@ -24,7 +24,7 @@ public class SelectOptimizerCommand implements OptimizerCommand<SelectStatement>
         statement.setWhere(optimizeWhere(statement.getWhere()));
         statement.setOrderBy(optimizeExpressions(statement.getOrderBy()));
 
-        if (statement.getColumns().stream().anyMatch(expression -> expression instanceof WildcardExpression)) {
+        if (statement.getColumns().stream().anyMatch(WildcardExpression.class::isInstance)) {
             Optional<Table> optionalTable = SchemaSearcher.findTable(schemaManager.getSchema(), statement.getFrom());
             if (optionalTable.isEmpty()) {
                 throw new ParserException(DbError.TABLE_NOT_FOUND_ERROR, String.format("Table %s is not present in the database schema", statement.getFrom()));

@@ -17,11 +17,11 @@ public class BooleanEqualityComparator extends EqualityComparator<Boolean> {
             boolean thisValue = this.boundary.getValue();
             boolean otherValue = otherBoolean.boundary.getValue();
 
-            if ((this.shouldBeEqual && otherBoolean.shouldBeEqual) || (!this.shouldBeEqual && !otherBoolean.shouldBeEqual)) {
-                if (Objects.equals(thisValue, otherValue)) {
-                    return Optional.of(this);
-                }
+            if (((this.shouldBeEqual && otherBoolean.shouldBeEqual) || (!this.shouldBeEqual && !otherBoolean.shouldBeEqual)) &&
+                    Objects.equals(thisValue, otherValue)) {
+                return Optional.of(this);
             }
+
         }
 
         return Optional.empty();

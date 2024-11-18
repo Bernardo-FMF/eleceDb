@@ -39,15 +39,14 @@ public class SymbolTokenProcessor implements TokenProcessor<Character> {
             }
         }
 
-        if (!tokenBuilder.hasToken()) {
-            if (currentSymbol == '!') {
+        if (!tokenBuilder.hasToken() && currentSymbol == '!') {
                 if (Objects.isNull(nextSymbol)) {
                     tokenBuilder.setError(DbError.OPERATOR_NOT_CLOSED_ERROR, String.format("Operator not closed, expected symbol %s on (%s, %s)", String.valueOf(Symbol.NEQ.getSymbolValue()), initialLocation.getLine(), initialLocation.getColumn()));
                 } else {
                     tokenBuilder.setError(DbError.UNEXPECTED_CHARACTER_IN_OPERATOR_ERROR, String.format("Expected symbol %s, but found %c on (%s, %s)", String.valueOf(Symbol.NEQ.getSymbolValue()), nextSymbol, initialLocation.getLine(), initialLocation.getColumn()));
                 }
             }
-        }
+
 
         return tokenBuilder.build();
     }
