@@ -18,17 +18,19 @@ public class DefaultDbConfig implements DbConfig {
     private final IndexStorageManagerStrategy indexStorageManagerStrategy;
     private final FileHandlerStrategy fileHandlerStrategy;
     private final int fileHandlerPoolThreads;
-    private final SessionStrategy iOSessionStrategy;
+    private final SessionStrategy sessionStrategy;
     private final int dbPageSize;
     private final int dbPageBufferSize;
     private final int dbPageMaxFileSize;
     private final int dbQueryCacheSize;
 
-    public DefaultDbConfig(int port, int poolCoreSize, int poolMaxSize, long keepAliveTime, int fileDescriptorAcquisitionSize,
+    public DefaultDbConfig(int port, int poolCoreSize, int poolMaxSize, long keepAliveTime,
+                           int fileDescriptorAcquisitionSize,
                            long closeTimeoutTime, long acquisitionTimeoutTime, TimeUnit timeoutUnit, int bTreeDegree,
                            int bTreeGrowthNodeAllocationCount, String baseDbPath, long bTreeMaxFileSize,
-                           IndexStorageManagerStrategy indexStorageManagerStrategy, FileHandlerStrategy fileHandlerStrategy,
-                           int fileHandlerPoolThreads, SessionStrategy iOSessionStrategy, int dbPageSize,
+                           IndexStorageManagerStrategy indexStorageManagerStrategy,
+                           FileHandlerStrategy fileHandlerStrategy,
+                           int fileHandlerPoolThreads, SessionStrategy sessionStrategy, int dbPageSize,
                            int dbPageBufferSize,
                            int dbPageMaxFileSize, int dbQueryCacheSize) {
         this.port = port;
@@ -46,7 +48,7 @@ public class DefaultDbConfig implements DbConfig {
         this.indexStorageManagerStrategy = indexStorageManagerStrategy;
         this.fileHandlerStrategy = fileHandlerStrategy;
         this.fileHandlerPoolThreads = fileHandlerPoolThreads;
-        this.iOSessionStrategy = iOSessionStrategy;
+        this.sessionStrategy = sessionStrategy;
         this.dbPageSize = dbPageSize;
         this.dbPageBufferSize = dbPageBufferSize;
         this.dbPageMaxFileSize = dbPageMaxFileSize;
@@ -129,8 +131,8 @@ public class DefaultDbConfig implements DbConfig {
     }
 
     @Override
-    public SessionStrategy getIOSessionStrategy() {
-        return iOSessionStrategy;
+    public SessionStrategy getSessionStrategy() {
+        return sessionStrategy;
     }
 
     @Override
@@ -171,7 +173,7 @@ public class DefaultDbConfig implements DbConfig {
                 ", indexStorageManagerStrategy=" + indexStorageManagerStrategy +
                 ", fileHandlerStrategy=" + fileHandlerStrategy +
                 ", fileHandlerPoolThreads=" + fileHandlerPoolThreads +
-                ", iOSessionStrategy=" + iOSessionStrategy +
+                ", sessionStrategy=" + sessionStrategy +
                 ", dbPageSize=" + dbPageSize +
                 ", dbPageBufferSize=" + dbPageBufferSize +
                 ", dbPageMaxFileSize=" + dbPageMaxFileSize +

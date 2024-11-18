@@ -25,7 +25,7 @@ public class Page {
         this.objectPool = new HashMap<>();
     }
 
-    public synchronized Optional<DbObject> getDBObjectWrapper(int offset) throws DbException {
+    public synchronized Optional<DbObject> getDbObjectWrapper(int offset) throws DbException {
         if (objectPool.containsKey(offset)) {
             return Optional.of(objectPool.get(offset));
         }
@@ -42,7 +42,7 @@ public class Page {
         return Optional.of(dbObject);
     }
 
-    public synchronized Optional<DbObject> getEmptyDBObject(int length) throws DbException {
+    public synchronized Optional<DbObject> getEmptyDbObject(int length) throws DbException {
         if (getData().length - cursorPosition > length + DbObject.META_BYTES) {
             DbObject dbObject = new DbObject(this, cursorPosition, cursorPosition + length + DbObject.META_BYTES);
             Optional<DbObject> output = Optional.of(dbObject);

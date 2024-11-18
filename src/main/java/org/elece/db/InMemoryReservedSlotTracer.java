@@ -7,14 +7,14 @@ public class InMemoryReservedSlotTracer implements ReservedSlotTracer {
     private final Map<Integer, Queue<DbObjectSlotLocation>> freeDbObjectSlotLocations = new ConcurrentHashMap<>();
 
     @Override
-    public void add(DbObjectSlotLocation dbObjectSlotLocation) {
+    public synchronized void add(DbObjectSlotLocation dbObjectSlotLocation) {
         freeDbObjectSlotLocations
                 .computeIfAbsent(dbObjectSlotLocation.length(), _ -> new LinkedList<>())
                 .add(dbObjectSlotLocation);
     }
 
     @Override
-    public Optional<DbObjectSlotLocation> getFreeDbObjectSlotLocation(int length) {
+    public synchronized Optional<DbObjectSlotLocation> getFreeDbObjectSlotLocation(int length) {
         Queue<DbObjectSlotLocation> queue = freeDbObjectSlotLocations.get(length);
         if (!Objects.isNull(queue) && !queue.isEmpty()) {
             DbObjectSlotLocation dbObjectSlotLocation = queue.poll();

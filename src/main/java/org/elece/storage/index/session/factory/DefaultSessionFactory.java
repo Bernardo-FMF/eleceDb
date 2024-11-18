@@ -30,7 +30,7 @@ public class DefaultSessionFactory implements SessionFactory {
     @Override
     public <K extends Comparable<K>> Session<K> create(IndexStorageManager indexStorageManager, int indexId,
                                                        NodeFactory<K> nodeFactory, KeyValueSize keyValueSize) {
-        if (dbConfig.getIOSessionStrategy() == DbConfig.SessionStrategy.COMMITTABLE) {
+        if (dbConfig.getSessionStrategy() == DbConfig.SessionStrategy.COMMITTABLE) {
             return new CommittableSession<>(indexStorageManager, nodeFactory, indexId, keyValueSize);
         } else {
             return new ImmediateSession<>(indexStorageManager, nodeFactory, indexId, keyValueSize);

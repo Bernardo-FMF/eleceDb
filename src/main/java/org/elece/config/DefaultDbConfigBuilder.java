@@ -193,7 +193,7 @@ public class DefaultDbConfigBuilder {
         return Objects.requireNonNullElse(fileHandlerPoolThreads, 10);
     }
 
-    private DbConfig.SessionStrategy getIOSessionStrategy() {
+    private DbConfig.SessionStrategy getSessionStrategy() {
         return Objects.requireNonNullElse(sessionStrategy, DbConfig.SessionStrategy.IMMEDIATE);
     }
 
@@ -217,7 +217,7 @@ public class DefaultDbConfigBuilder {
         return new DefaultDbConfig(getPort(), getPoolCoreSize(), getPoolMaxSize(), getKeepAliveTime(),
                 getFileDescriptorAcquisitionSize(), getCloseTimeoutTime(), getAcquisitionTimeoutTime(), getTimeoutUnit(),
                 getbTreeDegree(), getbTreeGrowthNodeAllocationCount(), getBaseDbPath(), getBTreeMaxFileSize(),
-                getIndexStorageManagerStrategy(), getFileHandlerStrategy(), getFileHandlerPoolThreads(), getIOSessionStrategy(),
+                getIndexStorageManagerStrategy(), getFileHandlerStrategy(), getFileHandlerPoolThreads(), getSessionStrategy(),
                 getDbPageSize(), getDbPageBufferSize(), getDbPageMaxFileSize(), getDbQueryCacheSize());
     }
 }

@@ -38,7 +38,7 @@ public class DiskPageDatabaseStorageManager implements DatabaseStorageManager {
             Page page = this.getBufferedPage(dbObjectSlotLocation.pointer().getChunk(), dbObjectSlotLocation.pointer().getPosition());
             int offset = (int) (dbObjectSlotLocation.pointer().getPosition() % this.dbConfig.getDbPageSize());
 
-            Optional<DbObject> optionalDbObject = page.getDBObjectWrapper(offset);
+            Optional<DbObject> optionalDbObject = page.getDbObjectWrapper(offset);
             if (optionalDbObject.isPresent()) {
                 try {
                     this.store(optionalDbObject.get(), tableId, data);
@@ -57,7 +57,7 @@ public class DiskPageDatabaseStorageManager implements DatabaseStorageManager {
         if (optionalLastPage.isPresent()) {
             page = optionalLastPage.get();
             try {
-                Optional<DbObject> optionalDbObject = page.getEmptyDBObject(data.length);
+                Optional<DbObject> optionalDbObject = page.getEmptyDbObject(data.length);
                 if (optionalDbObject.isPresent()) {
                     dbObject = optionalDbObject.get();
                 }
@@ -71,7 +71,7 @@ public class DiskPageDatabaseStorageManager implements DatabaseStorageManager {
         if (dbObject == null) {
             page = pageBuffer.getBufferedNewPage();
             try {
-                Optional<DbObject> emptyDBObject = page.getEmptyDBObject(data.length);
+                Optional<DbObject> emptyDBObject = page.getEmptyDbObject(data.length);
                 if (emptyDBObject.isEmpty()) {
                     throw new DbException(DbError.INVALID_DATABASE_OBJECT_ERROR, "Not possible to create object in newly created page");
                 }
@@ -98,7 +98,7 @@ public class DiskPageDatabaseStorageManager implements DatabaseStorageManager {
         Page page = this.pageBuffer.acquire(pageTitle);
 
         try {
-            Optional<DbObject> optionalDbObject = page.getDBObjectWrapper((int) (pointer.getPosition() % this.dbConfig.getDbPageSize()));
+            Optional<DbObject> optionalDbObject = page.getDbObjectWrapper((int) (pointer.getPosition() % this.dbConfig.getDbPageSize()));
 
             if (optionalDbObject.isEmpty()) {
                 throw new DbException(DbError.INVALID_DATABASE_OBJECT_ERROR, "No object found in the pointer location");
@@ -128,7 +128,7 @@ public class DiskPageDatabaseStorageManager implements DatabaseStorageManager {
         Page page = this.pageBuffer.acquire(pageTitle);
 
         try {
-            return page.getDBObjectWrapper((int) (pointer.getPosition() % this.dbConfig.getDbPageSize()));
+            return page.getDbObjectWrapper((int) (pointer.getPosition() % this.dbConfig.getDbPageSize()));
         } finally {
             this.pageBuffer.release(pageTitle);
         }
@@ -141,7 +141,7 @@ public class DiskPageDatabaseStorageManager implements DatabaseStorageManager {
         Page page = this.pageBuffer.acquire(pageTitle);
 
         try {
-            Optional<DbObject> optionalDbObject = page.getDBObjectWrapper((int) (pointer.getPosition() % this.dbConfig.getDbPageSize()));
+            Optional<DbObject> optionalDbObject = page.getDbObjectWrapper((int) (pointer.getPosition() % this.dbConfig.getDbPageSize()));
             if (optionalDbObject.isPresent()) {
                 DbObject dbObject = optionalDbObject.get();
                 dbObject.deactivate();

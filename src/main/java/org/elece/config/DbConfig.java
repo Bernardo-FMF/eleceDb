@@ -35,7 +35,7 @@ public interface DbConfig {
 
     int getFileHandlerPoolThreads();
 
-    SessionStrategy getIOSessionStrategy();
+    SessionStrategy getSessionStrategy();
 
     int getDbPageSize();
 
