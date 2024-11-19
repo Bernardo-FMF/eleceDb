@@ -1,21 +1,18 @@
 # EleceDb
 
-- [Overview](#overview)
-- [How to run EleceDb](#how-to-run-elecedb)
-    - [Manual compilation](#manual-compilation)
-    - [Docker](#docker)
-- [Environment variables](#environment-variables)
-- [Documentation](#documentation)
+<p align="center">
+  <a href="#overview">Overview</a> •
+  <a href="#how-to-run-elecedb">How to run EleceDb</a> •
+  <a href="#environment-variables">Environment variables</a> •
+  <a href="#documentation">Documentation</a>
+</p>
 
 ## Overview
 
-EleceDb is a simple sql database, created with the purpose of gaining knowledge on how databases work internally, mostly
+EleceDb is a simple sql database, done with the purpose of gaining knowledge on how databases work internally, mostly
 on how to create a parser, how indexes and rows are stored, how b+ trees work, how queries are processed, etc...
-
-In its core, EleceDb can handle most queries, but in its current form, it does not support transactions. Since this was
-my first attempt at creating a database there are a few shortcomings in my implementation, and supporting transactions
-would require a deep refactoring of the whole project, therefore I've decided to treat this as a limitation, and maybe
-in the future I can add support for it.
+This shouldn't be seen as a standard to build databases, but as a simple enough database implementation, so that others
+could also learn something from here or gain some inspiration.
 
 ## How to run EleceDb
 
@@ -34,19 +31,19 @@ To compile the project locally, you need to install:
 
 Then you also need to clone this repository:
 
-> git clone https://github.com/BernardoFMF/eleceDb.git
+```git clone https://github.com/BernardoFMF/eleceDb.git```
 
 Afterward on the directory of the project, run:
 
-> mvn clean install
+```mvn clean install```
 
-This will compile the project, and the jar will be on
+This will compile the project, and the jar will be located here:
 
 > /{projectDirectory}/target/eleceDb-{version}-jar-with-dependencies.jar
 
-To run the jar, execute the following command:
+To run the jar, go to the previously mentioned directory and execute the following command:
 
-> java -jar .\eleceDb-{version}-jar-with-dependencies.jar
+```java -jar eleceDb-{version}-jar-with-dependencies.jar```
 
 This will launch an instance of EleceDb running on the default port (3000).
 There are several configurations possible, and if defined as environment variables in the system, it's possible to
@@ -60,7 +57,7 @@ To launch a docker container, you need to install:
 
 Then run:
 
-> docker pull bernardofmf/elecedb:latest
+```docker pull bernardofmf/elecedb:latest```
 
 This will download the latest version of the database, but you can launch other versions if desired:
 
@@ -69,12 +66,12 @@ This will download the latest version of the database, but you can launch other 
 You then need to start the docker daemon.
 Finally, to start a container you can run:
 
-> docker run -d -p 3000:3000 bernardofmf/elecedb:latest
+```docker run -d -p 3000:3000 bernardofmf/elecedb:latest```
 
 This is just an example, where the port 3000 is exposed, obviously if the default port of the database is changed, then
 the docker command needs to be adapted to follow the formula:
 
-> docker run -d -p <mappedPort>:<elece.db.port> bernardofmf/elecedb:latest
+> docker run -d -p {mappedPort}:{elece.db.port} bernardofmf/elecedb:{version}
 
 ## Environment variables
 
@@ -106,6 +103,4 @@ configurations have default values, so only change these if you want to experime
 
 ## Documentation
 
-Here you'll find links to the documentation regarding different topics and implementation details of this project.
-
-**TODO**
+- [Supported queries](./docs/supported-queries.md)
