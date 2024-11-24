@@ -1,6 +1,5 @@
 package org.elece.sql.token;
 
-import org.elece.sql.token.chain.IProcessorChain;
 import org.elece.sql.token.chain.ProcessorChain;
 import org.elece.sql.token.model.SymbolToken;
 import org.elece.sql.token.model.Token;
@@ -14,7 +13,7 @@ public class DefaultTokenizer implements Tokenizer {
     private final CharStream stream;
     private final AtomicBoolean reachedEof;
 
-    private static final IProcessorChain tokenProcessors;
+    private static final ProcessorChain tokenProcessors;
 
     static {
         ProcessorChain eofChain = new ProcessorChain(new EofTokenProcessor());

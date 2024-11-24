@@ -6,8 +6,8 @@ import org.elece.sql.token.processor.TokenProcessor;
 
 import java.util.Objects;
 
-public class ProcessorChain implements IProcessorChain {
-    private IProcessorChain nextChain;
+public class ProcessorChain {
+    private ProcessorChain nextChain;
     private final TokenProcessor<Character> processor;
 
     public ProcessorChain(TokenProcessor<Character> processor) {
@@ -15,12 +15,10 @@ public class ProcessorChain implements IProcessorChain {
         this.nextChain = null;
     }
 
-    @Override
-    public void setNextChain(IProcessorChain nextChain) {
+    public void setNextChain(ProcessorChain nextChain) {
         this.nextChain = nextChain;
     }
 
-    @Override
     public TokenWrapper process(CharStream stream) {
         if (processor.matches(stream.peek())) {
             return processor.consume(stream);

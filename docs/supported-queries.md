@@ -3,21 +3,21 @@
 The basic database queries are supported, and below you have a short description of all possible queries, as well as
 some examples on how to use them:
 
-```Create database``` - Creates a database with the given name; For now we can only have one database per instance.
+`Create database` - Creates a database with the given name; For now we can only have one database per instance.
 
 ![create_db_query.png](assets/create_db_query.png)
 
 - Parameters:
     - **name** - the name of the database.
 
-```Drop database``` - Deletes a database with the given name; This will delete all traces of tables, rows and indexes.
+`Drop database` - Deletes a database with the given name; This will delete all traces of tables, rows and indexes.
 
 ![drop_db_query.png](assets/drop_db_query.png)
 
 - Parameters:
     - **name** - the name of the database.
 
-```Create table``` - Creates a new empty table.
+`Create table` - Creates a new empty table.
 
 ![create_table_query.png](assets/create_table_query.png)
 
@@ -25,21 +25,21 @@ some examples on how to use them:
     - **table_name** - the name of the table.
     - **column_name** - the name of a column.
     - **data_type** - the type of the column, should be one of the following three:
-        - ```INT```: represents an integer
-        - ```BOOL```: represents a boolean
-        - ```VARCHAR```: represents a string. We can limit the size of the string, and the maximum size is 255 bytes.
+        - `INT`: represents an integer
+        - `BOOL`: represents a boolean
+        - `VARCHAR`: represents a string. We can limit the size of the string, and the maximum size is 255 bytes.
     - **column_constraint** - optional attribute, if added can only be one of the following:
-        - ```PRIMARY KEY```
-        - ```UNIQUE```
+        - `PRIMARY KEY`
+        - `UNIQUE`
 
-```Drop table``` - Deletes a previously existing table. This will delete all traces of rows and related indexes.
+`Drop table` - Deletes a previously existing table. This will delete all traces of rows and related indexes.
 
 ![drop_table_query.png](assets/drop_table_query.png)
 
 - Parameters:
     - **table_name** - the name of the table.
 
-```Create index``` - Creates an index on a table, if there are rows in the table, the existing values are also indexed.
+`Create index` - Creates an index on a table, if there are rows in the table, the existing values are also indexed.
 
 ![create_index_query.png](assets/create_index_query.png)
 
@@ -48,16 +48,16 @@ some examples on how to use them:
     - **table_name** - the name of the table.
     - **column_name** - the name of the column that will be associated with the index.
 
-```Delete``` - Deletes rows from a table.
+`Delete` - Deletes rows from a table.
 
 ![delete_query.png](assets/delete_query.png)
 
 - Parameters:
     - **table_name** - the name of the table.
     - **condition** - optional expression attribute to define which rows should be deleted; If not present all rows are
-      deleted. The ```where``` syntax is explained [here](#where-syntax).
+      deleted. The `where` syntax is explained [here](#where-syntax).
 
-```Insert``` - Inserts a row into a table.
+`Insert` - Inserts a row into a table.
 
 ![insert_query.png](assets/insert_query.png)
 
@@ -68,7 +68,7 @@ some examples on how to use them:
       default values, so if any column is missing there'll be an error.
     - **row_values** - the values that belong to the row. There should be a value defined for each column of the table.
 
-```Update``` - Updates rows from a table.
+`Update` - Updates rows from a table.
 
 ![update_query.png](assets/update_query.png)
 
@@ -77,22 +77,22 @@ some examples on how to use them:
     - **column_name** - the set of columns that are to be updated.
     - **expression** - the new value of the column being updated.
     - **condition** - optional expression attribute to define which rows should be updated; If not present all rows will
-      be updated. The ```where``` syntax is explained [here](#where-syntax).
+      be updated. The `where` syntax is explained [here](#where-syntax).
 
-```Select``` - Selects rows from a table.
+`Select` - Selects rows from a table.
 
 ![select_query.png](assets/select_query.png)
 
 - Parameters:
-    - **column_name** - either select all columns using ```*``` or specify the desired columns manually separating them
+    - **column_name** - either select all columns using `*` or specify the desired columns manually separating them
       with a comma.
     - **table_name** - the name of the table.
     - **condition** - optional expression attribute to define which rows should be updated; If not present all rows will
-      be updated. The ```where``` syntax is explained [here](#where-syntax).
+      be updated. The `where` syntax is explained [here](#where-syntax).
     - **order_column_name** - optional expression, where we can define the order in which the rows are selected
       depending on a column.
 
-## ```Where``` syntax
+## `Where` syntax
 
 ### Direct comparisons
 
