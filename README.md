@@ -1,5 +1,8 @@
 # EleceDb
 
+![elecedb-logo.jpg](./docs/assets/elecedb-logo.jpg)
+
+
 <p align="center">
   <a href="#overview">Overview</a> •
   <a href="#how-to-run-elecedb">How to run EleceDb</a> •
