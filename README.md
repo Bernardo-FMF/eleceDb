@@ -106,3 +106,4 @@ configurations have default values, so only change these if you want to experime
 - [Supported queries](./docs/supported-queries.md)
 - [Where expression pathing](./docs/where-expression-pathing.md)
 - [Internal model](./docs/internal-model.md)
+- [Schema operations](./docs/schema-operations.md)

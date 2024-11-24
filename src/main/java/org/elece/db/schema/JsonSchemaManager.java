@@ -34,6 +34,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.elece.db.schema.model.Column.CLUSTER_ID;
 
+/**
+ * The {@link JsonSchemaManager} class is responsible for managing the JSON-based schema of the database.
+ * It handles schema creation, deletion, table management, and indexing.
+ * This manager ensures that schema modifications are persisted to disk and provides functionality to load the schema into memory.
+ */
 public class JsonSchemaManager implements SchemaManager {
     private final Logger logger = LogManager.getLogger(JsonSchemaManager.class);
 
@@ -44,6 +49,14 @@ public class JsonSchemaManager implements SchemaManager {
     private final Gson gson;
     private final AtomicInteger tableIndex;
 
+    /**
+     * Constructs a new JsonSchemaManager. Initializes the schema and table index.
+     *
+     * @param dbConfig                   The database configuration settings to be used by the schema manager.
+     * @param columnIndexManagerProvider The provider for managing column indexes.
+     * @param databaseStorageManager     The storage manager responsible for handling database storage operations.
+     * @throws SchemaException If any error occurs while loading the schema into memory.
+     */
     public JsonSchemaManager(DbConfig dbConfig, ColumnIndexManagerProvider columnIndexManagerProvider,
                              DatabaseStorageManager databaseStorageManager) throws SchemaException {
         this.dbConfig = dbConfig;
@@ -55,6 +68,14 @@ public class JsonSchemaManager implements SchemaManager {
         tableIndex = new AtomicInteger(Objects.isNull(schema) || schema.getTables().isEmpty() ? 0 : schema.getTables().getLast().getId());
     }
 
+    /**
+     * Loads the schema from a file into memory.
+     * If the schema file is not found, we can assume there is no schema yet.
+     * If the file exists, it reads the schema from the file, and deserializes the JSON into a {@link Schema}.
+     * Any I/O errors encountered during this process will result in a SchemaException being thrown.
+     *
+     * @throws SchemaException If any error occurs while reading the schema file or deserializing the schema.
+     */
     private void loadSchema() throws SchemaException {
         logger.info("Loading schema into memory");
         String schemePath = getSchemePath();
@@ -78,6 +99,11 @@ public class JsonSchemaManager implements SchemaManager {
         return Path.of(this.dbConfig.getBaseDbPath(), "schema.json").toString();
     }
 
+    /**
+     * Persists the current schema to disk by writing it to the JSON file.
+     *
+     * @throws SchemaException If an I/O error occurs while attempting to write the schema to disk.
+     */
     private void persistSchema() throws SchemaException {
         try {
             FileWriter fileWriter = new FileWriter(this.getSchemePath());
@@ -89,11 +115,23 @@ public class JsonSchemaManager implements SchemaManager {
         }
     }
 
+
+    /**
+     * Retrieves the current schema managed by the JsonSchemaManager.
+     *
+     * @return The current {@link Schema} instance.
+     */
     @Override
     public Schema getSchema() {
         return schema;
     }
 
+    /**
+     * Creates a new schema for the specified database name.
+     *
+     * @param dbName The name of the database for which the schema is being created.
+     * @throws SchemaException If the schema is already defined or if an error occurs during schema creation.
+     */
     @Override
     public synchronized void createSchema(String dbName) throws SchemaException {
         if (!Objects.isNull(schema)) {
@@ -108,9 +146,20 @@ public class JsonSchemaManager implements SchemaManager {
         logger.info("Created new schema: {}", this.schema);
     }
 
+    /**
+     * Deletes the existing schema along with all the tables and their data.
+     *
+     * @return The total number of rows removed from all the tables in the schema.
+     * @throws SchemaException          If there is an issue with the schema.
+     * @throws StorageException         If there is an issue with storage operations.
+     * @throws DbException              If there is a generic database-related exception.
+     * @throws InterruptedTaskException If the task is interrupted during execution.
+     * @throws FileChannelException     If there is an issue with file channel operations.
+     */
     @Override
-    public int deleteSchema() throws SchemaException, StorageException, DbException, InterruptedTaskException,
-                                     FileChannelException {
+    public synchronized int deleteSchema() throws SchemaException, StorageException, DbException,
+                                                  InterruptedTaskException,
+                                                  FileChannelException {
         validateSchemaExists();
 
         int totalRowCount = 0;
@@ -126,6 +175,13 @@ public class JsonSchemaManager implements SchemaManager {
         return totalRowCount;
     }
 
+    /**
+     * Creates a new table within the current schema and sets up necessary indexes based on the columns in the table.
+     *
+     * @param table The table to be created, containing column definitions and their constraints.
+     * @throws SchemaException  If there is an issue with the schema, such as the schema not existing.
+     * @throws StorageException If there is an issue with storage operations.
+     */
     @Override
     public synchronized void createTable(Table table) throws SchemaException, StorageException {
         validateSchemaExists();
@@ -149,6 +205,17 @@ public class JsonSchemaManager implements SchemaManager {
         logger.info("Created new table {}", table);
     }
 
+    /**
+     * Deletes a table from the schema and removes all associated data and indexes.
+     *
+     * @param tableName The name of the table to be deleted.
+     * @return The number of rows removed from the deleted table.
+     * @throws SchemaException          If the schema does not exist or the table is not found in the schema.
+     * @throws StorageException         If there is an issue with storage operations while deleting the table.
+     * @throws DbException              If any database-related error occurs during the operation.
+     * @throws InterruptedTaskException If the task is interrupted during execution.
+     * @throws FileChannelException     If there is an issue with file channel operations while deleting the table.
+     */
     @Override
     public synchronized <K extends Number & Comparable<K>> int deleteTable(String tableName) throws SchemaException,
                                                                                                     StorageException,
@@ -182,6 +249,7 @@ public class JsonSchemaManager implements SchemaManager {
             }
         } finally {
             sortedIterator.unlock();
+            clusterIndexManager.purgeIndex();
             columnIndexManagerProvider.clearIndexManager(table, SchemaSearcher.findClusterColumn(table));
         }
         logger.info("Cleared cluster index and all data from disk from table {}", tableName);
@@ -201,6 +269,23 @@ public class JsonSchemaManager implements SchemaManager {
         return rowCount;
     }
 
+    /**
+     * Creates an index on a specified table. The index ensures that the column specified is unique and updates the schema
+     * accordingly. The process of creating an index involves reading all rows from disk, extracting the value of the column being indexed, and add those files to the new index.
+     *
+     * @param <K>       The type of keys used in the index, which must be compatible with the clustered column.
+     * @param tableName The name of the table on which the index is to be created.
+     * @param index     The index definition, including the column to be indexed.
+     * @return The number of rows that were affected by creating the new index.
+     * @throws SchemaException          If there are errors related to the schema, such as the table or column not being found.
+     * @throws StorageException         If there are issues with storage operations.
+     * @throws DbException              If there is a generic database-related error.
+     * @throws DeserializationException If there are errors deserializing data during the operation.
+     * @throws BTreeException           If there are errors related to B-tree structure while managing the index.
+     * @throws SerializationException   If there are errors serializing data during the operation.
+     * @throws InterruptedTaskException If the task is interrupted during execution.
+     * @throws FileChannelException     If there are issues with file channel operations.
+     */
     @Override
     public synchronized <K extends Number & Comparable<K>> int createIndex(String tableName, Index index) throws
                                                                                                           SchemaException,
