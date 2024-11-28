@@ -5,6 +5,9 @@ import org.elece.query.result.ResultInfo;
 import org.elece.thread.ClientInterface;
 import org.elece.utils.BinaryUtils;
 
+/**
+ * Represents the streaming of either results in most cases, and also the rows in the case of select queries.
+ */
 public class OutputStreamStep extends StreamStep {
     private final ClientInterface clientInterface;
 

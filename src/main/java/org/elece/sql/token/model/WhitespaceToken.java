@@ -17,10 +17,14 @@ public class WhitespaceToken extends Token {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        WhitespaceToken that = (WhitespaceToken) o;
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (Objects.isNull(obj) || getClass() != obj.getClass()) {
+            return false;
+        }
+        WhitespaceToken that = (WhitespaceToken) obj;
         return getWhitespace() == that.getWhitespace();
     }
 

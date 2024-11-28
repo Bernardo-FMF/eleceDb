@@ -32,7 +32,7 @@ public abstract class EqualityComparator<V> implements ValueComparator<V> {
         if (this == obj) {
             return true;
         }
-        if (obj == null || getClass() != obj.getClass()) {
+        if (Objects.isNull(obj) || getClass() != obj.getClass()) {
             return false;
         }
         EqualityComparator<?> that = (EqualityComparator<?>) obj;

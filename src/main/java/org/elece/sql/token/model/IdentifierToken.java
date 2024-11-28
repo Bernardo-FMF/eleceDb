@@ -15,10 +15,14 @@ public class IdentifierToken extends Token {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        IdentifierToken that = (IdentifierToken) o;
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (Objects.isNull(obj) || getClass() != obj.getClass()) {
+            return false;
+        }
+        IdentifierToken that = (IdentifierToken) obj;
         return Objects.equals(getIdentifier(), that.getIdentifier());
     }
 

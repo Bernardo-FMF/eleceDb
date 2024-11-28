@@ -70,14 +70,14 @@ public class Pointer {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) {
+    public boolean equals(Object obj) {
+        if (this == obj) {
             return true;
         }
-        if (o == null || getClass() != o.getClass()) {
+        if (Objects.isNull(obj) || getClass() != obj.getClass()) {
             return false;
         }
-        Pointer pointer = (Pointer) o;
+        Pointer pointer = (Pointer) obj;
         return type == pointer.type && position == pointer.position && chunk == pointer.chunk;
     }
 

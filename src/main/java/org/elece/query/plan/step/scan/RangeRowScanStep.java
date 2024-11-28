@@ -16,6 +16,9 @@ import java.util.Iterator;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 
+/**
+ * Represents an index scan operation based on a range condition. We can use the index tree to obtain an iterator consisting of elements within the range.
+ */
 public class RangeRowScanStep extends ScanStep {
     private final DatabaseStorageManager databaseStorageManager;
 

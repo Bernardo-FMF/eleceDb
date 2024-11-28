@@ -110,3 +110,4 @@ configurations have default values, so only change these if you want to experime
 - [Where expression pathing](./docs/where-expression-pathing.md)
 - [Internal model](./docs/internal-model.md)
 - [Schema operations](./docs/schema-operations.md)
+- [Query executors and query plans](./docs/query-executor-query-plan.md)

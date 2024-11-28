@@ -9,6 +9,9 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
+/**
+ * Represents the attribute selection step, where we select the desired columns from a row in their serialized format.
+ */
 public class AttributeSelectorStep extends SelectorStep {
     private final Table table;
     private final List<Column> selectedColumns;

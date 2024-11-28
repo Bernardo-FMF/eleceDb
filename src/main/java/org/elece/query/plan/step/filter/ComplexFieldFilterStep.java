@@ -17,6 +17,11 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+/**
+ * Represents the resolver for complex expressions that can't be immediately evaluated. In other words, resolves expressions with references to other columns,
+ * for example: id = id + 10;
+ * This expression has id as a variable, and this class aims to resolve this type of expression.
+ */
 public class ComplexFieldFilterStep extends FilterStep {
     private final Table table;
     private final ComplexPathNode pathNode;

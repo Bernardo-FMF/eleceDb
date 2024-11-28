@@ -19,6 +19,16 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.function.Function;
 
+/**
+ * Represents the ordering mechanism. There is an in-memory buffer that stores rows as they are filtered by other steps,
+ * and the rows are inserted into the buffer orderly.
+ * When the buffer reaches the threshold, it's flushed onto a temporary file, and since the buffer was ordered, so will the file.
+ * With this, in large query results, we'll end up with multiple ordered temporary files, so when streaming the rows to the client,
+ * we need to employ a variation of the K-way merge algorithm, which will read the next row in each file, add them to a queue to order them,
+ * and poll the next row. This will continue until there are no temporary files left.
+ *
+ * @param <V> The type of column value being ordered.
+ */
 public class CacheableOrderStep<V extends Comparable<V>> extends OrderStep {
     private final List<Column> selectedColumns;
     private final Column orderByColumn;
@@ -163,7 +173,7 @@ public class CacheableOrderStep<V extends Comparable<V>> extends OrderStep {
                 fileHandlerPool.releaseFileHandler(tempFile.getTempFileName());
                 try {
                     Files.delete(tempFile.getTempFileName());
-                } catch (IOException e) {
+                } catch (IOException exception) {
                     throw new StorageException(DbError.FAILED_TO_REMOVE_TEMPORARY_FILE_ERROR, "Failed to remove temporary file");
                 }
             }
@@ -248,6 +258,13 @@ public class CacheableOrderStep<V extends Comparable<V>> extends OrderStep {
                 valueQueue.add(possibleValue.get());
             }
             tempFiles.removeAll(filesToRemove);
+            for (TempFileWrapper tempFile : filesToRemove) {
+                try {
+                    Files.delete(tempFile.getTempFileName());
+                } catch (IOException exception) {
+                    throw new RuntimeDbException(DbError.FAILED_TO_REMOVE_TEMPORARY_FILE_ERROR, "Failed to remove temporary file");
+                }
+            }
 
             byte[] nextValueWithHeader = valueQueue.poll();
 

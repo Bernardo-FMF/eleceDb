@@ -13,6 +13,9 @@ import org.elece.memory.tree.node.LeafTreeNode;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 
+/**
+ * Represents a full table scan. Uses the clustered index to iterate through all rows of the table.
+ */
 public class SequentialScanStep extends ScanStep {
     private final DatabaseStorageManager databaseStorageManager;
 

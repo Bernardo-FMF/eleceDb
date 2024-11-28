@@ -153,7 +153,7 @@ public class NumberRangeComparator implements ValueComparator<Integer> {
         if (this == obj) {
             return true;
         }
-        if (obj == null || getClass() != obj.getClass()) {
+        if (Objects.isNull(obj) || getClass() != obj.getClass()) {
             return false;
         }
         NumberRangeComparator that = (NumberRangeComparator) obj;

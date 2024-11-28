@@ -1,4 +1,4 @@
-# Internal Model
+# Internal model
 
 The internal model used in the EleceDb database is structured to be both simple and efficient. This model consists of
 several key components: the `Schema`, `Table`, `Column`, and `Index`.

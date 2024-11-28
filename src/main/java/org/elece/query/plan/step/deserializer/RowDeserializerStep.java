@@ -10,6 +10,11 @@ import org.elece.utils.SerializationUtils;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * Deserializes rows to a readable format for the client, which the format:
+ * ( columnValue [, ...] )
+ * In the case of strings, the value is wrapped in "´".
+ */
 public class RowDeserializerStep extends DeserializerStep {
     private final SerializerRegistry serializerRegistry;
     private final List<Column> selectedColumns;

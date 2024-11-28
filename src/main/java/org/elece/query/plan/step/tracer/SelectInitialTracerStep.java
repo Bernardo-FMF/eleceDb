@@ -7,6 +7,9 @@ import org.elece.query.result.builder.SelectInitialResultInfoBuilder;
 
 import java.util.List;
 
+/**
+ * Represents a mock tracer. The purpose of this, is to send to the client an initial header with the selected columns in the case of select statements.
+ */
 public class SelectInitialTracerStep extends TracerStep<DbObject> {
     private final List<Column> selectedColumns;
 

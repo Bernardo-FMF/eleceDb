@@ -17,10 +17,14 @@ public class KeywordToken extends Token {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        KeywordToken that = (KeywordToken) o;
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (Objects.isNull(obj) || getClass() != obj.getClass()) {
+            return false;
+        }
+        KeywordToken that = (KeywordToken) obj;
         return getKeyword() == that.getKeyword();
     }
 

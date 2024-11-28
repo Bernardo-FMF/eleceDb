@@ -13,6 +13,11 @@ import org.elece.query.comparator.EqualityComparator;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 
+/**
+ * Represents an index scan operation based on an equality condition. This means that at most 1 row will be obtained.
+ *
+ * @param <V> The type of column value being compared.
+ */
 public class EqualityRowScanStep<V extends Comparable<V>> extends ScanStep {
     private final DatabaseStorageManager databaseStorageManager;
 

@@ -6,6 +6,11 @@ import org.elece.query.result.builder.GenericQueryResultInfoBuilder;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
+/**
+ * Traces each value and increments the row counter. This row counter is useful to know how many rows were affected by the encapsulating statement.
+ *
+ * @param <V> The type of the input being traced.
+ */
 public class GenericTracerStep<V> extends TracerStep<V> {
     private final AtomicInteger rowCounter;
     private final GenericQueryResultInfo.QueryType queryType;

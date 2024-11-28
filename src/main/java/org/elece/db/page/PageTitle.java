@@ -29,7 +29,7 @@ public final class PageTitle {
         if (this == obj) {
             return true;
         }
-        if (obj == null || getClass() != obj.getClass()) {
+        if (Objects.isNull(obj) || getClass() != obj.getClass()) {
             return false;
         }
         PageTitle pageTitle = (PageTitle) obj;

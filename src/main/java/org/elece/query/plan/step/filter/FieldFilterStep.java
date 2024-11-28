@@ -13,6 +13,13 @@ import org.elece.sql.parser.expression.internal.SqlStringValue;
 import org.elece.sql.parser.expression.internal.SqlType;
 import org.elece.utils.SerializationUtils;
 
+/**
+ * Represents an expression evaluator. These expressions are considered to be secondary, since they weren't used to scan rows,
+ * but they still need to be resolved. Using the row fetched from disk, we extract the value of the column being evaluated,
+ * and compare to the defined value in the query.
+ *
+ * @param <V> The type of column value being compared.
+ */
 public class FieldFilterStep<V> extends FilterStep {
     private final SerializerRegistry serializerRegistry;
 

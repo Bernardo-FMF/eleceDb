@@ -41,7 +41,7 @@ public class DefaultPathNode {
         if (this == obj) {
             return true;
         }
-        if (obj == null || getClass() != obj.getClass()) {
+        if (Objects.isNull(obj) || getClass() != obj.getClass()) {
             return false;
         }
         DefaultPathNode that = (DefaultPathNode) obj;

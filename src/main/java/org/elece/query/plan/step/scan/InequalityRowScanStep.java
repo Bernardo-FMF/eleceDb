@@ -19,6 +19,11 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 
+/**
+ * Represents an index scan operation based on an inequality condition. This means that it's essentially a sequential table scan, but at most 1 row will be excluded.
+ *
+ * @param <V> The type of column value being compared.
+ */
 public class InequalityRowScanStep<V extends Comparable<V>> extends ScanStep {
     private final DatabaseStorageManager databaseStorageManager;
 

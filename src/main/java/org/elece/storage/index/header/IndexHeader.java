@@ -55,9 +55,10 @@ public class IndexHeader {
             if (this == obj) {
                 return true;
             }
-            if (!(obj instanceof IndexOffset that)) {
+            if (Objects.isNull(obj) || getClass() != obj.getClass()) {
                 return false;
             }
+            IndexOffset that = (IndexOffset) obj;
             return indexId == that.indexId && offset == that.offset;
         }
 
