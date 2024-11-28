@@ -20,7 +20,7 @@ These queries are related to table operations - select/insert/delete/update oper
 
 ## Select query plan (`SelectQueryPlan`)
 
-The `SelectQueryPlan` class represents a detailed execution plan for performing select queries. This plan orchestrates
+The `SelectQueryPlan` class represents the execution plan for performing select queries. This plan orchestrates
 the different steps that a select query goes through, like scanning possible valid rows, filtering rows, selection of
 columns, ordering, and streaming the results.
 
@@ -46,3 +46,20 @@ columns, ordering, and streaming the results.
   and temporary files if necessary.
 - **Deserializer Step (deserializerStep)**: This step deserializes the selected columns into a readable format.
 - **Stream Step (streamStep)**: This step streams the processed results to the client.
+
+## Insert query plan (`InsertQueryPlan`)
+
+The `InsertQueryPlan` class represents the execution plan for performing insert queries. This plan orchestrates
+the different steps that a select query goes through, like deserializing the singular values into a row in its byte
+array format,
+validating index duplication, and streaming the results.
+
+- **Value Step (valueStep)**: This step deserializes all the values of the new row into a singular byte array.
+- **Validator step (validatorStep)**: This step maintains consistency to guarantee that the indexes are kept as unique.
+  This is done by validating if the indexes b+ trees already contain a value that will be inserted.
+- **Tracer Step (tracerStep)**: This step traces if a row was persisted, to send the row count to the client.
+- **Stream Step (streamStep)**: This step streams the processed results to the client.
+
+## Update query plan (`UpdateQueryPlan`)
+
+## Delete query plan (`DeleteQueryPlan`)

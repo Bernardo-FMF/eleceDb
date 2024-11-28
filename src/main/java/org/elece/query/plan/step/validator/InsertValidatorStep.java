@@ -14,6 +14,10 @@ import java.util.Optional;
 
 import static org.elece.db.schema.model.Column.CLUSTER_ID;
 
+/**
+ * Represents the validation of a row, in the sense of identifying if an index already contains a value that will be inserted.
+ * This is an invalid scenario because all indexes are unique.
+ */
 public class InsertValidatorStep extends ValidatorStep<byte[]> {
     private final Table table;
     private final ColumnIndexManagerProvider columnIndexManagerProvider;

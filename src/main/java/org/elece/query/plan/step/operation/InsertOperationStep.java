@@ -13,6 +13,11 @@ import org.elece.utils.SerializationUtils;
 
 import static org.elece.db.schema.model.Column.CLUSTER_ID;
 
+/**
+ * Represents the operation of inserting a new row. This process involves storing the row in disk, and then updating all indexes.
+ * Since indexes are unique, if when inserting the new index we see that the value already exists or a different error occurs, then we need to roll back the operation.
+ * So in that case the inserted indexes are removed, and the row is removed from disk, failing the operation.
+ */
 public class InsertOperationStep extends OperationStep<byte[]> {
     private final Table table;
     private final ColumnIndexManagerProvider columnIndexManagerProvider;

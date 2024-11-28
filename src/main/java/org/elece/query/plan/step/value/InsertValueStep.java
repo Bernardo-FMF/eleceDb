@@ -18,6 +18,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Represents the preparation of a row to be stored in disk. It consists in the serialization of all values into a single byte array.
+ * We also need to obtain the current cluster index id for the row being processed.
+ */
 public class InsertValueStep extends ValueStep {
     private final Table table;
     private final List<Expression> values;
