@@ -8,7 +8,6 @@ import org.elece.exception.*;
 import org.elece.storage.file.FileChannel;
 import org.elece.storage.file.FileHandlerPool;
 
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
@@ -61,7 +60,10 @@ public class PageBuffer {
      *
      * @param title The title of the page to acquire, containing chunk and page number information.
      * @return The Page object associated with the given PageTitle.
-     * @throws DbException if there is an error while fetching the page.
+     * @throws DbException              If there is an error while fetching the page.
+     * @throws InterruptedTaskException If the task is interrupted during execution.
+     * @throws StorageException         If there is an error during storage operations.
+     * @throws FileChannelException     If there is an error related to file channel operations.
      */
     public synchronized Page acquire(PageTitle title) throws DbException, InterruptedTaskException, StorageException,
                                                              FileChannelException {
@@ -105,8 +107,12 @@ public class PageBuffer {
      * Otherwise, it determines the last available chunk of data, calculates the last page within that chunk,
      * updates the last page title, and returns the last page.
      *
-     * @return An Optional containing the last buffered Page, or an empty Optional if no pages are available.
-     * @throws IOException if an I/O error occurs.
+     * @return An Optional containing the last Page within the buffer if successfully determined,
+     * or an empty Optional if no pages are available.
+     * @throws DbException              If there is a database-related error.
+     * @throws StorageException         If there is an error related to storage.
+     * @throws InterruptedTaskException If the task is interrupted.
+     * @throws FileChannelException     If there is an error related to the file channel operations.
      */
     public Optional<Page> getBufferedLastPage() throws DbException, StorageException, InterruptedTaskException,
                                                        FileChannelException {
@@ -143,6 +149,10 @@ public class PageBuffer {
      * A new empty page is generated and then acquired.
      *
      * @return The newly created and acquired Page object.
+     * @throws DbException              If there is an error related to the database operation.
+     * @throws InterruptedTaskException If the thread executing the method is interrupted.
+     * @throws StorageException         If there is an error during storage allocation or retrieval.
+     * @throws FileChannelException     If there is an error related to file channel operations.
      */
     public Page getBufferedNewPage() throws DbException, InterruptedTaskException, StorageException,
                                             FileChannelException {
@@ -166,11 +176,15 @@ public class PageBuffer {
         return this.acquire(this.lastPageTitle);
     }
 
+
     /**
      * Generates a new empty page in the file associated with the given chunk number.
      * Allocates space for the new page using the configured database page size.
      *
      * @param chunk The chunk number for which a new empty page will be generated.
+     * @throws InterruptedTaskException If the task is interrupted during execution.
+     * @throws StorageException         If there is an error related to storage operations.
+     * @throws FileChannelException     If there is an error related to file channel operations.
      */
     private void generateNewEmptyPage(int chunk) throws InterruptedTaskException, StorageException,
                                                         FileChannelException {

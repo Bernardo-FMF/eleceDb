@@ -13,6 +13,10 @@ import org.elece.storage.file.FileHandlerPool;
 import java.nio.file.Path;
 import java.util.Optional;
 
+/**
+ * Responsible for managing the storage of objects using a disk-based file structure.
+ * The file storage is divided into chunks, with each chunk corresponding to a file on disk.
+ */
 public class DiskPageDatabaseStorageManager implements DatabaseStorageManager {
     private final PageBuffer pageBuffer;
     private final DbConfig dbConfig;
@@ -27,6 +31,17 @@ public class DiskPageDatabaseStorageManager implements DatabaseStorageManager {
         this.pageBuffer = new PageBuffer(dbConfig, new DefaultPageFactory(dbConfig, fileHandlerPool, this::getDbFileName), fileHandlerPool, this::getDbFileName);
     }
 
+    /**
+     * Stores the given data in the database by attempting to reuse a free slot, use the last page, or create a new chunk if necessary.
+     *
+     * @param tableId The identifier of the table in which the data will be stored.
+     * @param data    The data to be stored in the database.
+     * @return A Pointer object indicating the storage location of the data.
+     * @throws DbException              If there is a database-related error during the storage operation.
+     * @throws StorageException         If there is an error related to storage mechanisms.
+     * @throws InterruptedTaskException If the task is interrupted during the storage operation.
+     * @throws FileChannelException     If there is an error with the file channel during the storage process.
+     */
     @Override
     public Pointer store(int tableId, byte[] data) throws DbException, StorageException, InterruptedTaskException,
                                                           FileChannelException {
@@ -91,6 +106,19 @@ public class DiskPageDatabaseStorageManager implements DatabaseStorageManager {
         }
     }
 
+    /**
+     * Updates the data of an existing database object at the specified location, identified by a pointer.
+     * This method acquires a page from the page buffer, locates the database object within the page,
+     * verifies the object's existence and if the object is still alive. If so, we modify the object's data,
+     * and commits the changes before releasing the page back to the buffer.
+     *
+     * @param pointer A Pointer object that specifies the chunk and position on the page to locate the database object.
+     * @param newData A byte array containing the new data to update the database object with.
+     * @throws DbException              If an invalid database object is found at the pointer location, or if the object is not active.
+     * @throws StorageException         If there is an error related to storage mechanisms.
+     * @throws InterruptedTaskException If the task is interrupted during the update process.
+     * @throws FileChannelException     If there is an error with the file channel during the update process.
+     */
     @Override
     public void update(Pointer pointer, byte[] newData) throws DbException, StorageException, InterruptedTaskException,
                                                                FileChannelException {
@@ -105,6 +133,11 @@ public class DiskPageDatabaseStorageManager implements DatabaseStorageManager {
             }
 
             DbObject dbObject = optionalDbObject.get();
+
+            if (!dbObject.isAlive()) {
+                throw new DbException(DbError.INVALID_DATABASE_OBJECT_ERROR, "Object is not active");
+            }
+
             dbObject.modifyData(newData);
 
             this.commitPage(dbObject.getPage());
@@ -114,12 +147,12 @@ public class DiskPageDatabaseStorageManager implements DatabaseStorageManager {
     }
 
     /**
-     * Reads a DbObject from the database storage using a pointer.
-     * This pointer is used to obtain the file the object is in using the chunk, and the position is used to determine the offset
-     * of the page where the object is present.
+     * Selects a database object from a storage location specified by a pointer and reads it from the disk.
+     * If the object is not alive, it is considered non-existent.
      *
-     * @param pointer A Pointer object that indicates the chunk and position within the page.
-     * @return An Optional containing the selected DbObject if found, or an empty Optional if not found.
+     * @param pointer A Pointer object that specifies the location of the desired
+     *                database object, including the chunk and position on the page.
+     * @return An Optional containing the DbObject if it exists at the specified location, or an empty
      */
     @Override
     public Optional<DbObject> select(Pointer pointer) throws DbException, InterruptedTaskException, StorageException,
@@ -134,6 +167,17 @@ public class DiskPageDatabaseStorageManager implements DatabaseStorageManager {
         }
     }
 
+    /**
+     * Marks a database object for removal by saving its position and length for reuse by future objects.
+     * This also marks the object as no longer active.
+     *
+     * @param pointer A Pointer object that specifies the location of the database object to remove,
+     *                including the chunk and position on the page.
+     * @throws DbException              If a database-related error occurs during the removal operation.
+     * @throws StorageException         If an error related to storage mechanisms occurs.
+     * @throws InterruptedTaskException If the task is interrupted during the removal operation.
+     * @throws FileChannelException     If there is an error with the file channel during the removal process.
+     */
     @Override
     public void remove(Pointer pointer) throws DbException, StorageException, InterruptedTaskException,
                                                FileChannelException {

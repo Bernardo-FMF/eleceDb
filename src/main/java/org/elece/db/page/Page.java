@@ -42,6 +42,14 @@ public class Page {
         return Optional.of(dbObject);
     }
 
+    /**
+     * Tries to create an empty object with a given length. If the page segment has no space available to fit the object,
+     * then the object can't be added to the current page.
+     *
+     * @param length The desired length of the DbObject to be created.
+     * @return An Optional containing the newly created DbObject if space is available; otherwise, an empty Optional
+     * @throws DbException If an error occurs during the creation of the DbObject
+     */
     public synchronized Optional<DbObject> getEmptyDbObject(int length) throws DbException {
         if (getData().length - cursorPosition > length + DbObject.META_BYTES) {
             DbObject dbObject = new DbObject(this, cursorPosition, cursorPosition + length + DbObject.META_BYTES);

@@ -111,3 +111,4 @@ configurations have default values, so only change these if you want to experime
 - [Internal model](./docs/internal-model.md)
 - [Schema operations](./docs/schema-operations.md)
 - [Query executors and query plans](./docs/query-executor-query-plan.md)
+- [Disk persistence](./docs/disk-persistence.md)
