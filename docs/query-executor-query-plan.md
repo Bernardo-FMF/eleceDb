@@ -51,15 +51,39 @@ columns, ordering, and streaming the results.
 
 The `InsertQueryPlan` class represents the execution plan for performing insert queries. This plan orchestrates
 the different steps that a select query goes through, like deserializing the singular values into a row in its byte
-array format,
-validating index duplication, and streaming the results.
+array format, validating index duplication, persisting the row in disk and streaming the results.
 
 - **Value Step (valueStep)**: This step deserializes all the values of the new row into a singular byte array.
 - **Validator step (validatorStep)**: This step maintains consistency to guarantee that the indexes are kept as unique.
   This is done by validating if the indexes b+ trees already contain a value that will be inserted.
+- **Operation step (operationStep)**: This step persists the row in disk, and updates all related indexes.
 - **Tracer Step (tracerStep)**: This step traces if a row was persisted, to send the row count to the client.
 - **Stream Step (streamStep)**: This step streams the processed results to the client.
 
 ## Update query plan (`UpdateQueryPlan`)
 
+The `UpdateQueryPlan` class represents the execution plan for performing update queries. This plan orchestrates
+the different steps that an update query goes through, like scanning possible valid rows, filtering rows, update the
+rows in disk, and update the indexes.
+
+- **Scan Steps (scanSteps)**: These are the same plans that are explained
+  in [SelectQueryPlan](#select-query-plan-selectqueryplan).
+- **Filter Steps (filterSteps)**: These steps filter the retrieved rows based on certain conditions.
+- **Operation step (operationStep)**: This step updates all valid rows in disk, and updates all related indexes to
+  remove the old values of the updates rows and replaces them with the new ones.
+- **Tracer Step (tracerStep)**: This step traces the updated rows, to send the row count to the client.
+- **Stream Step (streamStep)**: This step streams the processed results to the client.
+
 ## Delete query plan (`DeleteQueryPlan`)
+
+The `DeleteQueryPlan` class represents the execution plan for performing delete queries. This plan orchestrates
+the different steps that a delete query goes through, like scanning possible valid rows, filtering rows, delete the
+rows from disk, and update the indexes.
+
+- **Scan Steps (scanSteps)**: These are the same plans that are explained
+  in [SelectQueryPlan](#select-query-plan-selectqueryplan).
+- **Filter Steps (filterSteps)**: These steps filter the retrieved rows based on certain conditions.
+- **Operation step (operationStep)**: This step deletes all valid rows from disk, and updates all related indexes to
+  remove all the values of the deleted rows.
+- **Tracer Step (tracerStep)**: This step traces the updated rows, to send the row count to the client.
+- **Stream Step (streamStep)**: This step streams the processed results to the client.

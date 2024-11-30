@@ -15,6 +15,11 @@ import java.util.Optional;
 
 import static org.elece.db.schema.model.Column.CLUSTER_ID;
 
+/**
+ * Represents the operation of deleting rows. This process involves removing the row from disk, and then updating all indexes.
+ * For each of the indexed columns, including the cluster id column, then we need to remove all the values that each row held.
+ * If when removing the index entries an error occurs, then we need to roll back the operation.
+ */
 public class DeleteOperationStep extends OperationStep<DbObject> {
     private final Table table;
     private final ColumnIndexManagerProvider columnIndexManagerProvider;

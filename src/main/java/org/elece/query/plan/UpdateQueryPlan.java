@@ -11,6 +11,10 @@ import org.elece.query.result.ResultInfo;
 
 import java.util.*;
 
+/**
+ * Represents a plan for executing an update query within the database. It is composed of multiple steps
+ * including scanning, filtering, the update operation, and streaming the affected row count.
+ */
 public class UpdateQueryPlan implements QueryPlan {
     private final Queue<ScanStep> scanSteps;
     private final Map<Long, List<FilterStep>> filterSteps;
@@ -31,6 +35,26 @@ public class UpdateQueryPlan implements QueryPlan {
         this.streamStep = streamStep;
     }
 
+    /**
+     * Executes the update query plan by iterating through all scan steps and
+     * applying corresponding filter steps and the operation step.
+     * For each one of the scan steps, which will obtain rows that may be valid to update from disk,
+     * if there are other filters associated with the current scan step, then those need to be executed as well.
+     * These two steps, scan and filter, guarantee that a row matches the criteria the client defines.
+     * </p>
+     * The next step, is updating the row from disk, and deleting all indexed values from the respective index B-tree and adding the new updated values.
+     *
+     * @throws ParserException          If a parsing error occurs when filtering rows, this may happen when resolving a complex expression
+     * @throws SerializationException   If a serialization error occurs
+     * @throws SchemaException          If a schema-related error occurs
+     * @throws StorageException         If a storage-related error occurs when updating rows
+     * @throws DbException              If a general database error occurs
+     * @throws BTreeException           If a B-tree related error occurs
+     * @throws DeserializationException If a deserialization error occurs when deserializing rows
+     * @throws ProtoException           If a protobuf-related error occurs when streaming the results to the client
+     * @throws InterruptedTaskException If the task is interrupted when executing storage or index related tasks
+     * @throws FileChannelException     If a file channel error occurs when executing storage or index related tasks
+     */
     @Override
     public void execute() throws ParserException, SerializationException, SchemaException, StorageException,
                                  DbException, BTreeException, DeserializationException, ProtoException,

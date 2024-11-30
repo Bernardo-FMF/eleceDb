@@ -23,6 +23,11 @@ import java.util.*;
 
 import static org.elece.db.schema.model.Column.CLUSTER_ID;
 
+/**
+ * Represents the operation of updating rows. This process involves updating the row in disk, and then updating all indexes.
+ * For each of the indexed columns, including the cluster id column, then we need to remove all the previous values that each row held, and replace them with the new values.
+ * If when updating the index entries an error occurs, then we need to roll back the operation.
+ */
 public class UpdateOperationStep extends OperationStep<DbObject> {
     private final Table table;
     private final List<Assignment> assignments;
