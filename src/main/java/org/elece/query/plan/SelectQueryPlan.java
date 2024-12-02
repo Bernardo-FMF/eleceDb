@@ -10,7 +10,7 @@ import org.elece.query.plan.step.selector.SelectorStep;
 import org.elece.query.plan.step.stream.StreamStep;
 import org.elece.query.plan.step.tracer.TracerStep;
 import org.elece.query.result.ResultInfo;
-import org.elece.utils.BinaryUtils;
+import org.elece.query.result.RowResultInfo;
 
 import java.util.*;
 
@@ -114,7 +114,8 @@ public class SelectQueryPlan implements QueryPlan {
                     if (!Objects.isNull(orderStep)) {
                         orderStep.addToBuffer(serializedData.get());
                     } else {
-                        streamStep.stream(BinaryUtils.stringToBytes(deserializerStep.deserialize(serializedData.get())));
+                        RowResultInfo rowResultInfo = new RowResultInfo(deserializerStep.deserialize(serializedData.get()));
+                        streamStep.stream(rowResultInfo);
                     }
                 }
             }
@@ -125,7 +126,8 @@ public class SelectQueryPlan implements QueryPlan {
 
             Iterator<byte[]> orderedIterator = orderStep.getIterator();
             while (orderedIterator.hasNext()) {
-                streamStep.stream(BinaryUtils.stringToBytes(deserializerStep.deserialize(orderedIterator.next())));
+                RowResultInfo rowResultInfo = new RowResultInfo(deserializerStep.deserialize(orderedIterator.next()));
+                streamStep.stream(rowResultInfo);
             }
 
             orderStep.clearBuffer();

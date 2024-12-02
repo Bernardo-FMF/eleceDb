@@ -25,7 +25,7 @@ public class MockedClientInterface implements ClientInterface {
             }
         }
 
-        if (stringResponse.contains("SelectInitialResult")) {
+        if (stringResponse.contains("RowDescriptionResult")) {
             selectResponse = new SelectResponse(stringResponse);
         } else if (stringResponse.contains("SelectEndResult")) {
             selectResponse.setEndHeader(stringResponse);
@@ -53,21 +53,14 @@ public class MockedClientInterface implements ClientInterface {
         }
 
         public void addRow(String row) {
-            String trimmedRow = row.substring(1, row.length() - 1);
+            String parsedRow = E2eUtils.extractValue("Row", row);
+            String trimmedRow = parsedRow.substring(1, parsedRow.length() - 1);
             String[] splitValues = trimmedRow.split(", ");
             rows.add(List.of(splitValues));
         }
 
         public void setEndHeader(String endHeader) {
             this.endHeader = endHeader;
-        }
-
-        public String getInitialHeader() {
-            return initialHeader;
-        }
-
-        public String getEndHeader() {
-            return endHeader;
         }
 
         public List<List<String>> getRows() {

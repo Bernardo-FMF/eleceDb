@@ -3,7 +3,7 @@ package org.elece.query.result;
 import java.util.Objects;
 
 public class GenericQueryResultInfo extends ResultInfo {
-    private static final String PREFIX = "Response::%s::";
+    private static final String PREFIX = "%d::Response::%s::";
 
     private final QueryType queryType;
     private final String message;
@@ -27,7 +27,7 @@ public class GenericQueryResultInfo extends ResultInfo {
         }
         innerData.append("RowCount: ").append(rowCount).append("\n");
 
-        return String.format(PREFIX, queryType.getQueryHeader()) + innerData.length() + "::\n" + innerData;
+        return String.format(PREFIX, GENERIC_RESPONSE_TYPE, queryType.getQueryHeader()) + innerData.length() + "::\n" + innerData;
     }
 
     public enum QueryType {

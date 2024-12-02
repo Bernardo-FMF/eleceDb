@@ -3,7 +3,7 @@ package org.elece.query.plan.step.tracer;
 import org.elece.db.DbObject;
 import org.elece.db.schema.model.Column;
 import org.elece.query.result.ResultInfo;
-import org.elece.query.result.builder.SelectInitialResultInfoBuilder;
+import org.elece.query.result.builder.RowDescriptionResultInfoBuilder;
 
 import java.util.List;
 
@@ -24,7 +24,7 @@ public class SelectInitialTracerStep extends TracerStep<DbObject> {
 
     @Override
     public ResultInfo buildResultInfo() {
-        return SelectInitialResultInfoBuilder.builder()
+        return RowDescriptionResultInfoBuilder.builder()
                 .setSelectedColumns(selectedColumns)
                 .build();
     }
