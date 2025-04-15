@@ -3,7 +3,7 @@
 ![elecedb-logo.jpg](./docs/assets/elecedb-logo.jpg)
 
 
-<p align="center">
+<p>
   <a href="#overview">Overview</a> •
   <a href="#how-to-run-elecedb">How to run EleceDb</a> •
   <a href="#environment-variables">Environment variables</a> •
