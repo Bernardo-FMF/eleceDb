@@ -34,7 +34,7 @@ To compile the project locally, you need to install:
 
 Then you also need to clone this repository:
 
-```git clone https://github.com/BernardoFMF/eleceDb.git```
+```git clone https://github.com/Bernardo-FMF/eleceDb.git```
 
 Afterward on the directory of the project, run:
 
