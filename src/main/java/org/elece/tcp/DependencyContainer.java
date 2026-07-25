@@ -21,6 +21,13 @@ import org.elece.storage.index.header.IndexHeaderManagerFactory;
 
 import java.util.Objects;
 
+/**
+ * Holds and lazily builds the shared, process-wide dependency graph.
+ * A single instance is shared across all client worker threads, so the lazy getters are {@code synchronized}
+ * to guarantee that each dependency is built exactly once and is safely published to every thread.
+ * Without this, two threads issuing their first queries concurrently could each build a separate
+ * schema/storage manager, splitting the in-memory state.
+ */
 public class DependencyContainer {
     private final DbConfig dbConfig;
     private SchemaManager schemaManager;
@@ -36,49 +43,49 @@ public class DependencyContainer {
         this.dbConfig = dbConfig;
     }
 
-    public SchemaManager getSchemaManager() throws SchemaException {
+    public synchronized SchemaManager getSchemaManager() throws SchemaException {
         if (Objects.isNull(schemaManager)) {
             schemaManager = new JsonSchemaManager(dbConfig, getColumnIndexManagerProvider(), getDatabaseStorageManager());
         }
         return schemaManager;
     }
 
-    public DatabaseStorageManager getDatabaseStorageManager() {
+    public synchronized DatabaseStorageManager getDatabaseStorageManager() {
         if (Objects.isNull(databaseStorageManager)) {
             databaseStorageManager = new DiskPageDatabaseStorageManager(dbConfig, getFileHandlerPoolFactory().getFileHandlerPool(), getReservedSlotTracer());
         }
         return databaseStorageManager;
     }
 
-    public FileHandlerPoolFactory getFileHandlerPoolFactory() {
+    public synchronized FileHandlerPoolFactory getFileHandlerPoolFactory() {
         if (Objects.isNull(fileHandlerPoolFactory)) {
             fileHandlerPoolFactory = new DefaultFileHandlerPoolFactory(dbConfig);
         }
         return fileHandlerPoolFactory;
     }
 
-    public ReservedSlotTracer getReservedSlotTracer() {
+    public synchronized ReservedSlotTracer getReservedSlotTracer() {
         if (Objects.isNull(reservedSlotTracer)) {
             reservedSlotTracer = new InMemoryReservedSlotTracer();
         }
         return reservedSlotTracer;
     }
 
-    public ColumnIndexManagerProvider getColumnIndexManagerProvider() {
+    public synchronized ColumnIndexManagerProvider getColumnIndexManagerProvider() {
         if (Objects.isNull(columnIndexManagerProvider)) {
             columnIndexManagerProvider = new DefaultColumnIndexManagerProvider(dbConfig, getIndexStorageManagerFactory());
         }
         return columnIndexManagerProvider;
     }
 
-    public IndexStorageManagerFactory getIndexStorageManagerFactory() {
+    public synchronized IndexStorageManagerFactory getIndexStorageManagerFactory() {
         if (Objects.isNull(indexStorageManagerFactory)) {
             indexStorageManagerFactory = new DefaultIndexStorageManagerFactory(dbConfig, getFileHandlerPoolFactory(), getIndexHeaderManagerFactory());
         }
         return indexStorageManagerFactory;
     }
 
-    public IndexHeaderManagerFactory getIndexHeaderManagerFactory() {
+    public synchronized IndexHeaderManagerFactory getIndexHeaderManagerFactory() {
         if (Objects.isNull(indexHeaderManagerFactory)) {
             indexHeaderManagerFactory = new DefaultIndexHeaderManagerFactory();
         }
@@ -89,7 +96,7 @@ public class DependencyContainer {
         return SerializerRegistry.getInstance();
     }
 
-    public QueryPlanner getQueryPlanner() throws SchemaException {
+    public synchronized QueryPlanner getQueryPlanner() throws SchemaException {
         if (Objects.isNull(queryPlanner)) {
             queryPlanner = new QueryPlanner(getSchemaManager(), getDatabaseStorageManager(), getColumnIndexManagerProvider(), getSerializerRegistry(), getFileHandlerPoolFactory().getFileHandlerPool(), dbConfig);
         }
