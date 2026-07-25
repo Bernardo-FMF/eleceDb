@@ -40,7 +40,11 @@ public class DefaultServer implements Server {
             while (managedThreadPool.isRunning()) {
                 Socket socket = serverSocket.accept();
                 logger.debug("Accepted new connection: {}", socket);
-                managedThreadPool.execute(new DefaultSocketWorker(socket, dependencyContainer));
+                boolean accepted = managedThreadPool.execute(new DefaultSocketWorker(socket, dependencyContainer));
+                if (!accepted) {
+                    logger.warn("Thread pool is saturated; refusing connection: {}", socket);
+                    closeQuietly(socket);
+                }
             }
         } catch (Exception exception) {
             logger.error("Closing server socket");
@@ -61,5 +65,13 @@ public class DefaultServer implements Server {
             serverSocket.close();
         }
         dependencyContainer.getFileHandlerPoolFactory().getFileHandlerPool().closeAll();
+    }
+
+    private void closeQuietly(Socket socket) {
+        try {
+            socket.close();
+        } catch (IOException exception) {
+            logger.warn("Failed to close refused connection: {}", socket, exception);
+        }
     }
 }
