@@ -76,12 +76,25 @@ the docker command needs to be adapted to follow the formula:
 
 > docker run -d -p {mappedPort}:{elece.db.port} bernardofmf/elecedb:{version}
 
+Any configuration value can be passed to the container as an environment variable, for example:
+
+```docker run -d -p 4000:4000 -e ELECE_DB_PORT=4000 bernardofmf/elecedb:latest```
+
+See the [Environment variables](#environment-variables) section for the full list and the
+property-to-environment-variable mapping.
+
 ## Environment variables
 
 Below is a comprehensive list of all possible configurations that can be done. This isn't required, as all of these
 configurations have default values, so only change these if you want to experiment.
 
-| Env variable name                        | Description                                                                                                                                                                                                            | Default value | Possible values                                           |
+Each property can be supplied either as a **JVM system property** (`-Delece.db.port=4000`) or as an **environment
+variable**. The environment-variable name is the property name upper-snake-cased, with dots and camelCase word
+boundaries turned into underscores - for example `elece.db.port` becomes `ELECE_DB_PORT`, and `elece.db.pool.coreSize`
+becomes `ELECE_DB_POOL_CORE_SIZE`. If both are set, the system property wins. An invalid value is ignored (a warning is
+logged) and the default is used instead.
+
+| Property                                 | Description                                                                                                                                                                                                            | Default value | Possible values                                           |
 |------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------|-----------------------------------------------------------|
 | elece.db.port                            | The port of the tcp server                                                                                                                                                                                             | 3000          | -                                                         |
 | elece.db.pool.coreSize                   | The number of threads used to accept new clients that should be present even when idle                                                                                                                                 | 5             | -                                                         |

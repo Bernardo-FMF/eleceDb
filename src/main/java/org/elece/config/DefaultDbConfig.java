@@ -2,65 +2,24 @@ package org.elece.config;
 
 import java.util.concurrent.TimeUnit;
 
-public class DefaultDbConfig implements DbConfig {
-    private final int port;
-    private final int poolCoreSize;
-    private final int poolMaxSize;
-    private final long keepAliveTime;
-    private final int fileDescriptorAcquisitionSize;
-    private final long closeTimeoutTime;
-    private final long acquisitionTimeoutTime;
-    private final TimeUnit timeoutUnit;
-    private final int bTreeDegree;
-    private final int bTreeGrowthNodeAllocationCount;
-    private final String baseDbPath;
-    private final long bTreeMaxFileSize;
-    private final IndexStorageManagerStrategy indexStorageManagerStrategy;
-    private final FileHandlerStrategy fileHandlerStrategy;
-    private final int fileHandlerPoolThreads;
-    private final SessionStrategy sessionStrategy;
-    private final int dbPageSize;
-    private final int dbPageBufferSize;
-    private final int dbPageMaxFileSize;
-    private final int dbQueryCacheSize;
-    private final boolean bloomFilterEnabled;
-    private final double bloomFilterFalsePositiveRate;
-    private final int bloomFilterExpectedInsertions;
-
-    public DefaultDbConfig(int port, int poolCoreSize, int poolMaxSize, long keepAliveTime,
-                           int fileDescriptorAcquisitionSize,
-                           long closeTimeoutTime, long acquisitionTimeoutTime, TimeUnit timeoutUnit, int bTreeDegree,
-                           int bTreeGrowthNodeAllocationCount, String baseDbPath, long bTreeMaxFileSize,
-                           IndexStorageManagerStrategy indexStorageManagerStrategy,
-                           FileHandlerStrategy fileHandlerStrategy,
-                           int fileHandlerPoolThreads, SessionStrategy sessionStrategy, int dbPageSize,
-                           int dbPageBufferSize,
-                           int dbPageMaxFileSize, int dbQueryCacheSize, boolean bloomFilterEnabled,
-                           double bloomFilterFalsePositiveRate, int bloomFilterExpectedInsertions) {
-        this.port = port;
-        this.poolCoreSize = poolCoreSize;
-        this.poolMaxSize = poolMaxSize;
-        this.keepAliveTime = keepAliveTime;
-        this.fileDescriptorAcquisitionSize = fileDescriptorAcquisitionSize;
-        this.closeTimeoutTime = closeTimeoutTime;
-        this.acquisitionTimeoutTime = acquisitionTimeoutTime;
-        this.timeoutUnit = timeoutUnit;
-        this.bTreeDegree = bTreeDegree;
-        this.bTreeGrowthNodeAllocationCount = bTreeGrowthNodeAllocationCount;
-        this.baseDbPath = baseDbPath;
-        this.bTreeMaxFileSize = bTreeMaxFileSize;
-        this.indexStorageManagerStrategy = indexStorageManagerStrategy;
-        this.fileHandlerStrategy = fileHandlerStrategy;
-        this.fileHandlerPoolThreads = fileHandlerPoolThreads;
-        this.sessionStrategy = sessionStrategy;
-        this.dbPageSize = dbPageSize;
-        this.dbPageBufferSize = dbPageBufferSize;
-        this.dbPageMaxFileSize = dbPageMaxFileSize;
-        this.dbQueryCacheSize = dbQueryCacheSize;
-        this.bloomFilterEnabled = bloomFilterEnabled;
-        this.bloomFilterFalsePositiveRate = bloomFilterFalsePositiveRate;
-        this.bloomFilterExpectedInsertions = bloomFilterExpectedInsertions;
-    }
+/**
+ * Immutable {@link DbConfig} value holder.
+ * <p>
+ * Implemented as a {@code record} so the field list, canonical constructor, {@code equals}/{@code hashCode}
+ * and {@code toString} stay in sync automatically as configuration options are added. Instances are produced
+ * by {@link DefaultDbConfigBuilder}. The explicit {@code getX()} / {@code isX()} methods bridge the record's
+ * component accessors to the {@link DbConfig} interface, whose accessors are {@code get}-prefixed.
+ */
+public record DefaultDbConfig(int port, int poolCoreSize, int poolMaxSize, long keepAliveTime,
+                              int fileDescriptorAcquisitionSize, long closeTimeoutTime, long acquisitionTimeoutTime,
+                              TimeUnit timeoutUnit, int bTreeDegree, int bTreeGrowthNodeAllocationCount,
+                              String baseDbPath, long bTreeMaxFileSize,
+                              DbConfig.IndexStorageManagerStrategy indexStorageManagerStrategy,
+                              DbConfig.FileHandlerStrategy fileHandlerStrategy, int fileHandlerPoolThreads,
+                              DbConfig.SessionStrategy sessionStrategy, int dbPageSize, int dbPageBufferSize,
+                              int dbPageMaxFileSize, int dbQueryCacheSize, boolean bloomFilterEnabled,
+                              double bloomFilterFalsePositiveRate, int bloomFilterExpectedInsertions)
+        implements DbConfig {
 
     @Override
     public int getPort() {
@@ -175,34 +134,5 @@ public class DefaultDbConfig implements DbConfig {
     @Override
     public int getBloomFilterExpectedInsertions() {
         return bloomFilterExpectedInsertions;
-    }
-
-    @Override
-    public String toString() {
-        return "DefaultDbConfig{" +
-                "port=" + port +
-                ", poolCoreSize=" + poolCoreSize +
-                ", poolMaxSize=" + poolMaxSize +
-                ", keepAliveTime=" + keepAliveTime +
-                ", fileDescriptorAcquisitionSize=" + fileDescriptorAcquisitionSize +
-                ", closeTimeoutTime=" + closeTimeoutTime +
-                ", acquisitionTimeoutTime=" + acquisitionTimeoutTime +
-                ", timeoutUnit=" + timeoutUnit +
-                ", bTreeDegree=" + bTreeDegree +
-                ", bTreeGrowthNodeAllocationCount=" + bTreeGrowthNodeAllocationCount +
-                ", baseDbPath='" + baseDbPath + '\'' +
-                ", bTreeMaxFileSize=" + bTreeMaxFileSize +
-                ", indexStorageManagerStrategy=" + indexStorageManagerStrategy +
-                ", fileHandlerStrategy=" + fileHandlerStrategy +
-                ", fileHandlerPoolThreads=" + fileHandlerPoolThreads +
-                ", sessionStrategy=" + sessionStrategy +
-                ", dbPageSize=" + dbPageSize +
-                ", dbPageBufferSize=" + dbPageBufferSize +
-                ", dbPageMaxFileSize=" + dbPageMaxFileSize +
-                ", dbQueryCacheSize=" + dbQueryCacheSize +
-                ", bloomFilterEnabled=" + bloomFilterEnabled +
-                ", bloomFilterFalsePositiveRate=" + bloomFilterFalsePositiveRate +
-                ", bloomFilterExpectedInsertions=" + bloomFilterExpectedInsertions +
-                '}';
     }
 }
