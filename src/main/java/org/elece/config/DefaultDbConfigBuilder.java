@@ -24,6 +24,9 @@ public class DefaultDbConfigBuilder {
     private Integer dbPageBufferSize;
     private Integer dbPageMaxFileSize;
     private Integer dbQueryCacheSize;
+    private Boolean bloomFilterEnabled;
+    private Double bloomFilterFalsePositiveRate;
+    private Integer bloomFilterExpectedInsertions;
 
     private DefaultDbConfigBuilder() {
         // private constructor
@@ -133,6 +136,21 @@ public class DefaultDbConfigBuilder {
         return this;
     }
 
+    public DefaultDbConfigBuilder setBloomFilterEnabled(Boolean bloomFilterEnabled) {
+        this.bloomFilterEnabled = bloomFilterEnabled;
+        return this;
+    }
+
+    public DefaultDbConfigBuilder setBloomFilterFalsePositiveRate(Double bloomFilterFalsePositiveRate) {
+        this.bloomFilterFalsePositiveRate = bloomFilterFalsePositiveRate;
+        return this;
+    }
+
+    public DefaultDbConfigBuilder setBloomFilterExpectedInsertions(Integer bloomFilterExpectedInsertions) {
+        this.bloomFilterExpectedInsertions = bloomFilterExpectedInsertions;
+        return this;
+    }
+
     private int getPort() {
         return Objects.requireNonNullElse(port, 3000);
     }
@@ -213,11 +231,24 @@ public class DefaultDbConfigBuilder {
         return Objects.requireNonNullElse(dbQueryCacheSize, 50);
     }
 
+    private boolean getBloomFilterEnabled() {
+        return Objects.requireNonNullElse(bloomFilterEnabled, false);
+    }
+
+    private double getBloomFilterFalsePositiveRate() {
+        return Objects.requireNonNullElse(bloomFilterFalsePositiveRate, 0.01);
+    }
+
+    private int getBloomFilterExpectedInsertions() {
+        return Objects.requireNonNullElse(bloomFilterExpectedInsertions, 100000);
+    }
+
     public DefaultDbConfig build() {
         return new DefaultDbConfig(getPort(), getPoolCoreSize(), getPoolMaxSize(), getKeepAliveTime(),
                 getFileDescriptorAcquisitionSize(), getCloseTimeoutTime(), getAcquisitionTimeoutTime(), getTimeoutUnit(),
                 getbTreeDegree(), getbTreeGrowthNodeAllocationCount(), getBaseDbPath(), getBTreeMaxFileSize(),
                 getIndexStorageManagerStrategy(), getFileHandlerStrategy(), getFileHandlerPoolThreads(), getSessionStrategy(),
-                getDbPageSize(), getDbPageBufferSize(), getDbPageMaxFileSize(), getDbQueryCacheSize());
+                getDbPageSize(), getDbPageBufferSize(), getDbPageMaxFileSize(), getDbQueryCacheSize(),
+                getBloomFilterEnabled(), getBloomFilterFalsePositiveRate(), getBloomFilterExpectedInsertions());
     }
 }

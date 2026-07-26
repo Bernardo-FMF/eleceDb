@@ -7,6 +7,7 @@ import org.elece.db.schema.model.Table;
 import org.elece.exception.DbError;
 import org.elece.exception.SchemaException;
 import org.elece.exception.StorageException;
+import org.elece.index.filter.BloomFilter;
 import org.elece.memory.data.BinaryObjectFactory;
 import org.elece.memory.tree.node.DefaultNodeFactory;
 import org.elece.serializer.Serializer;
@@ -53,8 +54,8 @@ public class DefaultColumnIndexManagerProvider extends ColumnIndexManagerProvide
 
     private <K extends Comparable<K>, V extends Comparable<V>> IndexManager<K, ?> buildIndexManager(Table table,
                                                                                                     Column column) throws
-                                                                                                                   StorageException,
-                                                                                                                   SchemaException {
+            StorageException,
+            SchemaException {
         IndexId indexId = new IndexId(table.getId(), column.getId());
 
         Serializer<K> serializer = SerializerRegistry.getInstance().getSerializer(column.getSqlType().getType());
@@ -82,7 +83,7 @@ public class DefaultColumnIndexManagerProvider extends ColumnIndexManagerProvide
         BinaryObjectFactory<K> kBinaryObjectFactory = serializer.getBinaryObjectFactory(column);
         BinaryObjectFactory<V> vBinaryObjectFactory = clusterSerializer.getBinaryObjectFactory(clusterColumn);
 
-        return new TreeIndexManager<>(
+        IndexManager<K, V> indexManager = new TreeIndexManager<>(
                 indexId.asInt(),
                 indexStorageManagerFactory.create(indexId),
                 DefaultSessionFactory.getInstance(dbConfig),
@@ -92,5 +93,12 @@ public class DefaultColumnIndexManagerProvider extends ColumnIndexManagerProvide
                 new DefaultNodeFactory<>(kBinaryObjectFactory, vBinaryObjectFactory)
         );
 
+        if (dbConfig.isBloomFilterEnabled()) {
+            BloomFilter<K> bloomFilter = new BloomFilter<>(dbConfig.getBloomFilterExpectedInsertions(),
+                    dbConfig.getBloomFilterFalsePositiveRate(), kBinaryObjectFactory);
+            return new BloomFilteredIndexManager<>(indexId.asInt(), indexManager, bloomFilter);
+        }
+
+        return indexManager;
     }
 }

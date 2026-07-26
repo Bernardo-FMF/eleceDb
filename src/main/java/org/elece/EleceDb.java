@@ -28,6 +28,7 @@ public class EleceDb {
 
         clazzHandlers.put(Integer.class, Integer::parseInt);
         clazzHandlers.put(Long.class, Long::parseLong);
+        clazzHandlers.put(Double.class, Double::parseDouble);
         clazzHandlers.put(String.class, String::trim);
         clazzHandlers.put(Boolean.class, Boolean::parseBoolean);
 
@@ -38,7 +39,7 @@ public class EleceDb {
     }
 
     public static void main(String[] args) throws ServerException, InterruptedTaskException, StorageException,
-                                                  FileChannelException {
+            FileChannelException {
         DbConfig dbConfig = buildDbConfig();
         Server server = new DefaultServer(dbConfig);
 
@@ -152,6 +153,21 @@ public class EleceDb {
         Integer dbQueryCacheSize = getProperty("elece.db.dbQueryCacheSize", Integer.class);
         if (Objects.nonNull(dbQueryCacheSize)) {
             builder.setDbQueryCacheSize(dbQueryCacheSize);
+        }
+
+        Boolean bloomFilterEnabled = getProperty("elece.db.bloom.enabled", Boolean.class);
+        if (Objects.nonNull(bloomFilterEnabled)) {
+            builder.setBloomFilterEnabled(bloomFilterEnabled);
+        }
+
+        Double bloomFilterFalsePositiveRate = getProperty("elece.db.bloom.falsePositiveRate", Double.class);
+        if (Objects.nonNull(bloomFilterFalsePositiveRate)) {
+            builder.setBloomFilterFalsePositiveRate(bloomFilterFalsePositiveRate);
+        }
+
+        Integer bloomFilterExpectedInsertions = getProperty("elece.db.bloom.expectedInsertions", Integer.class);
+        if (Objects.nonNull(bloomFilterExpectedInsertions)) {
+            builder.setBloomFilterExpectedInsertions(bloomFilterExpectedInsertions);
         }
 
         return builder.build();

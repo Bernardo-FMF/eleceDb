@@ -89,7 +89,7 @@ class TreeIndexManagerTest {
 
     @Test
     void test_addIntegerIndexes() throws BTreeException, StorageException, SerializationException,
-                                                InterruptedTaskException, FileChannelException {
+            InterruptedTaskException, FileChannelException {
         IndexManager<Integer, Pointer> indexManager = new TreeIndexManager<>(1, indexStorageManager, DefaultSessionFactory.getInstance(integerDbConfig), integerDbConfig,
                 integerKBinaryObjectFactory, pointerVBinaryObjectFactory, new DefaultNodeFactory<>(integerKBinaryObjectFactory, pointerVBinaryObjectFactory));
 
@@ -109,7 +109,7 @@ class TreeIndexManagerTest {
 
     @Test
     void test_addStringIndexes() throws BTreeException, StorageException, SerializationException,
-                                               InterruptedTaskException, FileChannelException {
+            InterruptedTaskException, FileChannelException {
         IndexManager<String, Pointer> stringIndexManager = new TreeIndexManager<>(1, indexStorageManager, DefaultSessionFactory.getInstance(stringDbConfig), stringDbConfig,
                 stringKBinaryObjectFactory, pointerVBinaryObjectFactory, new DefaultNodeFactory<>(stringKBinaryObjectFactory, pointerVBinaryObjectFactory));
 
@@ -136,8 +136,36 @@ class TreeIndexManagerTest {
     }
 
     @Test
+    void test_stringPointLookupWithUnpaddedKey() throws BTreeException, StorageException, SerializationException,
+            InterruptedTaskException, FileChannelException {
+        IndexManager<String, Pointer> stringIndexManager = new TreeIndexManager<>(1, indexStorageManager, DefaultSessionFactory.getInstance(stringDbConfig), stringDbConfig,
+                stringKBinaryObjectFactory, pointerVBinaryObjectFactory, new DefaultNodeFactory<>(stringKBinaryObjectFactory, pointerVBinaryObjectFactory));
+
+        for (int index = 1; index <= 3; index++) {
+            String stringIndex = "index" + index;
+            Pointer pointer = new Pointer(Pointer.TYPE_DATA, Pointer.BYTES * (index - 1) + index, 1);
+            stringIndexManager.addIndex(stringIndex, pointer);
+
+            // Look up with the natural, unpadded key: the manager must normalize it to the stored padded form.
+            Optional<Pointer> retrievedPointer = stringIndexManager.getIndex(stringIndex);
+            Assertions.assertTrue(retrievedPointer.isPresent());
+            Assertions.assertEquals(pointer, retrievedPointer.get());
+
+            Pointer updatedPointer = new Pointer(Pointer.TYPE_DATA, Pointer.BYTES * (index - 1) + index + 10, 1);
+            stringIndexManager.updateIndex(stringIndex, updatedPointer);
+
+            Optional<Pointer> updatedRetrievedPointer = stringIndexManager.getIndex(stringIndex);
+            Assertions.assertTrue(updatedRetrievedPointer.isPresent());
+            Assertions.assertEquals(updatedPointer, updatedRetrievedPointer.get());
+
+            Assertions.assertTrue(stringIndexManager.removeIndex(stringIndex));
+            Assertions.assertTrue(stringIndexManager.getIndex(stringIndex).isEmpty());
+        }
+    }
+
+    @Test
     void test_updateIntegerIndexes() throws BTreeException, StorageException, SerializationException,
-                                                   InterruptedTaskException, FileChannelException {
+            InterruptedTaskException, FileChannelException {
         IndexManager<Integer, Pointer> indexManager = new TreeIndexManager<>(1, indexStorageManager, DefaultSessionFactory.getInstance(stringDbConfig), integerDbConfig,
                 integerKBinaryObjectFactory, pointerVBinaryObjectFactory, new DefaultNodeFactory<>(integerKBinaryObjectFactory, pointerVBinaryObjectFactory));
 
@@ -160,7 +188,7 @@ class TreeIndexManagerTest {
 
     @Test
     void test_purgeIndex() throws StorageException, BTreeException, SerializationException,
-                                         InterruptedTaskException, FileChannelException {
+            InterruptedTaskException, FileChannelException {
         IndexManager<String, Pointer> stringIndexManager = new TreeIndexManager<>(1, indexStorageManager, DefaultSessionFactory.getInstance(stringDbConfig), stringDbConfig,
                 stringKBinaryObjectFactory, pointerVBinaryObjectFactory, new DefaultNodeFactory<>(stringKBinaryObjectFactory, pointerVBinaryObjectFactory));
 

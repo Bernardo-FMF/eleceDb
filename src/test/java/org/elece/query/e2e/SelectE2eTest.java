@@ -22,9 +22,9 @@ class SelectE2eTest {
 
     @BeforeAll
     static void setUp() throws IOException, SchemaException, ParserException, AnalyzerException, TokenizerException,
-                               BTreeException, QueryException, SerializationException, InterruptedTaskException,
-                               StorageException, DeserializationException, ProtoException, FileChannelException,
-                               DbException {
+            BTreeException, QueryException, SerializationException, InterruptedTaskException,
+            StorageException, DeserializationException, ProtoException, FileChannelException,
+            DbException {
         dbConfig = DefaultDbConfigBuilder.builder()
                 .setPort(3000)
                 .setBaseDbPath(Files.createTempDirectory("Select_E2e_Test").toString())
@@ -47,12 +47,12 @@ class SelectE2eTest {
     @Test
     @Order(1)
     void test_selectWithPrimaryKeyWhere_allColumns() throws SchemaException, ParserException, BTreeException,
-                                                            QueryException,
-                                                            SerializationException, InterruptedTaskException,
-                                                            StorageException,
-                                                            DeserializationException, ProtoException,
-                                                            FileChannelException,
-                                                            DbException, AnalyzerException, TokenizerException {
+            QueryException,
+            SerializationException, InterruptedTaskException,
+            StorageException,
+            DeserializationException, ProtoException,
+            FileChannelException,
+            DbException, AnalyzerException, TokenizerException {
         Table table = dependencyContainer.getSchemaManager().getSchema().getTables().getFirst();
         planAndValidateQuery(
                 "SELECT * FROM users WHERE id = 1;",
@@ -71,12 +71,12 @@ class SelectE2eTest {
     @Test
     @Order(2)
     void test_selectWithPrimaryKeyWhere_partialColumns() throws SchemaException, ParserException, BTreeException,
-                                                                QueryException,
-                                                                SerializationException, InterruptedTaskException,
-                                                                StorageException,
-                                                                DeserializationException, ProtoException,
-                                                                FileChannelException,
-                                                                DbException, AnalyzerException, TokenizerException {
+            QueryException,
+            SerializationException, InterruptedTaskException,
+            StorageException,
+            DeserializationException, ProtoException,
+            FileChannelException,
+            DbException, AnalyzerException, TokenizerException {
         Table table = dependencyContainer.getSchemaManager().getSchema().getTables().getFirst();
         planAndValidateQuery(
                 "SELECT id, isAdmin FROM users WHERE id = 1;",
@@ -92,12 +92,12 @@ class SelectE2eTest {
     @Test
     @Order(3)
     void test_selectWithNonIndexedWhere_ascending() throws SchemaException, ParserException, BTreeException,
-                                                           QueryException,
-                                                           SerializationException, InterruptedTaskException,
-                                                           StorageException,
-                                                           DeserializationException, ProtoException,
-                                                           FileChannelException,
-                                                           DbException, AnalyzerException, TokenizerException {
+            QueryException,
+            SerializationException, InterruptedTaskException,
+            StorageException,
+            DeserializationException, ProtoException,
+            FileChannelException,
+            DbException, AnalyzerException, TokenizerException {
         Table table = dependencyContainer.getSchemaManager().getSchema().getTables().getFirst();
         planAndValidateQuery(
                 "SELECT id, name FROM users WHERE name = \"name1\" OR name = \"name2\" ORDER BY id ASC;",
@@ -114,12 +114,12 @@ class SelectE2eTest {
     @Test
     @Order(4)
     void test_selectWithNonIndexedWhere_descending() throws SchemaException, ParserException, BTreeException,
-                                                            QueryException,
-                                                            SerializationException, InterruptedTaskException,
-                                                            StorageException,
-                                                            DeserializationException, ProtoException,
-                                                            FileChannelException,
-                                                            DbException, AnalyzerException, TokenizerException {
+            QueryException,
+            SerializationException, InterruptedTaskException,
+            StorageException,
+            DeserializationException, ProtoException,
+            FileChannelException,
+            DbException, AnalyzerException, TokenizerException {
         Table table = dependencyContainer.getSchemaManager().getSchema().getTables().getFirst();
         planAndValidateQuery(
                 "SELECT id, name FROM users WHERE name = \"name1\" OR name = \"name2\" ORDER BY id DESC;",
@@ -136,12 +136,12 @@ class SelectE2eTest {
     @Test
     @Order(5)
     void test_selectWithoutWhere() throws SchemaException, ParserException, BTreeException,
-                                          QueryException,
-                                          SerializationException, InterruptedTaskException,
-                                          StorageException,
-                                          DeserializationException, ProtoException,
-                                          FileChannelException,
-                                          DbException, AnalyzerException, TokenizerException {
+            QueryException,
+            SerializationException, InterruptedTaskException,
+            StorageException,
+            DeserializationException, ProtoException,
+            FileChannelException,
+            DbException, AnalyzerException, TokenizerException {
         Table table = dependencyContainer.getSchemaManager().getSchema().getTables().getFirst();
         planAndValidateQuery(
                 "SELECT id, name FROM users;",
@@ -161,12 +161,12 @@ class SelectE2eTest {
     @Test
     @Order(6)
     void test_selectWithIndexedWhere() throws SchemaException, ParserException, BTreeException,
-                                              QueryException,
-                                              SerializationException, InterruptedTaskException,
-                                              StorageException,
-                                              DeserializationException, ProtoException,
-                                              FileChannelException,
-                                              DbException, AnalyzerException, TokenizerException {
+            QueryException,
+            SerializationException, InterruptedTaskException,
+            StorageException,
+            DeserializationException, ProtoException,
+            FileChannelException,
+            DbException, AnalyzerException, TokenizerException {
         Table table = dependencyContainer.getSchemaManager().getSchema().getTables().getFirst();
         planAndValidateQuery(
                 "SELECT id, name FROM users WHERE username != \"username1\";",
@@ -185,12 +185,12 @@ class SelectE2eTest {
     @Test
     @Order(7)
     void test_selectWithComplexVariableWhere() throws SchemaException, ParserException, BTreeException,
-                                                      QueryException,
-                                                      SerializationException, InterruptedTaskException,
-                                                      StorageException,
-                                                      DeserializationException, ProtoException,
-                                                      FileChannelException,
-                                                      DbException, AnalyzerException, TokenizerException {
+            QueryException,
+            SerializationException, InterruptedTaskException,
+            StorageException,
+            DeserializationException, ProtoException,
+            FileChannelException,
+            DbException, AnalyzerException, TokenizerException {
         Table table = dependencyContainer.getSchemaManager().getSchema().getTables().getFirst();
         planAndValidateQuery(
                 "SELECT id, name FROM users WHERE id = numberColumn;",
@@ -208,15 +208,15 @@ class SelectE2eTest {
     @Test
     @Order(8)
     void test_selectWithComplexVariableWhereWithMultipleBranches() throws SchemaException, ParserException,
-                                                                          BTreeException,
-                                                                          QueryException,
-                                                                          SerializationException,
-                                                                          InterruptedTaskException,
-                                                                          StorageException,
-                                                                          DeserializationException, ProtoException,
-                                                                          FileChannelException,
-                                                                          DbException, AnalyzerException,
-                                                                          TokenizerException {
+            BTreeException,
+            QueryException,
+            SerializationException,
+            InterruptedTaskException,
+            StorageException,
+            DeserializationException, ProtoException,
+            FileChannelException,
+            DbException, AnalyzerException,
+            TokenizerException {
         Table table = dependencyContainer.getSchemaManager().getSchema().getTables().getFirst();
         planAndValidateQuery(
                 "SELECT id, name FROM users WHERE id = numberColumn and isAdmin = true;",
@@ -229,17 +229,37 @@ class SelectE2eTest {
                 ));
     }
 
+    @Test
+    @Order(9)
+    void test_selectWithIndexedVarcharWhere_equality() throws SchemaException, ParserException, BTreeException,
+            QueryException, SerializationException,
+            InterruptedTaskException, StorageException,
+            DeserializationException, ProtoException,
+            FileChannelException, DbException, AnalyzerException,
+            TokenizerException {
+        Table table = dependencyContainer.getSchemaManager().getSchema().getTables().getFirst();
+        planAndValidateQuery(
+                "SELECT id, name FROM users WHERE username = \"username3\";",
+                List.of(
+                        SchemaSearcher.findColumn(table, "id").get(),
+                        SchemaSearcher.findColumn(table, "name").get()
+                ),
+                List.of(
+                        List.of(3, "name3")
+                ));
+    }
+
     private static void planAndValidateQuery(String query, List<Column> selectedColumns,
                                              List<List<Object>> expectedValues) throws SchemaException, ParserException,
-                                                                                       BTreeException, QueryException,
-                                                                                       SerializationException,
-                                                                                       InterruptedTaskException,
-                                                                                       StorageException,
-                                                                                       DeserializationException,
-                                                                                       ProtoException,
-                                                                                       FileChannelException,
-                                                                                       DbException, AnalyzerException,
-                                                                                       TokenizerException {
+            BTreeException, QueryException,
+            SerializationException,
+            InterruptedTaskException,
+            StorageException,
+            DeserializationException,
+            ProtoException,
+            FileChannelException,
+            DbException, AnalyzerException,
+            TokenizerException {
         SelectStatement selectStatement = (SelectStatement) E2eUtils.prepareStatement(dependencyContainer.getSchemaManager(), query);
         MockedClientInterface clientInterface = new MockedClientInterface();
         dependencyContainer.getQueryPlanner().plan(selectStatement, clientInterface);

@@ -46,7 +46,7 @@ public class TreeIndexManager<K extends Comparable<K>, V> extends AbstractTreeIn
 
     @Override
     public void addIndex(K identifier, V value) throws BTreeException, StorageException, SerializationException,
-                                                       InterruptedTaskException, FileChannelException {
+            InterruptedTaskException, FileChannelException {
         Session<K> session = this.sessionFactory.create(indexStorageManager, indexId, nodeFactory, keyValueSize);
         AbstractTreeNode<K> root = getRoot(session);
         new CreateIndexOperation<>(dbConfig, session, kBinaryObjectFactory, vBinaryObjectFactory, keyValueSize).addIndex(root, identifier, value);
@@ -54,30 +54,32 @@ public class TreeIndexManager<K extends Comparable<K>, V> extends AbstractTreeIn
 
     @Override
     public void updateIndex(K identifier, V value) throws BTreeException, StorageException, SerializationException,
-                                                          InterruptedTaskException, FileChannelException {
+            InterruptedTaskException, FileChannelException {
         Session<K> session = this.sessionFactory.create(indexStorageManager, indexId, nodeFactory, keyValueSize);
 
+        K normalizedIdentifier = normalizeKey(identifier);
         int bTreeDegree = dbConfig.getBTreeDegree();
-        LeafTreeNode<K, V> node = BTreeUtils.getResponsibleNode(indexStorageManager, getRoot(session), identifier, indexId, bTreeDegree, nodeFactory, vBinaryObjectFactory);
+        LeafTreeNode<K, V> node = BTreeUtils.getResponsibleNode(indexStorageManager, getRoot(session), normalizedIdentifier, indexId, bTreeDegree, nodeFactory, vBinaryObjectFactory);
         List<K> keyList = node.getKeyList(bTreeDegree);
-        if (!keyList.contains(identifier)) {
+        if (!keyList.contains(normalizedIdentifier)) {
             throw new BTreeException(DbError.INDEX_NOT_FOUND_ERROR, "Failed to find indexed key");
         }
 
-        node.setKeyValue(keyList.indexOf(identifier), new LeafTreeNode.KeyValue<>(identifier, value));
+        node.setKeyValue(keyList.indexOf(normalizedIdentifier), new LeafTreeNode.KeyValue<>(normalizedIdentifier, value));
         session.update(node);
         session.commit();
     }
 
     @Override
     public Optional<V> getIndex(K identifier) throws BTreeException, StorageException, InterruptedTaskException,
-                                                     FileChannelException {
+            FileChannelException {
         Session<K> session = this.sessionFactory.create(indexStorageManager, indexId, nodeFactory, keyValueSize);
 
+        K normalizedIdentifier = normalizeKey(identifier);
         int bTreeDegree = dbConfig.getBTreeDegree();
-        LeafTreeNode<K, V> baseTreeNode = BTreeUtils.getResponsibleNode(indexStorageManager, getRoot(session), identifier, indexId, bTreeDegree, nodeFactory, vBinaryObjectFactory);
+        LeafTreeNode<K, V> baseTreeNode = BTreeUtils.getResponsibleNode(indexStorageManager, getRoot(session), normalizedIdentifier, indexId, bTreeDegree, nodeFactory, vBinaryObjectFactory);
         for (LeafTreeNode.KeyValue<K, V> entry : baseTreeNode.getKeyValueList(bTreeDegree)) {
-            if (entry.key().compareTo(identifier) == 0) {
+            if (entry.key().compareTo(normalizedIdentifier) == 0) {
                 return Optional.of(entry.value());
             }
         }
@@ -87,10 +89,10 @@ public class TreeIndexManager<K extends Comparable<K>, V> extends AbstractTreeIn
 
     @Override
     public boolean removeIndex(K identifier) throws BTreeException, StorageException, SerializationException,
-                                                    InterruptedTaskException, FileChannelException {
+            InterruptedTaskException, FileChannelException {
         Session<K> session = this.sessionFactory.create(indexStorageManager, indexId, nodeFactory, keyValueSize);
         AbstractTreeNode<K> root = getRoot(session);
-        return new DeleteIndexOperation<>(dbConfig, session, vBinaryObjectFactory, nodeFactory, indexId).removeIndex(root, identifier);
+        return new DeleteIndexOperation<>(dbConfig, session, vBinaryObjectFactory, nodeFactory, indexId).removeIndex(root, normalizeKey(identifier));
     }
 
     @Override
@@ -102,8 +104,8 @@ public class TreeIndexManager<K extends Comparable<K>, V> extends AbstractTreeIn
 
     @Override
     public LockableIterator<LeafTreeNode.KeyValue<K, V>> getSortedIterator() throws StorageException,
-                                                                                    InterruptedTaskException,
-                                                                                    FileChannelException {
+            InterruptedTaskException,
+            FileChannelException {
         Session<K> session = this.sessionFactory.create(indexStorageManager, indexId, nodeFactory, keyValueSize);
 
         return new LockableIterator<>() {
@@ -163,8 +165,25 @@ public class TreeIndexManager<K extends Comparable<K>, V> extends AbstractTreeIn
         return !keyList.isEmpty() ? Optional.of(keyList.getLast()) : Optional.empty();
     }
 
+    /**
+     * Normalizes a lookup key to the exact representation stored in the tree. Keys are persisted through
+     * {@link #kBinaryObjectFactory} (for example strings are padded to the column width), whereas a key coming from a
+     * query is the raw literal. Round tripping it through the same factory reproduces the stored form so that navigation
+     * and equality comparisons match; for fixed width types (such as integers) this is an identity transformation.
+     * <p>
+     * If the key cannot be encoded to the column's stored form it is returned unchanged, which preserves the previous
+     * behaviour for such keys (they simply will not match anything stored).
+     */
+    private K normalizeKey(K identifier) {
+        try {
+            return kBinaryObjectFactory.create(identifier).asObject();
+        } catch (BTreeException | SerializationException | RuntimeDbException exception) {
+            return identifier;
+        }
+    }
+
     private AbstractTreeNode<K> getRoot(Session<K> session) throws StorageException, InterruptedTaskException,
-                                                                   FileChannelException {
+            FileChannelException {
         Optional<AbstractTreeNode<K>> optionalRoot = session.getRoot();
         if (optionalRoot.isPresent()) {
             return optionalRoot.get();
@@ -180,8 +199,8 @@ public class TreeIndexManager<K extends Comparable<K>, V> extends AbstractTreeIn
     }
 
     protected LeafTreeNode<K, V> getFarLeftLeaf(Session<K> session, AbstractTreeNode<K> root) throws StorageException,
-                                                                                                     InterruptedTaskException,
-                                                                                                     FileChannelException {
+            InterruptedTaskException,
+            FileChannelException {
         if (root.isLeaf()) {
             return (LeafTreeNode<K, V>) root;
         }
@@ -196,8 +215,8 @@ public class TreeIndexManager<K extends Comparable<K>, V> extends AbstractTreeIn
     }
 
     protected LeafTreeNode<K, V> getFarRightLeaf(Session<K> session, AbstractTreeNode<K> root) throws StorageException,
-                                                                                                      InterruptedTaskException,
-                                                                                                      FileChannelException {
+            InterruptedTaskException,
+            FileChannelException {
         if (root.isLeaf()) {
             return (LeafTreeNode<K, V>) root;
         }
@@ -214,38 +233,38 @@ public class TreeIndexManager<K extends Comparable<K>, V> extends AbstractTreeIn
 
     @Override
     public Iterator<V> getGreaterThan(K k, Set<K> kExclusions, Order order) throws StorageException, BTreeException,
-                                                                                   InterruptedTaskException,
-                                                                                   FileChannelException {
+            InterruptedTaskException,
+            FileChannelException {
         return new QueryIterator(order, key -> key.compareTo(k) > 0, k, Symbol.GT, kExclusions);
     }
 
     @Override
     public Iterator<V> getGreaterThanEqual(K k, Set<K> kExclusions, Order order) throws StorageException,
-                                                                                        BTreeException,
-                                                                                        InterruptedTaskException,
-                                                                                        FileChannelException {
+            BTreeException,
+            InterruptedTaskException,
+            FileChannelException {
         return new QueryIterator(order, key -> key.compareTo(k) >= 0, k, Symbol.GT_EQ, kExclusions);
     }
 
     @Override
     public Iterator<V> getLessThan(K k, Set<K> kExclusions, Order order) throws StorageException, BTreeException,
-                                                                                InterruptedTaskException,
-                                                                                FileChannelException {
+            InterruptedTaskException,
+            FileChannelException {
         return new QueryIterator(order, key -> key.compareTo(k) < 0, k, Symbol.LT, kExclusions);
     }
 
     @Override
     public Iterator<V> getLessThanEqual(K k, Set<K> kExclusions, Order order) throws StorageException, BTreeException,
-                                                                                     InterruptedTaskException,
-                                                                                     FileChannelException {
+            InterruptedTaskException,
+            FileChannelException {
         return new QueryIterator(order, key -> key.compareTo(k) <= 0, k, Symbol.LT_EQ, kExclusions);
     }
 
     @Override
     public Iterator<V> getBetweenRange(K k1, K k2, Set<K> kExclusions, Order order) throws StorageException,
-                                                                                           BTreeException,
-                                                                                           InterruptedTaskException,
-                                                                                           FileChannelException {
+            BTreeException,
+            InterruptedTaskException,
+            FileChannelException {
         return new QueryIterator(order, key -> key.compareTo(k1) >= 0 && key.compareTo(k2) <= 0, k1, null, kExclusions);
     }
 
@@ -264,7 +283,7 @@ public class TreeIndexManager<K extends Comparable<K>, V> extends AbstractTreeIn
 
         public QueryIterator(Order order, Function<K, Boolean> comparisonFunction, K key, Symbol operation,
                              Set<K> kExclusions) throws StorageException, BTreeException, InterruptedTaskException,
-                                                        FileChannelException {
+                FileChannelException {
             this.order = order;
             this.comparisonFunction = comparisonFunction;
             this.key = key;
@@ -277,8 +296,8 @@ public class TreeIndexManager<K extends Comparable<K>, V> extends AbstractTreeIn
         }
 
         private void locateInitialTargetNode() throws
-                                               StorageException, BTreeException, InterruptedTaskException,
-                                               FileChannelException {
+                StorageException, BTreeException, InterruptedTaskException,
+                FileChannelException {
             if (order == Order.ASC) {
                 if (operation == Symbol.LT || operation == Symbol.LT_EQ) {
                     targetTreeNode = getFarLeftLeaf(session, getRoot(session));

@@ -23,6 +23,9 @@ public class DefaultDbConfig implements DbConfig {
     private final int dbPageBufferSize;
     private final int dbPageMaxFileSize;
     private final int dbQueryCacheSize;
+    private final boolean bloomFilterEnabled;
+    private final double bloomFilterFalsePositiveRate;
+    private final int bloomFilterExpectedInsertions;
 
     public DefaultDbConfig(int port, int poolCoreSize, int poolMaxSize, long keepAliveTime,
                            int fileDescriptorAcquisitionSize,
@@ -32,7 +35,8 @@ public class DefaultDbConfig implements DbConfig {
                            FileHandlerStrategy fileHandlerStrategy,
                            int fileHandlerPoolThreads, SessionStrategy sessionStrategy, int dbPageSize,
                            int dbPageBufferSize,
-                           int dbPageMaxFileSize, int dbQueryCacheSize) {
+                           int dbPageMaxFileSize, int dbQueryCacheSize, boolean bloomFilterEnabled,
+                           double bloomFilterFalsePositiveRate, int bloomFilterExpectedInsertions) {
         this.port = port;
         this.poolCoreSize = poolCoreSize;
         this.poolMaxSize = poolMaxSize;
@@ -53,6 +57,9 @@ public class DefaultDbConfig implements DbConfig {
         this.dbPageBufferSize = dbPageBufferSize;
         this.dbPageMaxFileSize = dbPageMaxFileSize;
         this.dbQueryCacheSize = dbQueryCacheSize;
+        this.bloomFilterEnabled = bloomFilterEnabled;
+        this.bloomFilterFalsePositiveRate = bloomFilterFalsePositiveRate;
+        this.bloomFilterExpectedInsertions = bloomFilterExpectedInsertions;
     }
 
     @Override
@@ -156,6 +163,21 @@ public class DefaultDbConfig implements DbConfig {
     }
 
     @Override
+    public boolean isBloomFilterEnabled() {
+        return bloomFilterEnabled;
+    }
+
+    @Override
+    public double getBloomFilterFalsePositiveRate() {
+        return bloomFilterFalsePositiveRate;
+    }
+
+    @Override
+    public int getBloomFilterExpectedInsertions() {
+        return bloomFilterExpectedInsertions;
+    }
+
+    @Override
     public String toString() {
         return "DefaultDbConfig{" +
                 "port=" + port +
@@ -178,6 +200,9 @@ public class DefaultDbConfig implements DbConfig {
                 ", dbPageBufferSize=" + dbPageBufferSize +
                 ", dbPageMaxFileSize=" + dbPageMaxFileSize +
                 ", dbQueryCacheSize=" + dbQueryCacheSize +
+                ", bloomFilterEnabled=" + bloomFilterEnabled +
+                ", bloomFilterFalsePositiveRate=" + bloomFilterFalsePositiveRate +
+                ", bloomFilterExpectedInsertions=" + bloomFilterExpectedInsertions +
                 '}';
     }
 }

@@ -45,6 +45,12 @@ public interface DbConfig {
 
     int getDbQueryCacheSize();
 
+    boolean isBloomFilterEnabled();
+
+    double getBloomFilterFalsePositiveRate();
+
+    int getBloomFilterExpectedInsertions();
+
     enum SessionStrategy {
         COMMITTABLE, IMMEDIATE
     }
